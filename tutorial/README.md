@@ -5,7 +5,7 @@ How to run:
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.5
+export DEBEZIUM_VERSION=0.6
 docker-compose up
 
 # Start MySQL connector
