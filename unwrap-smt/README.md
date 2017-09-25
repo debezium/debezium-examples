@@ -83,7 +83,7 @@ docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "se
 Insert a new record into MySQL
 ```shell
 docker-compose exec mysql bash -c 'mysql -u $MYSQL_USER  -p$MYSQL_PASSWORD inventory'
-mysql> insert into customers values(default, 'Reinhard', 'Scheer', 'cic@hsf.de');
+mysql> insert into customers values(default, 'John', 'Doe', 'john.doe@example.com');
 Query OK, 1 row affected (0.02 sec)
 ```
 
@@ -93,14 +93,14 @@ docker-compose exec -postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "s
  last_name |  id  | first_name |         email         
 -----------+------+------------+-----------------------
 ...
-Scheer    | 1005 | Reinhard   | cic@hsf.de
+Doe        | 1005 | John       | john.doe@example.com
 (5 rows)
 ```
 
 ### Record update
 Update a record in MySQL
 ```shell
-mysql> update customers set first_name='Franz', last_name='von Hipper' where last_name='Scheer';
+mysql> update customers set first_name='Jane', last_name='Roe' where last_name='Doe';
 Query OK, 1 row affected (0.02 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 ```
@@ -111,7 +111,7 @@ docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "se
  last_name |  id  | first_name |         email         
 -----------+------+------------+-----------------------
 ...
-von Hipper | 1005 | Franz      | cic@hsf.de
+Roe        | 1005 | Jane       | john.doe@example.com
 (5 rows)
 ```
 
