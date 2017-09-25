@@ -17,8 +17,7 @@ This setup is going to demonstrate how to receive events from MySQL database and
           +---------------v------------------+
           |                                  |
           |           Kafka Connect          |
-          |  (Debezium, JDBC, ElasticSearch  |
-          |           connectors)            |
+          |  (Debezium, JDBC connectors)     |
           |                                  |
           +---+-----------+------------------+
                           |
@@ -33,7 +32,7 @@ This setup is going to demonstrate how to receive events from MySQL database and
 
 
 ```
-We are using a Docker Compose to deploy following components
+We are using Docker Compose to deploy following components
 * MySQL
 * Kafka
   * ZooKeeper
@@ -46,7 +45,7 @@ How to run:
 
 ```shell
 # Start the application
-DEBEZIUM_VERSION=0.6
+export DEBEZIUM_VERSION=0.6
 docker-compose up
 
 # Start PostgreSQL connector
