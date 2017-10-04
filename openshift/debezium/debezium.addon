@@ -1,0 +1,12 @@
+# Name: debezium
+# Description: Deploys a Kafka Cluster and a Connect cluster with Debezium
+# Required-Vars: DEBEZIUM_VERSION,PROJECT
+
+oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-statefulsets/resources/openshift-template.yaml -n #{PROJECT}
+oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/resources/openshift-template.yaml -n #{PROJECT}
+oc create -f debezium.yaml -n #{PROJECT}
+
+oc new-app -p DEBEZIUM_VERSION=#{DEBEZIUM_VERSION} -n #{PROJECT} debezium
+oc new-app -n #{PROJECT} barnabas
+oc new-app -p IMAGE_REPO_NAME=#{PROJECT} -p IMAGE_NAME=debezium -n #{PROJECT} barnabas-connect
+oc set image-lookup -n #{PROJECT} deploy/kafka-connect
