@@ -15,7 +15,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
   postgres:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: debezium/postgres
     ports:
      - 5432:5432
     environment:
