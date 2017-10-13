@@ -12,30 +12,40 @@ Albeit Debezium comes with its own set of images we are going to re-use Kafka br
 One of the componnets of the project is a [Kafka as a Service](https://github.com/EnMasseProject/barnabas/).
 It consists of entreprise grade of configuration files and images that brings Kafka on OpenShift.
 
-First we install Kafka broker, Kafka Connect templates and Debezium templates into our OpenShift project
+First we install Kafka broker and Kafka Connect templates into our OpenShift project
 ```
 oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-statefulsets/resources/openshift-template.yaml
 oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/resources/openshift-template.yaml
-oc create -f debezium/debezium.yaml
+oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/s2i/resources/openshift-template.yaml
 ```
 
 Next we will create a Kafka Connect image with deployed Debezium connectors and deploy a Kafka broker cluster and Kafka Connect cluster
 ```
-# Build Debezium image
-oc new-app -p DEBEZIUM_VERSION=0.6.0 debezium
+# Build a Debezium image
+export DEBEZIUM_VERSION=0.6.0
+oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION barnabas-connect-s2i
+mkdir -p plugins && cd plugins &&\
+for PLUGIN in {mongodb,mysql,postgres}; do \
+    curl http://central.maven.org/maven2/io/debezium/debezium-connector-$PLUGIN/$DEBEZIUM_VERSION/debezium-connector-$PLUGIN-$DEBEZIUM_VERSION-plugin.tar.gz | tar xz; \
+done &&\
+oc start-build debezium --from-dir=. --follow &&\
+cd .. && rm -rf plugins
 
 # Deploy Kafka broker
 oc new-app barnabas
 
 # Deploy Kafka Connect cluster and enable Deloyment object to find the Debezium image from image stream
-oc new-app -p IMAGE_REPO_NAME=$(oc project -q) -p IMAGE_NAME=debezium barnabas-connect
+oc new-app -p IMAGE_REPO_NAME=$(oc project -q) -p IMAGE_NAME=debezium -p IMAGE_TAG=$DEBEZIUM_VERSION barnabas-connect
 oc set image-lookup deploy/kafka-connect
+oc delete rs,pods -l name=kafka-connect --now
 ```
 After a while all parts should be up and running
 ```
 oc get pods 
 NAME                             READY     STATUS      RESTARTS   AGE
+debezium-1-build                 0/1       Error       0          17
 debezium-1-build                 0/1       Completed   0          17s
+debezium-2-build                 0/1       Completed   0          17s
 kafka-0                          1/1       Running     1          19s
 kafka-1                          1/1       Running     0          14s
 kafka-2                          1/1       Running     0          10s
@@ -67,7 +77,7 @@ mysql-1-deploy                   1/1       Running     0          4s
 
 Then we are going to register Debezium MySQL connector to run against the deployed MySQL instance.
 ```
-cat register.json | oc exec -it kafka-0 -- curl -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://kafka-connect:8083/connectors -d @-
+cat register.json | oc exec -i kafka-0 -- curl -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://kafka-connect:8083/connectors -d @-
 ```
 
 Kafka Connect's log file should contain messages regarding execution of initial snapshot
@@ -75,7 +85,7 @@ Kafka Connect's log file should contain messages regarding execution of initial 
 oc logs $(oc get pods -o name -l name=kafka-connect)
 ```
 
-Read customer table CDC messages from a kafka topic
+Read customer table CDC messages from a Kafka topic
 ```
 oc exec -it kafka-0 -- /opt/kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
@@ -102,5 +112,5 @@ minishift addon install tutorial-database
 Deploy Kafka broker, kafka Connect with Debezium and MySQL example database
 ```
 minishift addon apply -a DEBEZIUM_VERSION=0.6.0 -a PROJECT=myproject debezium
-minishift addon apply -a DEBEZIUM_TAG=0.6 -a PROJECT=myproject tutorial-database
+minishift addon apply -a DEBEZIUM_TAG=0.6 -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject tutorial-database
 ```
