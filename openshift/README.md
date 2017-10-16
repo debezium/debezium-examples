@@ -10,7 +10,7 @@ Pre-requisities
 ## Debezium Deployment
 Albeit Debezium comes with its own set of images we are going to re-use Kafka broker and Kafka Connect images that are built and delivered as a part of project [EnMasse](https://github.com/EnMasseProject/).
 One of the componnets of the project is a [Kafka as a Service](https://github.com/EnMasseProject/barnabas/).
-It consists of entreprise grade of configuration files and images that brings Kafka on OpenShift.
+It consists of enterprise grade of configuration files and images that brings Kafka on OpenShift.
 
 First we install Kafka broker and Kafka Connect templates into our OpenShift project
 ```
