@@ -14,21 +14,21 @@ services:
      - zookeeper
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
-  mysql:
-    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+  mongodb:
+    image: debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: mongodb
     ports:
-     - 3306:3306
+     - 27017:27017
     environment:
-     - MYSQL_ROOT_PASSWORD=debezium
-     - MYSQL_USER=mysqluser
-     - MYSQL_PASSWORD=mysqlpw
+     - MONGODB_USER=debezium
+     - MONGODB_PASSWORD=dbz
   connect:
     image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     links:
      - kafka
-     - mysql
+     - mongodb
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
