@@ -4,18 +4,14 @@
 
 # Install templates
 oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-statefulsets/resources/openshift-template.yaml -n #{PROJECT}
-oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/resources/openshift-template.yaml -n #{PROJECT}
 oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/s2i/resources/openshift-template.yaml -n #{PROJECT}
 
-# Deploy Debezium build config
-oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=#{DEBEZIUM_VERSION} -n #{PROJECT} barnabas-connect-s2i
-
 # Deploy Kafka components
-oc new-app -n #{PROJECT} barnabas
-oc new-app -p IMAGE_REPO_NAME=#{PROJECT} -p IMAGE_NAME=debezium -p IMAGE_TAG=#{DEBEZIUM_VERSION} -n #{PROJECT} barnabas-connect
-oc set image-lookup -n #{PROJECT} deploy/kafka-connect
+oc new-app -p ZOOKEEPER_NODE_COUNT=1 -n #{PROJECT} barnabas
+
+# Deploy Debezium build config and deployment config
+oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=#{DEBEZIUM_VERSION} -n #{PROJECT} barnabas-connect-s2i
 
 # Build a Connect image with Debezium
 sleep 10
 oc start-build debezium --from-archive http://central.maven.org/maven2/io/debezium/debezium-connector-#{DEBEZIUM_PLUGIN}/#{DEBEZIUM_VERSION}/debezium-connector-#{DEBEZIUM_PLUGIN}-#{DEBEZIUM_VERSION}-plugin.tar.gz -n #{PROJECT} --follow
-oc delete rs,pods -n #{PROJECT} -l name=kafka-connect --now
