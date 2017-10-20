@@ -1,0 +1,6 @@
+# Name: tutorial-database
+# Description: Deploys pre-populated 
+# Required-Vars: DEBEZIUM_TAG,PROJECT
+
+oc new-app -n #{PROJECT} --name=mysql debezium/example-mysql:#{DEBEZIUM_TAG}
+oc env dc/mysql -n #{PROJECT} MYSQL_ROOT_PASSWORD=debezium  MYSQL_USER=mysqluser MYSQL_PASSWORD=mysqlpw
