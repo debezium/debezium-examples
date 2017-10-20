@@ -15,12 +15,14 @@ It consists of enterprise grade of configuration files and images that brings Ka
 First we install Kafka broker and Kafka Connect templates into our OpenShift project
 ```
 oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-statefulsets/resources/openshift-template.yaml
-oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/resources/openshift-template.yaml
 oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/s2i/resources/openshift-template.yaml
 ```
 
 Next we will create a Kafka Connect image with deployed Debezium connectors and deploy a Kafka broker cluster and Kafka Connect cluster
 ```
+# Deploy a Kafka broker
+oc new-app -p ZOOKEEPER_NODE_COUNT=1 barnabas
+
 # Build a Debezium image
 export DEBEZIUM_VERSION=0.6.0
 oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION barnabas-connect-s2i
@@ -30,27 +32,19 @@ for PLUGIN in {mongodb,mysql,postgres}; do \
 done &&\
 oc start-build debezium --from-dir=. --follow &&\
 cd .. && rm -rf plugins
-
-# Deploy Kafka broker
-oc new-app barnabas
-
-# Deploy Kafka Connect cluster and enable Deloyment object to find the Debezium image from image stream
-oc new-app -p IMAGE_REPO_NAME=$(oc project -q) -p IMAGE_NAME=debezium -p IMAGE_TAG=$DEBEZIUM_VERSION barnabas-connect
-oc set image-lookup deploy/kafka-connect
-oc delete rs,pods -l name=kafka-connect --now
 ```
+
 After a while all parts should be up and running
 ```
-oc get pods 
-NAME                             READY     STATUS      RESTARTS   AGE
-debezium-1-build                 0/1       Error       0          17
-debezium-1-build                 0/1       Completed   0          17s
-debezium-2-build                 0/1       Completed   0          17s
-kafka-0                          1/1       Running     1          19s
-kafka-1                          1/1       Running     0          14s
-kafka-2                          1/1       Running     0          10s
-kafka-connect-2447403008-qg56n   1/1       Running     0          16s
-zookeeper-0                      1/1       Running     0          19s
+oc get pods
+NAME                    READY     STATUS      RESTARTS   AGE
+debezium-1-build        0/1       Completed   0          3m
+debezium-2-build        0/1       Completed   0          3m
+kafka-0                 1/1       Running     2          3m
+kafka-1                 1/1       Running     0          2m
+kafka-2                 1/1       Running     0          2m
+kafka-connect-3-3v4n9   1/1       Running     1          3m
+zookeeper-0             1/1       Running     0          3m
 ```
 
 ## Verify Deployment
@@ -111,6 +105,6 @@ minishift addon install tutorial-database
 
 Deploy Kafka broker, kafka Connect with Debezium and MySQL example database
 ```
-minishift addon apply -a DEBEZIUM_VERSION=0.6.0 -a PROJECT=myproject debezium
-minishift addon apply -a DEBEZIUM_TAG=0.6 -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject tutorial-database
+minishift addon apply -a DEBEZIUM_VERSION=0.6.0 -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
+minishift addon apply -a DEBEZIUM_TAG=0.6 -a PROJECT=myproject tutorial-database
 ```
