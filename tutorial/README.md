@@ -87,7 +87,7 @@ To use [Avro-style messages](http://debezium.io/docs/configuration/avro/) instea
 follow the instructions for MySQL above,
 but use the _docker-compose-mysql-avro.yaml_ configuration file instead.
 This Compose file configures the Connect service to use the Avro (de-)serializers and starts one more service,
-the Confluent service registry.
+the Confluent schema registry.
 Using Avro on conjunction with the service registry allows for much more compact messages.
 
 You can access the first version of the schema for `customers` values like so:
