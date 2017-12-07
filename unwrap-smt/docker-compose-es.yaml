@@ -21,15 +21,7 @@ services:
     environment:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
-     - MYSQL_PASSWORD=mysqlpw 
-  postgres:
-    image: debezium/postgres:9.6
-    ports:
-     - "5432:5432"
-    environment:
-     - POSTGRES_USER=postgresuser
-     - POSTGRES_PASSWORD=postgrespw
-     - POSTGRES_DB=inventory
+     - MYSQL_PASSWORD=mysqlpw
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
     ports:
@@ -41,14 +33,13 @@ services:
   connect:
     image: debezium/connect-jdbc:${DEBEZIUM_VERSION}
     build:
-      context: debezium-jdbc
+      context: debezium-jdbc-es
     ports:
      - 8083:8083
      - 5005:5005
     links:
      - kafka
      - mysql
-     - postgres
      - elastic
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
