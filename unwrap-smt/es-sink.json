@@ -10,6 +10,6 @@
         "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
         "transforms.key.field": "id",
         "key.ignore": "false",
-        "type.name": "kafka-connect"
+        "type.name": "customer"
     }
 }

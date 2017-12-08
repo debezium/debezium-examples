@@ -1,6 +1,6 @@
 # Debezium Unwrap SMT Demo
 
-This setup is going to demonstrate how to receive events from MySQL database and stream them down to PostreSQL database and/or Elasticsearch engine using [Debezium Event Flattening SMT](http://debezium.io/docs/configuration/event-flattening/).
+This setup is going to demonstrate how to receive events from MySQL database and stream them down to PostgreSQL database and/or Elasticsearch server using [Debezium Event Flattening SMT](http://debezium.io/docs/configuration/event-flattening/).
 
 ## Table of Contents
 * [JDBC Sink](#jdbc-sink)
@@ -219,7 +219,7 @@ curl 'http://localhost:9200/customers/_search?pretty'
     "hits" : [
       {
         "_index" : "customers",
-        "_type" : "kafka-connect",
+        "_type" : "customer",
         "_id" : "1001",
         "_score" : 1.0,
         "_source" : {
@@ -231,7 +231,7 @@ curl 'http://localhost:9200/customers/_search?pretty'
       },
       {
         "_index" : "customers",
-        "_type" : "kafka-connect",
+        "_type" : "customer",
         "_id" : "1004",
         "_score" : 1.0,
         "_source" : {
@@ -243,7 +243,7 @@ curl 'http://localhost:9200/customers/_search?pretty'
       },
       {
         "_index" : "customers",
-        "_type" : "kafka-connect",
+        "_type" : "customer",
         "_id" : "1002",
         "_score" : 1.0,
         "_source" : {
@@ -255,7 +255,7 @@ curl 'http://localhost:9200/customers/_search?pretty'
       },
       {
         "_index" : "customers",
-        "_type" : "kafka-connect",
+        "_type" : "customer",
         "_id" : "1003",
         "_score" : 1.0,
         "_source" : {
@@ -284,7 +284,7 @@ curl 'http://localhost:9200/customers/_search?pretty'
 ...
       {
         "_index" : "customers",
-        "_type" : "kafka-connect",
+        "_type" : "customer",
         "_id" : "1005",
         "_score" : 1.0,
         "_source" : {
@@ -311,7 +311,7 @@ curl 'http://localhost:9200/customers/_search?pretty'
 ...
       {
         "_index" : "customers",
-        "_type" : "kafka-connect",
+        "_type" : "customer",
         "_id" : "1005",
         "_score" : 1.0,
         "_source" : {
