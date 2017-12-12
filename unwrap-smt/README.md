@@ -1,8 +1,9 @@
 # Debezium Unwrap SMT Demo
 
-This setup is going to demonstrate how to receive events from MySQL database and stream them down to PostgreSQL database and/or Elasticsearch server using [Debezium Event Flattening SMT](http://debezium.io/docs/configuration/event-flattening/).
+This setup is going to demonstrate how to receive events from MySQL database and stream them down to a PostgreSQL database and/or an Elasticsearch server using the [Debezium Event Flattening SMT](http://debezium.io/docs/configuration/event-flattening/).
 
 ## Table of Contents
+
 * [JDBC Sink](#jdbc-sink)
   * [Topology](#topology)
   * [Usage](#usage)
@@ -18,6 +19,7 @@ This setup is going to demonstrate how to receive events from MySQL database and
     * [Usage](#usage-2)
 
 ## JDBC Sink
+
 ### Topology
 
 ```
@@ -56,6 +58,7 @@ We are using Docker Compose to deploy following components
 * PostgreSQL
 
 ### Usage
+
 How to run:
 
 ```shell
@@ -70,7 +73,8 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @source.json
 ```
 
-Check content of MySQL database
+Check contents of the MySQL database:
+
 ```shell
 docker-compose -f docker-compose-jdbc.yaml exec mysql bash -c 'mysql -u $MYSQL_USER  -p$MYSQL_PASSWORD inventory -e "select * from customers"'
 +------+------------+-----------+-----------------------+
@@ -83,7 +87,8 @@ docker-compose -f docker-compose-jdbc.yaml exec mysql bash -c 'mysql -u $MYSQL_U
 +------+------------+-----------+-----------------------+
 ```
 
-Verify that PostgreSQL database has the same content
+Verify that the PostgreSQL database has the same content:
+
 ```shell
 docker-compose -f docker-compose-jdbc.yaml exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
  last_name |  id  | first_name |         email         
@@ -94,15 +99,18 @@ docker-compose -f docker-compose-jdbc.yaml exec postgres bash -c 'psql -U $POSTG
  Kretchmar | 1004 | Anne       | annek@noanswer.org
 (4 rows)
 ```
+
 #### New record
-Insert a new record into MySQL
+
+Insert a new record into MySQL;
 ```shell
 docker-compose -f docker-compose-jdbc.yaml exec mysql bash -c 'mysql -u $MYSQL_USER  -p$MYSQL_PASSWORD inventory'
 mysql> insert into customers values(default, 'John', 'Doe', 'john.doe@example.com');
 Query OK, 1 row affected (0.02 sec)
 ```
 
-PostgreSQL contains a new record
+Verify that PostgreSQL contains the new record:
+
 ```shell
 docker-compose -f docker-compose-jdbc.yaml exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
  last_name |  id  | first_name |         email         
@@ -113,14 +121,17 @@ Doe        | 1005 | John       | john.doe@example.com
 ```
 
 #### Record update
-Update a record in MySQL
+
+Update a record in MySQL:
+
 ```shell
 mysql> update customers set first_name='Jane', last_name='Roe' where last_name='Doe';
 Query OK, 1 row affected (0.02 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 ```
 
-Verify that record in PostgreSQL is updated
+Verify that record in PostgreSQL is updated:
+
 ```shell
 docker-compose-f docker-compose-jdbc.yaml  exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
  last_name |  id  | first_name |         email         
@@ -130,13 +141,15 @@ Roe        | 1005 | Jane       | john.doe@example.com
 (5 rows)
 ```
 
-End application
+End application:
+
 ```shell
 # Shut down the cluster
 docker-compose -f docker-compose-jdbc.yaml down
 ```
 
 ## Elasticsearch Sink
+
 ### Topology
 
 ```
@@ -166,7 +179,8 @@ docker-compose -f docker-compose-jdbc.yaml down
 
 
 ```
-We are using Docker Compose to deploy following components
+We are using Docker Compose to deploy the following components:
+
 * MySQL
 * Kafka
   * ZooKeeper
@@ -175,21 +189,27 @@ We are using Docker Compose to deploy following components
 * Elasticsearch
 
 ### Usage
+
 How to run:
 
 ```shell
 # Start the application
+
 export DEBEZIUM_VERSION=0.6
 docker-compose -f docker-compose-es.yaml up
 
 # Start Elasticsearch connector
+
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @es-sink.json
 
 # Start MySQL connector
+
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @source.json
+
 ```
 
-Check content of MySQL database
+Check contents of the MySQL database:
+
 ```shell
 docker-compose -f docker-compose-es.yaml exec mysql bash -c 'mysql -u $MYSQL_USER  -p$MYSQL_PASSWORD inventory -e "select * from customers"'
 +------+------------+-----------+-----------------------+
@@ -202,7 +222,8 @@ docker-compose -f docker-compose-es.yaml exec mysql bash -c 'mysql -u $MYSQL_USE
 +------+------------+-----------+-----------------------+
 ```
 
-Verify that Elasticsearch has the same content
+Verify that Elasticsearch has the same content:
+
 ```shell
 curl 'http://localhost:9200/customers/_search?pretty'
 {
@@ -271,14 +292,17 @@ curl 'http://localhost:9200/customers/_search?pretty'
 
 ```
 #### New record
-Insert a new record into MySQL
+
+Insert a new record into MySQL:
+
 ```shell
 docker-compose -f docker-compose-es.yaml exec mysql bash -c 'mysql -u $MYSQL_USER  -p$MYSQL_PASSWORD inventory'
 mysql> insert into customers values(default, 'John', 'Doe', 'john.doe@example.com');
 Query OK, 1 row affected (0.02 sec)
 ```
 
-Elasticsearch contains a new record
+Check that Elasticsearch contains the new record:
+
 ```shell
 curl 'http://localhost:9200/customers/_search?pretty'
 ...
@@ -298,14 +322,17 @@ curl 'http://localhost:9200/customers/_search?pretty'
 ```
 
 #### Record update
-Update a record in MySQL
+
+Update a record in MySQL:
+
 ```shell
 mysql> update customers set first_name='Jane', last_name='Roe' where last_name='Doe';
 Query OK, 1 row affected (0.02 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 ```
 
-Verify that record in Elasticsearch is updated
+Verify that record in Elasticsearch is updated:
+
 ```shell
 curl 'http://localhost:9200/customers/_search?pretty'
 ...
@@ -324,13 +351,15 @@ curl 'http://localhost:9200/customers/_search?pretty'
 ...
 ```
 
-End application
+End the application:
+
 ```shell
 # Shut down the cluster
 docker-compose -f docker-compose-es.yaml down
 ```
 
 ## Two Parallel Sinks
+
 ### Topology
 
 ```
@@ -359,16 +388,18 @@ docker-compose -f docker-compose-es.yaml down
 +----------------+                +-------------------+
 
 ```
-We are using Docker Compose to deploy following components
+We are using Docker Compose to deploy the following components:
+
 * MySQL
 * Kafka
   * ZooKeeper
   * Kafka Broker
-  * Kafka Connect with [Debezium](http://debezium.io/),  [JDBC](https://github.com/confluentinc/kafka-connect-jdbc) and  [Elasticsearch](https://github.com/confluentinc/kafka-connect-elasticsearch) Connectors
+  * Kafka Connect with [Debezium](http://debezium.io/), [JDBC](https://github.com/confluentinc/kafka-connect-jdbc) and  [Elasticsearch](https://github.com/confluentinc/kafka-connect-elasticsearch) Connectors
 * PostgreSQL
 * Elasticsearch
 
 ### Usage
+
 How to run:
 
 ```shell
@@ -383,9 +414,10 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @source.json
 ```
 
-Now you can execute commands as defined in sections for JDBC and Elasticsearch sinks and you can verify that inserts and updates are present in *both* sinks.
+Now you can execute commands as defined in the sections for JDBC and Elasticsearch sinks and you can verify that inserts and updates are present in *both* sinks.
 
-End application
+End the application:
+
 ```shell
 # Shut down the cluster
 docker-compose down
