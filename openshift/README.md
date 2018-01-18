@@ -8,26 +8,25 @@ Prerequisites:
  * [Installed](https://docs.openshift.org/latest/minishift/command-ref/minishift_oc-env.html) OpenShift CLI
 
 ## Debezium Deployment
-Albeit Debezium comes with its own set of images we are going to re-use Kafka broker and Kafka Connect images that are built and delivered as a part of project [EnMasse](https://github.com/EnMasseProject/).
-One of the components of the project is a [Kafka as a Service](https://github.com/EnMasseProject/barnabas/).
-It consists of enterprise grade of configuration files and images that brings Kafka on OpenShift.
+Albeit Debezium comes with its own set of images we are going to re-use Kafka broker and Kafka Connect images that are built and delivered by the http://strimzi.io/[Strimzi] project can be used, which offers "Kafka as a Service".
+It consists of enterprise grade configuration files and images that bring Kafka to OpenShift.
 
 First we install the Kafka broker and Kafka Connect templates into our OpenShift project:
 
 ```
-oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-statefulsets/resources/openshift-template.yaml
-oc create -f https://raw.githubusercontent.com/EnMasseProject/barnabas/master/kafka-connect/s2i/resources/openshift-template.yaml
+oc create -f https://raw.githubusercontent.com/strimzi/strimzi/master/kafka-statefulsets/resources/openshift-template.yaml
+oc create -f https://raw.githubusercontent.com/strimzi/strimzi/master/kafka-connect/s2i/resources/openshift-template.yaml
 ```
 
 Next we will create a Kafka Connect image with deployed Debezium connectors and deploy a Kafka broker cluster and Kafka Connect cluster:
 
 ```
 # Deploy a Kafka broker
-oc new-app -p ZOOKEEPER_NODE_COUNT=1 barnabas
+oc new-app -p ZOOKEEPER_NODE_COUNT=1 strimzi
 
 # Build a Debezium image
-export DEBEZIUM_VERSION=0.6.1
-oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION barnabas-connect-s2i
+export DEBEZIUM_VERSION=0.7.1
+oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION strimzi-connect-s2i
 mkdir -p plugins && cd plugins && \
 for PLUGIN in {mongodb,mysql,postgres}; do \
     curl http://central.maven.org/maven2/io/debezium/debezium-connector-$PLUGIN/$DEBEZIUM_VERSION/debezium-connector-$PLUGIN-$DEBEZIUM_VERSION-plugin.tar.gz | tar xz; \
@@ -57,7 +56,7 @@ First we need to start a MySQL server instance:
 
 ```
 # Deploy pre-populated MySQL instance
-oc new-app --name=mysql debezium/example-mysql:0.6
+oc new-app --name=mysql debezium/example-mysql:0.7
 
 # Configure credentials for the database
 oc env dc/mysql  MYSQL_ROOT_PASSWORD=debezium  MYSQL_USER=mysqluser MYSQL_PASSWORD=mysqlpw
@@ -118,6 +117,6 @@ minishift addon install tutorial-database
 Deploy the Kafka broker, Kafka Connect with Debezium and MySQL example database:
 
 ```
-minishift addon apply -a DEBEZIUM_VERSION=0.6.1 -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
-minishift addon apply -a DEBEZIUM_TAG=0.6 -a PROJECT=myproject tutorial-database
+minishift addon apply -a DEBEZIUM_VERSION=0.7.1 -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
+minishift addon apply -a DEBEZIUM_TAG=0.7 -a PROJECT=myproject tutorial-database
 ```
