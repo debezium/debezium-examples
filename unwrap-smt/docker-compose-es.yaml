@@ -31,7 +31,7 @@ services:
      - transport.host=127.0.0.1
      - xpack.security.enabled=false
   connect:
-    image: debezium/connect-jdbc:${DEBEZIUM_VERSION}
+    image: debezium/connect-jdbc-es:${DEBEZIUM_VERSION}
     build:
       context: debezium-jdbc-es
     ports:
