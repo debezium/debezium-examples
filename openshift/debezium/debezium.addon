@@ -1,7 +1,7 @@
 # Name: debezium
 # Description: Deploys a Kafka Cluster and a Connect cluster with Debezium
 # Required-Vars: DEBEZIUM_VERSION,DEBEZIUM_PLUGIN,PROJECT,STRIMZI_RELEASE
-# Var-Defaults: STRIMZI_RELEASE=0.1.0,STRIMZI_REPO_NAME=strimzi,STRIMZI_IMAGE_TAG=latest,PROJECT=debezium
+# Var-Defaults: STRIMZI_RELEASE=0.1.0,STRIMZI_REPO_NAME=strimzi,STRIMZI_IMAGE_TAG=0.1.0,PROJECT=debezium
 
 # Pull images
 echo Pulling images...

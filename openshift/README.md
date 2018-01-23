@@ -8,14 +8,14 @@ Prerequisites:
  * [Installed](https://docs.openshift.org/latest/minishift/command-ref/minishift_oc-env.html) OpenShift CLI
 
 ## Debezium Deployment
-Albeit Debezium comes with its own set of images we are going to re-use Kafka broker and Kafka Connect images that are built and delivered by the http://strimzi.io/[Strimzi] project can be used, which offers "Kafka as a Service".
+Albeit Debezium comes with its own set of images we are going to re-use Kafka broker and Kafka Connect images that are built and delivered by the [Strimzi](http://strimzi.io/) project can be used, which offers "Kafka as a Service".
 It consists of enterprise grade configuration files and images that bring Kafka to OpenShift.
 
 First we install the Kafka broker and Kafka Connect templates into our OpenShift project:
 
 ```
-oc create -f https://raw.githubusercontent.com/strimzi/strimzi/master/kafka-statefulsets/resources/openshift-template.yaml
-oc create -f https://raw.githubusercontent.com/strimzi/strimzi/master/kafka-connect/s2i/resources/openshift-template.yaml
+oc create -f https://raw.githubusercontent.com/strimzi/strimzi/0.1.0/kafka-statefulsets/resources/openshift-template.yaml
+oc create -f https://raw.githubusercontent.com/strimzi/strimzi/0.1.0/kafka-connect/s2i/resources/openshift-template.yaml
 ```
 
 Next we will create a Kafka Connect image with deployed Debezium connectors and deploy a Kafka broker cluster and Kafka Connect cluster:
