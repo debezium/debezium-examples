@@ -1,0 +1,16 @@
+{
+    "name" : "jdbc-sink",
+    "config" : {
+        "connector.class" : "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max" : "1",
+        "topics" : "customers",
+        "connection.url" : "jdbc:postgresql://postgres:5432/inventorydb?user=postgresuser&password=postgrespw",
+        "auto.create" : "true",
+        "auto.evolve" : "true",
+        "insert.mode" : "upsert",
+        "pk.fields" : "id",
+        "pk.mode": "record_key",
+        "transforms": "mongoflatten",
+        "transforms.mongoflatten.type" : "io.debezium.connector.mongodb.transforms.UnwrapFromMongoDbEnvelope"
+    }
+}
