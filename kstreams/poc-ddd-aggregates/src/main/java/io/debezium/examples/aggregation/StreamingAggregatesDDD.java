@@ -5,8 +5,10 @@ import io.debezium.examples.aggregation.model.*;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
+import org.apache.kafka.common.utils.Bytes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.state.KeyValueStore;
 
 import java.util.Properties;
 
@@ -58,9 +60,10 @@ public class StreamingAggregatesDDD {
                             latest.update(address,addressId,new DefaultId(address.getCustomer_id()));
                             return latest;
                         },
-                        Materialized.as(childrenTopic+"_table_temp")
-                                .withKeySerde((Serde)defaultIdSerde)
-                                    .withValueSerde(latestAddressSerde)
+                        Materialized.<DefaultId,LatestAddress,KeyValueStore<Bytes, byte[]>>
+                                        as(childrenTopic+"_table_temp")
+                                            .withKeySerde(defaultIdSerde)
+                                                .withValueSerde(latestAddressSerde)
                 );
 
         //2b) aggregate addresses per customer id
@@ -73,9 +76,10 @@ public class StreamingAggregatesDDD {
                             addresses.update(latestAddress);
                             return addresses;
                         },
-                        Materialized.as(childrenTopic+"_table_aggregate")
-                                .withKeySerde((Serde)defaultIdSerde)
-                                    .withValueSerde(addressesSerde)
+                        Materialized.<DefaultId,Addresses,KeyValueStore<Bytes, byte[]>>
+                                        as(childrenTopic+"_table_aggregate")
+                                            .withKeySerde(defaultIdSerde)
+                                                .withValueSerde(addressesSerde)
                 );
 
         //3) KTable-KTable JOIN to combine customer and addresses
