@@ -1,4 +1,4 @@
-package com.github.hpgrahsl.kafka.serdes;
+package io.debezium.examples.aggregation.serdes;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;

@@ -1,4 +1,4 @@
-package com.github.hpgrahsl.kafka.serdes;
+package io.debezium.examples.aggregation.serdes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.errors.SerializationException;

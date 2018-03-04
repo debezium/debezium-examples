@@ -1,4 +1,4 @@
-package com.github.hpgrahsl.kafka.model;
+package io.debezium.examples.aggregation.model;
 
 import com.fasterxml.jackson.annotation.*;
 

@@ -1,7 +1,7 @@
-package com.github.hpgrahsl.kafka.serdes;
+package io.debezium.examples.aggregation.serdes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.hpgrahsl.kafka.model.EventType;
+import io.debezium.examples.aggregation.model.EventType;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;
 

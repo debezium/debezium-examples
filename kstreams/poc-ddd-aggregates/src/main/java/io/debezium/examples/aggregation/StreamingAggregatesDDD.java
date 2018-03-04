@@ -1,7 +1,7 @@
-package com.github.hpgrahsl.kafka;
+package io.debezium.examples.aggregation;
 
-import com.github.hpgrahsl.kafka.model.*;
-import com.github.hpgrahsl.kafka.serdes.SerdeFactory;
+import io.debezium.examples.aggregation.serdes.SerdeFactory;
+import io.debezium.examples.aggregation.model.*;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
