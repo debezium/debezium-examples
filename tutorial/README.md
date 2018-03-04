@@ -81,6 +81,44 @@ db.customers.insert([
 docker-compose -f docker-compose-mongodb.yaml down
 ```
 
+## Using Oracle
+
+This assumes Oracle is running on localhost
+(or reachable there, e.g. by means of running it within a VM or Docker container with appropriate port configurations)
+and set up with the users, grants and test data described in the Debezium https://github.com/debezium/oracle-vagrant-box[Vagrant set-up].
+Note that the connector is using the XStream API, which requires a license for the Golden Gate product
+(which itself is not required be installed, though).
+
+Also you must download the http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html[Oracle instant client for Linux]
+and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
+
+```shell
+# Start the topology as defined in http://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=0.7
+docker-compose -f docker-compose-oracle.yaml up --build
+```
+
+Adjust the host name of the database server and the name of the XStream outbound server in `register-oracle.json` as per your environment.
+Then register the Debezium Oracle connector:
+
+```shell
+# Start Oracle connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-postgres.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic server1.ORCLPDB1.DEBEZIUM.CUSTOMER
+
+# Modify records in the database via Oracle client
+...
+
+# Shut down the cluster
+docker-compose -f docker-compose-oracle.yaml down
+```
+
 ## Using MySQL and the Avro message format
 
 To use [Avro-style messages](http://debezium.io/docs/configuration/avro/) instead of JSON,
