@@ -25,3 +25,5 @@ phantomjsdriver.log
 generated-sources/
 
 /state/
+
+oracle_instantclient/
