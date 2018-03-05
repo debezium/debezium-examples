@@ -1,33 +1,50 @@
 package io.debezium.examples.aggregation;
 
-import io.debezium.examples.aggregation.serdes.SerdeFactory;
-import io.debezium.examples.aggregation.model.*;
+import java.util.Properties;
+
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.*;
-import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.Consumed;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.kstream.Printed;
+import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.state.KeyValueStore;
 
-import java.util.Properties;
+import io.debezium.examples.aggregation.model.Address;
+import io.debezium.examples.aggregation.model.Addresses;
+import io.debezium.examples.aggregation.model.Customer;
+import io.debezium.examples.aggregation.model.CustomerAddressAggregate;
+import io.debezium.examples.aggregation.model.DefaultId;
+import io.debezium.examples.aggregation.model.EventType;
+import io.debezium.examples.aggregation.model.LatestAddress;
+import io.debezium.examples.aggregation.serdes.SerdeFactory;
 
 public class StreamingAggregatesDDD {
 
     public static void main(String[] args) {
 
-        if(args.length != 2) {
+        if(args.length != 3) {
             System.err.println("usage: java -jar <package> "
-                    + StreamingAggregatesDDD.class.getName() + " <parent_topic> <children_topic>");
+                    + StreamingAggregatesDDD.class.getName() + " <parent_topic> <children_topic> <bootstrap_servers>");
             System.exit(-1);
         }
 
         final String parentTopic = args[0];
         final String childrenTopic = args[1];
+        final String bootstrapServers = args[2];
 
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streaming-aggregates-ddd");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10*1024);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
         props.put(CommonClientConfigs.METADATA_MAX_AGE_CONFIG, 500);
