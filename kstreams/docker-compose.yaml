@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
@@ -63,5 +63,16 @@ services:
     links:
      - kafka
     environment:
-     - JAVA_MAIN_CLASS=com.github.hpgrahsl.kafka.StreamingAggregatesDDD
-    command: /deployments/run-java.sh dbserver1.inventory.customers dbserver1.inventory.addresses kafka:9092
+     - JAVA_MAIN_CLASS=io.debezium.examples.aggregation.StreamingAggregatesDDD
+    depends_on:
+     - connect_source
+    command: >
+      /bin/bash -c "
+        while ! curl -f -s -X GET http://connect_source:8083/connectors/mysql-source;
+        do
+          echo 'Waiting for sink connector to be deployed';
+          sleep 1;
+        done;
+        echo 'Sink connector deployed!';
+        /deployments/run-java.sh dbserver1.inventory.customers dbserver1.inventory.addresses kafka:9092
+      "
