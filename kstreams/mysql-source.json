@@ -9,13 +9,11 @@
         "database.password": "dbz",
         "database.server.id": "184054",
         "database.server.name": "dbserver1",
-        "database.whitelist": "inventory",
+        "table.whitelist": "inventory.customers,inventory.addresses",
         "database.history.kafka.bootstrap.servers": "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory",
-        "transforms": "key,value",
-        "transforms.key.type":"io.debezium.transforms.UnwrapFromEnvelope",
-        "transforms.key.drop.tombstones":"false",
-        "transforms.value.type":"io.debezium.transforms.UnwrapFromEnvelope",
-        "transforms.value.drop.tombstones":"false"
+        "transforms": "unwrap",
+        "transforms.unwrap.type":"io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.drop.tombstones":"false"
     }
 }

@@ -115,7 +115,5 @@ public class StreamingAggregatesDDD {
         streams.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-
     }
-
 }
