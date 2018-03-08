@@ -15,6 +15,7 @@
         <database.user>debezium</database.user>
         <database.password>dbz</database.password>
         <database.whitelist>inventory</database.whitelist>
+        <table.whitelist>inventory.customers</table.whitelist>
 
         <kinesis.region>eu-central-1</kinesis.region>
         <kinesis.stream>debezium</kinesis.stream>
@@ -109,6 +110,10 @@
                         <systemProperty>
                             <key>database.whitelist</key>
                             <value>${database.whitelist}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>table.whitelist</key>
+                            <value>${table.whitelist}</value>
                         </systemProperty>
                         <systemProperty>
                             <key>kinesis.region</key>

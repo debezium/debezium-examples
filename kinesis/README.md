@@ -1,35 +1,37 @@
 # Streaming database changes to Amazon Kinesis using Debezium
 
-[Debezium](http://debezium.io/) was a set of Apache Kafka connectors that allows streaming of change events from different database. Using [Debezium Embedded](http://debezium.io/docs/embedded/) it is possible to stream database changes to an arbitrary destination and not be limited to Kafka broker only.
+[Debezium](http://debezium.io/) is a set of Apache Kafka connectors that allows streaming of change events from multiple databases. Using [Debezium Embedded](http://debezium.io/docs/embedded/) it is possible to stream database changes to an arbitrary destination and not be limited to Kafka broker only.
 
-This demo shows how to stream changes from MySQL database running on a local machine to aa Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream.
+This demo shows how to stream changes from MySQL database running on a local machine to an Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream.
 
 ## Pre-requisities
 * Java 8 development environment
-* Local Dockar installation to run source database
+* Local Docker installation to run the source database
 * an Amazon [AWS](https://aws.amazon.com/) account
 * [AWS CLI](https://aws.amazon.com/cli/) client
 
 ## How to run
 ### Start MySQL source database
-We will start a pre-populated MySQL database that is the same as used by Debezium [tutorial](http://debezium.io/docs/tutorial/).
+We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](http://debezium.io/docs/tutorial/).
 
 ```mvn docker:run```
 
 ### Initialize Kinesis stream
-We suppose that you have already executed `aws configure` as descirbed in AWS CLI installation guide.
+We suppose that you have already executed `aws configure` as described in AWS CLI [getting started](https://github.com/aws/aws-cli#getting-started) guide.
 
 ### Create the Kinesis stream
 
-```aws kinesis create-stream --stream-name debezium --shard-count 1```
+```aws kinesis create-stream --stream-name kinesis.inventory.customers --shard-count 1```
 
-We are using only one shard to keep the events from database in ordered sequence. If you are not interested in a total order but the order per table is enough you can modify the code to use the table name as a sharding key and increase the number of shards.
+You can use an arbitrary number of shards. To keep things simple we capture only one table - `customers` from database `inventory` so we need only one stream.
+If you want to capture multiple tables you need to create the equivalent streams for them too.
+The naming shceme of streams is `<engine_name>.<database_name>.<table_name>` which in our case is `kinesis.inventory.<table_name>`.
 
 ### Create a stream iterator
 We will use AWS CLI to read messages.
 
 ```
-ITERATOR=$(aws kinesis get-shard-iterator --stream-name debezium --shard-id 0 --shard-iterator-type LATEST|jq '.ShardIterator')
+ITERATOR=$(aws kinesis get-shard-iterator --stream-name kinesis.inventory.customers --shard-id 0 --shard-iterator-type LATEST|jq '.ShardIterator')
 ```
 
 ### Connect the database to Kinesis
@@ -70,7 +72,7 @@ that will return a sequence JSON messages similar to
     "table": "customers"
   },
   "op": "c",
-  "ts_ms": 1520504310296
+  "ts_ms": 1520513267424
 }
 {
   "before": null,
@@ -95,10 +97,9 @@ that will return a sequence JSON messages similar to
     "table": "customers"
   },
   "op": "c",
-  "ts_ms": 1520504310296
+  "ts_ms": 1520513267424
 }
 .
 .
 .
 ```
-

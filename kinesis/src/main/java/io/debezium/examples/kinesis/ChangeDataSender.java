@@ -20,13 +20,12 @@ import io.debezium.util.Clock;
 
 public class ChangeDataSender implements Runnable {
     private static final String APP_NAME = "kinesis";
-    private static final String KINESIS_STREAM_CONF_NAME = "kinesis.stream";
     private static final String KINESIS_REGION_CONF_NAME = "kinesis.region";
 
     private final Configuration config;
-    private final JsonConverter converter;
+    private final JsonConverter valueConverter;
+    private final JsonConverter keyConverter;
     private final AmazonKinesis kinesisClient;
-    private final String streamName;
 
     public ChangeDataSender() {
         config = Configuration.empty().withSystemProperties(Function.identity()).edit()
@@ -43,10 +42,11 @@ public class ChangeDataSender implements Runnable {
                 .with("schemas.enable", false)
                 .build();
 
-        converter = new JsonConverter();
-        converter.configure(config.asMap(), false);
+        keyConverter = new JsonConverter();
+        keyConverter.configure(config.asMap(), true);
+        valueConverter = new JsonConverter();
+        valueConverter.configure(config.asMap(), false);
 
-        streamName = config.getString(KINESIS_STREAM_CONF_NAME);
         final String regionName = config.getString(KINESIS_REGION_CONF_NAME);
 
         final AWSCredentialsProvider credentialsProvider = new ProfileCredentialsProvider("default");
@@ -61,24 +61,37 @@ public class ChangeDataSender implements Runnable {
         final EmbeddedEngine engine = EmbeddedEngine.create()
                 .using(config)
                 .using(this.getClass().getClassLoader())
-                .using(this.getClass().getClassLoader())
                 .using(Clock.SYSTEM)
                 .notifying(this::sendRecord)
                 .build();
+        final Thread mainThread = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            engine.stop();
+            try {
+                mainThread.join();
+            }
+            catch (InterruptedException e) {
+            }
+        }));
         engine.run();
     }
 
     private void sendRecord(SourceRecord record) {
         // We are interested only in data events not schema change events
         if (record.valueSchema().name().endsWith(".Envelope")) {
-            final byte[] payload = converter.fromConnectData("dummy", record.valueSchema(), record.value());
+            final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
+            final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
 
             PutRecordRequest putRecord = new PutRecordRequest();
-            putRecord.setStreamName(streamName);
-            putRecord.setPartitionKey(APP_NAME); // We want events to keep total ordering
+            putRecord.setStreamName(streamNameMapper(record.topic()));
+            putRecord.setPartitionKey(new String(key));
             putRecord.setData(ByteBuffer.wrap(payload));
             kinesisClient.putRecord(putRecord);
         }
+    }
+
+    private String streamNameMapper(String topic) {
+        return topic;
     }
 
     public static void main(String[] args) {
