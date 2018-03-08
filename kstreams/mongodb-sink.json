@@ -7,5 +7,6 @@
         "mongodb.connection.uri": "mongodb://mongodb:27017/inventory?w=1&journal=true",
         "mongodb.collection": "customers_with_addresses",
         "mongodb.document.id.strategy": "at.grahsl.kafka.connect.mongodb.processor.id.strategy.FullKeyStrategy"
+        "mongodb.delete.on.null.values": true
     }
 }
