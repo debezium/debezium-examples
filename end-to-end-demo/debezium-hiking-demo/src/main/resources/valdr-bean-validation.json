@@ -1,0 +1,4 @@
+{
+    "modelPackages": ["io.debezium.examples.hikr.rest.model"],
+    "outputFullTypeName": false
+}

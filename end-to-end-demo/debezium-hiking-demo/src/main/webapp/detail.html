@@ -1,0 +1,74 @@
+<form name="hikeForm" class="form-horizontal" role="form" novalidate ng-submit="save()" valdr-enabled="true">
+
+  <div valdr-type="ExternalHike">
+
+  <!-- From -->
+  <div class="form-group" ng-class="{ 'has-error' : hikeForm.from.$invalid && !hikeForm.from.$pristine }" valdr-form-group>
+    <label for="inputFrom" class="col-sm-2 control-label">From</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="from" id="inputFrom" placeholder="From" ng-model="hike.from">
+     </div>
+     <div class="col-sm-4">
+      <p ng-show="hikeForm.from.$invalid && !hikeForm.from.$pristine" class="help-block">{{ hikeForm.from.valdrViolations[0].message }}</p>
+     </div>
+  </div>
+
+  <!-- To -->
+  <div class="form-group" ng-class="{ 'has-error' : hikeForm.to.$invalid && !hikeForm.to.$pristine }">
+    <label for="inputTo" class="col-sm-2 control-label">To</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="to" id="inputTo" placeholder="To" ng-model="hike.to" required>
+     </div>
+     <div class="col-sm-4">
+      <p ng-show="hikeForm.to.$invalid && !hikeForm.to.$pristine" class="help-block">{{ hikeForm.to.valdrViolations[0].message }}</p>
+     </div>
+  </div>
+
+  <!-- Organizer -->
+  <div class="form-group">
+    <label for="inputRecommendedTrip" class="col-sm-2 control-label">Recommended trip</label>
+    <div class="col-sm-3">
+      <select class="form-control" data-ng-model="hike.recommendedTrip.id" id="inputRecommendedTrip" data-ng-options="t.id as t.name for t in trips">
+        <option value=""> - Select recommendedTrip - </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Sections -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Sections</label>
+    <div class="col-md-6">
+      <div ng-repeat="section in hike.sections">
+        <div class="form-group row">
+          <div class="col-md-4">
+            <input class="form-control" id="inputKey" placeholder="From"
+              ng-model="section.from" type="text">
+          </div>
+          <div class="col-md-4">
+            <input class="form-control" id="inputValue" placeholder="To"
+              ng-model="section.to" type="text">
+          </div>
+          <div style="padding-top:6px">
+            <a href ng-click="hike.sections.splice($index, 1)">Remove</a>
+          </div>
+        </div>
+      </div>
+      <div style="padding-top:6px">
+        <a href ng-click="hike.sections.push({})">Add...</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="form-group">
+    <div class="col-md-offset-2 col-sm-1">
+      <button class="btn btn-primary" type="submit" ng-disabled="hikeForm.$invalid">Save</button>
+    </div>
+    <div class="col-sm-9">
+      <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+  </div>
+
+  </div>
+
+</form>

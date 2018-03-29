@@ -1,0 +1,113 @@
+<form name="tripForm" class="form-horizontal" role="form" novalidate ng-submit="save()">
+
+  <!-- Name -->
+  <div class="form-group" ng-class="{ 'has-error' : tripForm.inputName.$invalid && !tripForm.inputName.$pristine }">
+
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputName" id="inputName" placeholder="Name" ng-model="trip.name" required>
+     </div>
+     <div class="col-sm-4">
+      <p ng-show="tripForm.inputName.$invalid && !tripForm.inputName.$pristine" class="help-block">Name is required</p>
+     </div>
+  </div>
+
+  <!-- StartDate -->
+  <div class="form-group" ng-class="{ 'has-error' : tripForm.inputStartDate.$invalid && !tripForm.inputStartDate.$pristine }">
+    <label for="inputStartDate" class="col-sm-2 control-label">Start date</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputStartDate" id="inputStartDate" placeholder="Start date" ng-model="trip.startDate" required>
+     </div>
+     <div class="col-sm-4">
+      <p ng-show="tripForm.inputStartDate.$invalid && !tripForm.inputStartDate.$pristine" class="help-block">Start date of the trip required</p>
+     </div>
+  </div>
+
+  <!-- EndDate -->
+  <div class="form-group" ng-class="{ 'has-error' : tripForm.inputEndDate.$invalid && !tripForm.inputEndDate.$pristine }">
+    <label for="inputEndDate" class="col-sm-2 control-label">End date</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputEndDate" id="inputEndDate" placeholder="Start date" ng-model="trip.endDate" required>
+    </div>
+    <div class="col-sm-4">
+      <p ng-show="tripForm.inputEndDate.$invalid && !tripForm.inputEndDate.$pristine" class="help-block">End date of the trip required</p>
+    </div>
+  </div>
+
+  <!-- Price -->
+  <div class="form-group" ng-class="{ 'has-error' : tripForm.inputPrice.$invalid && !tripForm.inputPrice.$pristine }">
+    <label for="inputPrice" class="col-sm-2 control-label">Price</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputPrice" id="inputPrice" placeholder="Start date" ng-model="trip.price" required>
+    </div>
+    <div class="col-sm-4">
+      <p ng-show="tripForm.inputPrice.$invalid && !tripForm.inputPrice.$pristine" class="help-block">Nothing is free you know</p>
+    </div>
+  </div>
+
+  <!-- Organizer -->
+  <div class="form-group" ng-class="{ 'has-error' : tripForm.inputOrganizer.$invalid && !tripForm.inputOrganizer.$pristine }">
+    <label for="inputOrganizer" class="col-sm-2 control-label">Organizer</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputOrganizer" id="inputOrganizer" placeholder="Start date" ng-model="trip.organizer.name" required>
+    </div>
+    <div class="col-sm-4">
+      <p ng-show="tripForm.inputOrganizer.$invalid && !tripForm.inputOrganizer.$pristine" class="help-block">Nothing is free you know</p>
+    </div>
+  </div>
+
+  <!-- Hikes -->
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Available hikes</label>
+    <div class="col-md-6">
+      <div ng-repeat="hike in trip.availableHikes">
+        <div class="form-group row">
+          <div class="col-md-8">
+            Hike from <a href="#/edit/{{hike.id}}">{{hike.from}} to {{hike.to}}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</form>
+
+<hr/>
+
+<form name="orderForm" class="form-horizontal" role="form" novalidate ng-submit="save()">
+
+  <div>
+    <h2>Order this trip</h2>
+  </div>
+  <!-- Name -->
+  <div class="form-group" ng-class="{ 'has-error' : orderForm.inputName.$invalid && !orderForm.inputName.$pristine }">
+    <label for="inputName" class="col-sm-2 control-label">Your name</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputName" id="inputName" placeholder="Firstname Lastname" ng-model="order.customer.name" required>
+    </div>
+    <div class="col-sm-4">
+      <p ng-show="orderForm.inputName.$invalid && !orderForm.inputName.$pristine" class="help-block">Your name is required</p>
+    </div>
+  </div>
+
+  <!-- Email -->
+  <div class="form-group" ng-class="{ 'has-error' : orderForm.inputEmail.$invalid && !orderForm.inputEmail.$pristine }">
+    <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+    <div class="col-sm-6">
+      <input type="text" class="form-control" name="inputEmail" id="inputEmail" placeholder="Email" ng-model="order.customer.email" required>
+    </div>
+    <div class="col-sm-4">
+      <p ng-show="orderForm.inputEmail.$invalid && !orderForm.inputEmail.$pristine" class="help-block">Your email is required</p>
+    </div>
+  </div>
+
+  <!-- Buttons -->
+  <div class="form-group">
+    <div class="col-md-offset-2 col-sm-1">
+      <button class="btn btn-primary" type="submit" ng-disabled="orderForm.$invalid">Save</button>
+    </div>
+    <div class="col-sm-9">
+      <button class="btn btn-default" ng-click="cancel()">Cancel</button>
+    </div>
+  </div>
+
+</form>

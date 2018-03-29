@@ -1,0 +1,111 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+  mysql:
+    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+    ports:
+     - 3306:3306
+    environment:
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw
+  postgres:
+    image: debezium/postgres:9.6
+    ports:
+     - "5432:5432"
+    environment:
+     - POSTGRES_USER=postgresuser
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=inventory
+  schema-registry:
+    image: confluentinc/cp-schema-registry
+    ports:
+     - 8181:8181
+     - 8081:8081
+    environment:
+     - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+     - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+     - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+     - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS=GET,POST,PUT,OPTIONS
+     - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN=*
+    links:
+     - zookeeper
+  schema-registry-ui:
+    image: landoop/schema-registry-ui
+    ports:
+     - 8000:8000
+    environment:
+     - SCHEMAREGISTRY_URL=http://schema-registry:8081
+     - PROXY=true
+    links:
+     - schema-registry
+  connect:
+    build:
+      context: debezium-jdbc
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - mysql
+     - postgres
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+     - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+     - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+     - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+  connect-json:
+    build:
+      context: debezium-jdbc
+    ports:
+     - 8084:8083
+    links:
+     - kafka
+     - mysql
+     - postgres
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=2
+     - CONFIG_STORAGE_TOPIC=my_connect_json_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_json_offsets
+  hiking-manager:
+    image: debezium/hiking-manager-example:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-hiking-demo
+    links:
+     - mysql
+    ports:
+     - 8080:8080
+  swarm:
+    image: debezium/swarm-example:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-swarm-demo
+    links:
+     - kafka
+    ports:
+     - 8079:8079
+    environment:
+     - JAVA_APP_JAR=demo-swarm.jar
+     - JAVA_OPTIONS=-Dswarm.http.port=8079
+    command: >
+      /bin/bash -c "
+        java -jar /deployments/demo-swarm.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
+      "

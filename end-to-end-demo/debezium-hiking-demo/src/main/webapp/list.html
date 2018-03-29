@@ -1,0 +1,30 @@
+<form class="form-inline" role="form" ng-submit="getHikes()">
+    <div class="form-group">
+        <input type="text" ng-model="searchTerm" size="30" placeholder="Search term" class="form-control">
+     </div>
+
+     <input class="btn btn-default" type="submit" value="Filter">
+</form>
+
+<div ng-class="{hidden: !hikes || hikes.length == 0}">
+<table class="table table-striped table-condensed">
+    <thead>
+        <tr>
+            <th style="width:15%">From</th>
+            <th style="width:15%">To</th>
+            <th style="width:40%">Sections</th>
+            <th style="width:15%">Recommended trip</th>
+            <th style="width:15%">&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="hike in hikes | filter:search">
+            <td>{{hike.from}}</td>
+            <td>{{hike.to}}</td>
+            <td><span ng-repeat="section in hike.sections">{{section.from}} - {{section.to}}{{$last ? '' : ', '}}</span></td>
+            <td><a href="#/trips/{{hike.recommendedTrip.id}}">{{hike.recommendedTrip.name}}</a></td>
+            <td><a href="#/edit/{{hike.id}}">Update</a> | <a href ng-click="remove(hike)">Remove</a></td>
+        </tr>
+    </tbody>
+</table>
+<div>
