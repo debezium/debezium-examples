@@ -1,4 +1,4 @@
-## End-to-end demo of Debezium used during presentations
+# End-to-end demo of Debezium used during presentations
 
 It does these things:
 
@@ -53,7 +53,7 @@ It does these things:
 - docker-compose up -d --build
 - Open in other browser: http://localhost:8079/
 
-# Misc.
+## Misc.
 
 - docker-compose exec kafka /kafka/bin/kafka-topics.sh --list --zookeeper zookeeper:2181
 - docker-compose exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
