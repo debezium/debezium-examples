@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>WebSocket Client</title>
+ 
+        <script type="text/javascript">
+            var ws = new WebSocket("ws://localhost:" + window.location.port + "/changes");
+
+            ws.onopen = function() {
+                alert( "Web Socket is connected!" );
+            };
+
+            ws.onmessage = function (evt) {
+                var blob = evt.data;
+                const reader = new FileReader();
+
+                // Read blob
+                reader.addEventListener('loadend', (e) => {
+                    const text = e.srcElement.result;
+                    var contents = document.getElementById("contents");
+                    contents.innerHTML = contents.innerHTML + text + "<br/>";
+                });
+                reader.readAsText(blob);
+            };
+
+            ws.onclose = function() { 
+                alert( "Connection is closed." ); 
+            };
+         </script>
+    </head>
+
+    <body>
+        <h1>Web Sockets change events receiver from Vert.x</h1>
+        <p id="contents"></p>
+    </body>
+</html>
