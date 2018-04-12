@@ -34,7 +34,7 @@ public class Verticle extends AbstractVerticle {
     public void start() throws Exception {
         final Map<SocketAddress, ServerWebSocket> sockets = new ConcurrentHashMap<>();
 
-        config().put(CONF_BOOTSTRAP_SERVERS, "localhost:9092");
+        config().put(CONF_BOOTSTRAP_SERVERS, "kafka:9092");
         config().put(CONF_TOPIC, "dbserver1_inventory_Hike_json");
         config().put(CONF_PORT, 5000);
 
