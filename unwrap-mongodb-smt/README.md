@@ -29,10 +29,10 @@ export CURRENT_HOST=$(docker-machine ip $(docker-machine active));
 # export CURRENT_HOST='localhost' //or your host name 
 
 # Start JDBC sink connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://$(CURRENT_HOST):8083/connectors/ -d @jdbc-sink.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://$CURRENT_HOST:8083/connectors/ -d @jdbc-sink.json
 
 # Start Debezium MongoDB CDC connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://$(CURRENT_HOST):8083/connectors/ -d @mongodb-source.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://$CURRENT_HOST:8083/connectors/ -d @mongodb-source.json
 ```
 
 ## Verify initial sync
