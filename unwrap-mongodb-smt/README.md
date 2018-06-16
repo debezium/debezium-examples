@@ -17,16 +17,22 @@ We are using Docker Compose to deploy the following components:
 ```shell
 # Start the application
 export DEBEZIUM_VERSION=0.7
-docker-compose up --build
+docker-compose up --build -d
 
 # Initialize MongoDB replica set and insert some test data
 docker-compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
 
+# Current host
+# if using docker-machine:
+export CURRENT_HOST=$(docker-machine ip $(docker-machine active));
+# or any other host
+# export CURRENT_HOST='localhost' //or your host name 
+
 # Start JDBC sink connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @jdbc-sink.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://$(CURRENT_HOST):8083/connectors/ -d @jdbc-sink.json
 
 # Start Debezium MongoDB CDC connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @mongodb-source.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://$(CURRENT_HOST):8083/connectors/ -d @mongodb-source.json
 ```
 
 ## Verify initial sync
