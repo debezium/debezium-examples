@@ -13,7 +13,7 @@ mvn clean package
 
 ```shell
 # Start Kafka, Kafka Connect, a MySQL and a MongoDB database and the aggregator
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose up --build
 
 # Start MySQL connector

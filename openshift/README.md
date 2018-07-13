@@ -25,7 +25,7 @@ Next we will create a Kafka Connect image with deployed Debezium connectors and 
 oc new-app -p ZOOKEEPER_NODE_COUNT=1 strimzi
 
 # Build a Debezium image
-export DEBEZIUM_VERSION=0.7.1
+export DEBEZIUM_VERSION=0.8.0.Final
 oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION strimzi-connect-s2i
 mkdir -p plugins && cd plugins && \
 for PLUGIN in {mongodb,mysql,postgres}; do \
@@ -56,7 +56,7 @@ First we need to start a MySQL server instance:
 
 ```
 # Deploy pre-populated MySQL instance
-oc new-app --name=mysql debezium/example-mysql:0.7
+oc new-app --name=mysql debezium/example-mysql:0.8
 
 # Configure credentials for the database
 oc env dc/mysql  MYSQL_ROOT_PASSWORD=debezium  MYSQL_USER=mysqluser MYSQL_PASSWORD=mysqlpw
@@ -117,6 +117,6 @@ minishift addon install tutorial-database
 Deploy the Kafka broker, Kafka Connect with Debezium and MySQL example database:
 
 ```
-minishift addon apply -a DEBEZIUM_VERSION=0.7.1 -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
-minishift addon apply -a DEBEZIUM_TAG=0.7 -a PROJECT=myproject tutorial-database
+minishift addon apply -a DEBEZIUM_VERSION=0.8.0.Final -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
+minishift addon apply -a DEBEZIUM_TAG=0.8 -a PROJECT=myproject tutorial-database
 ```

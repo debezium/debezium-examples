@@ -63,7 +63,7 @@ How to run:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-jdbc.yaml up
 
 # Start PostgreSQL connector
@@ -195,7 +195,7 @@ How to run:
 ```shell
 # Start the application
 
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-es.yaml up
 
 # Start Elasticsearch connector
@@ -404,7 +404,7 @@ How to run:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose up
 
 # Start Elasticsearch connector

@@ -6,7 +6,7 @@ This demo automatically deploys the topology of services as defined in [Debezium
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
@@ -30,7 +30,7 @@ docker-compose -f docker-compose-mysql.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -54,7 +54,7 @@ docker-compose -f docker-compose-postgres.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -116,7 +116,7 @@ docker-compose -f docker-compose-postgres.yaml exec kafka /kafka/bin/kafka-conso
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
-    --topic server1.ORCLPDB1.DEBEZIUM.CUSTOMERS
+    --topic server1.DEBEZIUM.CUSTOMERS
 
 # Modify other records in the database via Oracle client
 docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
