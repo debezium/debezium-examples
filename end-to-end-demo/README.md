@@ -10,7 +10,7 @@ It does these things:
 
 ## Prepare Kafka etc.
 
-- export DEBEZIUM_VERSION=0.7
+- export DEBEZIUM_VERSION=0.8
 - docker ps -a
 - docker-compose up --scale swarm=0 --scale hiking-manager=0
 
