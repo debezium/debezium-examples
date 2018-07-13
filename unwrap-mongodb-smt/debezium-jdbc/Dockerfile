@@ -1,4 +1,4 @@
-FROM debezium/connect:0.7
+FROM debezium/connect:0.8
 ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc
 
 # Deploy PostgreSQL JDBC Driver

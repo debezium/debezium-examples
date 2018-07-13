@@ -6,7 +6,7 @@ This demo automatically deploys the topology of services as defined in [Debezium
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
@@ -30,7 +30,7 @@ docker-compose -f docker-compose-mysql.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -54,7 +54,7 @@ docker-compose -f docker-compose-postgres.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.7
+export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -84,8 +84,8 @@ docker-compose -f docker-compose-mongodb.yaml down
 ## Using Oracle
 
 This assumes Oracle is running on localhost
-(or reachable there, e.g. by means of running it within a VM or Docker container with appropriate port configurations)
-and set up with the users, grants and test data described in the Debezium [Vagrant set-up](https://github.com/debezium/oracle-vagrant-box).
+(or is reachable there, e.g. by means of running it within a VM or Docker container with appropriate port configurations)
+and set up with the configuration, users and grants described in the Debezium [Vagrant set-up](https://github.com/debezium/oracle-vagrant-box).
 Note that the connector is using the XStream API, which requires a license for the Golden Gate product
 (which itself is not required be installed, though).
 
@@ -97,7 +97,7 @@ and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 export DEBEZIUM_VERSION=0.8
 docker-compose -f docker-compose-oracle.yaml up --build
 
-# Create a test database schema
+# Insert test data
 cat debezium-with-oracle-jdbc/init/inventory.sql | docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
 ```
 
@@ -116,7 +116,7 @@ docker-compose -f docker-compose-postgres.yaml exec kafka /kafka/bin/kafka-conso
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
-    --topic server1.ORCLPDB1.DEBEZIUM.CUSTOMERS
+    --topic server1.DEBEZIUM.CUSTOMERS
 
 # Modify other records in the database via Oracle client
 docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
