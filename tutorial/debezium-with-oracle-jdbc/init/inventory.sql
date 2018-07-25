@@ -5,7 +5,7 @@ CREATE TABLE products (
   description VARCHAR2(512),
   weight FLOAT
 );
-GRANT SELECT ON products to c##xstrmadmin;
+GRANT SELECT ON products to c##xstrm;
 ALTER TABLE products ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 INSERT INTO products
@@ -33,7 +33,7 @@ CREATE TABLE products_on_hand (
   quantity NUMBER(4) NOT NULL,
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
-GRANT SELECT ON products_on_hand to c##xstrmadmin;
+GRANT SELECT ON products_on_hand to c##xstrm;
 ALTER TABLE products_on_hand ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 INSERT INTO products_on_hand VALUES (101,3);
@@ -53,7 +53,7 @@ CREATE TABLE customers (
   last_name VARCHAR2(255) NOT NULL,
   email VARCHAR2(255) NOT NULL UNIQUE
 );
-GRANT SELECT ON customers to c##xstrmadmin;
+GRANT SELECT ON customers to c##xstrm;
 ALTER TABLE customers ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 INSERT INTO customers
@@ -75,7 +75,7 @@ CREATE TABLE debezium.orders (
   FOREIGN KEY (purchaser) REFERENCES customers(id),
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
-GRANT SELECT ON orders to c##xstrmadmin;
+GRANT SELECT ON orders to c##xstrm;
 ALTER TABLE orders ADD SUPPLEMENTAL LOG DATA (ALL) COLUMNS;
 
 INSERT INTO orders
