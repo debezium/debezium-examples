@@ -1,10 +1,15 @@
 package io.debezium.examples.kinesis;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
@@ -22,6 +27,8 @@ import io.debezium.util.Clock;
  * Demo for using the Debezium Embedded API to send change events to Amazon Kinesis.
  */
 public class ChangeDataSender implements Runnable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeDataSender.class);
 
     private static final String APP_NAME = "kinesis";
     private static final String KINESIS_REGION_CONF_NAME = "kinesis.region";
@@ -69,16 +76,27 @@ public class ChangeDataSender implements Runnable {
                 .using(Clock.SYSTEM)
                 .notifying(this::sendRecord)
                 .build();
-        final Thread mainThread = Thread.currentThread();
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(engine);
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("Requesting embedded engine to shut down");
             engine.stop();
-            try {
-                mainThread.join();
-            }
-            catch (InterruptedException e) {
-            }
         }));
-        engine.run();
+
+        awaitTermination(executor);
+    }
+
+    private void awaitTermination(ExecutorService executor) {
+        try {
+            while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                LOGGER.info("Wating another 10 seconds for the embedded engine to shut down");
+            }
+        }
+        catch (InterruptedException e) {
+            Thread.interrupted();
+        }
     }
 
     private void sendRecord(SourceRecord record) {
