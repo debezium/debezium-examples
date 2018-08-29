@@ -18,7 +18,11 @@ import io.debezium.embedded.EmbeddedEngine;
 import io.debezium.relational.history.MemoryDatabaseHistory;
 import io.debezium.util.Clock;
 
+/**
+ * Demo for using the Debezium Embedded API to send change events to Amazon Kinesis.
+ */
 public class ChangeDataSender implements Runnable {
+
     private static final String APP_NAME = "kinesis";
     private static final String KINESIS_REGION_CONF_NAME = "kinesis.region";
 
@@ -34,7 +38,7 @@ public class ChangeDataSender implements Runnable {
                 .with(MySqlConnectorConfig.SERVER_NAME,APP_NAME)
                 .with(MySqlConnectorConfig.SERVER_ID, 8192)
 
-                // for demo purpose let' store offsets and history only in memory
+                // for demo purposes let's store offsets and history only in memory
                 .with(EmbeddedEngine.OFFSET_STORAGE, "org.apache.kafka.connect.storage.MemoryOffsetBackingStore")
                 .with(MySqlConnectorConfig.DATABASE_HISTORY, MemoryDatabaseHistory.class.getName())
 
@@ -57,6 +61,7 @@ public class ChangeDataSender implements Runnable {
                 .build();
     }
 
+    @Override
     public void run() {
         final EmbeddedEngine engine = EmbeddedEngine.create()
                 .using(config)
@@ -78,16 +83,18 @@ public class ChangeDataSender implements Runnable {
 
     private void sendRecord(SourceRecord record) {
         // We are interested only in data events not schema change events
-        if (record.valueSchema().name().endsWith(".Envelope")) {
-            final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
-            final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
-
-            PutRecordRequest putRecord = new PutRecordRequest();
-            putRecord.setStreamName(streamNameMapper(record.topic()));
-            putRecord.setPartitionKey(new String(key));
-            putRecord.setData(ByteBuffer.wrap(payload));
-            kinesisClient.putRecord(putRecord);
+        if (record.topic().equals(APP_NAME)) {
+            return;
         }
+
+        final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
+        final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
+
+        PutRecordRequest putRecord = new PutRecordRequest();
+        putRecord.setStreamName(streamNameMapper(record.topic()));
+        putRecord.setPartitionKey(new String(key));
+        putRecord.setData(ByteBuffer.wrap(payload));
+        kinesisClient.putRecord(putRecord);
     }
 
     private String streamNameMapper(String topic) {
@@ -97,5 +104,4 @@ public class ChangeDataSender implements Runnable {
     public static void main(String[] args) {
         new ChangeDataSender().run();
     }
-
 }
