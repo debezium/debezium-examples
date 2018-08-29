@@ -1,53 +1,67 @@
-# Streaming database changes to Amazon Kinesis using Debezium
+# Streaming Database Changes to Amazon Kinesis Using Debezium
 
-[Debezium](http://debezium.io/) is a set of Apache Kafka connectors that allows streaming of change events from multiple databases. Using [Debezium Embedded](http://debezium.io/docs/embedded/) it is possible to stream database changes to an arbitrary destination and not be limited to Kafka broker only.
+[Debezium](http://debezium.io/) allows to capture and stream change events from multiple databases such as MySQL and Postgres and is mostly used with Apache Kafka as the underlying messaging infrastructure.
 
+Using [Debezium's embedded mode](http://debezium.io/docs/embedded/) it is possible though to stream database changes to arbitrary destinations and thus not be limited to Kafka as the only broker.
 This demo shows how to stream changes from MySQL database running on a local machine to an Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream.
 
-## Pre-requisities
-* Java 8 development environment
-* Local Docker installation to run the source database
-* an Amazon [AWS](https://aws.amazon.com/) account
-* [AWS CLI](https://aws.amazon.com/cli/) client
+## Prerequisites
 
-## How to run
-### Start MySQL source database
+* Java 8 development environment
+* Local [Docker](https://www.docker.com/) installation to run the source database
+* an Amazon [AWS](https://aws.amazon.com/) account
+* The [AWS CLI](https://aws.amazon.com/cli/) client
+* [jq](https://stedolan.github.io/jq/) 1.6 installed
+
+## Running the Demo
+
+### Starting the MySQL Source Database
+
 We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](http://debezium.io/docs/tutorial/).
 
-```mvn docker:run```
+```
+mvn docker:run
+```
 
-### Initialize Kinesis stream
-We suppose that you have already executed `aws configure` as described in AWS CLI [getting started](https://github.com/aws/aws-cli#getting-started) guide.
+### Preparing the CLI environment
 
-### Create the Kinesis stream
+It is assumed that you have already executed `aws configure` as described in AWS CLI [getting started](https://github.com/aws/aws-cli#getting-started) guide.
 
-```aws kinesis create-stream --stream-name kinesis.inventory.customers --shard-count 1```
+### Create the Kinesis Stream
 
-You can use an arbitrary number of shards. To keep things simple we capture only one table - `customers` from database `inventory` so we need only one stream.
+```
+aws kinesis create-stream --stream-name kinesis.inventory.customers --shard-count 1
+```
+
+You can use an arbitrary number of shards. To keep things simple we capture only one table - `customers` from the `inventory` database, so we need only one stream.
 If you want to capture multiple tables you need to create the equivalent streams for them too.
-The naming shceme of streams is `<engine_name>.<database_name>.<table_name>` which in our case is `kinesis.inventory.<table_name>`.
+The naming scheme of streams is `<engine_name>.<database_name>.<table_name>` which in our case is `kinesis.inventory.<table_name>`.
 
-### Create a stream iterator
+### Creating a Stream Iterator
+
 We will use AWS CLI to read messages.
 
 ```
 ITERATOR=$(aws kinesis get-shard-iterator --stream-name kinesis.inventory.customers --shard-id 0 --shard-iterator-type LATEST|jq '.ShardIterator')
 ```
 
-### Connect the database to Kinesis
+### Connecting the Database to Kinesis
+
 Start the application that uses Debezium Embedded to get change events from database to Kinesis stream.
 ```
 mvn exec:java
 ```
 
-### Read events from the stream
-Execute command
+### Reading Events From the Kinesis Stream
+
+Execute this command to obtain the records from the topic using the iterator and print the change event contents:
 
 ```
-aws kinesis get-records --shard-iterator $ITERATOR | jq -r '.Records[].Data' | base64 -d | jq .
+aws kinesis get-records --shard-iterator $ITERATOR | jq -r '.Records[].Data | @base64d' | jq .
 ```
 
-that will return a sequence JSON messages similar to
+This will return a sequence of JSON messages like this:
+
 ```
 {
   "before": null,
@@ -99,7 +113,5 @@ that will return a sequence JSON messages similar to
   "op": "c",
   "ts_ms": 1520513267424
 }
-.
-.
-.
+...
 ```
