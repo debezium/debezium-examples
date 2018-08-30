@@ -17,17 +17,17 @@ This demo shows how to stream changes from MySQL database running on a local mac
 
 ### Starting the MySQL Source Database
 
-We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](http://debezium.io/docs/tutorial/).
+We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](http://debezium.io/docs/tutorial/):
 
 ```
-mvn docker:run
+docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw debezium/example-mysql:0.8
 ```
 
 ### Preparing the CLI environment
 
 It is assumed that you have already executed `aws configure` as described in AWS CLI [getting started](https://github.com/aws/aws-cli#getting-started) guide.
 
-### Create the Kinesis Stream
+### Creating the Kinesis Stream
 
 ```
 aws kinesis create-stream --stream-name kinesis.inventory.customers --shard-count 1
@@ -42,7 +42,7 @@ The naming scheme of streams is `<engine_name>.<database_name>.<table_name>` whi
 We will use AWS CLI to read messages.
 
 ```
-ITERATOR=$(aws kinesis get-shard-iterator --stream-name kinesis.inventory.customers --shard-id 0 --shard-iterator-type LATEST|jq '.ShardIterator')
+ITERATOR=$(aws kinesis get-shard-iterator --stream-name kinesis.inventory.customers --shard-id 0 --shard-iterator-type TRIM_HORIZON | jq '.ShardIterator')
 ```
 
 ### Connecting the Database to Kinesis

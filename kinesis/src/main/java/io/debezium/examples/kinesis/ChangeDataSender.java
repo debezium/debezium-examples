@@ -6,6 +6,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
@@ -35,7 +38,6 @@ public class ChangeDataSender implements Runnable {
 
     private final Configuration config;
     private final JsonConverter valueConverter;
-    private final JsonConverter keyConverter;
     private final AmazonKinesis kinesisClient;
 
     public ChangeDataSender() {
@@ -53,8 +55,6 @@ public class ChangeDataSender implements Runnable {
                 .with("schemas.enable", false)
                 .build();
 
-        keyConverter = new JsonConverter();
-        keyConverter.configure(config.asMap(), true);
         valueConverter = new JsonConverter();
         valueConverter.configure(config.asMap(), false);
 
@@ -91,7 +91,7 @@ public class ChangeDataSender implements Runnable {
     private void awaitTermination(ExecutorService executor) {
         try {
             while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                LOGGER.info("Wating another 10 seconds for the embedded engine to shut down");
+                LOGGER.info("Waiting another 10 seconds for the embedded engine to shut down");
             }
         }
         catch (InterruptedException e) {
@@ -105,13 +105,24 @@ public class ChangeDataSender implements Runnable {
             return;
         }
 
-        final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
-        final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
+        Schema schema = SchemaBuilder.struct()
+            .field("key", record.keySchema())
+            .field("value", record.valueSchema())
+            .build();
+
+        Struct message = new Struct(schema);
+        message.put("key", record.key());
+        message.put("value", record.value());
+
+        String partitionKey = String.valueOf(record.key() != null ? record.key().hashCode() : new Object().hashCode());
+        final byte[] payload = valueConverter.fromConnectData("dummy", schema, message);
 
         PutRecordRequest putRecord = new PutRecordRequest();
+
         putRecord.setStreamName(streamNameMapper(record.topic()));
-        putRecord.setPartitionKey(new String(key));
+        putRecord.setPartitionKey(partitionKey);
         putRecord.setData(ByteBuffer.wrap(payload));
+
         kinesisClient.putRecord(putRecord);
     }
 

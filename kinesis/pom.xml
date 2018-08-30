@@ -121,42 +121,6 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            <plugin>
-              <groupId>io.fabric8</groupId>
-              <artifactId>docker-maven-plugin</artifactId>
-              <configuration>
-                <watchInterval>500</watchInterval>
-                <logDate>default</logDate>
-                <verbose>true</verbose>
-                <autoPull>always</autoPull>
-                <images>
-                  <image>
-                    <name>debezium/example-mysql:${version.debezium.tag}</name>
-                    <alias>mysql</alias>
-                    <run>
-                      <namingStrategy>alias</namingStrategy>
-                      <env>
-                        <MYSQL_ROOT_PASSWORD>debezium-rocks</MYSQL_ROOT_PASSWORD>
-                        <MYSQL_USER>mysqluser</MYSQL_USER>
-                        <MYSQL_PASSWORD>mysqlpw</MYSQL_PASSWORD>
-                      </env>
-                      <ports>
-                        <port>${database.port}:3306</port>
-                      </ports>
-                      <log>
-                        <prefix>mysql</prefix>
-                        <enabled>true</enabled>
-                        <color>yellow</color>
-                      </log>
-                      <wait>
-                        <log>MySQL init process done. Ready for start up.</log>
-                        <time>${mysql.init.timeout}</time>
-                      </wait>
-                    </run>
-                  </image>
-                </images>
-              </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
