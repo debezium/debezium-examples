@@ -114,7 +114,7 @@ public class ChangeDataSender implements Runnable {
         message.put("key", record.key());
         message.put("value", record.value());
 
-        String partitionKey = String.valueOf(record.key() != null ? record.key().hashCode() : new Object().hashCode());
+        String partitionKey = String.valueOf(record.key() != null ? record.key().hashCode() : -1);
         final byte[] payload = valueConverter.fromConnectData("dummy", schema, message);
 
         PutRecordRequest putRecord = new PutRecordRequest();
