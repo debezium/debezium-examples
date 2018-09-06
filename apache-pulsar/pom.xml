@@ -26,7 +26,7 @@
                     <!--<appendAssemblyId>false</appendAssemblyId>-->
                     <archive>
                         <manifest>
-                            <mainClass>com.nutanix.cdc.connector.dbz.pulsar.PulsarProducer</mainClass>
+                            <mainClass>io.debezium.examples.apache.pulsar.PulsarProducer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
