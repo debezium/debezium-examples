@@ -1,20 +1,7 @@
 /*
+ * Copyright Debezium Authors.
  *
- * Copyright (c) 2018 Nutanix, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @author Yuvaraj L
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
 package io.debezium.examples.apache.pulsar;
 
@@ -55,29 +42,6 @@ public class PulsarProducer implements Runnable {
         }
         PropertyLoader.loadEnvironmentValues(propConfig);
         config = Configuration.from(propConfig);
-
-//                /* begin engine properties */
-//                .with("connector.class",
-//                        "io.debezium.connector.postgresql.PostgresConnector")
-//                .with("offset.storage",
-//                        "org.apache.kafka.connect.storage.FileOffsetBackingStore")
-//                .with("offset.storage.file.filename",
-//                        "offset.dat")
-//                .with("offset.flush.interval.ms", 5000)
-//                /* begin connector properties */
-//                .with("name", "my-sql-connector")
-//                .with("database.hostname", "192.168.33.10")
-//                .with("database.port", 5432)
-//                .with("database.user", "postgres")
-//                .with("database.password", "password")
-//                .with("database.dbname", "test")
-//                .with("plugin.name", "wal2json")
-//                .with("database.server.name", "test")
-//                .with("database.history",
-//                        "io.debezium.relational.history.FileDatabaseHistory")
-//                .with("database.history.file.filename",
-//                        "dbhistory.dat")
-//                .build();
         keyConverter = new JsonConverter();
         keyConverter.configure(config.asMap(), true);
         valueConverter = new JsonConverter();
@@ -127,17 +91,17 @@ public class PulsarProducer implements Runnable {
 
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Going to Halt");
+            logger.info("Going to Halt");
             try {
                 engine.stop();
                 producerHashMap.forEach((topic, producer) -> {
-                    System.out.println(String.format("Closing producer for topic %s", topic));
+                    logger.info(String.format("Closing producer for topic %s", topic));
                     try {
                         producerHashMap.get(topic).close();
                     } catch (PulsarClientException e) {
                         logger.error(e);
                     }
-                    System.out.println("Producer Closed");
+                    logger.info("Producer Closed");
 
                 });
                 client.close();
