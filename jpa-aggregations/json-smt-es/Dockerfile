@@ -1,14 +1,9 @@
 FROM debezium/connect:0.9
-ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc \
+ENV KAFKA_CONNECT_JSON_SMT_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-json-smt \
     KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 
-
-# Deploy PostgreSQL JDBC Driver
-RUN cd /kafka/libs && curl -sO https://jdbc.postgresql.org/download/postgresql-42.1.4.jar
-
-# Deploy Kafka Connect JDBC
-RUN mkdir $KAFKA_CONNECT_JDBC_DIR && cd $KAFKA_CONNECT_JDBC_DIR &&\
-	curl -sO http://packages.confluent.io/maven/io/confluent/kafka-connect-jdbc/5.0.0/kafka-connect-jdbc-5.0.0.jar
+RUN mkdir $KAFKA_CONNECT_JSON_SMT_DIR
+COPY target/json-smt-1.0.0.Final.jar $KAFKA_CONNECT_JSON_SMT_DIR
 
 # Deploy Confluent Elasticsearch sink connector
 RUN mkdir $KAFKA_CONNECT_ES_DIR && cd $KAFKA_CONNECT_ES_DIR &&\
