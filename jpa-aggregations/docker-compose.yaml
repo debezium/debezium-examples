@@ -15,7 +15,9 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
   mysql:
-    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+    image: debezium/jpa-aggregation-example-db:${DEBEZIUM_VERSION}
+    build:
+      context: example-db
     ports:
      - 3306:3306
     environment:
@@ -32,9 +34,9 @@ services:
      - xpack.security.enabled=false
      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
   connect:
-    image: debezium/connect-jdbc-es:${DEBEZIUM_VERSION}
+    image: debezium/connect-json-smt-es:${DEBEZIUM_VERSION}
     build:
-      context: debezium-jdbc-es
+      context: json-smt-es
     ports:
      - 8083:8083
      - 5005:5005
@@ -47,3 +49,5 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - KAFKA_DEBUG=true
+     - DEBUG_SUSPEND_FLAG=n

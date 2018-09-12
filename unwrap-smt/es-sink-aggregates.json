@@ -1,0 +1,15 @@
+{
+    "name": "elastic-sink-aggregates",
+    "config": {
+        "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+        "tasks.max": "1",
+        "topics": "aggregates",
+        "connection.url": "http://elastic:9200",
+        "transforms": "unwrap,key",
+        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
+        "transforms.key.field": "rootId",
+        "key.ignore": "false",
+        "type.name": "customer-with-addresses"
+    }
+}
