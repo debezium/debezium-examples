@@ -5,31 +5,40 @@
  */
 package io.debezium.examples.apache.pulsar;
 
-import io.debezium.config.Configuration;
-import io.debezium.embedded.EmbeddedEngine;
-import io.debezium.examples.apache.pulsar.config.PropertyLoader;
-import io.debezium.util.Clock;
-import org.apache.kafka.connect.json.JsonConverter;
-import org.apache.kafka.connect.source.SourceRecord;
-import org.apache.pulsar.client.api.*;
-import org.apache.log4j.Logger;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.source.SourceRecord;
+import org.apache.pulsar.client.api.MessageId;
+import org.apache.pulsar.client.api.Producer;
+import org.apache.pulsar.client.api.PulsarClient;
+import org.apache.pulsar.client.api.PulsarClientException;
+import org.apache.pulsar.client.api.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.debezium.config.Configuration;
+import io.debezium.embedded.EmbeddedEngine;
+import io.debezium.examples.apache.pulsar.config.PropertyLoader;
+import io.debezium.util.Clock;
 
 public class PulsarProducer implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(PulsarProducer.class);
+
     private final Configuration config;
     private final JsonConverter valueConverter;
     private final JsonConverter keyConverter;
     private PulsarClient client;
-    private HashMap<String, Producer<String>> producerHashMap = new HashMap<>();
-    private Properties propConfig;
-    private Logger logger = Logger.getLogger(PulsarProducer.class);
+    private final HashMap<String, Producer<String>> producerHashMap = new HashMap<>();
+    private final Properties propConfig;
 
     private PulsarProducer() {
 
@@ -37,42 +46,43 @@ public class PulsarProducer implements Runnable {
         propConfig = new Properties();
         try {
             propConfig.load(propsInputStream);
-        } catch (IOException e) {
-            logger.error(e);
         }
+        catch (IOException e) {
+            logger.error("Couldn't load properties", e);
+        }
+
         PropertyLoader.loadEnvironmentValues(propConfig);
         config = Configuration.from(propConfig);
+
         keyConverter = new JsonConverter();
         keyConverter.configure(config.asMap(), true);
         valueConverter = new JsonConverter();
         valueConverter.configure(config.asMap(), false);
-
-
     }
 
     private Producer<String> getProducer(String topic) {
         String topicFormat = propConfig.getProperty("pulsar.topic");
         String topicURI = MessageFormat.format(topicFormat, topic);
         Producer<String> producer = producerHashMap.get(topic);
+
         if (producer == null) {
             try {
                 producer = client.newProducer(Schema.STRING)
                         .topic(topicURI)
                         .create();
-            } catch (PulsarClientException e) {
-                logger.error(e);
-                return null;
             }
+            catch (PulsarClientException e) {
+                throw new RuntimeException(e);
+            }
+
             producerHashMap.put(topic, producer);
         }
 
         return producer;
     }
 
-
     @Override
     public void run() {
-
         final EmbeddedEngine engine = EmbeddedEngine.create()
                 .using(config)
                 .using(this.getClass().getClassLoader())
@@ -84,41 +94,38 @@ public class PulsarProducer implements Runnable {
             client = PulsarClient.builder()
                     .serviceUrl(propConfig.getProperty("pulsar.broker.address"))
                     .build();
-
-        } catch (PulsarClientException e) {
-            logger.error(e);
+        }
+        catch (PulsarClientException e) {
+            throw new RuntimeException(e);
         }
 
-        final Thread mainThread = Thread.currentThread();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(engine);
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            logger.info("Going to Halt");
+            logger.info("Requesting embedded engine to shut down");
             try {
                 engine.stop();
+
                 producerHashMap.forEach((topic, producer) -> {
                     logger.info(String.format("Closing producer for topic %s", topic));
                     try {
                         producerHashMap.get(topic).close();
-                    } catch (PulsarClientException e) {
-                        logger.error(e);
+                    }
+                    catch (PulsarClientException e) {
+                        logger.error("Couldn't close producer", e);
                     }
                     logger.info("Producer Closed");
 
                 });
                 client.close();
-            } catch (PulsarClientException e) {
-                logger.error(e);
             }
-
-            try {
-                engine.await(30, TimeUnit.SECONDS);
-                mainThread.join();
-            } catch (InterruptedException e) {
-                logger.error(e);
+            catch (PulsarClientException e) {
+                throw new RuntimeException(e);
             }
         }));
 
-
-        engine.run();
+        awaitTermination(executor);
     }
 
     /**
@@ -133,40 +140,32 @@ public class PulsarProducer implements Runnable {
         Producer<String> producer;
 
         producer = getProducer(record.topic());
-        while (producer == null) {
-            try {
-                logger.error("Unable to create Producer . Retrying after 10 seconds");
-                Thread.sleep(10000);
-                producer = getProducer(record.topic());
-
-            } catch (InterruptedException e) {
-                logger.error(e);
-            }
-
-        }
 
         while (true) {
 
             try {
-
                 MessageId msgID = producer.newMessage().key(new String(key)).value(new String(payload)).send();
                 logger.debug(String.format("Published message with Id %s", msgID));
                 break;
-            } catch (PulsarClientException e) {
-                logger.error(e);
-                try {
-                    logger.error("Unable to publish the message.Retrying after 10 seconds.");
-                    Thread.sleep(10000);
-                } catch (InterruptedException e1) {
-                    logger.error(e1);
-                }
+            }
+            catch (PulsarClientException e) {
+                throw new RuntimeException("Couldn't send message", e);
             }
         }
+    }
 
+    private void awaitTermination(ExecutorService executor) {
+        try {
+            while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                logger.info("Waiting another 10 seconds for the embedded engine to shut down");
+            }
+        }
+        catch (InterruptedException e) {
+            Thread.interrupted();
+        }
     }
 
     public static void main(String[] args) {
         new PulsarProducer().run();
     }
-
 }
