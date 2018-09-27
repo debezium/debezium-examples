@@ -27,7 +27,7 @@ This demo shows how to stream changes from a Postgres database to Apache [Pulsar
 ## Building the Source Code and Running Debezium Embedded
 
     mvn clean install
-    docker exec -i pulsar bin/pulsar-client consume -s mysubscription persistent://public/default/test.inventory.customers
+    java -jar target/apache-pulsar-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 To configure Debezium parameters refer to `config.properties`.
 All the config.properties keys can be overridden using environment variables.
@@ -44,4 +44,4 @@ Modify a record in psql, e.g. like this:
 Consume the corresponding change event from the Pulsar topic, e.g. using the command line client
 (by default it will consume one event and then return):
 
-    docker exec -i pulsar bin/pulsar-client consume -s my-subscription persistent://public/default/test.inventory.customers
+    docker exec -i pulsar bin/pulsar-client consume -s my-subscription -n 0 persistent://public/default/test.inventory.customers

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +38,7 @@ public class PulsarProducer implements Runnable {
     private final JsonConverter valueConverter;
     private final JsonConverter keyConverter;
     private PulsarClient client;
-    private final HashMap<String, Producer<String>> producerHashMap = new HashMap<>();
+    private final Map<String, Producer<String>> producers = new HashMap<>();
     private final Properties propConfig;
 
     private PulsarProducer() {
@@ -63,20 +64,17 @@ public class PulsarProducer implements Runnable {
     private Producer<String> getProducer(String topic) {
         String topicFormat = propConfig.getProperty("pulsar.topic");
         String topicURI = MessageFormat.format(topicFormat, topic);
-        Producer<String> producer = producerHashMap.get(topic);
 
-        if (producer == null) {
+        Producer<String> producer = producers.computeIfAbsent(topic, t -> {
             try {
-                producer = client.newProducer(Schema.STRING)
+                return client.newProducer(Schema.STRING)
                         .topic(topicURI)
                         .create();
             }
             catch (PulsarClientException e) {
                 throw new RuntimeException(e);
             }
-
-            producerHashMap.put(topic, producer);
-        }
+        });
 
         return producer;
     }
@@ -107,10 +105,10 @@ public class PulsarProducer implements Runnable {
             try {
                 engine.stop();
 
-                producerHashMap.forEach((topic, producer) -> {
-                    logger.info(String.format("Closing producer for topic %s", topic));
+                producers.forEach((topic, producer) -> {
+                    logger.info("Closing producer for topic {}", topic);
                     try {
-                        producerHashMap.get(topic).close();
+                        producers.get(topic).close();
                     }
                     catch (PulsarClientException e) {
                         logger.error("Couldn't close producer", e);
@@ -129,14 +127,14 @@ public class PulsarProducer implements Runnable {
     }
 
     /**
-     * For Every record this method will be invoked* @param record
+     * For every record this method will be invoked.
      */
     private void sendRecord(SourceRecord record) {
         final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
         final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
-        logger.debug("Publishing Topic --> " + record.topic());
-        logger.debug("Key -->" + new String(key));
-        logger.debug("Payload --> " + new String(payload));
+        logger.debug("Publishing Topic --> {}", record.topic());
+        logger.debug("Key --> {}", new String(key));
+        logger.debug("Payload --> {}", new String(payload));
         Producer<String> producer;
 
         producer = getProducer(record.topic());
@@ -144,8 +142,12 @@ public class PulsarProducer implements Runnable {
         while (true) {
 
             try {
-                MessageId msgID = producer.newMessage().key(new String(key)).value(new String(payload)).send();
-                logger.debug(String.format("Published message with Id %s", msgID));
+                MessageId msgID = producer.newMessage()
+                        .key(new String(key))
+                        .value(new String(payload))
+                        .send();
+
+                logger.debug("Published message with id {}", msgID);
                 break;
             }
             catch (PulsarClientException e) {
