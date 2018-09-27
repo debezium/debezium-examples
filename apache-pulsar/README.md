@@ -1,4 +1,4 @@
-# Streaming Postgres Database Changes to Apache pulsar Using Debezium
+# Streaming Postgres Database Changes to Apache Pulsar Using Debezium
 
 [Debezium](http://debezium.io/) allows to capture and stream change events from multiple databases such as MySQL and Postgres and is mostly used with Apache Kafka as the underlying messaging infrastructure.
 
