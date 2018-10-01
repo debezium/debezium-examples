@@ -26,6 +26,9 @@
                 barChartData.labels = Array.from( temperatureData.keys() );
                 barChartData.datasets[0].data = Array.from( temperatureData.values() );
 
+                eventCount++;
+                event_count.innerHTML = "Events received: " + eventCount;
+
                 window.myBar.update();
             };
 
@@ -50,6 +53,7 @@
     <script>
         var color = Chart.helpers.color;
         var temperatureData = new Map();
+        var eventCount = 0;
 
         var barChartData = {
             labels: [],
@@ -91,6 +95,7 @@
     </script>
 
     <p id="status"></p>
+    <p id="event_count"></p>
     <p id="last_message"></p>
 </body>
 
