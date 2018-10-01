@@ -7,17 +7,24 @@ package io.debezium.examples.kstreams.liveupdate.aggregator.model;
 
 import java.time.ZonedDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class TemperatureMeasurement {
 
     public long id;
 
+    @JsonProperty("station_id")
     public long stationId;
 
     public String stationName;
 
     public double value;
 
+    @JsonProperty("ts")
     public ZonedDateTime timestamp;
+
+    public TemperatureMeasurement() {
+    }
 
     public TemperatureMeasurement(long id, long stationId, double value, ZonedDateTime timestamp) {
         this.id = id;

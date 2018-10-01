@@ -7,6 +7,7 @@ package io.debezium.examples.kstreams.liveupdate.aggregator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Collections;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -20,19 +21,21 @@ import org.apache.kafka.streams.kstream.Serialized;
 import io.debezium.examples.kstreams.liveupdate.aggregator.model.CountAndSum;
 import io.debezium.examples.kstreams.liveupdate.aggregator.model.Station;
 import io.debezium.examples.kstreams.liveupdate.aggregator.model.TemperatureMeasurement;
-import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.CountAndSumSerde;
-import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.LongKeySerde;
-import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StationSerde;
-import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.TemperatureMeasurementSerde;
+import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.ChangeEventAwareJsonSerde;
 
 public class TemperatureTableBuilder {
     public static KTable<String, String> avgTemperaturesByStation(StreamsBuilder builder) {
+        Serde<Long> longKeySerde = new ChangeEventAwareJsonSerde<>(Long.class);
+        longKeySerde.configure(Collections.emptyMap(), true);
 
-        Serde<Long> longKeySerde = new LongKeySerde();
+        Serde<TemperatureMeasurement> temperatureMeasurementsSerde = new ChangeEventAwareJsonSerde<>(TemperatureMeasurement.class);
+        temperatureMeasurementsSerde.configure(Collections.emptyMap(), false);
 
-        Serde<TemperatureMeasurement> temperatureMeasurementsSerde = new TemperatureMeasurementSerde();
-        Serde<Station> stationSerde = new StationSerde();
-        Serde<CountAndSum> countAndSumSerde = new CountAndSumSerde();
+        Serde<Station> stationSerde = new ChangeEventAwareJsonSerde<>(Station.class);
+        stationSerde.configure(Collections.emptyMap(), false);
+
+        Serde<CountAndSum> countAndSumSerde = new ChangeEventAwareJsonSerde<>(CountAndSum.class);
+        stationSerde.configure(Collections.emptyMap(), false);
 
         KTable<Long, Station> stations = builder.table("dbserver1.inventory.stations", Consumed.with(longKeySerde, stationSerde));
 

@@ -11,6 +11,9 @@ public class Station {
 
     public String name;
 
+    public Station() {
+    }
+
     public Station(long id, String name) {
         this.id = id;
         this.name = name;

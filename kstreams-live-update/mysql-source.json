@@ -12,9 +12,6 @@
         "decimal.handling.mode" : "string",
         "table.whitelist": "inventory.temperature_measurements,inventory.stations",
         "database.history.kafka.bootstrap.servers": "kafka:9092",
-        "database.history.kafka.topic": "schema-changes.inventory",
-        "transforms": "unwrap",
-        "transforms.unwrap.type":"io.debezium.transforms.UnwrapFromEnvelope",
-        "transforms.unwrap.drop.tombstones":"false"
+        "database.history.kafka.topic": "schema-changes.inventory"
     }
 }
