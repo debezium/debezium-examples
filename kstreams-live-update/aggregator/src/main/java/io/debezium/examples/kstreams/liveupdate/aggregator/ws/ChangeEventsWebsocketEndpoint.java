@@ -32,12 +32,13 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Windowed;
 
 import io.debezium.examples.kstreams.liveupdate.aggregator.StreamsPipeline;
+import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
 
 @ServerEndpoint("/example")
 @ApplicationScoped
 public class ChangeEventsWebsocketEndpoint {
 
-    Logger log = Logger.getLogger( this.getClass().getName() );
+    private static final Logger LOG = Logger.getLogger( ChangeEventsWebsocketEndpoint.class.getName() );
 
     private final Set<Session> sessions = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
@@ -48,7 +49,7 @@ public class ChangeEventsWebsocketEndpoint {
         final String bootstrapServers = "kafka:9092";
 
         Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "temperature-aggregator");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "order-aggregator-ws");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10*1024);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
@@ -57,20 +58,20 @@ public class ChangeEventsWebsocketEndpoint {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<Windowed<String>, String> avgSalesPricePerCategory = StreamsPipeline.avgSalesPricePerCategory(builder)
+        final KStream<Windowed<String>, String> salesPerCategory = StreamsPipeline.salesPerCategory(builder)
                 .toStream()
                 .peek((k, v) -> sessions.forEach(s -> {
                     try {
-                        s.getBasicRemote().sendText("{ \"category\" : \"" + k.key() + "\", \"average-sales-price\" : " + v + " }");
+                        s.getBasicRemote().sendText("{ \"category\" : \"" + k.key() + "\", \"accumulated-sales\" : " + v + " }");
                     }
                     catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }));
 
-        avgSalesPricePerCategory.to(
-                "average_sales_price_per_category",
-                Produced.with(StreamsPipeline.getWindowedStringSerde(), Serdes.String())
+        salesPerCategory.to(
+                "sales_per_category",
+                Produced.with(new StringWindowedSerde(), Serdes.String())
          );
 
         streams = new KafkaStreams(builder.build(), props);
@@ -85,13 +86,13 @@ public class ChangeEventsWebsocketEndpoint {
 
     @OnOpen
     public void open(Session session) {
-        log.info( "Opening session: " + session.getId() );
+        LOG.info( "Opening session: " + session.getId() );
         sessions.add(session);
     }
 
     @OnClose
     public void close(Session session, CloseReason c) {
         sessions.remove( session );
-        log.info( "Closing: " + session.getId() );
+        LOG.info( "Closing: " + session.getId() );
     }
 }

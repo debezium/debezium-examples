@@ -11,8 +11,10 @@
     <properties>
         <mvn.compiler.version>3.5.1</mvn.compiler.version>
         <mvn.dependency.version>3.0.2</mvn.dependency.version>
-        <apache.kafka.version>1.0.0</apache.kafka.version>
+        <apache.kafka.version>2.0.0</apache.kafka.version>
         <version.wildfly.swarm>2018.1.0</version.wildfly.swarm>
+        <version.org.slf4j>1.7.25</version.org.slf4j>
+        <version.com.fasterxml.jackson>2.9.6</version.com.fasterxml.jackson>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
@@ -61,7 +63,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.9.1</version>
+            <version>${version.com.fasterxml.jackson}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+             <version>${version.org.slf4j}</version>
         </dependency>
     </dependencies>
 

@@ -13,7 +13,17 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Triggers change events by persisting {@link Order} records.
+ *
+ * @author Gunnar Morling
+ */
 class EventSource {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EventSource.class);
 
     private boolean running = true;
     private Thread thread;
@@ -44,18 +54,18 @@ class EventSource {
                     Thread.sleep(50);
                 }
                 catch (InterruptedException e) {
-                    System.out.println("Interrupted");
+                    LOG.info("Interrupted");
                     running = false;
                 }
 
                 if (i % 50 == 0) {
-                    System.out.println("Inserted " + i + " measurements");
+                    LOG.info("Inserted {} orders", i);
                     entityManager.getTransaction().commit();
                     entityManager.clear();
                 }
             }
 
-            System.out.println("Clean-up");
+            LOG.info("Clean-up");
 
             entityManager.close();
             entityManagerFactory.close();
@@ -68,13 +78,14 @@ class EventSource {
         Category category = categories.get(random.nextInt(categories.size()));
         int customerId = minCustomerId + random.nextInt(maxCustomerId - minCustomerId + 1);
         int productId = minProductId + random.nextInt(maxProductId - minProductId + 1);
+        int quantity = random.nextInt(4) + 1;
 
         return new Order(
                 ZonedDateTime.now(),
                 customerId,
                 productId,
                 entityManager.getReference(Category.class, category.id),
-                random.nextInt(4) + 1,
+                quantity,
                 category.getRandomPrice()
         );
     }

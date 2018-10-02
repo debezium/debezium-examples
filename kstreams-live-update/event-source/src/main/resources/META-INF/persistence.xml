@@ -6,7 +6,7 @@
 
 	<persistence-unit name="templatePU" transaction-type="RESOURCE_LOCAL">
 
-		<description>Hibernate test case template Persistence Unit</description>
+		<description>Debezium Kstreams Demo Event Source Persistence Unit</description>
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
