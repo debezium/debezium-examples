@@ -1,7 +1,7 @@
 # Switch to this database
 USE inventory;
 
-DROP TABLE orders;
+DROP TABLE IF EXISTS orders;
 
 CREATE TABLE categories (
   id BIGINT NOT NULL AUTO_INCREMENT,

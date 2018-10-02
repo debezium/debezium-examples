@@ -18,6 +18,8 @@ import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Windowed;
 
+import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -30,7 +32,7 @@ public class Main {
         final String bootstrapServers = args[0];
 
         Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "temperature-aggregator");
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "order-aggregator");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10 * 1024);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
@@ -38,16 +40,16 @@ public class Main {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         StreamsBuilder builder = new StreamsBuilder();
-        final KTable<Windowed<String>, String> avgSalesPricePerCategory = StreamsPipeline
-                .avgSalesPricePerCategory(builder);
+        final KTable<Windowed<String>, String> salesPerCategory = StreamsPipeline
+                .salesPerCategory(builder);
 
-        avgSalesPricePerCategory.toStream()
+        salesPerCategory.toStream()
             .to(
-                    "average_sales_price_per_category",
-                    Produced.with(StreamsPipeline.getWindowedStringSerde(), Serdes.String())
+                    "sales_per_category",
+                    Produced.with(new StringWindowedSerde(), Serdes.String())
              );
 
-        avgSalesPricePerCategory.toStream().print(Printed.toSysOut());
+        salesPerCategory.toStream().print(Printed.toSysOut());
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

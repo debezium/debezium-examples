@@ -21,7 +21,7 @@
                 // last_message.innerHTML = "Last message: " + msg;
 
                 var record = JSON.parse(msg);
-                salesPriceData.set(record["category"], record["average-sales-price"]);
+                salesPriceData.set(record["category"], record["accumulated-sales"]);
 
                 barChartData.labels = Array.from( salesPriceData.keys() );
                 barChartData.datasets[0].data = Array.from( salesPriceData.values() );
@@ -58,7 +58,7 @@
         var barChartData = {
             labels: [],
             datasets: [{
-                label: 'Average Sales Prices',
+                label: 'Sales Per Category',
                 backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
                 borderColor: window.chartColors.blue,
                 borderWidth: 1,
@@ -84,7 +84,7 @@
                             yAxes: [{
                                 ticks: {
                                     suggestedMin: 0,
-                                    suggestedMax: 80
+                                    suggestedMax: 1200
                                 }
                             }]
                         }
