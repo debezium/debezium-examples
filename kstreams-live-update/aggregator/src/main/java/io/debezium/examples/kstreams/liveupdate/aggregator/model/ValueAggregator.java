@@ -5,16 +5,17 @@
  */
 package io.debezium.examples.kstreams.liveupdate.aggregator.model;
 
-public class CountAndSum {
+public class ValueAggregator {
 
     public long count;
     public long sum;
 
-    public CountAndSum() {
+    public ValueAggregator() {
     }
 
-    public CountAndSum(long count, long sum) {
-        this.count = count;
-        this.sum = sum;
+    public ValueAggregator increment(long value) {
+        sum += value;
+        count++;
+        return this;
     }
 }

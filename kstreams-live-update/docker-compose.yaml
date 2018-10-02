@@ -55,7 +55,7 @@ services:
   aggregator:
     image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
     build:
-      context: temperature-aggregator
+      context: aggregator
     ports:
      - 8079:8079
     links:
@@ -76,4 +76,3 @@ services:
         echo 'Source connector deployed!';
         java -jar /deployments/demo-swarm.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
       "
-    # /deployments/run-java.sh dbserver1.inventory.customers dbserver1.inventory.addresses kafka:9092

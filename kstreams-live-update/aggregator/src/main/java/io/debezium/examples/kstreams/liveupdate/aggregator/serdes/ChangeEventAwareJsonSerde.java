@@ -67,6 +67,10 @@ public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
 
         @Override
         public T deserialize(String topic, byte[] data) {
+            if (data == null) {
+                return null;
+            }
+
             try {
                 JsonNode node = mapper.readTree(data);
 
