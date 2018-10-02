@@ -12,7 +12,7 @@
         <mvn.compiler.version>3.5.1</mvn.compiler.version>
         <mvn.dependency.version>3.0.2</mvn.dependency.version>
         <apache.kafka.version>2.0.0</apache.kafka.version>
-        <version.wildfly.swarm>2018.1.0</version.wildfly.swarm>
+        <version.thorntail>2.2.0.Final</version.thorntail>
         <version.org.slf4j>1.7.25</version.org.slf4j>
         <version.com.fasterxml.jackson>2.9.6</version.com.fasterxml.jackson>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -24,9 +24,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.wildfly.swarm</groupId>
+                <groupId>io.thorntail</groupId>
                 <artifactId>bom-all</artifactId>
-                <version>${version.wildfly.swarm}</version>
+                <version>${version.thorntail}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -77,9 +77,9 @@
         <finalName>demo</finalName>
         <plugins>
             <plugin>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>wildfly-swarm-plugin</artifactId>
-                <version>${version.wildfly.swarm}</version>
+                <groupId>io.thorntail</groupId>
+                <artifactId>thorntail-maven-plugin</artifactId>
+                <version>${version.thorntail}</version>
 
                 <executions>
                     <execution>
