@@ -76,5 +76,5 @@ services:
           sleep 1;
         done;
         echo 'Source connector deployed!';
-        java -jar /deployments/demo-swarm.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
+        java -jar /deployments/demo-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
       "
