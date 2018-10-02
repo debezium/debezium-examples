@@ -3,19 +3,18 @@
 This demo shows how to use KStreams to join two CDC event streams created by Debezium,
 do some calculation on the joined stream and push the merged events to a client using WebSockets.
 
-The domain is that of weather stations that measure temperature data.
-There's an application _event-source_, which persists random temperature measurements.
-In reality this could for instance expose a REST API, to which individual sensors post their events.
+The domain is that of orders that belong to given categories.
+There's an application _event-source_, which persists random orders.
 
 The application has two tables:
 
-* `stations`: Named weather stations
-* `temperature_measurements`: temperature measurements for a station with a value and timestamp
+* `categories`: Product categories
+* `orders`: orders with a given category and a (random) sales prices
 
 Debezium is used to capture changes to the two tables in the application's underlying MySQL database.
 
-The _temperature-aggregator_ application runs KStreams to join measurements with stations,
-group the events by station name and calculate the average temperature per station.
+The _aggregator_ application runs KStreams to join orders with categories,
+group the events by category name and calculate the average sales price per category.
 
 The aggregated values are pushed to WebSockets.
 For that purpose, the aggregator application exposes a WebSockets endpoint using WildFly Swarm.
@@ -26,7 +25,7 @@ Build data generator application and aggregator application:
 
 ```shell
 mvn clean install -f event-source/pom.xml
-mvn clean install -f temperature-aggregator/pom.xml
+mvn clean install -f aggregator/pom.xml
 ```
 
 Start Kafka, Kafka Connect, MySQL, event source and aggregator:
@@ -55,7 +54,7 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
-    --topic average_temperatures_by_station
+    --topic average_sales_price_per_category
 ```
 
 # Shut down the cluster
@@ -63,3 +62,9 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
 ```shell
 docker-compose down
 ```
+
+# Locally testing the aggregator
+
+Add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in _docker-compose.yaml_.
+
+Run `io.debezium.examples.kstreams.liveupdate.aggregator.Main`, passing `<YOUR HOST IP>:9092` as program argument.

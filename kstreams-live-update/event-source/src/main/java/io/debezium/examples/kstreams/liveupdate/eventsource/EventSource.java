@@ -5,8 +5,6 @@
  */
 package io.debezium.examples.kstreams.liveupdate.eventsource;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Random;
@@ -27,27 +25,33 @@ class EventSource {
             EntityManager entityManager = entityManagerFactory.createEntityManager();
 
             entityManager.getTransaction().begin();
-            List<Station> stations = entityManager.createQuery("from Station s", Station.class).getResultList();
+            List<Category> categories = entityManager.createQuery("from Category c", Category.class).getResultList();
+            Object[] minMaxCustomerIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from customers").getSingleResult();
+            Object[] minMaxProductIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from products").getSingleResult();
+
             entityManager.getTransaction().commit();
 
             int i = 0;
             while (running) {
                 if (i % 50 == 0) {
-                    System.out.println("Inserted " + i + " measurements");
+                    entityManager.getTransaction().begin();
                 }
 
-                entityManager.getTransaction().begin();
-
-                entityManager.persist(getRandomMeasurement(entityManager, stations));
-                entityManager.getTransaction().commit();
+                entityManager.persist(getRandomOrder(entityManager, (int)minMaxCustomerIds[0], (int)minMaxCustomerIds[1], (int)minMaxProductIds[0], (int)minMaxProductIds[1], categories));
 
                 i++;
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(50);
                 }
                 catch (InterruptedException e) {
                     System.out.println("Interrupted");
                     running = false;
+                }
+
+                if (i % 50 == 0) {
+                    System.out.println("Inserted " + i + " measurements");
+                    entityManager.getTransaction().commit();
+                    entityManager.clear();
                 }
             }
 
@@ -60,20 +64,19 @@ class EventSource {
         thread.start();
     }
 
-    private TemperatureMeasurement getRandomMeasurement(EntityManager entityManager, List<Station> stations) {
-        Station station = stations.get(random.nextInt(stations.size()));
+    private Order getRandomOrder(EntityManager entityManager, int minCustomerId, int maxCustomerId, int minProductId, int maxProductId, List<Category> categories) {
+        Category category = categories.get(random.nextInt(categories.size()));
+        int customerId = minCustomerId + random.nextInt(maxCustomerId - minCustomerId + 1);
+        int productId = minProductId + random.nextInt(maxProductId - minProductId + 1);
 
-        return new TemperatureMeasurement(
-                entityManager.getReference(Station.class, station.id),
-                getRandomTemperature(),
-                ZonedDateTime.now()
+        return new Order(
+                ZonedDateTime.now(),
+                customerId,
+                productId,
+                entityManager.getReference(Category.class, category.id),
+                random.nextInt(4) + 1,
+                category.getRandomPrice()
         );
-    }
-
-    private double getRandomTemperature() {
-        BigDecimal bigDecimal = BigDecimal.valueOf(40 * random.nextDouble());
-        bigDecimal = bigDecimal.setScale(1, RoundingMode.HALF_UP);
-        return bigDecimal.doubleValue();
     }
 
     public void stop() {

@@ -16,6 +16,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Windowed;
 
 public class Main {
 
@@ -37,12 +38,16 @@ public class Main {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         StreamsBuilder builder = new StreamsBuilder();
-        final KTable<String, String> avgTemperaturesByStation = TemperatureTableBuilder
-                .avgTemperaturesByStation(builder);
+        final KTable<Windowed<String>, String> avgSalesPricePerCategory = StreamsPipeline
+                .avgSalesPricePerCategory(builder);
 
-        avgTemperaturesByStation.toStream().to("average_temperatures_by_station",
-                Produced.with(Serdes.String(), Serdes.String()));
-        avgTemperaturesByStation.toStream().print(Printed.toSysOut());
+        avgSalesPricePerCategory.toStream()
+            .to(
+                    "average_sales_price_per_category",
+                    Produced.with(StreamsPipeline.getWindowedStringSerde(), Serdes.String())
+             );
+
+        avgSalesPricePerCategory.toStream().print(Printed.toSysOut());
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), props);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));

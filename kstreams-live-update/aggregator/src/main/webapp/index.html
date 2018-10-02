@@ -20,11 +20,11 @@
                 var last_message = document.getElementById("last_message");
                 // last_message.innerHTML = "Last message: " + msg;
 
-                var measurement = JSON.parse(msg);
-                temperatureData.set(measurement["station"], measurement["average-temperature"]);
+                var record = JSON.parse(msg);
+                salesPriceData.set(record["category"], record["average-sales-price"]);
 
-                barChartData.labels = Array.from( temperatureData.keys() );
-                barChartData.datasets[0].data = Array.from( temperatureData.values() );
+                barChartData.labels = Array.from( salesPriceData.keys() );
+                barChartData.datasets[0].data = Array.from( salesPriceData.values() );
 
                 eventCount++;
                 event_count.innerHTML = "Events received: " + eventCount;
@@ -52,13 +52,13 @@
     </div>
     <script>
         var color = Chart.helpers.color;
-        var temperatureData = new Map();
+        var salesPriceData = new Map();
         var eventCount = 0;
 
         var barChartData = {
             labels: [],
             datasets: [{
-                label: 'Average Temperatures',
+                label: 'Average Sales Prices',
                 backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
                 borderColor: window.chartColors.blue,
                 borderWidth: 1,
@@ -84,7 +84,7 @@
                             yAxes: [{
                                 ticks: {
                                     suggestedMin: 0,
-                                    suggestedMax: 30
+                                    suggestedMax: 80
                                 }
                             }]
                         }

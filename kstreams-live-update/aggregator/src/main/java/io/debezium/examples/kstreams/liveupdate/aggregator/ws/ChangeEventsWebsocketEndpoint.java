@@ -29,8 +29,9 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Windowed;
 
-import io.debezium.examples.kstreams.liveupdate.aggregator.TemperatureTableBuilder;
+import io.debezium.examples.kstreams.liveupdate.aggregator.StreamsPipeline;
 
 @ServerEndpoint("/example")
 @ApplicationScoped
@@ -56,18 +57,21 @@ public class ChangeEventsWebsocketEndpoint {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<String, String> avgTemperaturesByStation = TemperatureTableBuilder.avgTemperaturesByStation(builder)
+        final KStream<Windowed<String>, String> avgSalesPricePerCategory = StreamsPipeline.avgSalesPricePerCategory(builder)
                 .toStream()
                 .peek((k, v) -> sessions.forEach(s -> {
                     try {
-                        s.getBasicRemote().sendText("{ \"station\" : \"" + k + "\", \"average-temperature\" : " + v + " }");
+                        s.getBasicRemote().sendText("{ \"category\" : \"" + k.key() + "\", \"average-sales-price\" : " + v + " }");
                     }
                     catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }));
 
-        avgTemperaturesByStation.to("average_temperatures_by_station", Produced.with(Serdes.String(), Serdes.String()));
+        avgSalesPricePerCategory.to(
+                "average_sales_price_per_category",
+                Produced.with(StreamsPipeline.getWindowedStringSerde(), Serdes.String())
+         );
 
         streams = new KafkaStreams(builder.build(), props);
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
