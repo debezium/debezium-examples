@@ -7,6 +7,7 @@ package io.debezium.examples.kstreams.liveupdate.aggregator.serdes;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
@@ -28,6 +29,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * @param <T> The object type
  */
 public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
+
+    Logger log = Logger.getLogger( this.getClass().getName() );
 
     private final ObjectMapper mapper;
     private final ObjectReader reader;
@@ -67,6 +70,13 @@ public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
 
         @Override
         public T deserialize(String topic, byte[] data) {
+
+            if (data == null) {
+              log.warning("Received null data");
+              
+              return null;
+            }
+
             try {
                 JsonNode node = mapper.readTree(data);
 
