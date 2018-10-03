@@ -14,10 +14,10 @@ The application has two tables:
 Debezium is used to capture changes to the two tables in the application's underlying MySQL database.
 
 The _aggregator_ application runs KStreams to join orders with categories,
-group the events by category name and accumulate the average sales price per category in time windows of 5 seconds.
+group the events by category name and accumulate the sales price per category in time windows of 5 seconds.
 
 The aggregated values are pushed to WebSockets.
-For that purpose, the aggregator application exposes a WebSockets endpoint using WildFly Swarm.
+For that purpose, the aggregator application exposes a WebSockets endpoint using Thorntail.
 
 ## Preparations
 
@@ -44,7 +44,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 # Consume aggregated messages
 
-Once you see the message "WildFly Swarm is Ready" in the logs, open the UI in the browser: http://localhost:8079/.
+Once you see the message "Source connector deployed!" in the logs, open the UI in the browser: http://localhost:8079/.
 It shows a chart with the windowed accumulated order values which is updated in near-realtime as new orders are created via the event generator app.
 
 Alternatively, browse the Kafka topic:

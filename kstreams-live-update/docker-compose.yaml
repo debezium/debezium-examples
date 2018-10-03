@@ -63,8 +63,7 @@ services:
     links:
      - kafka
     environment:
-     # - JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.aggregator.Main
-     - JAVA_APP_JAR=demo-swarm.jar
+     - JAVA_APP_JAR=demo-thorntail.jar
      - JAVA_OPTIONS=-Dswarm.http.port=8079
     depends_on:
      - connect
