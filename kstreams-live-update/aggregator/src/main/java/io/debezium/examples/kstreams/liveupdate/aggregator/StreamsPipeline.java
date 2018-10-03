@@ -65,6 +65,6 @@ public class StreamsPipeline {
                 )
                 .mapValues(v -> BigDecimal.valueOf(v)
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP))
-                .mapValues(String::valueOf);
+                .mapValues(v -> String.valueOf(v));
     }
 }
