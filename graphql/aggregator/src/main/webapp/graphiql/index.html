@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8"/>
+    <title>Debezium GraphQL Example - GraphiQL</title>
+    <meta name="robots" content="noindex"/>
+    <style>
+      body {
+        height: 100%;
+        margin: 0;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      #graphiql {
+        height: 100vh;
+      }
+    </style>
+
+    <script src="/graphiql/es6-promise.auto.min.js"></script>
+    <script src="/graphiql/fetch.min.js"></script>
+    <script src="/graphiql/react.min.js"></script>
+    <script src="/graphiql/react-dom.min.js"></script>
+
+    <link rel="stylesheet" href="/graphiql/graphiql.min.css"/>
+    <script src="/graphiql/graphiql.min.js"></script>
+    <script src="/graphiql/subscriptions-transport-ws-0.8.3.js"></script>
+    <script src="/graphiql/graphiql-subscriptions-fetcher-0.0.2.js"></script>
+
+  </head>
+
+  <body>
+    <div id="graphiql"></div>
+     
+    <script>
+
+        // Parse the search string to get url parameters.
+        var search = window.location.search;
+        var parameters = {};
+        search.substr(1).split('&').forEach(function(entry) {
+          var eq = entry.indexOf('=');
+          if (eq >= 0) {
+            parameters[ decodeURIComponent(entry.slice(0, eq)) ] =
+              decodeURIComponent(entry.slice(eq + 1));
+          }
+        });
+
+        // if variables was provided, try to format it.
+        if (parameters.variables) {
+          try {
+            parameters.variables =
+              JSON.stringify(JSON.parse(parameters.variables), null, 2);
+          } catch (e) {
+            // Do nothing, we want to display the invalid JSON as a string, rather
+            // than present an error.
+          }
+        }
+
+        // When the query and variables string is edited, update the URL bar so
+        // that it can be easily shared
+        function onEditQuery(newQuery) {
+          parameters.query = newQuery;
+          updateURL();
+        }
+
+        function onEditVariables(newVariables) {
+          parameters.variables = newVariables;
+          updateURL();
+        }
+
+        function onEditOperationName(newOperationName) {
+          parameters.operationName = newOperationName;
+          updateURL();
+        }
+
+        function updateURL() {
+          var newSearch = '?' + Object.keys(parameters).filter(function(key) {
+            return Boolean(parameters[ key ]);
+          }).map(function(key) {
+            return encodeURIComponent(key) + '=' +
+              encodeURIComponent(parameters[ key ]);
+          }).join('&');
+          history.replaceState(null, null, newSearch);
+        }
+
+        // Defines a GraphQL fetcher using the fetch API. You're not required to
+        // use fetch, and could instead implement graphQLFetcher however you like,
+        // as long as it returns a Promise or Observable.
+        function graphQLFetcher(graphQLParams) {
+          // This example expects a GraphQL server at the path /graphql.
+          // Change this to point wherever you host your GraphQL server.
+          return fetch('/graphql', {
+            method:      'post',
+            headers:     {
+              'Accept':        'application/json',
+              'Content-Type':  'application/json',
+            },
+            body:        JSON.stringify(graphQLParams)
+          }).then(function(response) {
+            return response.text();
+          }).then(function(responseBody) {
+            try {
+              return JSON.parse(responseBody);
+            } catch (error) {
+              return responseBody;
+            }
+          });
+        }
+
+        // https://github.com/graphql-java/graphql-spring-boot/blob/master/graphiql-spring-boot-autoconfigure/src/main/resources/graphiql.html
+        var loc = window.location,
+          newUri;
+        if (loc.protocol === "https:") {
+          newUri = "wss:";
+        } else {
+          newUri = "ws:";
+        }
+        newUri += "//" + loc.host;
+        newUri += "/graphql"; //subscriptions
+        var subscriptionsClient = new window.SubscriptionsTransportWs.SubscriptionClient(newUri, { reconnect: true });
+        var subscriptionsFetcher = window.GraphiQLSubscriptionsFetcher.graphQLFetcher(subscriptionsClient, graphQLFetcher);
+        var props = {};
+        if (parameters.query) {
+          props.query = parameters.query;
+        }
+        if (parameters.variables) {
+          props.variables = parameters.variables;
+        }
+        if (parameters.operationName) {
+          props.operationName = parameters.operationName;
+        }
+        props.fetcher = subscriptionsFetcher;
+        props.onEditQuery = onEditQuery;
+        props.onEditVariables = onEditVariables;
+        props.onEditOperationName = onEditOperationName;
+
+        // Render <GraphiQL /> into the body.
+        ReactDOM.render(
+          React.createElement(GraphiQL, props, React.createElement(
+            GraphiQL.Logo,
+            null,
+            "Debezium GraphQL Example - GraphiQL API Explorer"
+          )),
+          document.getElementById('graphiql')
+        );
+    </script>
+  </body>
+
+</html>
