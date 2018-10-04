@@ -1,0 +1,32 @@
+# Represents an Order in our shop
+type Order {
+	# Unique identifier (immutable) of this Order
+	id: String!
+	
+	# Time when this order has been processed
+	timestamp: String!
+	
+	# ID of the customer that has placed this order
+	customerId: ID!
+	
+	# ID of the product thas has been purchased with this order
+	productId: ID!
+	
+	# Number of products bought
+	quantity: Int!
+}
+
+type Query {
+
+	# Say Hello to our API (health check)
+	hello: String!
+	
+	# Return the latest order 
+	latestOrder: Order
+}
+
+type Subscription {
+
+	# Gets invoked for each new placed order
+	onNewOrder(withMinQuantity: Int): Order!
+}
