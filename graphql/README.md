@@ -36,11 +36,11 @@ deploy the Debezium MySQL connector:
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @mysql-source.json
 ```
 
-# Consume aggregated messages using GraphiQL
+# Consume messages using GraphiQL
 
-Once you see the message "WildFly Swarm is Ready" in the logs, open the UI in the browser: http://localhost:8079/graphiql.
+Once you see the message "WildFly Swarm is Ready" in the logs, open the following URL in your browser: http://localhost:8079/graphiql.
 
-It opens `GraphiQL`, a GraphQL API Browser. 
+It opens [GraphiQL](https://github.com/graphql/graphiql), a GraphQL API Browser.
 
 While writing your GraphQL queries in the editor, you can get code assist using `Ctrl+Space`.
 
@@ -92,6 +92,6 @@ docker-compose up --build connect event-source
 ```
 (or run all services as described and then `docker-compose down aggregator`)
 
-3. Run the aggregator from you IDE by running the class `org.wildfly.swarm.Swarm` from the `aggregator` project. 
+3. Run the aggregator from you IDE by running the class `org.wildfly.swarm.Swarm` from the `aggregator` project.
 Set the env variables `KAFKA_SERVICE_HOST` to <YOUR HOST IP> and `KAFKA_SERVICE_PORT` to `9092`
 

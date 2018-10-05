@@ -64,40 +64,4 @@ public class OrderPublisher {
     public Flowable<Order> getPublisher() {
         return this.publisher;
     }
-    
-    public Flowable<Order> getPublisher(Predicate<Order> predicate) {
-        return this.publisher.filter(predicate);
-      }
-    
-//    @PostConstruct
-//    public void ratingSubscribe() {
-//        getPublisher().subscribe(new Subscriber<Order>() {
-//            private Subscription theSubscription;
-//
-//            @Override
-//            public void onSubscribe(Subscription s) {
-//                this.theSubscription = s;
-//                LOG.info("On subscription" + s);
-//                s.request(1);
-//            }
-//
-//            @Override
-//            public void onNext(Order order) {
-//                LOG.info("ORDER IN Subscriber " + order.id);
-//                theSubscription.request(1);
-//            }
-//
-//            @Override
-//            public void onError(Throwable t) {
-//                LOG.info("ON ERROR " + t);
-//            }
-//
-//            @Override
-//            public void onComplete() {
-//
-//            }
-//        });
-//    }
-
-
 }
