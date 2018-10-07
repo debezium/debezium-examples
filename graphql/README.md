@@ -7,11 +7,10 @@ in a MySQL database. Debezium captures the changes in the database and publishes
 
 There are two applications:
 
-1. The  _event-source_, that persists random orders in a MySQL database (simulates 'real' business)
+1. The _event-source_, that persists random orders in a MySQL database (simulates 'real' business)
 
 2. The _aggregator_ consumes the messages from the Kafka topics and publishes new orders via a GraphQL API.
-The _aggregator_ is a web app deployed to Thorntail.
-
+   The _aggregator_ is a web app deployed to Thorntail.
 
 ## Preparations
 
@@ -49,11 +48,13 @@ While writing your GraphQL queries in the editor, you can get code assist using 
 ## Example GraphQL Queries
 
 Return the latest order that has been placed:
+
 ```
 query { latestOrder { id quantity } }
 ```
 
 Subscribe to _all_ new orders:
+
 ```
 subscription {
   onNewOrder {
@@ -65,6 +66,7 @@ subscription {
 ```
 
 Subscribe to new orders that have a _quantity of at least 3_:
+
 ```
 subscription {
   onNewOrder(withMinQuantity: 3) {
@@ -75,6 +77,39 @@ subscription {
 }
 ```
 
+_Note:_ The GraphiQL UI _does not show all data_. If responses from the server come too fast, GraphiQL "skips" some of the responses.
+
+# Consume messages using a command-line tool
+
+Included in the examples folder is a simple Java application that runs a GraphQL subscription and displays the incoming data on the console. Other than GraphiQL this tool really shows _all_ messages received from the GraphQL server.
+
+Build the application:
+
+```shell
+mvn clean package -f ws-client/pom.xml
+```
+
+Run the application (default configuration):
+
+```shell
+java -jar ws-client/target/ws-client-jar-with-dependencies.jar
+```
+
+The application expectes the cluster running as described above, esp. that the GraphQL WebSocket endpoint is available at `http://ws:8079/graphql`. It runs a sample subscription and displays the received responses on the console until you quit the application using `ctrl+c`.
+
+If you want to the application with another host and/or another GraphQL subscription query, you can pass them via command line args:
+
+```shell
+java -jar ws-client/target/ws-client-jar-with-dependencies.jar URI GRAPHQL_SUBSCRIPTION_QUERY
+```
+
+For example:
+
+```shell
+java -jar ws-client/target/ws-client-jar-with-dependencies.jar ws://localhost:8079/graphql "subscription { onNewOrder { id productId } }"
+```
+
+(Please surround the query using double quotes).
 
 # Shut down the cluster
 
@@ -87,11 +122,12 @@ docker-compose down
 1. Add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in _docker-compose.yaml_.
 
 2. Run all services except the aggregator service:
+
 ```shell
 docker-compose up --build connect event-source
 ```
+
 (or run all services as described and then `docker-compose down aggregator`)
 
 3. Run the aggregator from you IDE by running the class `org.wildfly.swarm.Swarm` from the `aggregator` project.
-Set the env variables `KAFKA_SERVICE_HOST` to <YOUR HOST IP> and `KAFKA_SERVICE_PORT` to `9092`
-
+   Set the env variables `KAFKA_SERVICE_HOST` to <YOUR HOST IP> and `KAFKA_SERVICE_PORT` to `9092`
