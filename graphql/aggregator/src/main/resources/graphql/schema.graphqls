@@ -28,5 +28,5 @@ type Query {
 type Subscription {
 
 	# Gets invoked for each new placed order
-	onNewOrder(withMinQuantity: Int): Order!
+	onNewOrder(withMinQuantity: Int, withProductId: Int): Order!
 }
