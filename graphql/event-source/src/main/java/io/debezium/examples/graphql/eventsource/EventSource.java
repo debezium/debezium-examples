@@ -35,31 +35,33 @@ class EventSource {
 
             entityManager.getTransaction().begin();
             Object[] minMaxCustomerIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from customers").getSingleResult();
-             Object[] minMaxProductIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from products").getSingleResult();
+            Object[] minMaxProductIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from products").getSingleResult();
 
             entityManager.getTransaction().commit();
 
             int i = 0;
-            while (running) {
-                if (i % 50 == 0) {
-                    entityManager.getTransaction().begin();
-                }
+            long timestamp = System.currentTimeMillis();
 
-                entityManager.persist(getRandomOrder(entityManager, (int)minMaxCustomerIds[0], (int)minMaxCustomerIds[1], (int)minMaxProductIds[0], (int)minMaxProductIds[1]));
+            while (running) {
+                entityManager.getTransaction().begin();
+                entityManager.persist(
+                        getRandomOrder(entityManager, (int) minMaxCustomerIds[0], (int) minMaxCustomerIds[1], (int) minMaxProductIds[0], (int) minMaxProductIds[1]));
+                entityManager.getTransaction().commit();
+                entityManager.clear();
 
                 i++;
-                try {
-                    Thread.sleep(50);
-                }
-                catch (InterruptedException e) {
-                    LOG.info("Interrupted");
-                    running = false;
+                if (i % 50 == 0) {
+                    long newTimestamp = System.currentTimeMillis();
+                    LOG.info("Inserted 50 orders in {} ms (total orders now: {})", (newTimestamp - timestamp), i);
+                    timestamp = newTimestamp;
                 }
 
-                if (i % 50 == 0) {
-                    LOG.info("Inserted {} orders", i);
-                    entityManager.getTransaction().commit();
-                    entityManager.clear();
+                try {
+                    int x = random.nextInt(50) + 5;
+                    Thread.sleep(x);
+                } catch (InterruptedException e) {
+                    LOG.info("Interrupted");
+                    running = false;
                 }
             }
 
@@ -88,8 +90,7 @@ class EventSource {
         try {
             thread.interrupt();
             thread.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
         }
     }
 }
