@@ -4,6 +4,9 @@ This demo shows how to build a GraphQL Subscription on top of Debezium Change Ev
 
 The domain consists of `Order` objects that have among others a quantity field. These objects are stored
 in a MySQL database. Debezium captures the changes in the database and publishes new orders to a Kafka Topic.
+Using the GraphQL API you can receive the new orders in real-time. The API also allows you to filter events.
+For example you might only be interessted in Orders with a large quantity (for example fraud detection) or
+for a special product.
 
 There are two applications:
 
@@ -41,7 +44,8 @@ Once you see the message "WildFly Swarm is Ready" in the logs, open the followin
 
 It opens [GraphiQL](https://github.com/graphql/graphiql), a GraphQL API Browser.
 
-While writing your GraphQL queries in the editor, you can get code assist using `Ctrl+Space`.
+While writing your GraphQL queries in the editor, you can get code assist using `Ctrl+Space`. Click on the `Docs` tab
+on the right side to get the API description.
 
 ![GraphiQL API Explorer](graphiql-screenshot.png)
 
@@ -53,12 +57,13 @@ Return the latest order that has been placed:
 query { latestOrder { id quantity } }
 ```
 
-Subscribe to _all_ new orders:
+Subscribe to _all_ new orders, return the fields _id_, _productId_, _customerId_ and _quantity_ from the Order:
 
 ```
 subscription {
   onNewOrder {
     id
+    productId
     customerId
     quantity
   }
@@ -72,12 +77,37 @@ subscription {
   onNewOrder(withMinQuantity: 3) {
     id
     customerId
+    productId
     quantity
   }
 }
 ```
 
-_Note:_ The GraphiQL UI _does not show all data_. If responses from the server come too fast, GraphiQL "skips" some of the responses.
+Subscribe to new orders that have a _productId 103_:
+
+```
+subscription {
+  onNewOrder(withProductId: 103) {
+    id
+    customerId
+    quantity
+  }
+}
+```
+
+Subscribe to new orders that have a a _quantity of at least 2_ and a _productId 103_:
+
+```
+subscription {
+  onNewOrder(withMinQuantity: 2 withProductId: 103) {
+    id
+    customerId
+    quantity
+  }
+}
+```
+
+_Note:_ The GraphiQL UI might not show all data\_. If responses from the server come too fast, GraphiQL "skips" some of the responses.
 
 # Consume messages using a command-line tool
 
