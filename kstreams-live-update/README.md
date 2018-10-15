@@ -35,7 +35,7 @@ export DEBEZIUM_VERSION=0.8
 docker-compose up --build
 ```
 
-Once you see the message "Waiting for source connector to be deployed" in the logs,
+Once you see the message "Waiting for topics to be created" in the logs,
 deploy the Debezium MySQL connector:
 
 ```shell
@@ -44,7 +44,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 # Consume aggregated messages
 
-Once you see the message "Source connector deployed!" in the logs, open the UI in the browser: http://localhost:8079/.
+If the connector has been deployed, open the UI in the browser: http://localhost:8079/.
 It shows a chart with the windowed accumulated order values which is updated in near-realtime as new orders are created via the event generator app.
 
 Alternatively, browse the Kafka topic:
