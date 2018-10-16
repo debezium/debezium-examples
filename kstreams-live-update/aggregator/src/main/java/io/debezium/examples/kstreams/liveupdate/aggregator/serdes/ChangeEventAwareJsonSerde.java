@@ -76,7 +76,12 @@ public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
 
                 if (isKey) {
                     if (node.isObject()) {
-                        return reader.readValue(node.get("payload").get("id"));
+                        if (node.has("payload")) {
+                            return reader.readValue(node.get("payload").get("id"));
+                        }
+                        else {
+                            return reader.readValue(node.get("id"));
+                        }
                     }
                     else {
                         return reader.readValue(node);
@@ -88,7 +93,12 @@ public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
                         return reader.readValue(payload.get("after"));
                     }
                     else {
-                        return reader.readValue(node);
+                        if (node.has("before") && node.has("after") && node.has("source")) {
+                            return reader.readValue(node.get("after"));
+                        }
+                        else {
+                            return reader.readValue(node);
+                        }
                     }
                 }
             }
