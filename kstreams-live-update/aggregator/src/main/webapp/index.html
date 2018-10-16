@@ -8,7 +8,7 @@
     <script src="js/chart.js/samples/utils.js"></script>
 
         <script type="text/javascript">
-            var ws = new WebSocket("ws://localhost:8079/example");
+            var ws = new WebSocket("ws://" + window.location.host + "/example");
 
             ws.onopen = function() {
                 var status = document.getElementById("status");
