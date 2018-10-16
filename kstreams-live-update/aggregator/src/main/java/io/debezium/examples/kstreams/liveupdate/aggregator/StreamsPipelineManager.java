@@ -6,6 +6,10 @@
 package io.debezium.examples.kstreams.liveupdate.aggregator;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,17 +22,27 @@ import javax.inject.Inject;
 
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.Serialized;
+import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.debezium.examples.kstreams.liveupdate.aggregator.model.Category;
+import io.debezium.examples.kstreams.liveupdate.aggregator.model.Order;
+import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.ChangeEventAwareJsonSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.ws.ChangeEventsWebsocketEndpoint;
 
@@ -55,17 +69,55 @@ public class StreamsPipelineManager {
     public void startKStreams(@Observes @Initialized(ApplicationScoped.class) Object init) {
         LOG.info("#### KStreamsPipeline#startKStreams()");
 
-        Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "order-aggregator-ws");
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
-        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10*1024);
-        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
-        props.put(CommonClientConfigs.METADATA_MAX_AGE_CONFIG, 500);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-
+        Properties props = getProperties();
         StreamsBuilder builder = new StreamsBuilder();
 
-        final KStream<Windowed<String>, String> salesPerCategory = StreamsPipeline.salesPerCategory(builder)
+        Serde<Long> longKeySerde = new ChangeEventAwareJsonSerde<>(Long.class);
+        longKeySerde.configure(Collections.emptyMap(), true);
+
+        Serde<Order> orderSerde = new ChangeEventAwareJsonSerde<>(Order.class);
+        orderSerde.configure(Collections.emptyMap(), false);
+
+        Serde<Category> categorySerde = new ChangeEventAwareJsonSerde<>(Category.class);
+        categorySerde.configure(Collections.emptyMap(), false);
+
+        KTable<Long, Category> category = builder.table("dbserver1.inventory.categories", Consumed.with(longKeySerde, categorySerde));
+
+        KStream<Windowed<String>, String> salesPerCategory = builder.stream(
+                "dbserver1.inventory.orders",
+                Consumed.with(longKeySerde, orderSerde)
+                )
+
+                // Join with categories on category id
+                .selectKey((k, v) -> v.categoryId)
+                .join(
+                        category,
+                        (value1, value2) -> {
+                            value1.categoryName = value2.name;
+                            return value1;
+                        },
+                        Joined.with(Serdes.Long(), orderSerde, null)
+                )
+
+                // Group by category name, windowed by 5 sec
+                .selectKey((k, v) -> v.categoryName)
+                .groupByKey(Serialized.with(Serdes.String(), orderSerde))
+                .windowedBy(TimeWindows.of(Duration.ofSeconds(5).toMillis()))
+
+                // Accumulate category sales per time window
+                .aggregate(
+                        () -> 0L, /* initializer */
+                        (aggKey, newValue, aggValue) -> {
+                            aggValue += newValue.salesPrice;
+                            return aggValue;
+                        },
+                        Materialized.with(Serdes.String(), Serdes.Long())
+                )
+                .mapValues(v -> BigDecimal.valueOf(v)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP))
+                .mapValues(v -> String.valueOf(v))
+
+                // Push to WebSockets
                 .toStream()
                 .peek((k, v) -> {
                     websocketsEndPoint.getSessions().forEach(s -> {
@@ -90,6 +142,17 @@ public class StreamsPipelineManager {
             StreamsPipeline.waitForTopicsToBeCreated(kafkaBootstrapServers);
             streams.start();
         });
+    }
+
+    private Properties getProperties() {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "order-aggregator-ws");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10*1024);
+        props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
+        props.put(CommonClientConfigs.METADATA_MAX_AGE_CONFIG, 500);
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        return props;
     }
 
     @PreDestroy
