@@ -16,7 +16,6 @@ import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
 import org.hibernate.persister.entity.EntityPersister;
 
-import com.example.domain.Customer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.types.ObjectSchema;
@@ -101,7 +100,7 @@ class AggregationBuilderListener implements PostInsertEventListener, PostUpdateE
 
                     try {
                         KafkaConnectSchemaFactoryWrapper visitor = new KafkaConnectSchemaFactoryWrapper();
-                        mapper.acceptJsonFormatVisitor(Customer.class, visitor);
+                        mapper.acceptJsonFormatVisitor(entity.getClass(), visitor);
                         String materialization = mapper.writeValueAsString(entity);
                         JsonSchema valueSchema = visitor.finalSchema();
 
