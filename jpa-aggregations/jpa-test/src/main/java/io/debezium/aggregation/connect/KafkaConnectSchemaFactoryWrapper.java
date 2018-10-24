@@ -153,13 +153,18 @@ public class KafkaConnectSchemaFactoryWrapper extends SchemaFactoryWrapper {
         public void setItemsSchema(JsonSchema jsonSchema) {
             if (jsonSchema instanceof NumberSchema) {
                 super.setItemsSchema(new KafkaConnectNumberSchemaAdapter());
-            } else if (jsonSchema instanceof IntegerSchema) {
+            }
+            else if (jsonSchema instanceof IntegerSchema) {
                 super.setItemsSchema(new KafkaConnectIntegerSchemaAdapter());
-            } else if (jsonSchema instanceof StringSchema) {
+            }
+            else if (jsonSchema instanceof StringSchema) {
                 super.setItemsSchema(new KafkaConnectStringSchemaAdapter());
-            } else if (jsonSchema instanceof BooleanSchema) {
+            }
+            else if (jsonSchema instanceof BooleanSchema) {
                 super.setItemsSchema(new KafkaConnectBooleanSchemaAdapter());
-            } else {
+            }
+            // TODO handle ReferenceSchema
+            else {
                 super.setItemsSchema(jsonSchema);
             }
         }
