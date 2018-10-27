@@ -66,6 +66,8 @@ public class StreamsPipelineManager {
     private KafkaStreams streams;
     private ExecutorService executor;
 
+    private boolean started = false;
+
     public void startKStreams(@Observes @Initialized(ApplicationScoped.class) Object init) {
         LOG.info("#### KStreamsPipeline#startKStreams()");
 
@@ -142,6 +144,12 @@ public class StreamsPipelineManager {
             StreamsPipeline.waitForTopicsToBeCreated(kafkaBootstrapServers);
             streams.start();
         });
+
+        started = true;
+    }
+
+    public boolean isStarted() {
+        return started;
     }
 
     private Properties getProperties() {

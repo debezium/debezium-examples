@@ -64,6 +64,10 @@ oc new-app --name=aggregator debezium/msa-lab-s2i:latest~https://github.com/gunn
     -e KAFKA_BOOTSTRAP_SERVERS=my-cluster-kafka-bootstrap:9092 \
     -e JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true
 
+oc patch dc/aggregator -p '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/1", "value":{"containerPort":8080,"protocol":"TCP"}}]' --type=json
+
+oc patch dc/aggregator -p '[{"op": "add", "path": "/spec/template/spec/containers/0/livenessProbe", "value":{"httpGet":{ "path" : "/health", "port" : 8080, "scheme" : "HTTP"}, "initialDelaySeconds": 10}}]' --type=json
+
 oc patch service aggregator -p '{ "spec" : { "ports" : [{ "name" : "8080-tcp", "port" : 8080, "protocol" : "TCP", "targetPort" : 8080 }] } } }'
 
 oc expose svc aggregator
@@ -71,6 +75,11 @@ oc expose svc aggregator
 oc get routes aggregator -o=jsonpath='{.spec.host}{"\n"}'
 
 # Demo
+
+oc exec -c zookeeper my-cluster-zookeeper-0 -- curl -s -w "\n%{http_code}\n" -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://aggregator:8080/health
 
 oc exec -c kafka -i my-cluster-kafka-0 -- curl -s -w "\n" -X POST \
     -H "Accept:application/json" \
