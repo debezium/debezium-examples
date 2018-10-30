@@ -10,9 +10,10 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Initialized;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.kafka.clients.CommonClientConfigs;
@@ -28,7 +29,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.examples.kstreams.liveupdate.aggregator.cdi.Eager;
 import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.ws.ChangeEventsWebsocketEndpoint;
 
@@ -38,7 +38,6 @@ import io.debezium.examples.kstreams.liveupdate.aggregator.ws.ChangeEventsWebsoc
  * @author Gunnar Morling
  */
 @ApplicationScoped
-@Eager
 public class StreamsPipelineManager {
 
     private static final Logger LOG = LoggerFactory.getLogger( StreamsPipelineManager.class );
@@ -53,8 +52,7 @@ public class StreamsPipelineManager {
     private KafkaStreams streams;
     private ExecutorService executor;
 
-    @PostConstruct
-    public void startKStreams() {
+    public void startKStreams(@Observes @Initialized(ApplicationScoped.class) Object init) {
         LOG.info("#### KStreamsPipeline#startKStreams()");
 
         Properties props = new Properties();
