@@ -95,5 +95,6 @@ public class StreamsPipelineManager {
     @PreDestroy
     public void closeKStreams() {
         streams.close();
+        executor.shutdown();
     }
 }
