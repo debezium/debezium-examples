@@ -64,6 +64,9 @@ services:
      - kafka
     environment:
      - JAVA_MAIN_CLASS=io.debezium.examples.aggregation.StreamingAggregatesDDD
+     - PARENT_TOPIC=dbserver1.inventory.customers
+     - CHILDREN_TOPIC=dbserver1.inventory.addresses
+     - BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
      - connect_source
     command: >
@@ -74,5 +77,5 @@ services:
           sleep 1;
         done;
         echo 'Source connector deployed!';
-        /deployments/run-java.sh dbserver1.inventory.customers dbserver1.inventory.addresses kafka:9092
+        /opt/poc-ddd-aggregates/run-aggregator.sh
       "

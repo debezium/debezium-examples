@@ -6,12 +6,6 @@ sink the aggregated change events into MongoDB, using the [Kafka Connect MongoDB
 ## Preparations
 
 ```shell
-# Build aggregator
-cd poc-ddd-aggregates
-mvn clean package
-```
-
-```shell
 # Start Kafka, Kafka Connect, a MySQL and a MongoDB database and the aggregator
 export DEBEZIUM_VERSION=0.8
 docker-compose up --build
