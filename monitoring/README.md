@@ -1,0 +1,42 @@
+# Example monitoring of Debezium instance
+
+Debezium collects and exports a set of metrics as JMX beans.
+Those metrics can be displayed either via an arbitrary JMX console or, for more complex deployments, a Prometheus and Grafana based solution can be deployed.
+This example uses a Docker Compose file to setup and deploy Debezium instance together with all components necessary to monitor Debezium in Grafana.
+
+## Topology
+We need following components to collect and present Debezium metrics
+ * Debezium instance with [JXM Exporter](https://github.com/prometheus/jmx_exporter) Java agent installed and configured (see [Docker image](debezium-jmx-exporter))
+ * Prometheus instance to collect and store exported metrics (see [Docker image](debezium-prometheus))
+ * Grafana instance presenting the metrics (see [Docker image](debezium-grafana))
+
+## Execution
+```
+export DEBEZIUM_VERSION=0.9
+docker-compose up --build
+
+# Initialize database and insert test data
+cat inventory.sql | docker exec -i monitoring_sqlserver_1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
+
+# Start SQL Server connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-sqlserver.json
+
+# Modify records in the database via SQL Server client (do not forget to add `GO` command to execute the statement)
+docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -d testDB'
+```
+
+Open a web browser and got to the Grafana UI at [http://localhost:3000](http://localhost:3000).
+Login into the console as user `admin` with password `admin`.
+When asked either change the password or skip the changing.
+Click on `Home` icon and select *Debezium* dashboard.
+You should see a dashboard similar to the one on the screenshot below.
+
+![Debezium Dashboard Example](dashboard.png)
+
+You should see metrics of completed initial snapshot.
+When you will modify and create new data in database the streaming metrics will be updated too.
+
+When completed shut down the cluster with command
+```
+docker-compose down
+```
