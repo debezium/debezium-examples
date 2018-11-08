@@ -76,19 +76,33 @@ public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
 
                 if (isKey) {
                     if (node.isObject()) {
-                        return reader.readValue(node.get("payload").get("id"));
-                    } else {
-                        return reader.readValue(node);
+                        if (node.has("payload")) {
+                            return reader.readValue(node.get("payload").get("id"));
+                        }
+                        else {
+                            return reader.readValue(node.get("id"));
+                        }
                     }
-                } else {
-                    JsonNode payload = node.get("payload");
-                    if (payload != null) {
-                        return reader.readValue(payload.get("after"));
-                    } else {
+                    else {
                         return reader.readValue(node);
                     }
                 }
-            } catch (IOException e) {
+                else {
+                    JsonNode payload = node.get("payload");
+                    if (payload != null) {
+                        return reader.readValue(payload.get("after"));
+                    }
+                    else {
+                        if (node.has("before") && node.has("after") && node.has("source")) {
+                            return reader.readValue(node.get("after"));
+                        }
+                        else {
+                            return reader.readValue(node);
+                        }
+                    }
+                }
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -108,7 +122,8 @@ public class ChangeEventAwareJsonSerde<T> implements Serde<T> {
         public byte[] serialize(String topic, T data) {
             try {
                 return mapper.writeValueAsBytes(data);
-            } catch (JsonProcessingException e) {
+            }
+            catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
         }
