@@ -71,11 +71,5 @@ services:
      - connect
     command: >
       /bin/bash -c "
-        while ! curl -f -s -X GET http://connect:8083/connectors/mysql-source;
-        do
-          echo 'Waiting for source connector to be deployed';
-          sleep 1;
-        done;
-        echo 'Source connector deployed!';
         java -jar /deployments/demo-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
       "
