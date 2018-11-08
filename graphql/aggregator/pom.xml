@@ -34,35 +34,35 @@
     </dependencyManagement>
 
     <dependencies>
-    	<!--  Thorntail Fractions -->
-		<dependency>
-	      <groupId>io.thorntail</groupId>
-	      <artifactId>jaxrs</artifactId>
-	    </dependency>
-	    <dependency>
-		  <groupId>io.thorntail</groupId>
-		  <artifactId>cdi</artifactId>
-		</dependency>
-		<dependency>
-		  <groupId>io.thorntail</groupId>
-		  <artifactId>cdi-config</artifactId>
-		</dependency>
-		<dependency>
-		  <groupId>io.thorntail</groupId>
-		  <artifactId>bean-validation</artifactId>
-		</dependency>
-		<dependency>
-		  <groupId>io.thorntail</groupId>
-		  <artifactId>transactions</artifactId>
-		</dependency>
-        
-        <!--  Kafka CDI Consumer -->
+        <!-- Thorntail Fractions -->
+        <dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>cdi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>cdi-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>bean-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.thorntail</groupId>
+            <artifactId>transactions</artifactId>
+        </dependency>
+
+        <!-- Kafka CDI Consumer -->
         <dependency>
             <groupId>org.aerogear.kafka</groupId>
             <artifactId>kafka-cdi-extension</artifactId>
             <version>0.1.0</version>
-        </dependency>        
-        
+        </dependency>
+
         <!-- Java EE 7 dependency -->
         <dependency>
             <groupId>javax</groupId>
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-             <version>${version.org.slf4j}</version>
+            <version>${version.org.slf4j}</version>
         </dependency>
 
         <!-- GraphQL -->
@@ -111,22 +111,20 @@
             <groupId>com.graphql-java-kickstart</groupId>
             <artifactId>graphql-java-servlet</artifactId>
             <version>6.1.4</version>
-        </dependency>		
+        </dependency>
         <dependency>
-        	<groupId>io.reactivex.rxjava2</groupId>
+            <groupId>io.reactivex.rxjava2</groupId>
             <artifactId>rxjava</artifactId>
             <version>2.1.16</version>
         </dependency>
-        
-        <!--  Without explizitly adding guava here
-        WildFly failes to deploy the WAR due to
-        NoClassDefFoundError...
-         -->
+
+        <!-- Without explicitly adding guava here WildFly fails to deploy the 
+            WAR due to NoClassDefFoundError... -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>26.0-jre</version>
-        </dependency>        
+        </dependency>
     </dependencies>
 
     <build>

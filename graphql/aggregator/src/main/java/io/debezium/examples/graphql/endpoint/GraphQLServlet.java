@@ -1,3 +1,8 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.examples.graphql.endpoint;
 
 import javax.inject.Inject;
@@ -14,9 +19,9 @@ public class GraphQLServlet extends AbstractGraphQLHttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    private GraphQLQueryInvoker queryInvoker;
-    private GraphQLInvocationInputFactory invocationInputFactory;
-    private GraphQLObjectMapper objectMapper;
+    private final GraphQLQueryInvoker queryInvoker;
+    private final GraphQLInvocationInputFactory invocationInputFactory;
+    private final GraphQLObjectMapper objectMapper;
 
     @Inject
     public GraphQLServlet(GraphQLSchema graphQLSchema) {
@@ -39,5 +44,4 @@ public class GraphQLServlet extends AbstractGraphQLHttpServlet {
     protected GraphQLObjectMapper getGraphQLObjectMapper() {
         return this.objectMapper;
     }
-
 }

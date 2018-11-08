@@ -1,3 +1,8 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.examples.graphql.wsclient;
 
 import java.util.HashMap;
@@ -5,7 +10,7 @@ import java.util.List;
 
 /**
  * Represents a response coming from a GraphQL API
- * 
+ *
  * @see https://graphql.org/learn/serving-over-http/#response
  *
  */

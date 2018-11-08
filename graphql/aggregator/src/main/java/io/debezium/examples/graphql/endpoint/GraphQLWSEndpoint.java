@@ -1,3 +1,8 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.examples.graphql.endpoint;
 
 import javax.websocket.CloseReason;
@@ -22,16 +27,19 @@ public class GraphQLWSEndpoint extends GraphQLWebsocketServlet {
                 GraphQLObjectMapper.newBuilder().build());
     }
 
+    @Override
     @OnOpen
     public void onOpen(Session session, EndpointConfig endpointConfig) {
         super.onOpen(session, endpointConfig);
     }
 
+    @Override
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         super.onClose(session, closeReason);
     }
 
+    @Override
     @OnError
     public void onError(Session session, Throwable thr) {
         super.onError(session, thr);

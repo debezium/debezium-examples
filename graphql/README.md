@@ -5,7 +5,7 @@ This demo shows how to build a GraphQL Subscription on top of Debezium Change Ev
 The domain consists of `Order` objects that have among others a quantity field. These objects are stored
 in a MySQL database. Debezium captures the changes in the database and publishes new orders to a Kafka Topic.
 Using the GraphQL API you can receive the new orders in real-time. The API also allows you to filter events.
-For example you might only be interessted in Orders with a large quantity (for example fraud detection) or
+For example you might only be interested in Orders with a large quantity (for example for fraud detection) or
 for a special product.
 
 There are two applications:
@@ -40,7 +40,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 # Consume messages using GraphiQL
 
-Once you see the message "WildFly Swarm is Ready" in the logs, open the following URL in your browser: http://localhost:8079/graphiql.
+Once you see the message "Thorntail is Ready" in the logs, open the following URL in your browser: http://localhost:8079/graphiql.
 
 It opens [GraphiQL](https://github.com/graphql/graphiql), a GraphQL API Browser.
 
@@ -125,7 +125,7 @@ Run the application (default configuration):
 java -jar ws-client/target/ws-client-jar-with-dependencies.jar
 ```
 
-The application expectes the cluster running as described above, esp. that the GraphQL WebSocket endpoint is available at `http://ws:8079/graphql`. It runs a sample subscription and displays the received responses on the console until you quit the application using `ctrl+c`.
+The application expects the cluster running as described above, esp. that the GraphQL WebSocket endpoint is available at [ws://localhost:8079/graphql](ws://localhost:8079/graphql). It runs a sample subscription and displays the received responses on the console until you quit the application using `Ctrl+C`.
 
 If you want to the application with another host and/or another GraphQL subscription query, you can pass them via command line args:
 

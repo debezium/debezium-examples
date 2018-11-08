@@ -1,3 +1,8 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.examples.graphql.endpoint;
 
 import javax.inject.Inject;
@@ -11,7 +16,7 @@ import graphql.schema.GraphQLSchema;
 @Singleton
 public class GraphQLWSEndpointConfigurer extends ServerEndpointConfig.Configurator {
 
-    private GraphQLWSEndpoint endpoint;
+    private final GraphQLWSEndpoint endpoint;
 
     @Inject
     public GraphQLWSEndpointConfigurer(GraphQLSchema graphQLSchema) {
@@ -28,5 +33,4 @@ public class GraphQLWSEndpointConfigurer extends ServerEndpointConfig.Configurat
     public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
         return (T) this.endpoint;
     }
-
 }

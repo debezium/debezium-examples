@@ -1,3 +1,8 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.examples.graphql;
 
 import java.util.Collections;
@@ -14,7 +19,6 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
-import io.reactivex.functions.Predicate;
 import io.reactivex.observables.ConnectableObservable;
 
 @ApplicationScoped
@@ -43,14 +47,13 @@ public class OrderPublisher {
         connectableObservable.connect();
 
         this.publisher = connectableObservable.toFlowable(BackpressureStrategy.BUFFER);
-
     }
 
     @Consumer(topics = "dbserver1.inventory.orders", groupId = "myGroup")
     public void receive(byte[] key, byte[] data) {
         try {
             Order order = orderSerde.deserializer().deserialize("dbserver1.inventory.orders", data);
-            
+
             if (emitter != null) {
                 emitter.onNext(order);
             }
