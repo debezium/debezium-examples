@@ -55,7 +55,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-  aggregator:
+  graphql:
     image: debezium/graphql-aggregator:${DEBEZIUM_VERSION}
     build:
       context: aggregator
