@@ -9,8 +9,6 @@
         "database.password": "postgres",
         "database.dbname" : "postgres",
         "database.server.name": "dbserver1",
-        "database.whitelist": "inventory",
-        "database.history.kafka.bootstrap.servers": "kafka:9092",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "database.whitelist": "inventory"
     }
 }
