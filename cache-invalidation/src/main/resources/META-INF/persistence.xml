@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/persistence/persistence_2_2.xsd"
+	version="2.2">
+
+	<persistence-unit name="orders-PU-JTA" transaction-type="JTA">
+		<jta-data-source>java:jboss/datasources/OrderDS</jta-data-source>
+		<shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.format_sql" value="true" />
+
+			<property name="hibernate.cache.use_second_level_cache" value="true" />
+			<property name="hibernate.generate_statistics" value="true" />
+
+			<property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+			<property name="javax.persistence.sql-load-script-source" value="META-INF/data.sql"/>
+		</properties>
+	</persistence-unit>
+</persistence>
