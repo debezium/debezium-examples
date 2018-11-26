@@ -1,24 +1,30 @@
 # Prepare
 
+(Locally) sudo ssh -L 8443:localhost:8443 -f -N -i <YOUR_KEY> user@<YOUR_HOST>
+
 (Tested with OpenShift OKD 3.11)
 
 wget https://github.com/strimzi/strimzi/releases/download/0.8.0/strimzi-0.8.0.tar.gz
+
+rm -rf strimzi-0.8.0
 tar xzvf strimzi-0.8.0.tar.gz
 cd strimzi-0.8.0
-rm -rf plugins
+sed -i 's/namespace: .*/namespace: devoxx-ma/' install/cluster-operator/*RoleBinding*.yaml
+cd ..
+
+# Start OpenShift
+
 oc cluster up --routing-suffix=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`.nip.io
 oc login -u developer
-oc new-project voxxed-demo
+oc new-project devoxx-ma
 
 # Kafka
 
-sudo systemctl start docker
-sed -i 's/namespace: .*/namespace: voxxed-demo/' install/cluster-operator/*RoleBinding*.yaml
-
+cd strimzi-0.8.0
 oc login -u system:admin
 
-oc apply -f install/cluster-operator -n voxxed-demo
-oc apply -f examples/templates/cluster-operator -n voxxed-demo
+oc apply -f install/cluster-operator -n devoxx-ma
+oc apply -f examples/templates/cluster-operator -n devoxx-ma
 oc process strimzi-ephemeral -p ZOOKEEPER_NODE_COUNT=1 | oc apply -f -
 oc patch kafka my-cluster --type merge -p '{ "spec" : { "zookeeper" : { "resources" : { "limits" : { "memory" : "512Mi" }, "requests" : { "memory" : "512Mi" } } },  "kafka" : { "resources" : { "limits" : { "memory" : "1Gi" }, "requests" : { "memory" : "1Gi" } } } } }'
 
@@ -81,6 +87,7 @@ oc exec -c zookeeper my-cluster-zookeeper-0 -- curl -s -w "\n%{http_code}\n" -X 
     -H "Content-Type:application/json" \
     http://aggregator:8080/health
 
+```
 oc exec -c kafka -i my-cluster-kafka-0 -- curl -s -w "\n" -X POST \
     -H "Accept:application/json" \
     -H "Content-Type:application/json" \
@@ -139,3 +146,8 @@ oc exec -c zookeeper -it my-cluster-zookeeper-0 -- /opt/kafka/bin/kafka-console-
    --topic sales_per_category
 
 oc exec -it my-cluster-kafka-0 -- bin/kafka-topics.sh --zookeeper localhost:2181 --list
+
+# Clean-Up
+
+oc cluster down
+mount | grep -o '/home/build/openshift.local.clusterup/[^ ]*' | xargs sudo umount; sudo rm -rf /home/build/openshift.local.clusterup
