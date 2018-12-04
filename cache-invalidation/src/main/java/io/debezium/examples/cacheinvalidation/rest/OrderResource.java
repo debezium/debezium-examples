@@ -33,7 +33,13 @@ public class OrderResource {
     @Transactional
     public CreateOrderResponse addOrder(CreateOrderRequest orderRequest) {
         Item item = entityManager.find(Item.class, orderRequest.getItemId());
-        PurchaseOrder po = new PurchaseOrder(orderRequest.getCustomer(), item, orderRequest.getQuantity());
+        PurchaseOrder po = new PurchaseOrder(
+                orderRequest.getCustomer(),
+                item,
+                orderRequest.getQuantity(),
+                item.getPrice().multiply(BigDecimal.valueOf(orderRequest.getQuantity()))
+        );
+
         po = entityManager.merge(po);
 
         return new CreateOrderResponse(
@@ -41,7 +47,7 @@ public class OrderResource {
                 po.getCustomer(),
                 po.getItem(),
                 po.getQuantity(),
-                item.getPrice().multiply(BigDecimal.valueOf(po.getQuantity()))
+                po.getTotalPrice()
         );
     }
 }
