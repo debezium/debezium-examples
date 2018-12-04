@@ -17,6 +17,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <io.debezium.version>0.9.0-SNAPSHOT</io.debezium.version>
         <org.hibernate.version>5.3.3.Final</org.hibernate.version>
+        <org.infinispan.version>9.3.1.Final</org.infinispan.version>
     </properties>
 
     <dependencyManagement>
@@ -46,10 +47,22 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-            <version>2.6.2</version>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-core</artifactId>
+            <version>${org.infinispan.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-cdi-embedded</artifactId>
+            <version>${org.infinispan.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.infinispan</groupId>
+                    <artifactId>infinispan-commons</artifactId>
+                </exclusion>
+            </exclusions>
+            </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
