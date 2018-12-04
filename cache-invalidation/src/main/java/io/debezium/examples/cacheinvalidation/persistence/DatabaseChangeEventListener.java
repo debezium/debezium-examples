@@ -29,6 +29,7 @@ import io.debezium.config.Configuration;
 import io.debezium.connector.postgresql.PostgresConnector;
 import io.debezium.connector.postgresql.PostgresConnectorConfig;
 import io.debezium.connector.postgresql.PostgresConnectorConfig.SnapshotMode;
+import io.debezium.data.Envelope.Operation;
 import io.debezium.embedded.EmbeddedEngine;
 import io.debezium.examples.cacheinvalidation.model.Item;
 
@@ -96,11 +97,16 @@ public class DatabaseChangeEventListener {
         LOG.info("Handling DB change event " + record);
 
         if (record.topic().equals("dbserver1.public.item")) {
-            Long txId = ((Struct) ((Struct) record.value()).get("source")).getInt64("txId");
             Long itemId = ((Struct) record.key()).getInt64("id");
+            Struct payload = (Struct) record.value();
+            Operation op = Operation.forCode(payload.getString("op"));
+            Long txId = ((Struct) payload.get("source")).getInt64("txId");
 
             if (knownTransactions.isKnown(txId)) {
                 LOG.info("Not evicting item {} from 2nd-level cache as TX {} was started by this application", itemId, txId);
+            }
+            else if (op != Operation.UPDATE && op != Operation.DELETE) {
+                LOG.info("Not evicting item {} from 2nd-level cache as the change is neither an UPDATE nor a DELETE", itemId);
             }
             else {
                 LOG.info("Evicting item {} from 2nd-level cache as TX {} was not started by this application", itemId, txId);
