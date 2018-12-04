@@ -53,17 +53,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-cdi-embedded</artifactId>
-            <version>${org.infinispan.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.infinispan</groupId>
-                    <artifactId>infinispan-commons</artifactId>
-                </exclusion>
-            </exclusions>
-            </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
