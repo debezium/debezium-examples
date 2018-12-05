@@ -1,0 +1,20 @@
+version: '2'
+services:
+  postgres:
+    image: debezium/postgres:9.6
+    ports:
+     - "5432:5432"
+    environment:
+     - POSTGRES_USER=postgresuser
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=inventory
+  order-manager:
+    image: debezium-examples/cache-invalidation:latest
+    build:
+      context: .
+    links:
+     - postgres
+    ports:
+     - 8080:8080
+     - 8787:8787
+     - 9990:9990

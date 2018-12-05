@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <deployment>
+        <dependencies>
+            <module name="org.infinispan" services="export"/>
+            <module name="org.infinispan.commons" services="export"/>
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>
