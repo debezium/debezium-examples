@@ -15,7 +15,14 @@ To run the app, follow these steps:
     mvn clean package
     docker-compose up --build
 
-Place an order for item 10003:
+Place an order for item 10003 using curl:
+
+    curl -H "Content-Type: application/json" \
+      -X POST \
+      --data @resources/data/create-order-request.json \
+      http://localhost:8080/cache-invalidation/rest/orders
+
+Or, if [httpie](https://httpie.org/) is your preferred CLI HTTP client:
 
     cat resources/data/create-order-request.json | http POST http://localhost:8080/cache-invalidation/rest/orders
 
@@ -25,6 +32,12 @@ Update the price of item 10003 directly in the database:
 
 Use the application's REST API to verify that the item has been purged from the cache:
 
+    curl -H "Content-Type: application/json" \
+      -X GET \
+      http://localhost:8080/cache-invalidation/rest/cache/item/10003
+
+Or via httpie:
+
     http GET http://localhost:8080/cache-invalidation/rest/cache/item/10003
 
 Place another order of that item and observe how the calculated total price reflects the change applied above.
@@ -32,9 +45,22 @@ Also observe in the application's log how the `item` table is queried.
 
 Now update the item again, using the application's REST API this time:
 
+    curl -H "Content-Type: application/json" \
+      -X PUT \
+      --data @resources/data/update-item-request.json \
+      http://localhost:8080/cache-invalidation/rest/items/10003
+
+Or via httpie:
+
     cat resources/data/update-item-request.json | http PUT http://localhost:8080/cache-invalidation/rest/items/10003
 
 The Debezium event handler will detect that this transaction is issued by the application itself, resulting in the item to not be removed from the cache:
+
+   curl -H "Content-Type: application/json" \
+      -X GET \
+      http://localhost:8080/cache-invalidation/rest/cache/item/10003
+
+Or via httpie:
 
     http GET http://localhost:8080/cache-invalidation/rest/cache/item/10003
 
