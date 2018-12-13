@@ -28,6 +28,7 @@ public class KnownTransactions {
         cacheManager.defineConfiguration(
                 "tx-id-cache",
                 new ConfigurationBuilder()
+                    .simpleCache(true)
                     .expiration()
                         .lifespan(60, TimeUnit.SECONDS)
                     .build()
