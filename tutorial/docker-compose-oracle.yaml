@@ -28,6 +28,7 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
      - LD_LIBRARY_PATH=/instant_client
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n

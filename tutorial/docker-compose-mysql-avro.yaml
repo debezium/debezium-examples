@@ -46,6 +46,7 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter

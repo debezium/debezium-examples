@@ -8,6 +8,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 * [Using MongoDB](#using-mongodb)
 * [Using Oracle](#using-oracle)
 * [Using SQL Server](#using-sql-server)
+* [Debugging](#debugging)
 
 ## Using MySQL
 
@@ -193,3 +194,16 @@ docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mss
 # Shut down the cluster
 docker-compose -f docker-compose-sqlserver.yaml down
 ```
+
+## Debugging
+
+Should you need to establish a remote debugging session into a deployed connector, add the following to the `environment` section of the `connect` in the Compose file service:
+
+    - KAFKA_DEBUG=true
+    - DEBUG_SUSPEND_FLAG=n
+
+Also expose the debugging port 5005 under `ports`:
+
+    - 5005:5005
+
+You can then establish a remote debugging session from your IDE on localhost:5005.
