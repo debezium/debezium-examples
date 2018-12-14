@@ -162,7 +162,7 @@
           "expr": "debezium_metrics_NumberOfEventsSkipped{plugin=\"$connector_type\",name=\"$connector_name\",context=\"streaming\"}",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "Evetns skipped",
+          "legendFormat": "Events skipped",
           "refId": "B"
         }
       ],
@@ -793,7 +793,7 @@
           "expr": "debezium_metrics_NumberOfEventsSkipped{plugin=\"$connector_type\",name=\"$connector_name\",context=\"snapshot\"}",
           "format": "time_series",
           "intervalFactor": 1,
-          "legendFormat": "Evetns skipped",
+          "legendFormat": "Events skipped",
           "refId": "B"
         }
       ],
