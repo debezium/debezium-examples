@@ -1244,8 +1244,8 @@
         "allValue": null,
         "current": {
           "tags": [],
-          "text": "sqlserver",
-          "value": "sqlserver"
+          "text": "sql_server",
+          "value": "sql_server"
         },
         "datasource": "prometheus",
         "hide": 0,
@@ -1256,8 +1256,8 @@
         "options": [
           {
             "selected": true,
-            "text": "sqlserver",
-            "value": "sqlserver"
+            "text": "sql_server",
+            "value": "sql_server"
           }
         ],
         "query": "debezium_metrics_TotalNumberOfEventsSeen",
@@ -1280,7 +1280,7 @@
         "datasource": "prometheus",
         "hide": 0,
         "includeAll": false,
-        "label": "Conntector Name",
+        "label": "Connector Name",
         "multi": false,
         "name": "connector_name",
         "options": [
