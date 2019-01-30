@@ -22,6 +22,7 @@ services:
      - ACCEPT_EULA=Y
      - MSSQL_PID=Standard
      - SA_PASSWORD=Password!
+     - MSSQL_AGENT_ENABLED=true
   connect:
     build:
       context: debezium-jmx-exporter
