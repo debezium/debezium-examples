@@ -1,0 +1,5 @@
+FROM debezium/connect:0.9
+ENV KAFKA_CONNECT_EVENT_ROUTING_SMT_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-event-routing-smt
+
+RUN mkdir $KAFKA_CONNECT_EVENT_ROUTING_SMT_DIR
+COPY target/event-routing-smt-1.0.0.Final.jar $KAFKA_CONNECT_EVENT_ROUTING_SMT_DIR
