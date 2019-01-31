@@ -56,7 +56,7 @@ Or via httpie:
 
 The Debezium event handler will detect that this transaction is issued by the application itself, resulting in the item to not be removed from the cache:
 
-   curl -H "Content-Type: application/json" \
+    curl -H "Content-Type: application/json" \
       -X GET \
       http://localhost:8080/cache-invalidation/rest/cache/item/10003
 
