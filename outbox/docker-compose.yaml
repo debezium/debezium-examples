@@ -16,23 +16,32 @@ services:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # For local debugging of Main
      # - ADVERTISED_HOST_NAME=192.168.1.3
-  postgres:
+  order-db:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - "5432:5432"
     environment:
      - POSTGRES_USER=postgresuser
      - POSTGRES_PASSWORD=postgrespw
-     - POSTGRES_DB=testdb
+     - POSTGRES_DB=orderdb
+  shipment-db:
+    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+    ports:
+     - 3306:3306
+    environment:
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw
   connect:
     image: debezium-examples/connect-with-event-routing-smt:${DEBEZIUM_VERSION}
     build:
       context: event-routing-smt
     ports:
      - 8083:8083
+     - 5005:5005
     links:
      - kafka
-     - postgres
+     - order-db
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
@@ -41,6 +50,8 @@ services:
      - STATUS_STORAGE_TOPIC=my_source_connect_statuses
      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+     - KAFKA_DEBUG=true
+     - DEBUG_SUSPEND_FLAG=n
   order-service:
     image: debezium-examples/outbox-order-service:latest
     build:
@@ -51,7 +62,28 @@ services:
      - 9990:9990
     links:
      - kafka
-     - postgres
+     - order-db
+  shipment-service:
+    image: debezium-example/outbox-shipment-service:${DEBEZIUM_VERSION}
+    build:
+      context: shipment-service
+    ports:
+     - 8079:8079
+    links:
+     - kafka
+     - shipment-db
     environment:
-     - KAFKA_SERVICE_HOST=kafka
-     - KAFKA_SERVICE_PORT=9092
+     #- JAVA_APP_JAR=shipment-thorntail.jar
+     #- "JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079"
+     #- AB_JOLOKIA_OFF=true
+     #- AB_OFF=true
+     #- KAFKA_SERVICE_HOST=kafka
+     #- KAFKA_SERVICE_PORT=9092
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - ORDER_TOPIC_NAME=Order
+    depends_on:
+     - connect
+    command: >
+      /bin/bash -c "
+        java -jar /deployments/shipment-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
+      "

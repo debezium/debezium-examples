@@ -3,11 +3,11 @@
     "config": {
         "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
         "tasks.max": "1",
-        "database.hostname": "postgres",
+        "database.hostname": "order-db",
         "database.port": "5432",
         "database.user": "postgresuser",
         "database.password": "postgrespw",
-        "database.dbname" : "testdb",
+        "database.dbname" : "orderdb",
         "database.server.name": "dbserver1",
         "schema.whitelist": "inventory",
         "table.whitelist" : "inventory.outboxevent",

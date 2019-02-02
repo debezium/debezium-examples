@@ -12,6 +12,7 @@ import org.apache.kafka.connect.connector.ConnectRecord;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.header.Headers;
 import org.apache.kafka.connect.transforms.Transformation;
 
 /**
@@ -51,20 +52,21 @@ public class EventRouter<R extends ConnectRecord<R>> implements Transformation<R
             String payload = after.getString("payload");
 
             Schema valueSchema = SchemaBuilder.struct()
-                .field("eventId", after.schema().field("id").schema())
                 .field("eventType", after.schema().field("type").schema())
                 .field("ts_ms", struct.schema().field("ts_ms").schema())
                 .field("payload", after.schema().field("payload").schema())
                 .build();
 
             Struct value = new Struct(valueSchema)
-                .put("eventId", eventId)
                 .put("eventType", eventType)
                 .put("ts_ms", timestamp)
                 .put("payload", payload);
 
+            Headers headers = record.headers();
+            headers.addString("eventId", eventId);
+
             return record.newRecord(topic, null, Schema.STRING_SCHEMA, key, valueSchema, value,
-                    record.timestamp());
+                    record.timestamp(), headers);
         }
         else {
             throw new IllegalArgumentException("Record of unexpected op type: " + record);

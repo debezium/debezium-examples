@@ -1,19 +1,24 @@
 # Outbox Pattern
 
 This example demonstrates the "outbox pattern", an approach for letting services communicate in an asynchronous and reliable fashion.
-The sending services produces events in an "outbox" event table within its own local database.
+The sending service ("order-service") produces events in an "outbox" event table within its own local database.
 Debezium captures the additions to this table and streams the events to consumers via Apache Kafka.
+The receiving service ("shipment-service") receives these events (and would apply some processing based on them),
+excluding any duplicate messages by comparing incoming event ids with already successfully consumed ids.
 
 ## Execution
 
 Prepare the Java components:
 
-    mvn clean install -f event-routing-smt/pom.xml
-    mvn clean install -f order-service/pom.xml
+    mvn clean install
 
 Start all components:
 
     docker-compose up --build
+
+Register the Debezium Postgres connector:
+
+    curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
 
 Place a "create order" request with the order service:
 
@@ -30,3 +35,9 @@ Examine the events produced by the service via the Apache Kafka console consumer
         --from-beginning \
         --property print.key=true \
         --topic Order
+
+Examine that the receiving service processes the events:
+
+    docker-compose logs shipment-service -f
+
+(Look for "Processing '{OrderCreated|OrderLineUpdated}' event" messages in the log)
