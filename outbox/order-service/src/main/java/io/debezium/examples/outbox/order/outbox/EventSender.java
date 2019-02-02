@@ -5,8 +5,6 @@
  */
 package io.debezium.examples.outbox.order.outbox;
 
-import java.util.UUID;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.persistence.EntityManager;
@@ -25,7 +23,6 @@ public class EventSender {
                 event.getAggregateType(), event.getAggregateId(), event.getType(), event.getPayload()
         );
 
-        outboxEvent.setId(UUID.randomUUID());
         entityManager.persist(outboxEvent);
         entityManager.remove(outboxEvent);
     }
