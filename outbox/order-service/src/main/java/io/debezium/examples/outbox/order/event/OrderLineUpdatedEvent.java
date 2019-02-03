@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
+import io.debezium.examples.outbox.order.outbox.ExportedEvent;
 
 public class OrderLineUpdatedEvent implements ExportedEvent {
 
