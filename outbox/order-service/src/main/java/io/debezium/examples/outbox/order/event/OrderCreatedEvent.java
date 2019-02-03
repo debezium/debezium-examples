@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.debezium.examples.outbox.order.model.OrderLine;
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
+import io.debezium.examples.outbox.order.outbox.ExportedEvent;
 
 public class OrderCreatedEvent implements ExportedEvent {
 

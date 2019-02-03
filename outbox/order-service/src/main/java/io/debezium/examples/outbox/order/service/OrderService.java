@@ -12,12 +12,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
-import io.debezium.examples.outbox.order.event.ExportedEvent;
 import io.debezium.examples.outbox.order.event.OrderCreatedEvent;
 import io.debezium.examples.outbox.order.event.OrderLineUpdatedEvent;
 import io.debezium.examples.outbox.order.model.EntityNotFoundException;
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
+import io.debezium.examples.outbox.order.outbox.ExportedEvent;
 
 @ApplicationScoped
 public class OrderService {

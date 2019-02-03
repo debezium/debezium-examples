@@ -49,7 +49,7 @@ public class OrderEventHandler {
         JsonReader payloadReader = Json.createReader(new StringReader(eventPayload));
         JsonObject payloadObject = payloadReader.readObject();
 
-        LOGGER.info("Received 'Order' event -- key: {}, event id: '{}', event type: '{}', ts: '{}', payload: '{}'", key, eventId, eventType, ts, payloadObject);
+        LOGGER.info("Received 'Order' event -- key: {}, event id: '{}', event type: '{}', ts: '{}'", key, eventId, eventType, ts);
 
         if (eventType.equals("OrderCreated")) {
             shipmentService.orderCreated(payloadObject);
@@ -62,6 +62,5 @@ public class OrderEventHandler {
         }
 
         log.processed(eventId);
-
     }
 }

@@ -16,11 +16,10 @@ import org.apache.kafka.connect.header.Headers;
 import org.apache.kafka.connect.transforms.Transformation;
 
 /**
- * Takes Kafka Connect schema and JSON payload from a message and expands it into a properly typed record.
+ * Re-routes entries from the "outbox" table to the table indicated by the "aggregate type" of the incoming event. Only
+ * the "after" state is propagated as it represents the actual event.
  *
  * @author Gunnar Morling
- *
- * @param <R>
  */
 public class EventRouter<R extends ConnectRecord<R>> implements Transformation<R> {
 
@@ -33,6 +32,11 @@ public class EventRouter<R extends ConnectRecord<R>> implements Transformation<R
 
     @Override
     public R apply(R record) {
+        // Ignoring tombstones just in case
+        if (record.value() == null) {
+            return record;
+        }
+
         Struct struct = (Struct) record.value();
         String op = struct.getString("op");
 

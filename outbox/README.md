@@ -38,6 +38,24 @@ Examine the events produced by the service via the Apache Kafka console consumer
 
 Examine that the receiving service processes the events:
 
-    docker-compose logs shipment-service -f
+    docker-compose logs -f shipment-service
 
 (Look for "Processing '{OrderCreated|OrderLineUpdated}' event" messages in the log)
+
+## Useful Commands
+
+Getting a session in the Postgres DB of the "order" service:
+
+    docker-compose exec order-db env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER orderdb'
+
+E.g. to query for all purchase orders:
+
+    select * from purchaseorder po, orderline ol where ol.order_id = po.id;
+
+Getting a session in the MySQL DB of the "shipment" service:
+
+    docker-compose exec shipment-db bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+
+E.g. to query for all shipments:
+
+    select * from Shipment;

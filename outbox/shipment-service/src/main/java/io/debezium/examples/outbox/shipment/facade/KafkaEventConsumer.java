@@ -86,6 +86,9 @@ public class KafkaEventConsumer {
                     }
                 }
             }
+            catch(Exception e) {
+                LOG.error("Polling loop failed", e);
+            }
             finally {
                 LOG.info("Polling loop finished");
                 consumer.close();
