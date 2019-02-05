@@ -32,7 +32,9 @@ services:
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: debezium-examples/connect-es:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-es
     ports:
      - 8083:8083
     links:
@@ -43,8 +45,6 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_source_connect_configs
      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
-     - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
-     - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
   event-source:
     image: debezium/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
     build:
@@ -74,3 +74,12 @@ services:
       /bin/bash -c "
         java -jar /deployments/demo-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
       "
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    ports:
+     - "9200:9200"
+    environment:
+     - http.host=0.0.0.0
+     - transport.host=127.0.0.1
+     - xpack.security.enabled=false
+     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

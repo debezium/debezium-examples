@@ -1,0 +1,18 @@
+{
+    "name": "elastic-sink",
+    "config": {
+        "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+        "tasks.max": "1",
+        "topics": "dbserver1.inventory.orders",
+        "connection.url": "http://elastic:9200",
+        "transforms": "unwrap,key",
+        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
+        "transforms.key.field": "id",
+        "key.ignore": "false",
+        "type.name": "order",
+        "behavior.on.null.values" : "delete",
+        "topic.index.map" : "dbserver1.inventory.orders:orders",
+        "schema.ignore" : "true"
+    }
+}
