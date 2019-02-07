@@ -26,7 +26,7 @@ cp debezium-examples/kstreams-live-update/os-setup.sh .
 ## Start tooling container
 
 ```
-oc run kc -it --image=debezium/tooling --restart=Never
+oc run tooling -it --image=debezium/tooling --restart=Never
 ```
 
 # Demo (run in tooling pod)
@@ -60,9 +60,9 @@ cat register-mysql-source.json | http POST http://debezium-connect-api:8083/conn
 * Consume:
 
 ```
-kafkacat -b my-cluster-kafka-bootstrap -t dbserver1.inventory.categories -o beginning | jq ."payload"
-kafkacat -b my-cluster-kafka-bootstrap -t dbserver1.inventory.orders -o end | jq ."payload"
-kafkacat -b my-cluster-kafka-bootstrap -t sales_per_category -o beginning -K ' --- '
+kafkacat -b my-cluster-kafka-bootstrap -t dbserver1.inventory.categories -C -o beginning | jq ."payload"
+kafkacat -b my-cluster-kafka-bootstrap -t dbserver1.inventory.orders -C -o end | jq ."payload"
+kafkacat -b my-cluster-kafka-bootstrap -t sales_per_category -C -o beginning -K ' --- '
 oc exec -it my-cluster-kafka-0 -- bin/kafka-topics.sh --zookeeper localhost:2181 --list
 ```
 
