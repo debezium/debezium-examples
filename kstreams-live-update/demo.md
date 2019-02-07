@@ -26,11 +26,27 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
 	--property print.key=true \
 	--topic sales_per_category
 
+http "http://localhost:9200/orders/_search?pretty"
+
+## Kafkacat
+
 docker run --tty \
   --network kstreams-live-update_default \
   confluentinc/cp-kafkacat \
   kafkacat -b kafka:9092 -C -o end \
-  -t dbserver1.inventory.orders | jq .
+  -t dbserver1.inventory.orders | jq .payload
+
+docker run --tty \
+  --network kstreams-live-update_default \
+  confluentinc/cp-kafkacat \
+  kafkacat -b kafka:9092 -C -o beginning \
+  -t dbserver1.inventory.categories | jq .payload
+
+docker run --tty \
+    --network kstreams-live-update_default \
+    confluentinc/cp-kafkacat \
+    kafkacat -b kafka:9092 -C -o beginning \
+    -t sales_per_category -K " --- "
 
 # Misc.
 
