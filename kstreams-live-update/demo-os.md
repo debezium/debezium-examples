@@ -66,7 +66,7 @@ kafkacat -b my-cluster-kafka-bootstrap -t sales_per_category -C -o beginning -K 
 oc exec -it my-cluster-kafka-0 -- bin/kafka-topics.sh --zookeeper localhost:2181 --list
 ```
 
-## Elasticsearch
+## Bonus: Push Data to Elasticsearch
 
 ```
 cat <<'EOF' > register-elastic-sink.json
@@ -78,7 +78,7 @@ cat <<'EOF' > register-elastic-sink.json
         "topics": "dbserver1.inventory.orders",
         "connection.url": "http://elasticsearch:9200",
         "key.ignore": "false",
-        "type.name": "orders5",
+        "type.name": "orders",
         "behavior.on.null.values" : "delete",
         "topic.index.map" : "dbserver1.inventory.orders:orders",
         "transforms": "unwrap,key",

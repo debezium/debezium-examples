@@ -42,7 +42,7 @@ deploy the Debezium MySQL connector:
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @mysql-source.json
 ```
 
-# Consume aggregated messages
+## Consume aggregated messages
 
 If the connector has been deployed, open the UI in the browser: http://localhost:8079/.
 It shows a chart with the windowed accumulated order values which is updated in near-realtime as new orders are created via the event generator app.
@@ -57,14 +57,18 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --topic sales_per_category
 ```
 
-# Shut down the cluster
+## Shut down the cluster
 
 ```shell
 docker-compose down
 ```
 
-# Locally testing the aggregator
+## Locally testing the aggregator
 
 Add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in _docker-compose.yaml_.
 
 Run `io.debezium.examples.kstreams.liveupdate.aggregator.Main`, passing `<YOUR HOST IP>:9092` as program argument.
+
+## Demo instructions
+
+See _demo.md_ and _demo-os.md_ for steps to demo this during conference talks (running via Docker Compose and OpenShift, respectively).
