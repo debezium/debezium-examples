@@ -13,13 +13,15 @@ Run the following on the demo environment.
 ## Start OpenShift
 
 ```
+git clone https://github.com/debezium/debezium-examples.git
+cp debezium-examples/kstreams-live-update/os-setup.sh .
+```
+
+```
 oc cluster up --routing-suffix=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'`.nip.io
 ```
 
 ```
-git clone --branch kstreams-demo https://github.com/gunnarmorling/debezium-examples.git
-cp debezium-examples/kstreams-live-update/os-setup.sh .
-
 ./os-setup.sh <project-name>
 ```
 
