@@ -5,7 +5,7 @@
 Run locally:
 
 ```
-sudo ssh -L 8443:localhost:8443 -f -N -i <YOUR_KEY> user@<YOUR_HOST>
+sudo ssh -L 8443:localhost:8443 -N -i <YOUR_KEY> user@<YOUR_HOST>
 ```
 
 Run the following on the demo environment.
@@ -20,7 +20,7 @@ oc cluster up --routing-suffix=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.
 git clone --branch kstreams-demo https://github.com/gunnarmorling/debezium-examples.git
 cp debezium-examples/kstreams-live-update/os-setup.sh .
 
-./os-setup.sh
+./os-setup.sh <project-name>
 ```
 
 ## Start tooling container
@@ -142,7 +142,7 @@ oc exec -it my-cluster-kafka-0 -- bin/kafka-topics.sh --zookeeper localhost:2181
 # Clean-Up
 
 ```
-oc delete pod kc
+oc delete pod tooling
 oc cluster down
 mount | grep -o '/home/build/openshift.local.clusterup/[^ ]*' | xargs sudo umount; sudo rm -rf /home/build/openshift.local.clusterup
 ```

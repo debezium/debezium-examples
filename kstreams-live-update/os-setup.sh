@@ -1,37 +1,45 @@
 #!/bin/sh
 
-wget https://github.com/strimzi/strimzi/releases/download/0.8.0/strimzi-0.8.0.tar.gz
+if [ -z "$1" ]; then
+    echo "Usage os-setup.sh <project-name>"
+    exit 1
+fi
 
-rm -rf strimzi-0.8.0
-tar xzvf strimzi-0.8.0.tar.gz
-cd strimzi-0.8.0
-sed -i 's/namespace: .*/namespace: devnation-live/' install/cluster-operator/*RoleBinding*.yaml
+PROJECT_NAME=$1
+STRIMZI_VERSION="0.8.0"
+
+wget https://github.com/strimzi/strimzi/releases/download/$STRIMZI_VERSION/strimzi-$STRIMZI_VERSION.tar.gz
+
+rm -rf strimzi-$STRIMZI_VERSION
+tar xzvf strimzi-$STRIMZI_VERSION.tar.gz
+cd strimzi-$STRIMZI_VERSION
+sed -i "s/namespace: .*/namespace: $PROJECT_NAME/" install/cluster-operator/*RoleBinding*.yaml
 cd ..
 
 oc login -u developer
-oc new-project devnation-live
+oc new-project $PROJECT_NAME
 
 echo "Setting up Kafka"
 
-rm -rf strimzi-0.8.0/plugins
-cd strimzi-0.8.0
+rm -rf strimzi-$STRIMZI_VERSION/plugins
+cd strimzi-$STRIMZI_VERSION
 oc login -u system:admin
 
-oc apply -f install/cluster-operator -n devnation-live
-oc apply -f examples/templates/cluster-operator -n devnation-live
+oc apply -f install/cluster-operator -n $PROJECT_NAME
+oc apply -f examples/templates/cluster-operator -n $PROJECT_NAME
 oc process strimzi-ephemeral -p ZOOKEEPER_NODE_COUNT=1 | oc apply -f -
 oc patch kafka my-cluster --type merge -p '{ "spec" : { "zookeeper" : { "resources" : { "limits" : { "memory" : "512Mi" }, "requests" : { "memory" : "512Mi" } } },  "kafka" : { "resources" : { "limits" : { "memory" : "1Gi" }, "requests" : { "memory" : "1Gi" } } } } }'
 
 echo "Setting up DB"
 
-oc new-app https://github.com/gunnarmorling/debezium-examples.git#kstreams-demo --strategy=docker --name=mysql --context-dir=kstreams-live-update/example-db \
+oc new-app https://github.com/debezium/debezium-examples.git --strategy=docker --name=mysql --context-dir=kstreams-live-update/example-db \
     -e MYSQL_ROOT_PASSWORD=debezium \
     -e MYSQL_USER=mysqluser \
     -e MYSQL_PASSWORD=mysqlpw
 
 echo "Setting up Event Source"
 
-oc new-app --name=event-source debezium/msa-lab-s2i:latest~https://github.com/gunnarmorling/debezium-examples.git#kstreams-demo \
+oc new-app --name=event-source debezium/msa-lab-s2i:latest~https://github.com/debezium/debezium-examples.git \
     --context-dir=kstreams-live-update/event-source \
     -e JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.eventsource.Main
 
@@ -71,7 +79,7 @@ cd ..
 
 echo "Setting up Aggregator"
 
-oc new-app --name=aggregator debezium/msa-lab-s2i:latest~https://github.com/gunnarmorling/debezium-examples.git#kstreams-demo \
+oc new-app --name=aggregator debezium/msa-lab-s2i:latest~https://github.com/debezium/debezium-examples.git \
     --context-dir=kstreams-live-update/aggregator \
     -e AB_PROMETHEUS_OFF=true \
     -e KAFKA_BOOTSTRAP_SERVERS=my-cluster-kafka-bootstrap:9092 \
