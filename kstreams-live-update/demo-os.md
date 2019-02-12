@@ -35,6 +35,12 @@ oc run tooling -it --image=debezium/tooling --restart=Never
 
 * Register the connector:
 
+Observe new orders being created:
+
+```
+mycli mysql://mysqluser@mysql:3306/inventory --password mysqlpw
+```
+
 ```
 cat <<'EOF' > register-mysql-source.json
 
