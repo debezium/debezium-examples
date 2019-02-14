@@ -31,6 +31,12 @@ oc cluster up --routing-suffix=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.
 oc run tooling -it --image=debezium/tooling --restart=Never
 ```
 
+Verify connectors are deployed:
+
+```
+http http://debezium-connect-api:8083/connector-plugins/
+```
+
 # Demo (run in tooling pod)
 
 * Register the connector:
