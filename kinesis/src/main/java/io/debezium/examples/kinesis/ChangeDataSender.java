@@ -105,14 +105,30 @@ public class ChangeDataSender implements Runnable {
             return;
         }
 
-        Schema schema = SchemaBuilder.struct()
-            .field("key", record.keySchema())
-            .field("value", record.valueSchema())
-            .build();
+        Schema schema = null;
+
+        if ( null == record.keySchema() ) {
+            LOGGER.error("The keySchema is missing. Something is wrong.");
+            return;
+        }
+
+        // For deletes, the value node is null
+        if ( null != record.valueSchema() ) {
+            schema = SchemaBuilder.struct()
+                    .field("key", record.keySchema())
+                    .field("value", record.valueSchema())
+                    .build();
+        }else{
+            schema = SchemaBuilder.struct()
+                    .field("key", record.keySchema())
+                    .build();
+        }
 
         Struct message = new Struct(schema);
         message.put("key", record.key());
-        message.put("value", record.value());
+
+        if ( null != record.value() )
+            message.put("value", record.value());
 
         String partitionKey = String.valueOf(record.key() != null ? record.key().hashCode() : -1);
         final byte[] payload = valueConverter.fromConnectData("dummy", schema, message);
