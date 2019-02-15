@@ -1,5 +1,5 @@
 {
-    "customer" : "John Doe",
+    "customerId" : "123",
     "orderDate" : "2019-01-31T12:13:01",
     "lineItems" : [
         {

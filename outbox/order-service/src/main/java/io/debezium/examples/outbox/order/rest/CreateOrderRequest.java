@@ -15,7 +15,7 @@ import io.debezium.examples.outbox.order.model.PurchaseOrder;
 
 public class CreateOrderRequest {
 
-    private String customer;
+    private long customerId;
     private LocalDateTime orderDate;
     private List<OrderLineDto> lineItems;
 
@@ -23,12 +23,12 @@ public class CreateOrderRequest {
         this.lineItems = new ArrayList<>();
     }
 
-    public String getCustomer() {
-        return customer;
+    public long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(String customer) {
-        this.customer = customer;
+    public void setCustomerId(long customerId) {
+        this.customerId = customerId;
     }
 
     public LocalDateTime getOrderDate() {
@@ -52,6 +52,6 @@ public class CreateOrderRequest {
                 .map(l -> new OrderLine(l.getItem(), l.getQuantity(), l.getTotalPrice()))
                 .collect(Collectors.toList());
 
-        return new PurchaseOrder(customer, orderDate, lines);
+        return new PurchaseOrder(customerId, orderDate, lines);
     }
 }

@@ -1,5 +1,5 @@
 {
-    "name": "inventory-connector",
+    "name": "outbox-connector",
     "config": {
         "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
         "tasks.max": "1",

@@ -21,7 +21,7 @@ public class Shipment {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    private String customer;
+    private long customerId;
 
     @Column(unique=true)
     private long orderId;
@@ -31,8 +31,8 @@ public class Shipment {
     Shipment() {
     }
 
-    public Shipment(String customer, long orderId, LocalDateTime orderDate) {
-        this.customer = customer;
+    public Shipment(Long customerId, long orderId, LocalDateTime orderDate) {
+        this.customerId = customerId;
         this.orderId = orderId;
         this.orderDate = orderDate;
     }
@@ -41,12 +41,12 @@ public class Shipment {
         return id;
     }
 
-    public String getCustomer() {
-        return customer;
+    public Long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(String customer) {
-        this.customer = customer;
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
     }
 
     public long getOrderId() {

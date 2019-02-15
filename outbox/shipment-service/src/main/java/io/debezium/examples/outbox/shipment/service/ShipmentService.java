@@ -33,10 +33,10 @@ public class ShipmentService {
         LOGGER.info("Processing 'OrderCreated' event: {}", event);
 
         JsonNumber orderId = event.getJsonNumber("id");
-        String customer = event.getString("customer");
+        JsonNumber customerId = event.getJsonNumber("customerId");
         LocalDateTime orderDate = LocalDateTime.parse(event.getString("orderDate"));
 
-        entityManager.persist(new Shipment(customer, orderId.longValue(), orderDate));
+        entityManager.persist(new Shipment(customerId.longValue(), orderId.longValue(), orderDate));
     }
 
     @Transactional(value=TxType.MANDATORY)

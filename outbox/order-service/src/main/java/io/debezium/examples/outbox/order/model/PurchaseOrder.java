@@ -5,6 +5,7 @@
  */
 package io.debezium.examples.outbox.order.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class PurchaseOrder {
     @SequenceGenerator(name="purchase_order_ids", sequenceName = "seq_purchase_order", allocationSize=50)
     private Long id;
 
-    private String customer;
+    private long customerId;
 
     private LocalDateTime orderDate;
 
@@ -40,8 +41,8 @@ public class PurchaseOrder {
     PurchaseOrder() {
     }
 
-    public PurchaseOrder(String customer, LocalDateTime orderDate, List<OrderLine> lineItems) {
-        this.customer = customer;
+    public PurchaseOrder(long customerId, LocalDateTime orderDate, List<OrderLine> lineItems) {
+        this.customerId = customerId;
         this.orderDate = orderDate;
         this.lineItems = new ArrayList<>(lineItems);
     }
@@ -54,12 +55,12 @@ public class PurchaseOrder {
         this.id = id;
     }
 
-    public String getCustomer() {
-        return customer;
+    public long getCustomerId() {
+        return customerId;
     }
 
-    public void setCustomer(String customer) {
-        this.customer = customer;
+    public void setCustomerId(long customerId) {
+        this.customerId = customerId;
     }
 
     public LocalDateTime getOrderDate() {
@@ -88,5 +89,11 @@ public class PurchaseOrder {
         }
 
         throw new EntityNotFoundException("Order doesn't contain line with id " + orderLineId);
+    }
+
+    public BigDecimal getTotalValue() {
+        return lineItems.stream()
+            .map(OrderLine::getTotalPrice)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }
