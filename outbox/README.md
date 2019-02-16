@@ -30,11 +30,11 @@ Cancel one of the two order lines:
 
 Examine the events produced by the service via the Apache Kafka console consumer:
 
-    docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
-        --bootstrap-server kafka:9092 \
-        --from-beginning \
-        --property print.key=true \
-        --topic Order
+    docker run --tty --rm \
+        --network outbox_default \
+        debezium/tooling \
+        kafkacat -b kafka:9092 -C -o beginning -q \
+        -t OrderEvents | jq .
 
 Examine that the receiving service processes the events:
 

@@ -49,7 +49,7 @@ public class EventRouter<R extends ConnectRecord<R>> implements Transformation<R
             Struct after = struct.getStruct("after");
 
             String key = after.getString("aggregateid");
-            String topic = after.getString("aggregatetype");
+            String topic = after.getString("aggregatetype") + "Events";
 
             String eventId = after.getString("id");
             String eventType = after.getString("type");

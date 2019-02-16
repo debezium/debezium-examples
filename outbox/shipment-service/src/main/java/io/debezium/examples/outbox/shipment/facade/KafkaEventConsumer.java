@@ -50,7 +50,7 @@ public class KafkaEventConsumer {
     private final AtomicBoolean running = new AtomicBoolean(true);
 
     public void startConsumer(@Observes @Initialized(ApplicationScoped.class) Object init) {
-        LOG.info("Launching Consumer");
+        LOG.info("Launching Consumer for topic '{}'", topicName);
         executorService.submit(new PollingLoop());
     }
 
