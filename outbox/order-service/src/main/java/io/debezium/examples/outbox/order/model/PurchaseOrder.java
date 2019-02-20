@@ -15,7 +15,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 
@@ -33,9 +32,9 @@ public class PurchaseOrder {
 
     @OneToMany(
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            mappedBy="purchaseOrder"
         )
-    @JoinColumn(name = "order_id")
     private List<OrderLine> lineItems;
 
     PurchaseOrder() {
@@ -45,6 +44,9 @@ public class PurchaseOrder {
         this.customerId = customerId;
         this.orderDate = orderDate;
         this.lineItems = new ArrayList<>(lineItems);
+        for (OrderLine orderLine : lineItems) {
+            orderLine.setPurchaseOrder(this);
+        }
     }
 
     public Long getId() {

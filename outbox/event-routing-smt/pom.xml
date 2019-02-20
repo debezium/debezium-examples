@@ -6,7 +6,8 @@
   <groupId>io.debezium.examples.outbox</groupId>
   <artifactId>outbox-event-routing-smt</artifactId>
   <version>1.0.0.Final</version>
-  <name>SMT for routing entries from the outbox table to matching topics</name>
+  <name>Debezium Outbox Demo - Event Routing SMT</name>
+  <description>SMT for routing entries from the outbox table to matching topics</description>
 
   <properties>
   </properties>

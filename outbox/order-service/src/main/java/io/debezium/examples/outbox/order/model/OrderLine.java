@@ -13,6 +13,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 
 @Entity
@@ -28,6 +30,10 @@ public class OrderLine {
     private int quantity;
 
     private BigDecimal totalPrice;
+
+    @ManyToOne
+    @JoinColumn(name="order_id")
+    private PurchaseOrder purchaseOrder;
 
     @Enumerated(EnumType.STRING)
     private OrderLineStatus status;
@@ -80,5 +86,13 @@ public class OrderLine {
 
     public void setStatus(OrderLineStatus status) {
         this.status = status;
+    }
+
+    public PurchaseOrder getPurchaseOrder() {
+        return purchaseOrder;
+    }
+
+    public void setPurchaseOrder(PurchaseOrder purchaseOrder) {
+        this.purchaseOrder = purchaseOrder;
     }
 }

@@ -14,11 +14,12 @@ Prepare the Java components:
 
 Start all components:
 
+    export DEBEZIUM_VERSION=0.9
     docker-compose up --build
 
 Register the Debezium Postgres connector:
 
-    curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
+    cat register-postgres.json  | http POST http://localhost:8083/connectors/
 
 Place a "create order" request with the order service:
 
@@ -32,7 +33,7 @@ Examine the events produced by the service via the Apache Kafka console consumer
 
     docker run --tty --rm \
         --network outbox_default \
-        debezium/tooling \
+        debezium/tooling:1.0 \
         kafkacat -b kafka:9092 -C -o beginning -q \
         -t OrderEvents | jq .
 
@@ -46,15 +47,21 @@ Examine that the receiving service processes the events:
 
 Getting a session in the Postgres DB of the "order" service:
 
-    docker-compose exec order-db env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER orderdb'
+    docker run --tty --rm -i \
+        --network outbox_default \
+        debezium/tooling:1.0 \
+        bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 
 E.g. to query for all purchase orders:
 
-    select * from purchaseorder po, orderline ol where ol.order_id = po.id;
+    select * from inventory.purchaseorder po, inventory.orderline ol where ol.order_id = po.id;
 
 Getting a session in the MySQL DB of the "shipment" service:
 
-    docker-compose exec shipment-db bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+    docker run --tty --rm -i \
+        --network outbox_default \
+        debezium/tooling:1.0 \
+        bash -c 'mycli mysql://mysqluser:mysqlpw@shipment-db:3306/inventory'
 
 E.g. to query for all shipments:
 
