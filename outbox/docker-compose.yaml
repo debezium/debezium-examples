@@ -32,6 +32,20 @@ services:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
+  shipment-db-quarkus:
+    image: mariadb/server
+    ports:
+     - "33306:3306"
+    healthcheck:
+      test: "/usr/bin/mysql -h shipment-db-quarkus --user=mariadbuser --password=mariadbpw --execute \"SELECT 1;\" shipmentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+     - MARIADB_USER=mariadbuser
+     - MARIADB_PASSWORD=mariadbpw
+     - MARIADB_DATABASE=shipmentdb
+     - MARIADB_RANDOM_ROOT_PASSWORD=true
   connect:
     image: debezium-examples/connect-with-event-routing-smt:${DEBEZIUM_VERSION}
     build:
@@ -87,3 +101,16 @@ services:
       /bin/bash -c "
         java -jar /deployments/shipment-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
       "
+  shipment-service-quarkus:
+    image: debezium-example/outbox-shipment-service-quarkus:${DEBEZIUM_VERSION}
+    build:
+      context: shipment-service-quarkus
+    links:
+     - kafka
+     - shipment-db-quarkus
+    depends_on:
+     shipment-db-quarkus:
+        condition: service_healthy
+     connect:
+        condition: service_started
+    command: "/deployments/application -Dquarkus.datasource.url=jdbc:mariadb://shipment-db-quarkus:3306/shipmentdb"
