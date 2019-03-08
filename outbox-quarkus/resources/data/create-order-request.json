@@ -1,0 +1,16 @@
+{
+    "customerId" : "123",
+    "orderDate" : "2019-01-31T12:13:01",
+    "lineItems" : [
+        {
+            "item" : "Debezium in Action",
+            "quantity" : 2,
+            "totalPrice" : 39.98
+        },
+        {
+            "item" : "Debezium for Dummies",
+            "quantity" : 1,
+            "totalPrice" : 29.99
+        }
+    ]
+}
