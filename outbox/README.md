@@ -10,7 +10,7 @@ excluding any duplicate messages by comparing incoming event ids with already su
 
 Prepare the Java components:
 
-    mvn clean install
+    mvn clean install -Pnative -Dnative-image.docker-build=true
 
 Start all components:
 
