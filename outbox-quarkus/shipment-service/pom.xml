@@ -45,14 +45,6 @@
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
         <version>${version.quarkus}</version>
-        <configuration>
-          <environment>
-            <KAFKA_SERVICE_HOST>localhost</KAFKA_SERVICE_HOST>
-            <KAFKA_SERVICE_PORT>9092</KAFKA_SERVICE_PORT>
-            <TT_PORT_OFFSET>200</TT_PORT_OFFSET>
-            <ORDER_TOPIC_NAME>myorders</ORDER_TOPIC_NAME>
-          </environment>
-        </configuration>
         <executions>
           <execution>
             <goals>
@@ -86,10 +78,23 @@
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
     </dependency>
+   <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-reactive-streams-operators</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
-    </dependency>  </dependencies>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-kafka-client</artifactId>
+    </dependency>
+  </dependencies>
   <profiles>
     <profile>
       <id>native</id>
@@ -106,6 +111,7 @@
                 </goals>
                 <configuration>
                   <enableHttpUrlHandler>true</enableHttpUrlHandler>
+                  <autoServiceLoaderRegistration>false</autoServiceLoaderRegistration>
                 </configuration>
               </execution>
             </executions>

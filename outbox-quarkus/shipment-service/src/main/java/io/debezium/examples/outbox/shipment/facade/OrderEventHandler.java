@@ -5,18 +5,18 @@
  */
 package io.debezium.examples.outbox.shipment.facade;
 
-import java.io.StringReader;
+import java.io.IOException;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.debezium.examples.outbox.shipment.log.MessageLog;
 import io.debezium.examples.outbox.shipment.service.ShipmentService;
@@ -32,22 +32,22 @@ public class OrderEventHandler {
     @Inject
     ShipmentService shipmentService;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Transactional
-    public void onOrderEvent(UUID eventId, String key, String event) {
+    public void onOrderEvent(UUID eventId, String key, JsonNode event) throws IOException {
         if (log.alreadyProcessed(eventId)) {
             LOGGER.info("Event with UUID {} was already retrieved, ignoring it", eventId);
             return;
         }
 
-        JsonObject json = Json.createReader(new StringReader(event)).readObject();
-        JsonObject payload = json.containsKey("schema") ? json.getJsonObject("payload") :json;
+        final JsonNode payload = event.has("schema") ? event.get("payload") : event;
 
-        String eventType = payload.getString("eventType");
-        Long ts = payload.getJsonNumber("ts_ms").longValue();
-        String eventPayload = payload.getString("payload");
+        final String eventType = payload.get("eventType").asText();
+        final Long ts = payload.get("ts_ms").asLong();
+        final String eventPayload = payload.get("payload").asText();
 
-        JsonReader payloadReader = Json.createReader(new StringReader(eventPayload));
-        JsonObject payloadObject = payloadReader.readObject();
+        final JsonNode payloadObject = objectMapper.readTree(eventPayload);
 
         LOGGER.info("Received 'Order' event -- key: {}, event id: '{}', event type: '{}', ts: '{}'", key, eventId, eventType, ts);
 

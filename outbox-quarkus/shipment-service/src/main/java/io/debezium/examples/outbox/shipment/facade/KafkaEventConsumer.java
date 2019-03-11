@@ -5,6 +5,7 @@
  */
 package io.debezium.examples.outbox.shipment.facade;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
@@ -16,6 +17,8 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.smallrye.reactive.messaging.kafka.KafkaMessage;
 
 @ApplicationScoped
@@ -26,19 +29,26 @@ public class KafkaEventConsumer {
     @Inject
     OrderEventHandler orderEventHandler;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Incoming("orders")
-    public CompletionStage<Void> onMessage(KafkaMessage<String, String> message) {
-        LOG.debug("Kafka message with key = {} arrived", message.getKey());
-        final Optional<String> eventId = message.getHeaders().getOneAsString("eventId");
-        if (eventId.isPresent()) {
-            orderEventHandler.onOrderEvent(
-                    UUID.fromString(eventId.get()),
-                    message.getKey(),
-                    message.getPayload()
-            );
+    public CompletionStage<Void> onMessage(KafkaMessage<String, String> message) throws IOException {
+        try {
+            LOG.debug("Kafka message with key = {} arrived", message.getKey());
+            final Optional<String> eventId = message.getHeaders().getOneAsString("eventId");
+            if (eventId.isPresent()) {
+                orderEventHandler.onOrderEvent(
+                        UUID.fromString(eventId.get()),
+                        message.getKey(),
+                        objectMapper.readTree(message.getPayload())
+                );
+            }
+            else {
+                LOG.warn("Skipping Kafka message with key = {}, eventId header was missing");
+            }
         }
-        else {
-            LOG.warn("Skipping Kafka message with key = {}, eventId header was missing");
+        catch (Throwable t) {
+            LOG.error("Error in message processing", t);
         }
         return message.ack();
     }

@@ -1,4 +1,4 @@
-FROM fabric8/java-jboss-openjdk8-jdk
-
-COPY target/shipment-runner.jar /deployments/
-COPY target/lib/ /deployments/lib/
+FROM registry.fedoraproject.org/fedora-minimal
+COPY target/*-runner /deployments/application
+RUN chmod 775 /deployments
+CMD deplyments/application

@@ -78,7 +78,5 @@ services:
      - ORDER_TOPIC_NAME=OrderEvents
     depends_on:
      - connect
-    command: >
-      /bin/bash -c "
-        java -Djava.net.preferIPv4Stack=true -Dquarkus.datasource.url=jdbc:mariadb://shipment-db:3306/shipmentdb -jar /deployments/shipment-runner.jar
-      "
+     - shipment-db
+    command: "deployments/application -Dquarkus.datasource.url=jdbc:mariadb://shipment-db:3306/shipmentdb"
