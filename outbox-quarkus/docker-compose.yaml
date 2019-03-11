@@ -28,6 +28,11 @@ services:
     image: mariadb/server
     ports:
      - "3306:3306"
+    healthcheck:
+      test: "/usr/bin/mysql --user=mariadbuser --password=mariadbpw --execute \"SELECT 1;\" shipmentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
     environment:
      - MARIADB_USER=mariadbuser
      - MARIADB_PASSWORD=mariadbpw
