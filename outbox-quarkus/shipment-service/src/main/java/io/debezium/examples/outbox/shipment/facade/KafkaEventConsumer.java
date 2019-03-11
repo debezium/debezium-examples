@@ -32,8 +32,6 @@ public class KafkaEventConsumer {
 
     private static final String GROUP_ID = "shipment-service";
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-
     @Inject
     OrderEventHandler orderEventHandler;
 
@@ -49,7 +47,7 @@ public class KafkaEventConsumer {
 
     public void startConsumer(@Observes @Initialized(ApplicationScoped.class) Object init) {
         LOG.info("Launching Consumer for topic '{}'", topicName);
-        executorService.submit(new PollingLoop());
+        Executors.newSingleThreadExecutor().submit(new PollingLoop());
     }
 
 //    public void shutdownEngine(@Observes @Destroyed(ApplicationScoped.class) Object init) {
