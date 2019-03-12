@@ -36,6 +36,11 @@ services:
     image: mariadb/server
     ports:
      - "33306:3306"
+    healthcheck:
+      test: "/usr/bin/mysql -h shipment-db-quarkus --user=mariadbuser --password=mariadbpw --execute \"SELECT 1;\" shipmentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
     environment:
      - MARIADB_USER=mariadbuser
      - MARIADB_PASSWORD=mariadbpw
@@ -104,7 +109,8 @@ services:
      - kafka
      - shipment-db-quarkus
     depends_on:
-     - connect
-     - shipment-db-quarkus
-    # Include artifial delay to allow dependencies to start - in production there should be a health check end and automated restart
-    command: "/bin/bash -c \"sleep 5 && /deployments/application -Dquarkus.datasource.url=jdbc:mariadb://shipment-db-quarkus:3306/shipmentdb\""
+     shipment-db-quarkus:
+        condition: service_healthy
+     connect:
+        condition: service_started
+    command: "/deployments/application -Dquarkus.datasource.url=jdbc:mariadb://shipment-db-quarkus:3306/shipmentdb"
