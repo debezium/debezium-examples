@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
-  <deployment>
-    <dependencies>
-      <module name="com.fasterxml.jackson.datatype.jackson-datatype-jdk8" services="import" />
-      <module name="org.hibernate.commons-annotations" />
-    </dependencies>
-  </deployment>
-</jboss-deployment-structure>
