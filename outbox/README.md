@@ -1,10 +1,16 @@
 # Outbox Pattern
 
 This example demonstrates the "outbox pattern", an approach for letting services communicate in an asynchronous and reliable fashion.
+It accompanies https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/[this post] on the Debezium blog.
+
 The sending service ("order-service") produces events in an "outbox" event table within its own local database.
 Debezium captures the additions to this table and streams the events to consumers via Apache Kafka.
 The receiving service ("shipment-service") receives these events (and would apply some processing based on them),
 excluding any duplicate messages by comparing incoming event ids with already successfully consumed ids.
+
+**Update, March 3, 2019:** Another variant of the receiving service has been added, "shipment-service-quarkus",
+which is functionally the same as the original one, but is implemented using the https://quarkus.io[Quarkus] stack.
+This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the classic version (based on Thorntail).
 
 ## Execution
 
