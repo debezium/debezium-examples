@@ -11,6 +11,9 @@ The Elasticsearch sink connector is used to consume these records and persist th
 How to run:
 
 ```shell
+# Make sure that you have maven installed. Use command: sudo apt install maven
+cd json-smt-es && mvn clean install && cd ../
+
 # Start the DB, Kafka Connect, Elasticsearch etc.
 export DEBEZIUM_VERSION=0.9
 docker-compose up --build
