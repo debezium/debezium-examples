@@ -3,7 +3,7 @@ ENV KAFKA_CONNECT_JSON_SMT_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-json-smt
     KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 
 RUN mkdir $KAFKA_CONNECT_JSON_SMT_DIR
-COPY ./json-smt-1.0.0.Final.jar $KAFKA_CONNECT_JSON_SMT_DIR
+COPY target/json-smt-1.0.0.Final.jar $KAFKA_CONNECT_JSON_SMT_DIR
 
 # Deploy Confluent Elasticsearch sink connector
 RUN mkdir $KAFKA_CONNECT_ES_DIR && cd $KAFKA_CONNECT_ES_DIR &&\
