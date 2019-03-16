@@ -19,13 +19,13 @@ cat mysql-source.json | http POST http://localhost:8083/connectors/
 docker run --tty \
   --network kstreams-live-update_default \
   debezium/tooling \
-  kafkacat -b kafka:9092 -C -o end \
+  kafkacat -b kafka:9092 -C -o end -q \
   -t dbserver1.inventory.orders | jq .payload
 
 docker run --tty \
   --network kstreams-live-update_default \
   debezium/tooling \
-  kafkacat -b kafka:9092 -C -o beginning \
+  kafkacat -b kafka:9092 -C -o beginning -q \
   -t dbserver1.inventory.categories | jq .payload
 
 docker run --tty \
