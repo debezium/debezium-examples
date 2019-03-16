@@ -10,7 +10,7 @@ It does these things:
 
 ## Prepare Kafka etc.
 
-- export DEBEZIUM_VERSION=0.8
+- export DEBEZIUM_VERSION=0.9
 - docker ps -a
 - docker-compose up --scale swarm=0 --scale hiking-manager=0
 
@@ -33,11 +33,11 @@ It does these things:
 
 - cat jdbc-sink.json | http POST http://localhost:8083/connectors/
 - http localhost:8083/connectors/
-- docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from \"dbserver1_inventory_Hike\""'
+- docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from \\"dbserver1_inventory_Hike\\""'
 
 ## Stop Kafka Connect
 
-- docker stop tutorial_connect_1
+- docker stop end-to-end-demo_connect_1
 - Change some data
 - docker-compose up -d connect
 - Show PG again as it catches up
