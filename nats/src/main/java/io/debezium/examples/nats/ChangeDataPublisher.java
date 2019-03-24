@@ -3,7 +3,6 @@ package io.debezium.examples.nats;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -11,21 +10,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.nats.client.Connection;
-import io.nats.client.Message;
 import io.nats.client.Nats;
-import io.nats.client.Subscription;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.source.SourceRecord;
+import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.debezium.config.Configuration;
-import io.debezium.connector.mysql.MySqlConnectorConfig;
 import io.debezium.embedded.EmbeddedEngine;
-import io.debezium.relational.history.MemoryDatabaseHistory;
 import io.debezium.util.Clock;
 
 /**
@@ -63,19 +59,7 @@ public class ChangeDataPublisher implements Runnable {
 
         prop.forEach((k, v) -> builder.with(k.toString(), v.toString()));
 
-        engineConfig = builder
-                .with(EmbeddedEngine.CONNECTOR_CLASS, "io.debezium.connector.mysql.MySqlConnector")
-                .with(EmbeddedEngine.ENGINE_NAME, APP_NAME)
-                .with(MySqlConnectorConfig.SERVER_NAME,APP_NAME)
-                .with(MySqlConnectorConfig.SERVER_ID, 8192)
-
-                // for demo purposes let's store offsets and history only in memory
-                .with(EmbeddedEngine.OFFSET_STORAGE, "org.apache.kafka.connect.storage.MemoryOffsetBackingStore")
-                .with(MySqlConnectorConfig.DATABASE_HISTORY, MemoryDatabaseHistory.class.getName())
-
-                // Send JSON without schema
-                .with("schemas.enable", false)
-                .build();
+        engineConfig = builder.build();
 
         valueConverter = new JsonConverter();
         valueConverter.configure(engineConfig.asMap(), false);
@@ -85,7 +69,6 @@ public class ChangeDataPublisher implements Runnable {
     public void run() {
         final EmbeddedEngine engine = EmbeddedEngine.create()
                 .using(engineConfig)
-                .using(this.getClass().getClassLoader())
                 .using(Clock.SYSTEM)
                 .notifying(this::sendRecord)
                 .build();
@@ -93,24 +76,6 @@ public class ChangeDataPublisher implements Runnable {
         // Boot a publisher to send change data
         ExecutorService publisherExecutor = Executors.newSingleThreadExecutor();
         publisherExecutor.execute(engine);
-
-        // Boot a subscriber to receive and output data
-        ExecutorService subscriberExecutor = Executors.newSingleThreadExecutor();
-        subscriberExecutor.execute(() -> {
-            try (Connection nc = Nats.connect(serverUrl)){
-                // Subscribe a subject
-                Subscription sub = nc.subscribe(subject);
-
-                while (!Thread.interrupted()) {
-                    // Read a message
-                    Message msg = sub.nextMessage(Duration.ZERO);
-                    System.out.println(new String(msg.getData(), StandardCharsets.UTF_8));
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Requesting embedded engine to shut down");
@@ -137,20 +102,20 @@ public class ChangeDataPublisher implements Runnable {
             return;
         }
 
-        Schema schema = null;
+        Schema schema;
 
-        if ( null == record.keySchema() ) {
+        if (record.keySchema() == null) {
             LOGGER.error("The keySchema is missing. Something is wrong.");
             return;
         }
 
         // For deletes, the value node is null
-        if ( null != record.valueSchema() ) {
+        if (record.valueSchema() != null) {
             schema = SchemaBuilder.struct()
                     .field("key", record.keySchema())
                     .field("value", record.valueSchema())
                     .build();
-        }else{
+        } else {
             schema = SchemaBuilder.struct()
                     .field("key", record.keySchema())
                     .build();
@@ -162,7 +127,6 @@ public class ChangeDataPublisher implements Runnable {
         if (record.value() != null)
             message.put("value", record.value());
 
-        String partitionKey = String.valueOf(record.key() != null ? record.key().hashCode() : -1);
         final byte[] payload = valueConverter.fromConnectData("dummy", schema, message);
 
         try {
@@ -181,6 +145,8 @@ public class ChangeDataPublisher implements Runnable {
     }
 
     public static void main(String[] args) {
+        BasicConfigurator.configure();
+
         new ChangeDataPublisher().run();
     }
 }
