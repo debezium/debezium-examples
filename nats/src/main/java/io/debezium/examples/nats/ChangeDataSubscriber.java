@@ -10,11 +10,12 @@ import java.time.Duration;
 
 public class ChangeDataSubscriber {
     private static final String serverUrl = "nats://localhost:4222";
+    private static final String subject = "NATSChannel";
 
     public static void main(String[] args) {
         try (Connection nc = Nats.connect(serverUrl)){
             // Subscribe a subject
-            Subscription sub = nc.subscribe("NATSChannel");
+            Subscription sub = nc.subscribe(subject);
 
             while (!Thread.interrupted()) {
                 // Read a message
