@@ -16,7 +16,6 @@
 
   <modules>
     <module>order-service</module>
-    <module>event-routing-smt</module>
     <module>shipment-service</module>
     <module>shipment-service-quarkus</module>
   </modules>

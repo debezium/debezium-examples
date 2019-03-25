@@ -47,9 +47,7 @@ services:
      - MARIADB_DATABASE=shipmentdb
      - MARIADB_RANDOM_ROOT_PASSWORD=true
   connect:
-    image: debezium-examples/connect-with-event-routing-smt:${DEBEZIUM_VERSION}
-    build:
-      context: event-routing-smt
+    image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
