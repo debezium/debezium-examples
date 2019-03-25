@@ -92,7 +92,7 @@ services:
      #- KAFKA_SERVICE_HOST=kafka
      #- KAFKA_SERVICE_PORT=9092
      - BOOTSTRAP_SERVERS=kafka:9092
-     - ORDER_TOPIC_NAME=OrderEvents
+     - ORDER_TOPIC_NAME=order.events
     depends_on:
      - connect
     command: >

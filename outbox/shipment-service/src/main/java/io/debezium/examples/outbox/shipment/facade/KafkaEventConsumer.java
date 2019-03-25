@@ -79,9 +79,10 @@ public class KafkaEventConsumer {
 
                     for (ConsumerRecord<String, String> record : records) {
                         orderEventHandler.onOrderEvent(
-                                UUID.fromString(new String(record.headers().lastHeader("eventId").value())),
+                                UUID.fromString(new String(record.headers().lastHeader("id").value())),
                                 record.key(),
-                                record.value()
+                                record.value(),
+                                record.timestamp()
                         );
                     }
                 }

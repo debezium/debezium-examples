@@ -35,16 +35,17 @@ public class KafkaEventConsumer {
     public CompletionStage<Void> onMessage(KafkaMessage<String, String> message) throws IOException {
         try {
             LOG.debug("Kafka message with key = {} arrived", message.getKey());
-            final Optional<String> eventId = message.getHeaders().getOneAsString("eventId");
+            final Optional<String> eventId = message.getHeaders().getOneAsString("id");
             if (eventId.isPresent()) {
                 orderEventHandler.onOrderEvent(
                         UUID.fromString(eventId.get()),
                         message.getKey(),
-                        objectMapper.readTree(message.getPayload())
+                        objectMapper.readTree(message.getPayload()),
+                        message.getTimestamp()
                 );
             }
             else {
-                LOG.warn("Skipping Kafka message with key = {}, eventId header was missing");
+                LOG.warn("Skipping Kafka message with key = {}, id header was missing");
             }
         }
         catch (Throwable t) {

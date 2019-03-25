@@ -35,7 +35,7 @@ public class OrderEventHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public void onOrderEvent(UUID eventId, String key, JsonNode event) throws IOException {
+    public void onOrderEvent(UUID eventId, String key, JsonNode event, Long ts) throws IOException {
         if (log.alreadyProcessed(eventId)) {
             LOGGER.info("Event with UUID {} was already retrieved, ignoring it", eventId);
             return;
@@ -44,7 +44,6 @@ public class OrderEventHandler {
         final JsonNode payload = event.has("schema") ? event.get("payload") : event;
 
         final String eventType = payload.get("eventType").asText();
-        final Long ts = payload.get("ts_ms").asLong();
         final String eventPayload = payload.get("payload").asText();
 
         final JsonNode payloadObject = objectMapper.readTree(eventPayload);

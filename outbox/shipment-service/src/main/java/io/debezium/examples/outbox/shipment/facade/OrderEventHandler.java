@@ -33,7 +33,7 @@ public class OrderEventHandler {
     private ShipmentService shipmentService;
 
     @Transactional
-    public void onOrderEvent(UUID eventId, String key, String event) {
+    public void onOrderEvent(UUID eventId, String key, String event, Long ts) {
         if (log.alreadyProcessed(eventId)) {
             LOGGER.info("Event with UUID {} was already retrieved, ignoring it", eventId);
             return;
@@ -43,7 +43,6 @@ public class OrderEventHandler {
         JsonObject payload = json.containsKey("schema") ? json.getJsonObject("payload") :json;
 
         String eventType = payload.getString("eventType");
-        Long ts = payload.getJsonNumber("ts_ms").longValue();
         String eventPayload = payload.getString("payload");
 
         JsonReader payloadReader = Json.createReader(new StringReader(eventPayload));
