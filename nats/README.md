@@ -20,7 +20,7 @@ We will start a pre-populated MySQL database that is the same as used by the Deb
 docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw debezium/example-mysql:0.8
 ```
 
-### Creating a NATS Stream Server
+### Creating a NATS Server
 
 Start a NATS Server that will emit the messages from publishers to subscribers who are using the same subject.
 
@@ -30,13 +30,13 @@ docker run -it --rm --name nats-server -p 4222:4222 nats
 
 ### Creating a Stream Subscriber
 
-Start a NATS stream subscriber that will receive the change events from the publisher. It simply show the raw events on standard output.
+Start a NATS subscriber that will receive the change events from the publisher. It simply show the raw events on standard output.
 
 ```
 mvn exec:java@subscriber
 ```
 
-### Creating a Stream Publisher Sending Events
+### Creating a Publisher Sending Events
 
 Start the Debezium Embedded to get change events from database. Also create a NATS stream publisher who send change events to a specific NATS subject. All subscriber who is listening to this subject will receive these events.
 
