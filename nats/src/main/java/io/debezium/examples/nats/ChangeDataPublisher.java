@@ -115,7 +115,8 @@ public class ChangeDataPublisher implements Runnable {
                     .field("key", record.keySchema())
                     .field("value", record.valueSchema())
                     .build();
-        } else {
+        }
+        else {
             schema = SchemaBuilder.struct()
                     .field("key", record.keySchema())
                     .build();
@@ -124,8 +125,9 @@ public class ChangeDataPublisher implements Runnable {
         Struct message = new Struct(schema);
         message.put("key", record.key());
 
-        if (record.value() != null)
+        if (record.value() != null) {
             message.put("value", record.value());
+        }
 
         final byte[] payload = valueConverter.fromConnectData("dummy", schema, message);
 

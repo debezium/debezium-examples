@@ -13,7 +13,7 @@ public class ChangeDataSubscriber {
     private static final String subject = "NATSChannel";
 
     public static void main(String[] args) {
-        try (Connection nc = Nats.connect(serverUrl)){
+        try (Connection nc = Nats.connect(serverUrl)) {
             // Subscribe a subject
             Subscription sub = nc.subscribe(subject);
 
