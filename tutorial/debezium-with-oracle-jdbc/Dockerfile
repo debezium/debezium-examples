@@ -1,4 +1,4 @@
-FROM debezium/connect:0.8
+FROM debezium/connect:${DEBEZIUM_VERSION}
 ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc
 ENV INSTANT_CLIENT_DIR=/instant_client/
 
