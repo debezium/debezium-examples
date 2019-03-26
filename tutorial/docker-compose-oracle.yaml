@@ -18,6 +18,8 @@ services:
     image: debezium/connect-with-oracle-jdbc:${DEBEZIUM_VERSION}
     build:
       context: debezium-with-oracle-jdbc
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
