@@ -35,4 +35,9 @@ public interface ExportedEvent {
      * The type of an event, e.g. "Order Created", "Order Line Canceled" for events of the "order" aggregate type.
      */
     String getType();
+
+    /**
+     * The timestamp at which the event has happened
+     */
+    Long getTimestamp();
 }

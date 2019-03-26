@@ -18,7 +18,11 @@ public class EventSender {
 
     public void onExportedEvent(@Observes ExportedEvent event) {
         OutboxEvent outboxEvent = new OutboxEvent(
-                event.getAggregateType(), event.getAggregateId(), event.getType(), event.getPayload()
+                event.getAggregateType(),
+                event.getAggregateId(),
+                event.getType(),
+                event.getPayload(),
+                event.getTimestamp()
         );
 
         // This will produce an INSERT followed by a DELETE;

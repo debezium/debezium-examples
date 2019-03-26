@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
 import io.debezium.examples.outbox.order.outbox.ExportedEvent;
 
+import java.util.Date;
+
 public class OrderLineUpdatedEvent implements ExportedEvent {
 
     private static ObjectMapper mapper = new ObjectMapper();
@@ -19,12 +21,14 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     private final long orderLineId;
     private final OrderLineStatus newStatus;
     private final OrderLineStatus oldStatus;
+    private final Long timestamp;
 
     public OrderLineUpdatedEvent(long orderId, long orderLineId, OrderLineStatus newStatus, OrderLineStatus oldStatus) {
         this.orderId = orderId;
         this.orderLineId = orderLineId;
         this.newStatus = newStatus;
         this.oldStatus = oldStatus;
+        this.timestamp = (new Date()).getTime();
     }
 
     public static OrderLineUpdatedEvent of(long orderId, long orderLineId, OrderLineStatus newStatus,
@@ -56,6 +60,11 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     @Override
     public String getAggregateType() {
         return "Order";
+    }
+
+    @Override
+    public Long getTimestamp() {
+        return timestamp;
     }
 
     @Override

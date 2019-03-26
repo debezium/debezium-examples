@@ -36,6 +36,9 @@ public class OutboxEvent {
     @NotNull
     private String type;
 
+    @NotNull
+    private Long timestamp;
+
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     @NotNull
@@ -44,11 +47,12 @@ public class OutboxEvent {
     OutboxEvent() {
     }
 
-    public OutboxEvent(String aggregateType, String aggregateId, String type, JsonNode payload) {
+    public OutboxEvent(String aggregateType, String aggregateId, String type, JsonNode payload, Long timestamp) {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.type = type;
         this.payload = payload;
+        this.timestamp = timestamp;
     }
 
     public UUID getId() {
@@ -81,6 +85,14 @@ public class OutboxEvent {
 
     public void setAggregateType(String aggregateType) {
         this.aggregateType = aggregateType;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public JsonNode getPayload() {
