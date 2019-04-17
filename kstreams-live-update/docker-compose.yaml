@@ -65,15 +65,9 @@ services:
     links:
      - kafka
     environment:
-     - JAVA_APP_JAR=demo-thorntail.jar
-     - "JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079"
-     - AB_PROMETHEUS_OFF=true
+     - PORT=8079
     depends_on:
      - connect
-    command: >
-      /bin/bash -c "
-        java -jar /deployments/demo-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
-      "
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
     ports:

@@ -10,17 +10,20 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -45,6 +48,8 @@ import io.debezium.examples.kstreams.liveupdate.aggregator.model.Order;
 import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.ChangeEventAwareJsonSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.ws.ChangeEventsWebsocketEndpoint;
+import io.quarkus.runtime.ShutdownEvent;
+import io.quarkus.runtime.StartupEvent;
 
 /**
  * Starts up the KStreams pipeline once the source topics have been created.
@@ -68,7 +73,7 @@ public class StreamsPipelineManager {
 
     private boolean started = false;
 
-    public void startKStreams(@Observes @Initialized(ApplicationScoped.class) Object init) {
+    void onStart(@Observes StartupEvent ev) {
         LOG.info("#### KStreamsPipeline#startKStreams()");
 
         Properties props = getProperties();
@@ -141,7 +146,7 @@ public class StreamsPipelineManager {
 
         executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            StreamsPipeline.waitForTopicsToBeCreated(kafkaBootstrapServers);
+            waitForTopicsToBeCreated(kafkaBootstrapServers);
             streams.start();
         });
 
@@ -163,9 +168,39 @@ public class StreamsPipelineManager {
         return props;
     }
 
-    @PreDestroy
-    public void closeKStreams() {
+    void onStop(@Observes ShutdownEvent ev) {
         streams.close();
         executor.shutdown();
+    }
+
+    public static void waitForTopicsToBeCreated(String bootstrapServers) {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+
+        try (AdminClient adminClient = AdminClient.create(config)) {
+            AtomicBoolean topicsCreated = new AtomicBoolean(false);
+
+            while (topicsCreated.get() == false) {
+                LOG.info("Waiting for topics to be created");
+
+                ListTopicsResult topics = adminClient.listTopics();
+                topics.names().whenComplete((t, e) -> {
+                    if (e != null) {
+                        throw new RuntimeException(e);
+                    }
+                    else if (t.contains("dbserver1.inventory.categories") && t.contains("dbserver1.inventory.orders")) {
+                        LOG.info("Found topics 'dbserver1.inventory.categories' and 'dbserver1.inventory.orders'");
+                        topicsCreated.set(true);
+                    }
+                });
+
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 }
