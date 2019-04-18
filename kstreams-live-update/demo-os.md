@@ -118,6 +118,15 @@ http elasticsearch:9200/orders/_search?pretty
 
 # Misc.
 
+Aggregator health check:
+
+```
+oc exec -c zookeeper my-cluster-zookeeper-0 -- curl -s -w "\n%{http_code}\n" -X GET \
+    -H "Accept:application/json" \
+    -H "Content-Type:application/json" \
+    http://aggregator:8080/health
+```
+
 Get connector status:
 
 ```
