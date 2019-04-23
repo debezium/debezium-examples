@@ -57,13 +57,14 @@ $ docker run --tty --rm \
     -t order.events | jq .
 ```
 
-Examine that the receiving service processes the events:
+Examine that the receiving services process the events:
 
 ```console
 $ docker-compose logs -f shipment-service
+$ docker-compose logs -f shipment-service-quarkus
 ```
 
-(Look for "Processing '{OrderCreated|OrderLineUpdated}' event" messages in the log)
+(Look for "Processing '{OrderCreated|OrderLineUpdated}' event" messages in the logs)
 
 ## Useful Commands
 
@@ -95,4 +96,13 @@ E.g. to query for all shipments:
 
 ```sql
 select * from Shipment;
+```
+
+Getting a session in the MariaDB DB of the "shipment-quarkus" service:
+
+```console
+$ docker run --tty --rm -i \
+        --network outbox_default \
+        debezium/tooling:1.0 \
+        bash -c 'mycli mysql://mariadbuser:mariadbpw@shipment-db-quarkus:3306/shipmentdb'
 ```
