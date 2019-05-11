@@ -6,7 +6,7 @@
     <groupId>io.debezium.examples</groupId>
     <artifactId>kstreams-live-update-aggregator</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <properties>
         <mvn.compiler.version>3.5.1</mvn.compiler.version>
