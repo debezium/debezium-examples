@@ -14,7 +14,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.8
+export DEBEZIUM_VERSION=0.9
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
@@ -73,7 +73,7 @@ docker-compose -f docker-compose-mysql-avro.yaml exec schema-registry /usr/bin/k
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.8
+export DEBEZIUM_VERSION=0.9
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -97,7 +97,7 @@ docker-compose -f docker-compose-postgres.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.8
+export DEBEZIUM_VERSION=0.9
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -137,7 +137,7 @@ and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.8
+export DEBEZIUM_VERSION=0.9
 docker-compose -f docker-compose-oracle.yaml up --build
 
 # Insert test data
