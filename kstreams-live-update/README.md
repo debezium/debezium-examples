@@ -15,9 +15,9 @@ Debezium is used to capture changes to the two tables in the application's under
 
 The _aggregator_ application runs KStreams to join orders with categories,
 group the events by category name and accumulate the sales price per category in time windows of 5 seconds.
-
 The aggregated values are pushed to WebSockets.
-For that purpose, the aggregator application exposes a WebSockets endpoint using Thorntail.
+For that purpose, the aggregator application exposes a WebSockets endpoint.
+This application is built with [Quarkus](https://quarkus.io/).
 
 ## Preparations
 
@@ -65,9 +65,15 @@ docker-compose down
 
 ## Locally testing the aggregator
 
-Add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in _docker-compose.yaml_.
+When working on the _aggregator_ application, running it directly on your host (instead of via Docker Compose)
+using the Quarkus dev mode is the recommended approach.
+For that
 
-Run `io.debezium.examples.kstreams.liveupdate.aggregator.Main`, passing `<YOUR HOST IP>:9092` as program argument.
+* add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in _docker-compose.yaml_.
+* run the Docker Compose set-up without the _aggregator_ service: `docker-compose up --scale aggregator=0`
+* run the *aggregator* app in dev mode, specifying your IP as advertised host: `mvn compile quarkus:dev -Dkafka.bootstrap.servers=192.168.1.8:9092 -Dquarkus.http.port=8079`
+
+Any code changes will immediately picked up after reloading the application in the web browser.
 
 ## Demo instructions
 

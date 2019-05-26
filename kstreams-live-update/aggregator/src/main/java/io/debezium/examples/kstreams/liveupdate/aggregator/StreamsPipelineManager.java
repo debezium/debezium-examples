@@ -66,6 +66,14 @@ public class StreamsPipelineManager {
     private String kafkaBootstrapServers;
 
     @Inject
+    @ConfigProperty(name="orders.topic", defaultValue="dbserver1.inventory.orders")
+    private String ordersTopic;
+
+    @Inject
+    @ConfigProperty(name="categories.topic", defaultValue="dbserver1.inventory.categories")
+    private String categoriesTopic;
+
+    @Inject
     private ChangeEventsWebsocketEndpoint websocketsEndPoint;
 
     private KafkaStreams streams;
@@ -88,10 +96,10 @@ public class StreamsPipelineManager {
         Serde<Category> categorySerde = new ChangeEventAwareJsonSerde<>(Category.class);
         categorySerde.configure(Collections.emptyMap(), false);
 
-        KTable<Long, Category> category = builder.table("dbserver1.inventory.categories", Consumed.with(longKeySerde, categorySerde));
+        KTable<Long, Category> category = builder.table(categoriesTopic, Consumed.with(longKeySerde, categorySerde));
 
         KStream<Windowed<String>, String> salesPerCategory = builder.stream(
-                "dbserver1.inventory.orders",
+                ordersTopic,
                 Consumed.with(longKeySerde, orderSerde)
                 )
 
@@ -173,7 +181,7 @@ public class StreamsPipelineManager {
         executor.shutdown();
     }
 
-    public static void waitForTopicsToBeCreated(String bootstrapServers) {
+    private void waitForTopicsToBeCreated(String bootstrapServers) {
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
@@ -188,8 +196,8 @@ public class StreamsPipelineManager {
                     if (e != null) {
                         throw new RuntimeException(e);
                     }
-                    else if (t.contains("dbserver1.inventory.categories") && t.contains("dbserver1.inventory.orders")) {
-                        LOG.info("Found topics 'dbserver1.inventory.categories' and 'dbserver1.inventory.orders'");
+                    else if (t.contains(categoriesTopic) && t.contains(ordersTopic)) {
+                        LOG.info("Found topics '{}' and '{}'", categoriesTopic, ordersTopic);
                         topicsCreated.set(true);
                     }
                 });
