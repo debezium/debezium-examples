@@ -117,7 +117,7 @@ docker-compose -f docker-compose-mongodb.yaml exec kafka /kafka/bin/kafka-consol
 docker-compose -f docker-compose-mongodb.yaml exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
 
 db.customers.insert([
-    { _id : 1005, first_name : 'Bob', last_name : 'Hopper', email : 'thebob@example.com' }
+    { _id : NumberLong("1005"), first_name : 'Bob', last_name : 'Hopper', email : 'thebob@example.com', unique_id : UUID() }
 ]);
 
 # Shut down the cluster
