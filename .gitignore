@@ -27,3 +27,4 @@ generated-sources/
 /state/
 
 oracle_instantclient/
+out/
