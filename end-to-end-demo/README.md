@@ -8,6 +8,12 @@ It does these things:
 * demonstrating how a downtime of Kafka Connect doesn't affect the source app
 * demonstrating how to consume events using WildFly Swarm + CDI and stream them to a WebSockets client in another browser window
 
+---
+
+**IMPORTANT:** Use Maven 3.5.x to build and execute demo applications.
+
+---
+
 ## Prepare Kafka etc.
 
 - export DEBEZIUM_VERSION=0.9
