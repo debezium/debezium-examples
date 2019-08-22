@@ -1,0 +1,69 @@
+version: '2.1'
+services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+     # For local development of auditlog-enricher
+     # - ADVERTISED_HOST_NAME=192.168.1.6
+     - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
+  vegetables-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgresuser
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=vegetablesdb
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - vegetables-db
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_source_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+     - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+     - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+
+  vegetables-service:
+    image: debezium-examples/auditing-vegetables-service:${DEBEZIUM_VERSION}
+    build:
+      context: vegetables-service
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+     - 8080:8080
+    links:
+     - vegetables-db
+    environment:
+     - QUARKUS_DATASOURCE_URL=jdbc:postgresql://vegetables-db:5432/vegetablesdb?currentSchema=inventory
+      #depends_on:
+      # vegetable-db:
+      #    condition: service_healthy
+
+  log-enricher:
+    image: debezium-examples/auditing-log-enricher:${DEBEZIUM_VERSION}
+    build:
+      context: log-enricher
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+     - 8081:8080
+    links:
+     - kafka
+    environment:
+     - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092

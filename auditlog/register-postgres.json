@@ -1,0 +1,11 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "vegetables-db",
+    "database.port": "5432",
+    "database.user": "postgresuser",
+    "database.password": "postgrespw",
+    "database.dbname" : "vegetablesdb",
+    "database.server.name": "dbserver1",
+    "table.whitelist": "inventory.vegetable,inventory.transaction_context_data"
+}

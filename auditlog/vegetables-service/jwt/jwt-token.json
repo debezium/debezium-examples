@@ -1,0 +1,11 @@
+{
+  "iss" : "farmshop",
+  "jti" : "42",
+  "sub" : "farmerbob",
+  "upn" : "farmerbob",
+  "exp" : 4102444799,
+  "groups":[
+    "farmers", 
+    "customers"
+  ]
+}
