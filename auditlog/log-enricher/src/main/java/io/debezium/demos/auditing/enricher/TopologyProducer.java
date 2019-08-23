@@ -30,9 +30,9 @@ public class TopologyProducer {
         KTable<JsonObject, JsonObject> transactionContextData = builder.table(txContextDataTopic);
 
         builder.<JsonObject, JsonObject>stream(vegetablesTopic)
-            // TODO how to pass tombstones on unmodified?
-            // .filter((id, changeEvent) -> changeEvent != null)
-
+            // filter out any tombstones; for an audit log topic, time-based retention
+            // seems more reasonable than compaction
+            .filter((id, changeEvent) -> changeEvent != null)
             // re-key by transaction id; store original id in message value so we can restore it later on
             .map((id, changeEvent) -> KeyValue.pair(
                 Json.createObjectBuilder()

@@ -72,6 +72,10 @@ public class JsonObjectSerde implements Serde<JsonObject> {
 
         @Override
         public byte[] serialize(String topic, JsonObject data) {
+            if (data == null) {
+                return null;
+            }
+
             try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
                 Json.createWriter(output).writeObject(data);
                 return output.toByteArray();
