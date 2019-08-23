@@ -4,14 +4,14 @@ This demo shows how to create persistent audit logs of an application's data usi
 There are two applications (based on Quarkus):
 
 * _vegetables-service_: a simple REST service for inserting and updating vegetable data into a Postgres database;
-as part of its processing, it will not only update is actual "business table" `vegetable`,
+as part of its processing, it will not only update its actual "business table" `vegetable`,
 but also insert some auditing metadata into a dedicated metadata table `transaction_context_data`:
 the user (as obtained from the passed JWT token), the client's date (as passed via the HTTP 1.1 `Date` header)
-and a use case identifier (as given in annotation on the REST API methods).
-* _log-enricher_: a Kafka Streams application which joins the CDC topic with the `vegetable` change events
-with the corresponding metadata from the `transaction_context_data` table;
+and a use case identifier (as specified in an annotation on the REST API methods).
+* _log-enricher_: a Kafka Streams application,
+which joins the CDC topic holding the `vegetable` change events (`dbserver1.inventory.vegetable`) with the corresponding metadata in the `dbserver1.inventory.transaction_context_data` topic sourced from the `transaction_context_data` table;
 this table is keyed by transaction id, allowing for joining the vegetable `KStream` with the metadata `KTable`.
-The enriched vegetable change events are written to another topic.
+The enriched vegetable change events are written to the `dbserver1.inventory.vegetable.enriched` topic.
 
 ## Building the Demo
 
@@ -76,7 +76,7 @@ $ docker-compose down
 
 ## Running the Quarkus Applications Locally
 
-Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to the IP address if your host machine.
+Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to the IP address of your host machine.
 Start all services except the `vegetables-service` and the `log-enricher`:
 
 ```console
@@ -91,7 +91,7 @@ mvn compile quarkus:dev -f vegetables-service/pom.xml
 
 ```console
 $ mvn compile quarkus:dev -f log-enricher/pom.xml \
-    -Dquarkus.kafka-streams.bootstrap-servers=192.168.1.6:9092 \
+    -Dquarkus.kafka-streams.bootstrap-servers=<IP_OF_YOUR_HOST_MACHINE>:9092 \
     -Dquarkus.http.port=8081
 ```
 

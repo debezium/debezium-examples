@@ -17,7 +17,7 @@ public class Vegetable {
     @SequenceGenerator(
             name = "vegetablesSequence",
             sequenceName = "vegetables_id_seq",
-            allocationSize = 1,
+            allocationSize = 10,
             initialValue = 10)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vegetablesSequence")
     public Long getId() {

@@ -33,7 +33,7 @@ public class TransactionInterceptor {
        context.transactionId = txtId.longValueExact();
        context.userName = requestContext.userName;
        context.clientDate = requestContext.date;
-       context.usecase = useCase;
+       context.useCase = useCase;
 
        entityManager.persist(context);
 

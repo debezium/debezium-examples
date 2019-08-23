@@ -21,5 +21,6 @@ public class TransactionContextData {
     @Column(name="client_date")
     public ZonedDateTime clientDate;
 
-    public String usecase;
+    @Column(name="useCase")
+    public String useCase;
 }

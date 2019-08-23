@@ -9,21 +9,29 @@ import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.KTable;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class TopologyProducer {
 
-    private static final String TX_CONTEXT_DATA_TOPIC = "dbserver1.inventory.transaction_context_data";
-    private static final String VEGETABLES_TOPIC = "dbserver1.inventory.vegetable";
-    private static final String VEGETABLES_ENRICHED_TOPIC = "dbserver1.inventory.vegetable.enriched";
+    @ConfigProperty(name="audit.context.data.topic")
+    String txContextDataTopic;
+
+    @ConfigProperty(name="audit.vegetables.topic")
+    String vegetablesTopic;
+
+    @ConfigProperty(name="audit.vegetables.enriched.topic")
+    String vegetablesEnrichedTopic;
 
     @Produces
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        KTable<JsonObject, JsonObject> transactionContextData = builder.table(TX_CONTEXT_DATA_TOPIC);
+        KTable<JsonObject, JsonObject> transactionContextData = builder.table(txContextDataTopic);
 
-        builder.<JsonObject, JsonObject>stream(VEGETABLES_TOPIC)
+        builder.<JsonObject, JsonObject>stream(vegetablesTopic)
+                // TODO how to pass tombstones on unmodified?
+                // .filter((id, changeEvent) -> changeEvent != null)
                 // store id in message value so we can restore it later on
                 .map((id, changeEvent) -> KeyValue.pair(id, Json.createObjectBuilder()
                         .add("id", id)
@@ -64,7 +72,7 @@ public class TopologyProducer {
                 .map((id, idAndChangeEvent) ->
                     KeyValue.pair(id, idAndChangeEvent.get("changeEvent").asJsonObject())
                 )
-                .to(VEGETABLES_ENRICHED_TOPIC);
+                .to(vegetablesEnrichedTopic);
 
         return builder.build();
     }

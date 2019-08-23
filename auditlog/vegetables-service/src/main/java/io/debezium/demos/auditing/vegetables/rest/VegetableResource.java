@@ -27,6 +27,8 @@ import io.debezium.demos.auditing.vegetables.transactioncontext.TransactionConte
 
 @Path("/vegetables")
 @RequestScoped
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class VegetableResource {
 
     @Inject
@@ -42,8 +44,6 @@ public class VegetableResource {
     @RolesAllowed({"farmers"})
     @Transactional
     @TransactionContext(useCase="CREATE VEGETABLE")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Response createVegetable(Vegetable vegetable, @HeaderParam(HttpHeaders.DATE) ZonedDateTime date) {
         if (vegetable.getId() != null) {
             return Response.status(Status.BAD_REQUEST.getStatusCode()).build();
@@ -61,8 +61,6 @@ public class VegetableResource {
     @RolesAllowed({"farmers"})
     @Transactional
     @TransactionContext(useCase="UPDATE VEGETABLE")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Vegetable updateVegetable(@PathParam("id") long id, Vegetable vegetable, @HeaderParam(HttpHeaders.DATE) ZonedDateTime date) {
         updateRequestContext(date);
 
