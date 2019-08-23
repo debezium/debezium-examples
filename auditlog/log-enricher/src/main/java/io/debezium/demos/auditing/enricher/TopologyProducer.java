@@ -30,49 +30,48 @@ public class TopologyProducer {
         KTable<JsonObject, JsonObject> transactionContextData = builder.table(txContextDataTopic);
 
         builder.<JsonObject, JsonObject>stream(vegetablesTopic)
-                // TODO how to pass tombstones on unmodified?
-                // .filter((id, changeEvent) -> changeEvent != null)
-                // store id in message value so we can restore it later on
-                .map((id, changeEvent) -> KeyValue.pair(id, Json.createObjectBuilder()
-                        .add("id", id)
-                        .add("changeEvent", changeEvent)
-                        .build())
+            // TODO how to pass tombstones on unmodified?
+            // .filter((id, changeEvent) -> changeEvent != null)
+
+            // re-key by transaction id; store original id in message value so we can restore it later on
+            .map((id, changeEvent) -> KeyValue.pair(
+                Json.createObjectBuilder()
+                    .add("transaction_id", changeEvent.asJsonObject()
+                        .get("source")
+                        .asJsonObject()
+                        .getJsonNumber("txId")
+                        .longValue())
+                        .build(),
+                Json.createObjectBuilder()
+                    .add("id", id)
+                    .add("changeEvent", changeEvent)
+                    .build())
+            )
+            // join metadata topic on TX id; add metadata into change events
+            .join(
+                transactionContextData,
+                (idAndChangeEvent, txData) ->
+                    Json.createObjectBuilder(idAndChangeEvent)
+                        .add(
+                            "changeEvent",
+                            Json.createObjectBuilder(idAndChangeEvent.get("changeEvent").asJsonObject())
+                                .add("audit", Json.createObjectBuilder(
+                                    txData.get("after")
+                                        .asJsonObject())
+                                        .remove("transaction_id")
+                                        .build()
+                                )
+                                .build())
+                        .build()
+            )
+            // re-key by original PK; get rid of the temporary id + change event wrapper
+            .map((id, idAndChangeEvent) ->
+                KeyValue.pair(
+                    idAndChangeEvent.get("id").asJsonObject(),
+                    idAndChangeEvent.get("changeEvent").asJsonObject()
                 )
-                // re-key by transaction id
-                .selectKey((id, idAndChangeEvent) -> Json.createObjectBuilder()
-                            .add("transaction_id", idAndChangeEvent.asJsonObject()
-                                    .get("changeEvent")
-                                    .asJsonObject()
-                                    .get("source")
-                                    .asJsonObject()
-                                    .getJsonNumber("txId")
-                                    .longValue())
-                            .build()
-                )
-                // join metadata topic on TX id; add metadata into change events
-                .join(
-                        transactionContextData,
-                        (JsonObject idAndChangeEvent, JsonObject txData) ->
-                            Json.createObjectBuilder(idAndChangeEvent)
-                                    .add(
-                                            "changeEvent",
-                                            Json.createObjectBuilder(idAndChangeEvent.get("changeEvent").asJsonObject())
-                                                .add("audit", Json.createObjectBuilder(
-                                                        txData.get("after")
-                                                            .asJsonObject())
-                                                            .remove("transaction_id")
-                                                            .build()
-                                                )
-                                                .build())
-                                    .build()
-                )
-                // re-key by original PK
-                .selectKey((id, idAndChangeEvent) -> idAndChangeEvent.get("id").asJsonObject())
-                // get rid of the temporary id + change event wrapper
-                .map((id, idAndChangeEvent) ->
-                    KeyValue.pair(id, idAndChangeEvent.get("changeEvent").asJsonObject())
-                )
-                .to(vegetablesEnrichedTopic);
+            )
+            .to(vegetablesEnrichedTopic);
 
         return builder.build();
     }
