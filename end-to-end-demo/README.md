@@ -10,19 +10,26 @@ It does these things:
 
 ---
 
-**IMPORTANT:** Use Maven 3.5.x to build and execute demo applications.
+**IMPORTANT:** Use Maven 3.5.x and latest version of docker to build and execute demo applications.
 
 ---
 
-## Prepare Kafka etc.
+## Setup Environment
 
 - export DEBEZIUM_VERSION=0.9
+
+## Build maven artifacts used by the Docker builds
+
+- mvn clean package -f debezium-hiking-demo/pom.xml
+- mvn clean package -f debezium-swarm-demo/pom.xml
+
+## Prepare Kafka etc.
+
 - docker ps -a
 - docker-compose up --scale swarm=0 --scale hiking-manager=0
 
 ## Prepare WildFly
 
-- mvn clean package -f debezium-hiking-demo/pom.xml
 - docker-compose up --build -d hiking-manager
 - Go to http://localhost:8080/hikr-1.0-SNAPSHOT/hikes.html
 
@@ -55,7 +62,6 @@ It does these things:
 
 ## Start WildFly Swarm app
 
-- mvn clean package -f debezium-swarm-demo/pom.xml
 - docker-compose up -d --build
 - Open in other browser: http://localhost:8079/
 
