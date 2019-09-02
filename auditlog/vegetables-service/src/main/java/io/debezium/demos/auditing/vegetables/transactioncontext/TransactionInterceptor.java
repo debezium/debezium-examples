@@ -24,7 +24,6 @@ public class TransactionInterceptor {
 
    @AroundInvoke
    public Object manageTransaction(InvocationContext ctx) throws Exception {
-       Object result = ctx.proceed();
        BigInteger txtId = (BigInteger) entityManager.createNativeQuery("SELECT txid_current()").getSingleResult();
        String useCase = ctx.getMethod().getAnnotation(TransactionContext.class).useCase();
 
@@ -37,6 +36,6 @@ public class TransactionInterceptor {
 
        entityManager.persist(context);
 
-       return result;
+       return ctx.proceed();
    }
 }
