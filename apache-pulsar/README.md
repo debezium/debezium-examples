@@ -5,6 +5,9 @@
 Using [Debezium's embedded mode](http://debezium.io/docs/embedded/) it is possible to stream database changes to arbitrary destinations and thus not be limited to Kafka as the only broker.
 This demo shows how to stream changes from a Postgres database to Apache [Pulsar](https://pulsar.incubator.apache.org/).
 
+Note: An alternative approach for ingesting change events from Debezium into Apache Pulsar is to use Pulsar IO,
+which comes with [support for Debezium's connectors](https://pulsar.apache.org/docs/en/io-cdc-debezium/) as of Pulsar 2.3.
+
 ## Prerequisites
 
 * Java 8 development environment
@@ -18,11 +21,11 @@ This demo shows how to stream changes from a Postgres database to Apache [Pulsar
 
 * Start up Postgres via Docker, with the example database used in the Debezium tutorial:
 
-    docker run -it --rm --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres debezium/example-postgres:0.8
+    docker run -it --rm --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres debezium/example-postgres:0.9
 
 * Launch psql to run some SQL queries:
 
-    docker run -it --rm -e PGOPTIONS="--search_path=inventory" -e PGPASSWORD=postgres --link postgres:postgres debezium/example-postgres:0.8 psql -h postgres -U postgres
+    docker run -it --rm -e PGOPTIONS="--search_path=inventory" -e PGPASSWORD=postgres --link postgres:postgres debezium/example-postgres:0.9 psql -h postgres -U postgres
 
 ## Building the Source Code and Running Debezium Embedded
 

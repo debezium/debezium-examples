@@ -102,28 +102,17 @@ public class PulsarProducer implements Runnable {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Requesting embedded engine to shut down");
-            try {
-                engine.stop();
-
-                producers.forEach((topic, producer) -> {
-                    logger.info("Closing producer for topic {}", topic);
-                    try {
-                        producers.get(topic).close();
-                    }
-                    catch (PulsarClientException e) {
-                        logger.error("Couldn't close producer", e);
-                    }
-                    logger.info("Producer Closed");
-
-                });
-                client.close();
-            }
-            catch (PulsarClientException e) {
-                throw new RuntimeException(e);
-            }
+            engine.stop();
         }));
 
+        // the submitted task keeps running, only no more new ones can be added
+        executor.shutdown();
+
         awaitTermination(executor);
+
+        cleanUp();
+
+        logger.info("Engine terminated");
     }
 
     /**
@@ -159,11 +148,31 @@ public class PulsarProducer implements Runnable {
     private void awaitTermination(ExecutorService executor) {
         try {
             while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                logger.info("Waiting another 10 seconds for the embedded engine to shut down");
+                logger.info("Waiting another 10 seconds for the embedded engine to complete");
             }
         }
         catch (InterruptedException e) {
-            Thread.interrupted();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void cleanUp() {
+        try {
+            producers.forEach((topic, producer) -> {
+                logger.info("Closing producer for topic {}", topic);
+                try {
+                    producers.get(topic).close();
+                }
+                catch (PulsarClientException e) {
+                    logger.error("Couldn't close producer", e);
+                }
+                logger.info("Producer Closed");
+
+            });
+            client.close();
+        }
+        catch (PulsarClientException e) {
+            throw new RuntimeException(e);
         }
     }
 

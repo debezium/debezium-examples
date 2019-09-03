@@ -9,8 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import io.nats.client.Connection;
-import io.nats.client.Nats;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -23,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import io.debezium.config.Configuration;
 import io.debezium.embedded.EmbeddedEngine;
 import io.debezium.util.Clock;
+import io.nats.client.Connection;
+import io.nats.client.Nats;
 
 /**
  * Demo for using the Debezium Embedded API to send change events to NATS.
@@ -82,17 +82,23 @@ public class ChangeDataPublisher implements Runnable {
             engine.stop();
         }));
 
+
+        // the submitted task keeps running, only no more new ones can be added
+        publisherExecutor.shutdown();
+
         awaitTermination(publisherExecutor);
+
+        LOGGER.info("Engine terminated");
     }
 
     private void awaitTermination(ExecutorService executor) {
         try {
             while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-                LOGGER.info("Waiting another 10 seconds for the embedded engine to shut down");
+                LOGGER.info("Waiting another 10 seconds for the embedded engine to complete");
             }
         }
         catch (InterruptedException e) {
-            Thread.interrupted();
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -21,8 +21,8 @@
 
         <mysql.init.timeout>30000</mysql.init.timeout>
 
-        <version.debezium>0.8.1.Final</version.debezium>
-        <version.debezium.tag>0.8</version.debezium.tag>
+        <version.debezium>0.9.5.Final</version.debezium>
+        <version.debezium.tag>0.9</version.debezium.tag>
         <version.kinesis.client>1.9.0</version.kinesis.client>
         <version.jackson>2.9.1</version.jackson>
 
