@@ -37,11 +37,21 @@ docker-compose -f docker-compose-mysql.yaml down
 ### Using MySQL and the Avro message format
 
 To use [Avro-style messages](http://debezium.io/docs/configuration/avro/) instead of JSON,
-follow the instructions for MySQL above,
-but use the _docker-compose-mysql-avro.yaml_ configuration file instead.
-This Compose file configures the Connect service to use the Avro (de-)serializers and starts one more service,
-the Confluent schema registry.
-Using Avro on conjunction with the service registry allows for much more compact messages.
+Avro can be configured one of two ways, 
+in the Kafka Connect worker configuration or in the connector configuration.
+Using Avro in conjunction with the service registry allows for much more compact messages.
+
+#### Kafka Connect Worker configuration
+
+Configuring Avro at the Kafka Connect worker involves using the same steps above for MySQL but instead using the _docker-compose-mysql-avro-worker.yaml_ configuration file instead.
+The Compose file configures the Connect service to use the Avro (de-)serializers for the Connect instance and starts one more additional service, the Confluent schema registry.
+
+#### Debezium Connector configuration
+
+Configuring Avro at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
+To do this, follow the same steps above for MySQL but instead using the _docker-compose-mysql-avro-connector.yaml_ and _register-mysql-avro.json_ configuration files.
+The Compose file configures the Connect service to use the default (de-)serializers for the Connect instance and starts one additional service, the Confluent schema registry.
+The connector configuration file configures the connector but explicitly sets the (de-)serializers for the connector to use Avro and specifies the location of the schema registry.
 
 You can access the first version of the schema for `customers` values like so:
 
