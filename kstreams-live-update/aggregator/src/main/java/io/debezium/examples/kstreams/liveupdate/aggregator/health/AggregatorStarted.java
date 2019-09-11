@@ -8,24 +8,27 @@ package io.debezium.examples.kstreams.liveupdate.aggregator.health;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.eclipse.microprofile.health.Health;
+import org.apache.kafka.streams.KafkaStreams;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
+import org.eclipse.microprofile.health.Liveness;
 
 import io.debezium.examples.kstreams.liveupdate.aggregator.StreamsPipelineManager;
 
-@Health
+@Liveness
 @ApplicationScoped
 public class AggregatorStarted implements HealthCheck {
 
     @Inject
-    private StreamsPipelineManager spm;
+    StreamsPipelineManager spm;
+
+    @Inject
+    KafkaStreams streams;
 
     @Override
     public HealthCheckResponse call() {
         return HealthCheckResponse.named("aggregator")
-                .withData("KStreams pipeline started", spm.isStarted())
-                .state(spm.isStarted())
+                .state(streams.state().isRunning())
                 .build();
     }
 }

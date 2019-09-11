@@ -66,6 +66,7 @@ services:
      - kafka
     environment:
      - PORT=8079
+     - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
      - connect
   elastic:

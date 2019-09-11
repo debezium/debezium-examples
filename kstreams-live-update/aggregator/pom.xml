@@ -21,7 +21,7 @@
         <version.surefire>2.22.0</version.surefire>
 
         <apache.kafka.version>2.0.0</apache.kafka.version>
-        <version.quarkus>0.15.0</version.quarkus>
+        <version.quarkus>0.21.1</version.quarkus>
     </properties>
 
     <dependencyManagement>
@@ -73,14 +73,8 @@
             <artifactId>quarkus-undertow-websockets</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
-            <version>${apache.kafka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>${apache.kafka.version}</version>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-kafka-streams</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
