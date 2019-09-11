@@ -39,10 +39,10 @@ $ http POST http://localhost:8080/vegetables 'Authorization: Bearer eyJraWQiOiJq
 This uses a pre-generated JWT token (with expiration date set to 2099-12-31 and user set to "farmerbob").
 To regenerate the token with different data, use the [Jwtenizr](https://github.com/AdamBien/jwtenizr) tool under _vegetables-service/jwt_.
 
-You can also update an existing vegetable record:
+You can also update an existing vegetable record (this token is for "farmerbarry"):
 
 ```console
-$ http PUT http://localhost:8080/vegetables/10 'Authorization: Bearer eyJraWQiOiJqd3Qua2V5IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJmYXJtZXJib2IiLCJ1cG4iOiJmYXJtZXJib2IiLCJhdXRoX3RpbWUiOjE1NjY0NTgxMTMsImlzcyI6ImZhcm1zaG9wIiwiZ3JvdXBzIjpbImZhcm1lcnMiLCJjdXN0b21lcnMiXSwiZXhwIjo0MTAyNDQ0Nzk5LCJpYXQiOjE1NjY0NTgxMTMsImp0aSI6IjQyIn0.CscbJN8amqKryYvnVO1184J8F67HN2iTEjVN2VOPodcnoeOd7_iQVKUjC3h-ye5apkJjvAsQKrjzlrGCHRfl-n6jC9F7IkOtjoWnJ4wQ9BBo1SAtPw_Czt1I_Ujm-Kb1p5-BWACCBCVVFgYZTWP_laz5JZS7dIvs6VqoNnw7A4VpA6iPfTVfYlNY3u86-k1FvEg_hW-N9Y9RuihMsPuTdpHK5xdjCrJiD0VJ7-0eRQ8RXpycHuHN4xfmV8MqXBYjYSYDOhbnYbdQVbf0YJoFFqfb75my5olN-97ITsi2MS62W_y-RNT0qZrbytqINA3fF3VQsSY6VcaqRAeygrKm_Q' 'Date: Thu, 22 Aug 2019 08:12:31 GMT' name=Pear description=tasty
+$ http PUT http://localhost:8080/vegetables/10 'Authorization: Bearer eyJraWQiOiJqd3Qua2V5IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJmYXJtZXJiYXJyeSIsInVwbiI6ImZhcm1lcmJhcnJ5IiwiYXV0aF90aW1lIjoxNTY4MTg3NDUyLCJpc3MiOiJmYXJtc2hvcCIsImdyb3VwcyI6WyJmYXJtZXJzIiwiY3VzdG9tZXJzIl0sImV4cCI6NDEwMjQ0NDc5OSwiaWF0IjoxNTY4MTg3NDUyLCJqdGkiOiI0MyJ9.C2NmP-6YRux2NYYmQwkwf_5GjVDF5UiNRvErImT9cByNQxUwNeqFzTZSpdV1-7JQ0qZ9sDtfG24VfrrgSukoSdqwWhndWAsnq0vMV5ZToeVNkS9_UWp0EXdpdhsX6yCa-S4uWWQabADKv_K7izogm30-6MEirJAO99h3hrN01IGJRLPrSypHaJAnaCyuVlONOSJPlMdR_ff26mDE3ijb5_5t3kikPOHzZueWLYiSHbcMcPxHp2xR-XYWf8FXwn6ibgtfQLfk4wJTracm2iP81XYhqkQzgfN1jJ6OhQhezM0M0GswjzJxvUtNHgKtQp_4ITfbKRaVLyBLtiYR88falg' 'Date: Thu, 22 Aug 2019 08:12:31 GMT' name=Pear description=tasty
 ```
 
 Doing so, observe the contents of the `dbserver1.inventory.vegetable`, `dbserver1.inventory.transaction_context_data` and `dbserver1.inventory.vegetable.enriched` topics:

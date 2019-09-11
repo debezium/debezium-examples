@@ -11,9 +11,8 @@ import javax.enterprise.util.Nonbinding;
 import javax.interceptor.InterceptorBinding;
 
 @InterceptorBinding
-
 @Target({METHOD, TYPE})
 @Retention(RUNTIME)
-public @interface TransactionContext {
+public @interface Audited {
     @Nonbinding String useCase();
 }

@@ -91,9 +91,7 @@ public class TopologyProducer {
             streamBuffer = (KeyValueStore<Long, JsonObject>) context.getStateStore(STREAM_BUFFER_NAME);
             txMetaDataStore = (KeyValueStore<JsonObject, JsonObject>) context.getStateStore(STORE_NAME);
 
-            context.schedule(Duration.ofSeconds(1), PunctuationType.WALL_CLOCK_TIME, ts -> {
-                enrichAndEmitBufferedEvents();
-            });
+            context.schedule(Duration.ofSeconds(1), PunctuationType.WALL_CLOCK_TIME, ts -> enrichAndEmitBufferedEvents());
 
         }
 
