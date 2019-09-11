@@ -20,12 +20,12 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.Joined;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -94,8 +94,8 @@ public class StreamsPipelineManager {
 
                 // Group by category name, windowed by 5 sec
                 .selectKey((k, v) -> v.categoryName)
-                .groupByKey(Serialized.with(Serdes.String(), orderSerde))
-                .windowedBy(TimeWindows.of(Duration.ofSeconds(5).toMillis()))
+                .groupByKey(Grouped.with(Serdes.String(), orderSerde))
+                .windowedBy(TimeWindows.of(Duration.ofSeconds(5)))
 
                 // Accumulate category sales per time window
                 .aggregate(
