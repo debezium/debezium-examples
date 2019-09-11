@@ -1,0 +1,20 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+        "tasks.max": "1",
+        "database.hostname": "mysql",
+        "database.port": "3306",
+        "database.user": "debezium",
+        "database.password": "dbz",
+        "database.server.id": "184054",
+        "database.server.name": "dbserver1",
+        "database.whitelist": "inventory",
+        "database.history.kafka.bootstrap.servers": "kafka:9092",
+        "database.history.kafka.topic": "schema-changes.inventory",
+        "key.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "key.converter.schema.registry.url": "http://schema-registry:8081",
+        "value.converter.schema.registry.url": "http://schema-registry:8081"
+    }
+}
