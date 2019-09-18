@@ -9,7 +9,7 @@ The receiving service ("shipment-service") receives these events (and would appl
 excluding any duplicate messages by comparing incoming event ids with already successfully consumed ids.
 
 **Update, March 3, 2019:** Another variant of the receiving service has been added, "shipment-service-quarkus",
-which is functionally the same as the original one, but is implemented using the https://quarkus.io[Quarkus] stack.
+which is functionally the same as the original one, but is implemented using the [Quarkus](https://quarkus.io) stack.
 This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the classic version (based on Thorntail).
 
 ## Execution
