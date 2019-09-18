@@ -1,7 +1,7 @@
 # Outbox Pattern
 
 This example demonstrates the "outbox pattern", an approach for letting services communicate in an asynchronous and reliable fashion.
-It accompanies https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/[this post] on the Debezium blog.
+It accompanies [this post](https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern) on the Debezium blog.
 
 The sending service ("order-service") produces events in an "outbox" event table within its own local database.
 Debezium captures the additions to this table and streams the events to consumers via Apache Kafka.
