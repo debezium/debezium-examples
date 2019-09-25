@@ -15,6 +15,10 @@
         "transforms": "route",
         "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
         "transforms.route.regex": "([^.]+)\\.([^.]+)\\.([^.]+)",
-        "transforms.route.replacement": "$1_$2_$3"
+        "transforms.route.replacement": "$1_$2_$3",
+        "key.converter": "io.confluent.connect.avro.AvroConverter",
+        "value.converter": "io.confluent.connect.avro.AvroConverter",
+        "key.converter.schema.registry.url": "http://schema-registry:8081",
+        "value.converter.schema.registry.url": "http://schema-registry:8081"
     }
 }
