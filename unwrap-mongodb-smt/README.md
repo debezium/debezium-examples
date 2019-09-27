@@ -16,7 +16,7 @@ We are using Docker Compose to deploy the following components:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=0.8
+export DEBEZIUM_VERSION=0.10
 docker-compose up --build -d
 
 # Initialize MongoDB replica set and insert some test data
@@ -125,6 +125,31 @@ docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "se
  Hopper    | 1005 | Billy-Bob  | bob@example.com
 (5 rows)
 ```
+
+```shell
+docker-compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
+
+MongoDB server version: 3.4.10
+rs0:PRIMARY>
+db.customers.remove(
+   {
+    _id: NumberLong("1005")
+   }
+);   
+```
+
+Verify that record in PostgreSQL is deleted:
+
+```shell
+docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
+
+ last_name |  id  | first_name |         email
+-----------+------+------------+-----------------------
+...
+(4 rows)
+```
+
+There should be no record of `Billy Bob Hopper`.
 
 End application:
 

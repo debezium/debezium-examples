@@ -6,10 +6,12 @@
         "topics": "customers",
         "connection.url": "http://elastic:9200",
         "transforms": "unwrap,key",
-        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
         "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
         "transforms.key.field": "id",
         "key.ignore": "false",
-        "type.name": "customer"
+        "type.name": "customer",
+        "behavior.on.null.values": "delete"
     }
 }
