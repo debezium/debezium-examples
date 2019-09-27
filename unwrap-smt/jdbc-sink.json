@@ -6,10 +6,12 @@
         "topics": "customers",
         "connection.url": "jdbc:postgresql://postgres:5432/inventory?user=postgresuser&password=postgrespw",
         "transforms": "unwrap",
-        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false",
         "auto.create": "true",
         "insert.mode": "upsert",
+        "delete.enabled": "true",
         "pk.fields": "id",
-        "pk.mode": "record_value"
+        "pk.mode": "record_key"
     }
 }
