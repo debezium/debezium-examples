@@ -1,6 +1,7 @@
 package io.debezium.demos.auditing.enricher;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -164,9 +165,11 @@ public class TopologyProducer {
                     .add("key", key)
                     .add("changeEvent", changeEvent)
                     .build();
-            streamBuffer.put(sequence.getNextValueAndIncrement(), wrapper);
 
-            streamBuffer.put(BUFFER_OFFSETS_KEY, sequence.toJson());
+            streamBuffer.putAll(Arrays.asList(
+                    KeyValue.pair(sequence.getNextValueAndIncrement(), wrapper),
+                    KeyValue.pair(BUFFER_OFFSETS_KEY, sequence.toJson())
+            ));
         }
 
         /**
