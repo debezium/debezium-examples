@@ -93,7 +93,9 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
             sequence.incrementFirstValue();
         }
 
-        streamBuffer.put(BUFFER_OFFSETS_KEY, sequence.toJson());
+        if (sequence.isModified()) {
+            streamBuffer.put(BUFFER_OFFSETS_KEY, sequence.toJson());
+        }
 
         return enrichedAllBuffered;
     }

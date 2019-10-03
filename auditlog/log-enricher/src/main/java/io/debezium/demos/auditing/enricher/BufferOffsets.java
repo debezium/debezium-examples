@@ -16,10 +16,12 @@ class BufferOffsets {
 
     private long firstValue;
     private long nextValue;
+    private boolean modified;
 
     private BufferOffsets(long firstValue, long nextValue) {
         this.firstValue = firstValue;
         this.nextValue = nextValue;
+        this.modified = false;
     }
 
     public static BufferOffsets initial() {
@@ -49,15 +51,21 @@ class BufferOffsets {
     }
 
     long getNextValueAndIncrement() {
+        modified = true;
         return nextValue++;
     }
 
     void incrementFirstValue() {
+        modified = true;
         firstValue++;
+    }
+
+    public boolean isModified() {
+        return modified;
     }
 
     @Override
     public String toString() {
-        return "BufferOffsets [firstValue=" + firstValue + ", nextValue=" + nextValue + "]";
+        return "BufferOffsets [firstValue=" + firstValue + ", nextValue=" + nextValue + ", modified=" + modified + "]";
     }
 }

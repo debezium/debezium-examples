@@ -79,7 +79,6 @@ $ docker run -it --rm \
 $ docker-compose down
 ```
 
-
 ## Running the Quarkus Applications Locally
 
 Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to the IP address of your host machine.
