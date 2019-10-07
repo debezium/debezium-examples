@@ -1,0 +1,15 @@
+{
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "topics": "dbserver1.inventory.customers",
+    "table.name.format": "customers",
+    "connection.url": "jdbc:postgresql://sink-db:5432/sinkdb?currentSchema=inventorysink&user=postgresusersink&password=postgrespw",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": "false",
+    "auto.create": "false",
+    "insert.mode": "upsert",
+    "delete.enabled": "true",
+    "pk.fields": "id",
+    "pk.mode": "record_key"
+}

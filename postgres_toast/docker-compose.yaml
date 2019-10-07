@@ -1,0 +1,66 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+     # For local development of toast-value-store
+     # - ADVERTISED_HOST_NAME=192.168.1.4
+     - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
+  source-db:
+    image: debezium-examples/toast-source-db:${DEBEZIUM_VERSION}
+    build:
+      context: source-db
+    ports:
+     - "5432:5432"
+    environment:
+     - POSTGRES_USER=postgresusersource
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=sourcedb
+  sink-db:
+    image: debezium-examples/toast-sink-db:${DEBEZIUM_VERSION}
+    build:
+      context: sink-db
+    ports:
+     - "5433:5432"
+    environment:
+     - POSTGRES_USER=postgresusersink
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=sinkdb
+  connect:
+    image: debezium-examples/toast-connect:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-jdbc
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - source-db
+     - sink-db
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+  toast-value-store:
+    image: debezium-examples/toast-value-store:${DEBEZIUM_VERSION}
+    build:
+      context: toast-value-store
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+     - 8080:8080
+    links:
+     - kafka
+    environment:
+     - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
