@@ -65,8 +65,8 @@ class ToastColumnValueProvider implements ValueTransformerWithKey<JsonObject, Js
         return value;
     }
 
-    private boolean isUnavailableValueMarker(String instructions) {
-        return "__debezium_unavailable_value".contentEquals(instructions);
+    private boolean isUnavailableValueMarker(String value) {
+        return "__debezium_unavailable_value".contentEquals(value);
     }
 
     private String getBeginning(String value) {

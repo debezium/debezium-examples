@@ -27,15 +27,13 @@ public class TopologyProducer {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        StoreBuilder<KeyValueStore<JsonObject, String>> streamBufferStateStore =
-                Stores
-                    .keyValueStoreBuilder(
-                        Stores.persistentKeyValueStore(INSTRUCTIONS_STORE),
-                        new JsonObjectSerde(),
-                        new Serdes.StringSerde()
-                    )
-                    .withCachingDisabled();
-            builder.addStateStore(streamBufferStateStore);
+        StoreBuilder<KeyValueStore<JsonObject, String>> instructionsStore =
+                Stores.keyValueStoreBuilder(
+                    Stores.persistentKeyValueStore(INSTRUCTIONS_STORE),
+                    new JsonObjectSerde(),
+                    new Serdes.StringSerde()
+                );
+            builder.addStateStore(instructionsStore);
 
         builder.<JsonObject, JsonObject>stream(productsTopic)
                 .transformValues(ToastColumnValueProvider::new, INSTRUCTIONS_STORE)
