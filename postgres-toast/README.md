@@ -72,7 +72,7 @@ sinkdb> select id, first_name, last_name, email, LEFT(biography,50) from invento
 ```
 
 This is done by means of a trigger on the `biography` column in the sink database table.
-This trigger will keep the original column value in case any update would change it to the special marker value (see link:sink-db/schema-update.sql[schema-update.sql]).
+This trigger will keep the original column value in case any update would change it to the special marker value (see _sink-db/schema-update.sql_).
 
 ## Making TOAST column value available via Kafka Streams
 
@@ -110,11 +110,11 @@ docker run -it --rm \
     -C -o beginning -q -u -t dbserver1.inventory.products.enriched | jq ."
 ```
 
-See the source code under link:toast-value-store[toast-value-store] for the implementation of the stream processing application.
+See the source code under _toast-value-store_ for the implementation of the stream processing application.
 
 ## Running the Quarkus Application Locally
 
-Set `ADVERTISED_HOST_NAME` of the `kafka` service in link:docker-compose.yaml[docker-compose.yaml] to the IP address of your host machine.
+Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to the IP address of your host machine.
 Start all services except the `toast-value-store`:
 
 ```console
