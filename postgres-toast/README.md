@@ -10,7 +10,7 @@ The corresponding fields in Debezium change events will have configurable marker
 (defaulting to `__debezium_unavailable_value`).
 This demo shows two ways for handling such marker values:
 
-* ignoring any updates that'd set a column in a sink database to that marker value by means of a trigger installed n the sink database
+* ignoring any updates that'd set a column in a sink database to that marker value by means of a trigger installed in the sink database
 * keeping track of the latest value of a TOAST column by means of a stateful Kafka Streams application and putting this value back into change events containing the marker value
 
 Further strategies could be to produce dynamic updates in sink datastores (ignoring the column from update statements if the value is the marker value) or adding the affected column to the source table's replica identity,
@@ -18,8 +18,12 @@ either by using replica identity `full`  or an index-based replica idenity.
 
 ## Building the Demo
 
+Be sure to work with the latest Debezium and Postgres container images for the following.
+
 ```console
 mvn clean install -f toast-value-store/pom.xml
+
+export DEBEZIUM_VERSION=0.10
 docker-compose up --build
 ```
 
@@ -67,8 +71,8 @@ docker run --tty --rm -i \
 sinkdb> select id, first_name, last_name, email, LEFT(biography,50) from inventorysink.customers where id = 1001;
 ```
 
-This is done by means of a trigger on the `biography` column in the sink database table,
-which ignores any update to the special marker value (see _sink-db/schema-update.sql_).
+This is done by means of a trigger on the `biography` column in the sink database table.
+This trigger will keep the original column value in case any update would change it to the special marker value (see link:sink-db/schema-update.sql[schema-update.sql]).
 
 ## Making TOAST column value available via Kafka Streams
 
@@ -106,11 +110,11 @@ docker run -it --rm \
     -C -o beginning -q -u -t dbserver1.inventory.products.enriched | jq ."
 ```
 
-See the source code under _toast-value-store_ for the implementation of the stream processing application.
+See the source code under link:toast-value-store[toast-value-store] for the implementation of the stream processing application.
 
 ## Running the Quarkus Application Locally
 
-Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to the IP address of your host machine.
+Set `ADVERTISED_HOST_NAME` of the `kafka` service in link:docker-compose.yaml[docker-compose.yaml] to the IP address of your host machine.
 Start all services except the `toast-value-store`:
 
 ```console
