@@ -87,7 +87,7 @@ docker run --tty --rm -i \
 ```
 
 ```console
-sql> update inventory.products set description = 'Much wow' where id = 101;
+sourcedb> update inventory.products set description = 'Much wow' where id = 101;
 ```
 
 ```console

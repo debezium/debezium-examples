@@ -3,8 +3,7 @@ package io.debezium.demos.pgtoast;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Transformer;
+import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * Replaces the "__debezium_unavailable_value" marker value in the
  * "products.instructions" field with values from a state store.
  */
-class ToastColumnValueProvider implements Transformer<JsonObject, JsonObject, KeyValue<JsonObject, JsonObject>> {
+class ToastColumnValueProvider implements ValueTransformerWithKey<JsonObject, JsonObject, JsonObject> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToastColumnValueProvider.class);
 
@@ -27,7 +26,7 @@ class ToastColumnValueProvider implements Transformer<JsonObject, JsonObject, Ke
     }
 
     @Override
-    public KeyValue<JsonObject, JsonObject> transform(JsonObject key, JsonObject value) {
+    public JsonObject transform(JsonObject key, JsonObject value) {
         JsonObject payload = value.getJsonObject("payload");
         JsonObject newRowState = payload.getJsonObject("after");
 
@@ -63,7 +62,7 @@ class ToastColumnValueProvider implements Transformer<JsonObject, JsonObject, Ke
             instructionsStore.put(key, instructions);
         }
 
-        return KeyValue.pair(key, value);
+        return value;
     }
 
     private boolean isUnavailableValueMarker(String instructions) {

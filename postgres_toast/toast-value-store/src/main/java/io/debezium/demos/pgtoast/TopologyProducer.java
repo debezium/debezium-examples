@@ -37,9 +37,8 @@ public class TopologyProducer {
                     .withCachingDisabled();
             builder.addStateStore(streamBufferStateStore);
 
-
         builder.<JsonObject, JsonObject>stream(productsTopic)
-                .transform(() -> new ToastColumnValueProvider(), INSTRUCTIONS_STORE)
+                .transformValues(ToastColumnValueProvider::new, INSTRUCTIONS_STORE)
                 .to(productsEnrichedTopic);
 
         return builder.build();
