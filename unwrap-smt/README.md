@@ -9,14 +9,16 @@ This setup is going to demonstrate how to receive events from MySQL database and
   * [Usage](#usage)
     * [New record](#new-record)
     * [Record update](#record-update)
+    * [Record delete](#record-delete)
 * [Elasticsearch Sink](#elasticsearch-sink)
   * [Topology](#topology-1)
   * [Usage](#usage-1)
     * [New record](#new-record-1)
     * [Record update](#record-update-1)
+    * [Record delete](#record-delete-1)
 * [Two Parallel Sinks](#two-parallel-sinks)
-    * [Topology](#topology-2)
-    * [Usage](#usage-2)
+  * [Topology](#topology-2)
+  * [Usage](#usage-2)
 
 ## JDBC Sink
 
