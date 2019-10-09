@@ -1,0 +1,18 @@
+package io.debezium.demos.auditing.admin
+
+import io.debezium.demos.auditing.admin.TransactionEvent;
+import io.debezium.demos.auditing.admin.VegetableEvent;
+
+
+rule "Match events"
+
+when
+    $tx : TransactionEvent()
+    $veg : VegetableEvent(source.transactionId == $tx.source.transactionId)
+then
+    System.out.println($veg + " is matched with transaction data");
+    $veg.setMatched(true);
+    
+    delete($tx);
+    delete($veg);
+end

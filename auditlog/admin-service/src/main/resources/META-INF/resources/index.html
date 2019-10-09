@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Debezium - Audit Log - Administration</title>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" role="main">
+    <div class="jumbotron">
+        <h1>Debezium - Audit Log - Administration</h1>
+
+        <p>Allows to fix missing transaction context data events</p>
+    </div>
+    <div class="page-header">
+        <div class="row">
+            <div class="col-md-12">                
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Data base</th>
+                        <th>Schema</th>
+                        <th>Table</th>
+                        <th>Transaction ID</th>
+                    </tr>
+                    </thead>
+                    <tbody id="content">
+                    <!-- filled using Ajax -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+    	$.ajaxSetup({
+    	    headers: {
+    	        'Content-Type': 'application/json',
+    	        'Accept': 'application/json'
+    	    }
+    	});
+        load();
+        initModal();
+    });
+
+    function create(travelRequest) {
+        $.post("/vegetables", travelRequest, function () {
+            load();
+        }, "json");
+    }
+
+    function remove(id) {
+        $.ajax({
+            method: "DELETE",
+            url: "/vegetables/" + id
+        }).done(function () {
+            load();
+        });
+    }
+    
+	function submitAuditData() {
+    	
+    	var auditData = {usecase: $("#audit_usecase").val(), user_name: $("#audit_username").val()};
+    	var request = JSON.stringify({audit: auditData});		
+		
+		$.post("/vegetables/" + $("#audit_p_id").val() + "/auditData/" + $("#audit_t_id").val(), request, function () {
+            load();
+        }, "json");
+    }
+
+    function load() {
+        $("#content").children().remove();
+        $.getJSON("/vegetables", function (data) {
+            $.each(data, function (key, val) {
+                $("<tr><td>" + val.vegetable.after.id + "</td>" +
+                "<td>" + val.vegetable.after.name + "</td>" +
+                "<td>" + val.vegetable.after.description + "</td>" +
+                "<td>" + val.vegetable.source.db + "</td>" +
+                "<td>" + val.vegetable.source.schema + "</td>" +
+                "<td>" + val.vegetable.source.table  + "</td>" +
+                "<td>" + val.vegetable.source.txId  + "</td>" +
+                        "<td>" +                        
+                        "<button class='btn btn-primary btn-sm' " +
+                        "data-toggle='modal' " +
+                        "data-target='#tasksModal' " +
+                        "data-id='" + val.id + "'>" +
+                        "   <span>Fix missing data</span>" +
+                        "</button>&nbsp;" +
+                        "<button class='btn btn-danger btn-sm product-delete' data-id='" + val.id + "'>" +
+                        "   <span>Cancel</span>" +
+                        "</button>" +
+                        "</td>" +
+                        "</tr>").appendTo("#content");
+            });
+            initCallbacks();
+        });
+    }
+
+    function initCallbacks() {
+        $(".product-delete").unbind().click(function() {
+           var id = $(this).data("id");
+           remove(id);
+        });
+
+    }
+
+    function initModal() {        
+
+        $("#tasksModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var action = button.data('action');
+            var id = button.data('id');
+            var modal = $(this);
+            modal.find('.modal-title').text("Tasks");
+
+            $("#taskscontent").children().remove();
+            $.getJSON("/vegetables/"+ id + "/tasks", function (data) {
+            	$.each(data, function (key, val) {
+
+            		if ("auditData" == val) {
+            		$("<tr><td>" + val + "</td>" +
+                            "<td>" +
+		            		"<button class='btn btn-primary btn-sm' " +
+		            		"data-dismiss=\"modal\" " +
+		                    "data-toggle='modal' " +
+		                    "data-target='#auditDataModal' " +
+		                    "data-id='" + id + "' " +
+		                    "data-taskid='" + key + "'>" +
+		                    "   <span>Provide missing data</span>" +
+		                    "</button>" +
+		                    "</td>" +
+		                    "</tr>").appendTo("#taskscontent");
+            		}
+                });
+
+        })
+        
+        $("#auditDataModal").on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            
+            var id = button.data('id');
+            var taskid = button.data('taskid');
+            var modal = $(this);
+            
+                        
+            $.getJSON("/vegetables/"+ id + "/auditData/" + taskid, function (data) {
+            
+            	modal.find('.modal-title').text("Missing transaction data - tx id " + data.vegetable.source.txId);
+           		$("#audit_id").val(data.vegetable.after.id);
+           		$("#audit_name").val(data.vegetable.after.name);
+           		$("#audit_description").val(data.vegetable.after.description);            		
+           		
+           		$("#audit_db").val(data.vegetable.source.db);
+           		$("#audit_schema").val(data.vegetable.source.schema);
+           		$("#audit_table").val(data.vegetable.source.table);
+           		
+           		$("#audit_p_id").val(id);
+        		$("#audit_t_id").val(taskid);
+        		
+        		$("#audit_usecase").val('');
+        		$("#audit_username").val('');
+             });
+
+        })
+    })
+    }
+</script>
+
+<div class="modal fade" id="tasksModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="detailsModalTitle">Task details</h4>
+            </div>
+            <div class="modal-body">
+            	<div class="container-fluid">
+						<div class="row">
+
+							<div class="col-md-12">
+				                <h1>Tasks</h1>
+				                <table class="table table-striped">
+				                    <thead>
+				                    <tr>
+				                        <th>Task name</th>
+				                        <th>Actions</th>
+				                    </tr>
+				                    </thead>
+				                    <tbody id="taskscontent">
+				                    <!-- filled using Ajax -->
+				                    </tbody>
+				                </table>
+				            </div>
+
+							<div class="modal-footer">
+								<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+<div class="modal fade" id="auditDataModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title" id="detailsModalTitle">Missing transaction data</h4>
+            </div>
+            <div class="modal-body">
+            	<div class="container-fluid">
+						<div class="row">
+							<input type="hidden" id="audit_p_id"/>
+							<input type="hidden" id="audit_t_id"/>
+							
+				            <div class="col-md-6 col-sm-6 col-xs-6">
+								<div class="form-group">
+									<h3>Vegetable</h3>
+								</div>
+								<div class="form-group">
+									<label for="audit_id">ID</label> <input type="text"
+										class="form-control" id="audit_id" name="audit_id" readonly>
+								</div>
+								<div class="form-group">
+									<label for="audit_name">Name</label> <input type="text"
+										class="form-control" id="audit_name" name="audit_name" readonly>
+								</div>
+								<div class="form-group">
+									<label for="audit_description">Description</label> <input type="text"
+										class="form-control" id="audit_description" name="audit_description" readonly>
+								</div>
+							</div>
+
+							<div class="col-md-6 col-sm-6 col-xs-6">
+								<div class="form-group">
+									<h3>Data base</h3>
+								</div>
+								<div class="form-group">
+									<label for="audit_db">Data base</label> <input type="text"
+										class="form-control" id="audit_db" name="audit_db" readonly>
+								</div>
+								<div class="form-group">
+									<label for="audit_schema">Schema</label> <input type="text"
+										class="form-control" id="audit_schema" name="audit_schema" readonly>
+								</div>
+								<div class="form-group">
+									<label for="audit_table">Table</label> <input type="text"
+										class="form-control" id="audit_table" name="audit_table" readonly>
+								</div>								
+							</div>
+														</div>
+							<div class="row">
+							<div class="col-md-6 col-sm-6 col-xs-6">
+								<div class="form-group">
+									<h3>Missing data</h3>
+								</div>
+								<div class="form-group">
+									<label for="audit_usecase">Use case</label> <input type="text"
+										class="form-control" id="audit_usecase" name="audit_usecase">
+								</div>
+								<div class="form-group">
+									<label for="audit_username">User name</label> <input type="text"
+										class="form-control" id="audit_username" name="audit_username">
+								</div>
+							</div>
+							</div>
+							<div class="row">
+							<div class="modal-footer">
+								<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="submitAuditData()">Submit</button>
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>	
+</body>
+</html>
