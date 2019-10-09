@@ -67,3 +67,17 @@ services:
      - kafka
     environment:
      - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
+
+  admin-service:
+    image: debezium-examples/auditing-admin-service:${DEBEZIUM_VERSION}
+    build:
+      context: admin-service
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+     - 8085:8080
+    links:
+     - kafka
+    environment:
+     - MP_MESSAGING_INCOMING_VEGETABLES_BOOTSTRAP_SERVERS=kafka:9092
+     - MP_MESSAGING_INCOMING_TRANSACTIONS_BOOTSTRAP_SERVERS=kafka:9092
+     - MP_MESSAGING_OUTGOING_MISSINGTRANSACTIONS_BOOTSTRAP_SERVERS=kafka:9092
