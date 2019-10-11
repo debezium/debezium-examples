@@ -23,7 +23,7 @@ $ mvn clean install -Pnative -Dnative-image.docker-build=true
 Start all components:
 
 ```console
-$ export DEBEZIUM_VERSION=0.9
+$ export DEBEZIUM_VERSION=0.10
 $ docker-compose up --build
 ```
 
