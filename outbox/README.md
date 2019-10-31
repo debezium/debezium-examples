@@ -46,7 +46,7 @@ Cancel one of the two order lines:
 $ http PUT http://localhost:8080/order-service/rest/orders/1/lines/2 < resources/data/cancel-order-line-request.json
 ```
 
-Examine the events produced by the service via the Apache Kafka console consumer:
+Examine the events produced by the service using _kafkacat_:
 
 ```console
 $ docker run --tty --rm \
