@@ -54,7 +54,7 @@ oc process strimzi-connect-s2i \
     -p KAFKA_CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=true \
     | oc apply -f -
 
-export DEBEZIUM_VERSION=0.8.3.Final
+export DEBEZIUM_VERSION=0.10.0.Final
 mkdir -p plugins && cd plugins && \
 curl http://central.maven.org/maven2/io/debezium/debezium-connector-mysql/$DEBEZIUM_VERSION/debezium-connector-mysql-$DEBEZIUM_VERSION-plugin.tar.gz | tar xz; \
 mkdir confluent-jdbc-sink && cd confluent-jdbc-sink && \
@@ -82,8 +82,12 @@ echo "Setting up Aggregator"
 oc new-app --name=aggregator debezium/msa-lab-s2i:latest~https://github.com/debezium/debezium-examples.git \
     --context-dir=kstreams-live-update/aggregator \
     -e AB_PROMETHEUS_OFF=true \
-    -e KAFKA_BOOTSTRAP_SERVERS=my-cluster-kafka-bootstrap:9092 \
-    -e JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true
+    -e QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=my-cluster-kafka-bootstrap:9092 \
+    -e JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true \
+    -e JAVA_APP_JAR=aggregator-runner.jar \
+    -e JAVA_LIB_DIR=lib
+
+oc set env buildconfig/aggregator ARTIFACT_COPY_ARGS='-p -r lib/ *-runner.jar'
 
 oc patch dc/aggregator -p '[{"op": "add", "path": "/spec/template/spec/containers/0/ports/1", "value":{"containerPort":8080,"protocol":"TCP"}}]' --type=json
 
