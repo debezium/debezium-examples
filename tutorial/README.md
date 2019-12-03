@@ -8,6 +8,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 * [Using MongoDB](#using-mongodb)
 * [Using Oracle](#using-oracle)
 * [Using SQL Server](#using-sql-server)
+* [Using DB2 Database Server](#Using-db2-database-server)
 * [Using externalized secrets](#using-externalized-secrets)
 * [Debugging](#debugging)
 
@@ -226,7 +227,7 @@ docker-compose -f docker-compose-db2.yaml exec kafka /kafka/bin/kafka-console-co
     --topic server1.dbo.customers
 
 
-# Modify records in the database via DB2 Server client (do not forget to add `GO` command to execute the statement)
+# Modify records in the database via DB2 Server client 
 docker-compose -f docker-compose-db2.yaml exec db2server bash -c 'su - db2inst1'
 
 
