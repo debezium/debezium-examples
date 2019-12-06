@@ -8,6 +8,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 * [Using MongoDB](#using-mongodb)
 * [Using Oracle](#using-oracle)
 * [Using SQL Server](#using-sql-server)
+* [Using externalized secrets](#using-externalized-secrets)
 * [Debugging](#debugging)
 
 ## Using MySQL
@@ -203,6 +204,26 @@ docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mss
 
 # Shut down the cluster
 docker-compose -f docker-compose-sqlserver.yaml down
+```
+
+## Using externalized secrets
+
+Kafka Connect allows [externalization](https://cwiki.apache.org/confluence/display/KAFKA/KIP-297%3A+Externalizing+Secrets+for+Connect+Configurations) of secrets into a separate configuration repository.
+The configuration is done at both worker and connector level.
+
+```shell
+# Start the topology as defined in http://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=0.10
+docker-compose -f docker-compose-mysql-ext-secrets.yml up
+
+# Start MySQL connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql-ext-secrets.json
+
+# Check plugin configuration to see that secrets are not visible
+curl -s http://localhost:8083/connectors/inventory-connector/config | jq .
+
+# Shut down the cluster
+docker-compose -f docker-compose-mysql-ext-secrets.yml down
 ```
 
 ## Debugging
