@@ -15,16 +15,7 @@ DECLARE SQLSTATE CHAR(5);
 DECLARE RC_SQLCODE INT DEFAULT 0; 
 DECLARE RC_SQLSTATE CHAR(5) DEFAULT '00000';
 
-
-
 DECLARE CONTINUE HANDLER FOR SQLEXCEPTION, SQLWARNING, NOT FOUND  VALUES (SQLCODE, SQLSTATE) INTO RC_SQLCODE, RC_SQLSTATE; 
-
-
-
-
-
-
-
 
 -- delete ASN.IBMSNAP_PRUNCTL entries / source
 SET stmtSQL = 'DELETE FROM ASNCDC.IBMSNAP_PRUNCNTL WHERE SOURCE_OWNER=''' || tableschema || ''' AND SOURCE_TABLE=''' || tablename ||  '''';
@@ -50,21 +41,16 @@ SET stmtSQL = 'DELETE FROM ASNCDC.IBMSNAP_SUBS_MEMBR WHERE TARGET_OWNER=''' || t
 -- delete ASN.IBMQREP_COLVERSION
 SET stmtSQL = 'DELETE FROM ASNCDC.IBMQREP_COLVERSION col WHERE EXISTS (SELECT * FROM ASNCDC.IBMQREP_TABVERSION tab WHERE SOURCE_OWNER=''' || tableschema || ''' AND SOURCE_NAME=''' || tablename ||  '''AND col.TABLEID1 = tab.TABLEID1 AND col.TABLEID2 = tab.TABLEID2';
         EXECUTE IMMEDIATE stmtSQL;
-        
+
 -- delete ASN.IBMQREP_TABVERSION
 SET stmtSQL = 'DELETE FROM ASNCDC.IBMQREP_TABVERSION WHERE SOURCE_OWNER=''' || tableschema || ''' AND SOURCE_NAME=''' || tablename ||  '''';
         EXECUTE IMMEDIATE stmtSQL;
 
-
-
 SET  stmtSQL = 'ALTER TABLE ' || tableschema || '.' || tablename ||  ' DATA CAPTURE NONE';
 EXECUTE IMMEDIATE stmtSQL; 
 
-
 END P1@
 --#SET TERMINATOR ;
-
-
 
 --#SET TERMINATOR @
 CREATE OR REPLACE PROCEDURE ASNCDC.ADDTABLE(
@@ -79,10 +65,8 @@ DECLARE SQLSTATE CHAR(5);
 
 DECLARE stmtSQL VARCHAR(2048);
 
-
 SET  stmtSQL = 'ALTER TABLE ' || tableschema || '.' || tablename ||  ' DATA CAPTURE CHANGES';
 EXECUTE IMMEDIATE stmtSQL; 
-
 
 SET  stmtSQL = 'CREATE TABLE ASNCDC.CDC_' ||
                 tableschema || '_' || tablename || 
@@ -92,7 +76,6 @@ SET  stmtSQL = 'CREATE TABLE ASNCDC.CDC_' ||
                 '   CAST ('''' AS CHAR(1)) ' || 
                 ' AS IBMSNAP_OPERATION,   t.* FROM ' || tableschema || '.' || tablename || ' as t )  WITH NO  DATA ORGANIZE BY ROW ';
 EXECUTE IMMEDIATE stmtSQL; 
-
 
 SET stmtSQL = 'ALTER TABLE ASNCDC.CDC_' ||
                 tableschema || '_' || tablename || 
@@ -120,7 +103,6 @@ SET stmtSQL = 'ALTER TABLE ASNCDC.CDC_' ||
                 tableschema || '_' || tablename || 
               '  VOLATILE CARDINALITY';
 EXECUTE IMMEDIATE stmtSQL;
-
 
 SET stmtSQL =   'INSERT INTO ASNCDC.IBMSNAP_REGISTER (SOURCE_OWNER, SOURCE_TABLE, ' || 
                 'SOURCE_VIEW_QUAL, GLOBAL_RECORD, SOURCE_STRUCTURE, SOURCE_CONDENSED, ' || 
@@ -165,7 +147,6 @@ SET stmtSQL =   'INSERT INTO ASNCDC.IBMSNAP_REGISTER (SOURCE_OWNER, SOURCE_TABLE
                 'null ) ';
 EXECUTE IMMEDIATE stmtSQL;
 
-
 SET stmtSQL =   'INSERT INTO ASNCDC.IBMSNAP_PRUNCNTL ( ' || 
                 'TARGET_SERVER,  ' || 
                 'TARGET_OWNER,  ' || 
@@ -205,4 +186,3 @@ EXECUTE IMMEDIATE stmtSQL;
 
 END P1@
 --#SET TERMINATOR ;
-

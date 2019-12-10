@@ -1,5 +1,4 @@
 
-
 -- Create and populate our products using a single insert with many rows
 CREATE TABLE products (
   id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY
@@ -27,7 +26,6 @@ INSERT INTO products(name,description,weight)
 INSERT INTO products(name,description,weight)
   VALUES ('spare tire','24 inch spare tire',22.2);
 
-
 CREATE TABLE products_on_hand (
   product_id INTEGER NOT NULL PRIMARY KEY,
   quantity INTEGER NOT NULL,
@@ -42,8 +40,6 @@ INSERT INTO products_on_hand VALUES (106,0);
 INSERT INTO products_on_hand VALUES (107,44);
 INSERT INTO products_on_hand VALUES (108,2);
 INSERT INTO products_on_hand VALUES (109,5);
-
-
 
 CREATE TABLE customers (
   id INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY
@@ -60,7 +56,6 @@ INSERT INTO customers(first_name,last_name,email)
   VALUES ('Edward','Walker','ed@walker.com');
 INSERT INTO customers(first_name,last_name,email)
   VALUES ('Anne','Kretchmar','annek@noanswer.org');
-
 
 CREATE TABLE orders (
   id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY
@@ -80,7 +75,3 @@ INSERT INTO orders(order_date,purchaser,quantity,product_id)
   VALUES ('2016-02-19', 1002, 2, 106);
 INSERT INTO orders(order_date,purchaser,quantity,product_id)
   VALUES ('2016-02-21', 1003, 1, 107);
-
-
-
-
