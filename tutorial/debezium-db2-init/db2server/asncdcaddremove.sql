@@ -1,4 +1,10 @@
 
+-- 
+-- Define ASNCDC.REMOVETABLE() and ASNCDC.ADDTABLE()
+-- ASNCDC.ADDTABLE() puts a table in CDC mode, making the ASNCapture server collect changes for the table
+-- ASNCDC.REMOVETABLE() makes the ASNCapture server stop collecting changes for that table
+--
+
 --#SET TERMINATOR @
 CREATE OR REPLACE PROCEDURE ASNCDC.REMOVETABLE(
 in  tableschema VARCHAR(128),
