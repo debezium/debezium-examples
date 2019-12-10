@@ -8,7 +8,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 * [Using MongoDB](#using-mongodb)
 * [Using Oracle](#using-oracle)
 * [Using SQL Server](#using-sql-server)
-* [Using DB2 Database Server](#Using-db2-database-server)
+* [Using DB2](#using-db2)
 * [Using externalized secrets](#using-externalized-secrets)
 * [Debugging](#debugging)
 
@@ -207,7 +207,8 @@ docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mss
 docker-compose -f docker-compose-sqlserver.yaml down
 ```
 
-## Using DB2 Database Server
+## Using DB2
+
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
 export DEBEZIUM_VERSION=1.0
@@ -216,7 +217,7 @@ export DEBEZIUM_DB2_VOLUME=<local persistent volume directory>
 
 docker-compose -f docker-compose-db2.yaml up
 
-# Start DB2 Server connector
+# Start DB2 connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-db2.json
 
 # Consume messages from a Debezium topic
@@ -227,7 +228,7 @@ docker-compose -f docker-compose-db2.yaml exec kafka /kafka/bin/kafka-console-co
     --topic server1.dbo.customers
 
 
-# Modify records in the database via DB2 Server client 
+# Modify records in the database via DB2 client 
 docker-compose -f docker-compose-db2.yaml exec db2server bash -c 'su - db2inst1'
 
 
