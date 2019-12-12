@@ -5,6 +5,9 @@
  */
 package io.debezium.examples.kstreams.liveupdate.aggregator;
 
+import static org.apache.kafka.common.serialization.Serdes.Long;
+import static org.apache.kafka.common.serialization.Serdes.String;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -16,7 +19,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.apache.kafka.common.serialization.Serde;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
@@ -34,10 +36,9 @@ import org.slf4j.LoggerFactory;
 
 import io.debezium.examples.kstreams.liveupdate.aggregator.model.Category;
 import io.debezium.examples.kstreams.liveupdate.aggregator.model.Order;
-import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.ChangeEventAwareJsonSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.ws.ChangeEventsWebsocketEndpoint;
-
+import io.debezium.serde.Serdes;
 /**
  * Starts up the KStreams pipeline once the source topics have been created.
  *
@@ -65,14 +66,14 @@ public class StreamsPipelineManager {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        Serde<Long> longKeySerde = new ChangeEventAwareJsonSerde<>(Long.class);
+        Serde<Long> longKeySerde = Serdes.payloadJson(Long.class);
         longKeySerde.configure(Collections.emptyMap(), true);
 
-        Serde<Order> orderSerde = new ChangeEventAwareJsonSerde<>(Order.class);
-        orderSerde.configure(Collections.emptyMap(), false);
+        Serde<Order> orderSerde = Serdes.payloadJson(Order.class);
+        orderSerde.configure(Collections.singletonMap("from.field", "after"), false);
 
-        Serde<Category> categorySerde = new ChangeEventAwareJsonSerde<>(Category.class);
-        categorySerde.configure(Collections.emptyMap(), false);
+        Serde<Category> categorySerde = Serdes.payloadJson(Category.class);
+        categorySerde.configure(Collections.singletonMap("from.field", "after"), false);
 
         KTable<Long, Category> category = builder.table(categoriesTopic, Consumed.with(longKeySerde, categorySerde));
 
@@ -89,12 +90,12 @@ public class StreamsPipelineManager {
                             value1.categoryName = value2.name;
                             return value1;
                         },
-                        Joined.with(Serdes.Long(), orderSerde, null)
+                        Joined.with(Long(), orderSerde, null)
                 )
 
                 // Group by category name, windowed by 5 sec
                 .selectKey((k, v) -> v.categoryName)
-                .groupByKey(Grouped.with(Serdes.String(), orderSerde))
+                .groupByKey(Grouped.with(String(), orderSerde))
                 .windowedBy(TimeWindows.of(Duration.ofSeconds(5)))
 
                 // Accumulate category sales per time window
@@ -104,7 +105,7 @@ public class StreamsPipelineManager {
                             aggValue += newValue.salesPrice;
                             return aggValue;
                         },
-                        Materialized.with(Serdes.String(), Serdes.Long())
+                        Materialized.with(String(), Long())
                 )
                 .mapValues(v -> BigDecimal.valueOf(v)
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP))
@@ -125,7 +126,7 @@ public class StreamsPipelineManager {
 
         salesPerCategory.to(
                 "sales_per_category",
-                Produced.with(new StringWindowedSerde(), Serdes.String())
+                Produced.with(new StringWindowedSerde(), String())
          );
 
         return builder.build();
