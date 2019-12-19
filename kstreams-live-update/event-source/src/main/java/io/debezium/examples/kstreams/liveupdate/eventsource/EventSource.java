@@ -36,8 +36,8 @@ class EventSource {
 
             entityManager.getTransaction().begin();
             List<Category> categories = entityManager.createQuery("from Category c", Category.class).getResultList();
-            Object[] minMaxCustomerIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from customers").getSingleResult();
-            Object[] minMaxProductIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from products").getSingleResult();
+            Object[] minMaxCustomerIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from inventory.customers").getSingleResult();
+            Object[] minMaxProductIds = (Object[]) entityManager.createNativeQuery("select min(id), max(id) from inventory.products").getSingleResult();
 
             entityManager.getTransaction().commit();
 
