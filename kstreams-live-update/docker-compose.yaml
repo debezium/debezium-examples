@@ -16,21 +16,26 @@ services:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # For local debugging of Main
      # - ADVERTISED_HOST_NAME=192.168.1.3
-  mysql:
-    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+  postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
     build:
       context: example-db
     ports:
-     - 3306:3306
+            - 5432:5432
     healthcheck:
-      test: "/usr/bin/mysql --user=root --password=debezium --execute \"SELECT 1;\""
+      test: "/usr/bin/psql -U postgres -c 'SELECT 1'"
       interval: 2s
       timeout: 20s
       retries: 10
     environment:
-     - MYSQL_ROOT_PASSWORD=debezium
-     - MYSQL_USER=mysqluser
-     - MYSQL_PASSWORD=mysqlpw
+     - PG_MODE=primary
+     - PG_PRIMARY_PORT=5432
+     - PG_PRIMARY_USER=postgres
+     - PG_DATABASE=inventory
+     - PG_PRIMARY_PASSWORD=debezium
+     - PG_PASSWORD=not
+     - PG_ROOT_PASSWORD=matter
+     - PG_USER=debezium
   connect:
     image: debezium-examples/connect-es:${DEBEZIUM_VERSION}
     build:
@@ -39,7 +44,7 @@ services:
      - 8083:8083
     links:
      - kafka
-     - mysql
+     - postgres 
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
@@ -50,11 +55,11 @@ services:
     build:
       context: event-source
     links:
-     - mysql
+     - postgres
     environment:
      - JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.eventsource.Main
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
   aggregator:
     image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}

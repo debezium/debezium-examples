@@ -14,11 +14,11 @@
 		<properties>
 			<property name="hibernate.archive.autodetection" value="class, hbm" />
 
-			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
-			<property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver" />
-			<property name="hibernate.connection.url" value="jdbc:mysql://mysql:3306/inventory" />
-			<property name="hibernate.connection.username" value="mysqluser" />
-			<property name="hibernate.connection.password" value="mysqlpw" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
+			<property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432//inventory" />
+			<property name="hibernate.connection.username" value="postgres" />
+			<property name="hibernate.connection.password" value="debezium" />
 
 			<property name="hibernate.connection.pool_size" value="5" />
 
