@@ -1,0 +1,17 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "order-db-quarkus",
+    "database.port": "5432",
+    "database.user": "postgresuser",
+    "database.password": "postgrespw",
+    "database.dbname" : "orderdb",
+    "database.server.name": "dbserver1",
+    "schema.whitelist": "inventory",
+    "table.whitelist" : "inventory.outboxevent",
+    "tombstones.on.delete" : "false",
+    "transforms" : "outbox",
+    "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
+    "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
+    "transforms.outbox.table.field.event.timestamp" : "timestamp"
+}

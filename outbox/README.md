@@ -12,6 +12,10 @@ excluding any duplicate messages by comparing incoming event ids with already su
 which is functionally the same as the original one, but is implemented using the [Quarkus](https://quarkus.io) stack.
 This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the classic version (based on Thorntail).
 
+**Update, December 20, 2019:** Another variant of the producing service has been added, "order-service-quarkus",
+which is functionally the same as the original one, but is implemented using the [Quarkus](https://quarkus.io) stack.
+This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the classic version (based on Thorntail).
+
 ## Execution
 
 Prepare the Java components:
@@ -27,10 +31,17 @@ $ export DEBEZIUM_VERSION=0.10
 $ docker-compose up --build
 ```
 
-Register the Debezium Postgres connector:
+Register the Debezium Postgres connector (Non Quarkus):
 
 ```console
 $ http PUT http://localhost:8083/connectors/outbox-connector/config < register-postgres.json
+HTTP/1.1 201 Created
+```
+
+Register the Debezium Postgres connector (Quarkus):
+
+```console
+$ http PUT http://localhost:8083/connectors/outbox-connector-quarkus/config < register-postgres-quarkus.json
 HTTP/1.1 201 Created
 ```
 
@@ -40,10 +51,22 @@ Place a "create order" request with the order service:
 $ http POST http://localhost:8080/order-service/rest/orders < resources/data/create-order-request.json
 ```
 
+Place a "create order" request with the Quarkus order service:
+
+```console
+$ http POST http://localhost:8081/rest/orders < resources/data/create-order-request.json
+```
+
 Cancel one of the two order lines:
 
 ```console
 $ http PUT http://localhost:8080/order-service/rest/orders/1/lines/2 < resources/data/cancel-order-line-request.json
+```
+
+Cancel one of the two order lines (Quarkus scenario):
+
+```console
+$ http PUT http://localhost:8081/rest/orders/1/lines/2 < resources/data/cancel-order-line-request.json
 ```
 
 Examine the events produced by the service using _kafkacat_:
@@ -57,10 +80,15 @@ $ docker run --tty --rm \
     -t order.events | jq .
 ```
 
-Examine that the receiving services process the events:
+Examine that the receiving services (non-Quarkus) process the events:
 
 ```console
 $ docker-compose logs -f shipment-service
+```
+
+Examine that the receiving services (Quarkus) process the events:
+
+```console
 $ docker-compose logs -f shipment-service-quarkus
 ```
 
@@ -75,6 +103,15 @@ $ docker run --tty --rm -i \
         --network outbox_default \
         debezium/tooling:1.0 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
+```        
+
+Getting a session to the Postgres DB of the Quarkus "order" service:
+
+```console
+$ docker run --tty --rm -i \
+        --network outbox_default \
+        debezium/tooling:1.0 \
+        bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db-quarkus:5432/orderdb'        
 ```
 
 E.g. to query for all purchase orders:
