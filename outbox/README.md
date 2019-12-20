@@ -5,12 +5,11 @@ It accompanies [this post](https://debezium.io/blog/2019/02/19/reliable-microser
 
 The sending service ("order-service") produces events in an "outbox" event table within its own local database.
 Debezium captures the additions to this table and streams the events to consumers via Apache Kafka.
-The receiving service ("shipment-service") receives these events (and would apply some processing based on them),
+The receiving service ("shipment-service-quarkus") receives these events (and would apply some processing based on them),
 excluding any duplicate messages by comparing incoming event ids with already successfully consumed ids.
 
-**Update, March 3, 2019:** Another variant of the receiving service has been added, "shipment-service-quarkus",
-which is functionally the same as the original one, but is implemented using the [Quarkus](https://quarkus.io) stack.
-This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the classic version (based on Thorntail).
+The receiving service ("shipment-service-quarkus") is implemented using the [Quarkus](https://quarkus.io) stack.
+This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the JVM-based version.
 
 **Update, December 20, 2019:** Another variant of the producing service has been added, "order-service-quarkus",
 which is functionally the same as the original one, but is implemented using the [Quarkus](https://quarkus.io) stack.
@@ -80,12 +79,6 @@ $ docker run --tty --rm \
     -t order.events | jq .
 ```
 
-Examine that the receiving services (non-Quarkus) process the events:
-
-```console
-$ docker-compose logs -f shipment-service
-```
-
 Examine that the receiving services (Quarkus) process the events:
 
 ```console
@@ -120,21 +113,6 @@ E.g. to query for all purchase orders:
 select * from inventory.purchaseorder po, inventory.orderline ol where ol.order_id = po.id;
 ```
 
-Getting a session in the MySQL DB of the "shipment" service:
-
-```console
-$ docker run --tty --rm -i \
-        --network outbox_default \
-        debezium/tooling:1.0 \
-        bash -c 'mycli mysql://mysqluser:mysqlpw@shipment-db:3306/inventory'
-```
-
-E.g. to query for all shipments:
-
-```sql
-select * from Shipment;
-```
-
 Getting a session in the MariaDB DB of the "shipment-quarkus" service:
 
 ```console
@@ -142,4 +120,10 @@ $ docker run --tty --rm -i \
         --network outbox_default \
         debezium/tooling:1.0 \
         bash -c 'mycli mysql://mariadbuser:mariadbpw@shipment-db-quarkus:3306/shipmentdb'
+```
+
+E.g. to query for all shipments:
+
+```sql
+select * from Shipment;
 ```
