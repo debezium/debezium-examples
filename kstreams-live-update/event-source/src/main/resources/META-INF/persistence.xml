@@ -4,7 +4,7 @@
              http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
 	version="2.1">
 
-	<persistence-unit name="templatePU" transaction-type="RESOURCE_LOCAL">
+	<persistence-unit name="postgres" transaction-type="RESOURCE_LOCAL">
 
 		<description>Debezium Kstreams Demo Event Source Persistence Unit</description>
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
@@ -14,12 +14,12 @@
 		<properties>
 			<property name="hibernate.archive.autodetection" value="class, hbm" />
 
-			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect" />
 			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
-			<property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432//inventory" />
+			<property name="hibernate.connection.url" value="jdbc:postgresql://postgres:5432/postgres" />
 			<property name="hibernate.connection.username" value="postgres" />
 			<property name="hibernate.connection.password" value="debezium" />
-
+			<property name="hibernate.default_schema" value="inventory" />
 			<property name="hibernate.connection.pool_size" value="5" />
 
 			<property name="hibernate.show_sql" value="false" />
@@ -32,6 +32,43 @@
 			<property name="hibernate.cache.region_prefix" value="hibernate.test" />
 
 			<!--NOTE: hibernate.jdbc.batch_versioned_data should be set to false when 
+				testing with Oracle -->
+			<property name="hibernate.jdbc.batch_versioned_data" value="true" />
+
+			<property name="javax.persistence.validation.mode" value="NONE" />
+			<property name="hibernate.service.allow_crawling" value="false" />
+			<property name="hibernate.session.events.log" value="true" />
+		</properties>
+
+	</persistence-unit>
+	<persistence-unit name="mysql" transaction-type="RESOURCE_LOCAL">
+
+		<description>Debezium Kstreams Demo Event Source Persistence Unit</description>
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+		<exclude-unlisted-classes>false</exclude-unlisted-classes>
+
+		<properties>
+			<property name="hibernate.archive.autodetection" value="class, hbm" />
+
+			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+			<property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver" />
+			<property name="hibernate.connection.url" value="jdbc:mysql://mysql:3306/inventory" />
+			<property name="hibernate.connection.username" value="mysqluser" />
+			<property name="hibernate.connection.password" value="mysqlpw" />
+
+			<property name="hibernate.connection.pool_size" value="5" />
+
+			<property name="hibernate.show_sql" value="false" />
+			<property name="hibernate.format_sql" value="true" />
+			<!-- <property name="hibernate.hbm2ddl.auto" value="create-drop"/> -->
+			<property name="hibernate.hbm2ddl.auto" value="none" />
+
+			<property name="hibernate.max_fetch_depth" value="5" />
+
+			<property name="hibernate.cache.region_prefix" value="hibernate.test" />
+
+			<!--NOTE: hibernate.jdbc.batch_versioned_data should be set to false when
 				testing with Oracle -->
 			<property name="hibernate.jdbc.batch_versioned_data" value="true" />
 

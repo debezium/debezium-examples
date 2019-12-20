@@ -8,7 +8,12 @@ package io.debezium.examples.kstreams.liveupdate.eventsource;
 public class Main {
 
     private void run() {
-        EventSource source = new EventSource();
+        String databaseServer = System.getenv("DATABASE_SERVER");
+        if (databaseServer == null) {
+            /* backwards compatibility */
+            databaseServer = "mysql";
+        }
+        EventSource source = new EventSource(databaseServer);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Stopping...");
