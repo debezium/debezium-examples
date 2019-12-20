@@ -57,6 +57,7 @@ services:
     links:
      - postgres
     environment:
+     - DATABASE_SERVER=postgres 
      - JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.eventsource.Main
     depends_on:
       postgres:
