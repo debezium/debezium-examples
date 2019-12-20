@@ -38,14 +38,6 @@ services:
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=orderdb
      - PGPASSWORD=postgrespw
-  shipment-db:
-    image: debezium/example-mysql:${DEBEZIUM_VERSION}
-    ports:
-     - 3306:3306
-    environment:
-     - MYSQL_ROOT_PASSWORD=debezium
-     - MYSQL_USER=mysqluser
-     - MYSQL_PASSWORD=mysqlpw
   shipment-db-quarkus:
     image: mariadb/server
     ports:
@@ -91,30 +83,7 @@ services:
     links:
      - kafka
      - order-db
-  shipment-service:
-    image: debezium-example/outbox-shipment-service:${DEBEZIUM_VERSION}
-    build:
-      context: shipment-service
-    ports:
-     - 8079:8079
-    links:
-     - kafka
-     - shipment-db
-    environment:
-     #- JAVA_APP_JAR=shipment-thorntail.jar
-     #- "JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079"
-     #- AB_JOLOKIA_OFF=true
-     #- AB_OFF=true
-     #- KAFKA_SERVICE_HOST=kafka
-     #- KAFKA_SERVICE_PORT=9092
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - ORDER_TOPIC_NAME=order.events
-    depends_on:
-     - connect
-    command: >
-      /bin/bash -c "
-        java -jar /deployments/shipment-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
-      "
+     - order-db
   order-service-quarkus:
     image: debezium-example/outbox-order-service-quarkus:${DEBEZIUM_VERSION}
     build:
