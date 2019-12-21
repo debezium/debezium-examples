@@ -1,0 +1,8 @@
+####
+# This Dockerfile is used in order to build a container that runs shipment-service-quarkus in native (non-JVM) mode
+###
+FROM registry.fedoraproject.org/fedora-minimal
+WORKDIR /work/
+COPY target/*-runner /work/application
+RUN chmod 755 /work
+cmd [ "./application", "-Dquarkus.http.host=0.0.0.0" ]

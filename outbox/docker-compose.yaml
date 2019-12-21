@@ -39,20 +39,19 @@ services:
      - POSTGRES_DB=orderdb
      - PGPASSWORD=postgrespw
   shipment-db-quarkus:
-    image: mariadb/server
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
-     - "33306:3306"
+      - 5434:5432
     healthcheck:
-      test: "/usr/bin/mysql -h shipment-db-quarkus --user=mariadbuser --password=mariadbpw --execute \"SELECT 1;\" shipmentdb"
+      test: "pg_isready -U postgresuser -d shipmentdb"
       interval: 2s
       timeout: 20s
       retries: 10
     environment:
-     - MARIADB_USER=mariadbuser
-     - MARIADB_PASSWORD=mariadbpw
-     - MARIADB_DATABASE=shipmentdb
-     - MARIADB_RANDOM_ROOT_PASSWORD=true
-     - MYSQL_INITDB_SKIP_TZINFO=1
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=shipmentdb
+      - PGPASSWORD=postgrespw
   connect:
     image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
@@ -83,12 +82,11 @@ services:
     links:
      - kafka
      - order-db
-     - order-db
   order-service-quarkus:
     image: debezium-example/outbox-order-service-quarkus:${DEBEZIUM_VERSION}
     build:
       context: order-service-quarkus
-      dockerfile: src/main/docker/Dockerfile.native
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-native}
     ports:
      - 8081:8080
     links:
@@ -104,12 +102,12 @@ services:
     image: debezium-example/outbox-shipment-service-quarkus:${DEBEZIUM_VERSION}
     build:
       context: shipment-service-quarkus
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-native}
     links:
      - kafka
      - shipment-db-quarkus
     depends_on:
-     shipment-db-quarkus:
+      shipment-db-quarkus:
         condition: service_healthy
-     connect:
+      connect:
         condition: service_started
-    command: "/deployments/application -Dquarkus.datasource.url=jdbc:mariadb://shipment-db-quarkus:3306/shipmentdb"
