@@ -16,7 +16,7 @@ import javax.persistence.Id;
 public class ConsumedMessage {
 
     @Id
-    @Column(columnDefinition = "BINARY(16)")
+    @Column(columnDefinition = "uuid")
     private UUID eventId;
 
     private Instant timeOfReceiving;

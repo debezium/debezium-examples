@@ -23,10 +23,18 @@ Prepare the Java components:
 $ mvn clean install -Pnative -Dnative-image.docker-build=true
 ```
 
-Start all components:
+Start all components (Defaulting using Quarkus native artifacts):
 
 ```console
 $ export DEBEZIUM_VERSION=0.10
+$ docker-compose up --build
+```
+
+Start all components (Using Quarkus with JVM artifacts):
+
+```console
+$ export DEBEZIUM_VERSION=0.10
+$ export QUARKUS_BUILD=jvm
 $ docker-compose up --build
 ```
 
@@ -113,17 +121,17 @@ E.g. to query for all purchase orders:
 select * from inventory.purchaseorder po, inventory.orderline ol where ol.order_id = po.id;
 ```
 
-Getting a session in the MariaDB DB of the "shipment-quarkus" service:
+Getting a session in the Postgres DB of the "shipment-quarkus" service:
 
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
         debezium/tooling:1.0 \
-        bash -c 'mycli mysql://mariadbuser:mariadbpw@shipment-db-quarkus:3306/shipmentdb'
+        bash -c 'pgcli postgresql://postgresuser:postgrespw@shipment-db-quarkus:5432/shipmentdb'
 ```
 
 E.g. to query for all shipments:
 
 ```sql
-select * from Shipment;
+select * from inventory.shipment;
 ```
