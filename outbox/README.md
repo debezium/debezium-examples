@@ -3,78 +3,74 @@
 This example demonstrates the "outbox pattern", an approach for letting services communicate in an asynchronous and reliable fashion.
 It accompanies [this post](https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern) on the Debezium blog.
 
-The sending service ("order-service") produces events in an "outbox" event table within its own local database.
+The sending service ("order-service-quarkus") produces events in an "outbox" event table within its own local database.
 Debezium captures the additions to this table and streams the events to consumers via Apache Kafka.
 The receiving service ("shipment-service-quarkus") receives these events (and would apply some processing based on them),
 excluding any duplicate messages by comparing incoming event ids with already successfully consumed ids.
 
-The receiving service ("shipment-service-quarkus") is implemented using the [Quarkus](https://quarkus.io) stack.
-This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the JVM-based version.
+Both services are implemented using the [Quarkus](https://quarkus.io) stack.
+This allows building a native binary of each service, resulting in significantly less memory usage and faster start-up than the JVM-based version.
 
-**Update, December 20, 2019:** Another variant of the producing service has been added, "order-service-quarkus",
-which is functionally the same as the original one, but is implemented using the [Quarkus](https://quarkus.io) stack.
-This allows to build a native binary of that service, resulting in significantly less memory usage and faster start-up than the classic version (based on Thorntail).
+## Building
 
-## Execution
-
-Prepare the Java components:
+Prepare the Java components by first performing a maven build.
 
 ```console
 $ mvn clean install -Pnative -Dnative-image.docker-build=true
 ```
 
-Start all components (Defaulting using Quarkus native artifacts):
+This illustates the usage of Quarkus' `native` profile mode where the quarkus-maven-plugin will generate not only JVM-based artifacts but also native images.
+The `native` profile and `native-image.docker-build` environment variable can be omitted if native image artifacts are not wanted.
+
+## Environment
+
+Setup the necessary environment variables
 
 ```console
 $ export DEBEZIUM_VERSION=0.10
-$ docker-compose up --build
+$ export QUARKUS_BUILD=native
 ```
 
-Start all components (Using Quarkus with JVM artifacts):
+The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
+The `QUARKUS_BUILD` specifies whether docker-compose will build containers using Quarkus in JVM or Native modes.
+The default is `jvm` for JVM mode but `native` can also be specified to build Quarkus native containers.
+  
+## Start the demo  
+
+Start all components:
 
 ```console
-$ export DEBEZIUM_VERSION=0.10
-$ export QUARKUS_BUILD=jvm
 $ docker-compose up --build
 ```
 
-Register the Debezium Postgres connector (Non Quarkus):
+This executes all configurations set forth by the `docker-compose.yaml` file.
+
+It's important to note that sometimes the order or shipment service may fail to start if the dependent database takes longer than expected to initialize.  If that happens, simply re-execute the command again and it will start the remaining services. 
+
+## Configure the Debezium connector
+
+Register the connector that to stream outbox changes from the order service: 
 
 ```console
 $ http PUT http://localhost:8083/connectors/outbox-connector/config < register-postgres.json
 HTTP/1.1 201 Created
 ```
 
-Register the Debezium Postgres connector (Quarkus):
-
-```console
-$ http PUT http://localhost:8083/connectors/outbox-connector-quarkus/config < register-postgres-quarkus.json
-HTTP/1.1 201 Created
-```
+## Call the various REST-based APIs
 
 Place a "create order" request with the order service:
 
 ```console
-$ http POST http://localhost:8080/order-service/rest/orders < resources/data/create-order-request.json
-```
-
-Place a "create order" request with the Quarkus order service:
-
-```console
-$ http POST http://localhost:8081/rest/orders < resources/data/create-order-request.json
+$ http POST http://localhost:8080/rest/orders < resources/data/create-order-request.json
 ```
 
 Cancel one of the two order lines:
 
 ```console
-$ http PUT http://localhost:8080/order-service/rest/orders/1/lines/2 < resources/data/cancel-order-line-request.json
+$ http PUT http://localhost:8080/rest/orders/1/lines/2 < resources/data/cancel-order-line-request.json
 ```
 
-Cancel one of the two order lines (Quarkus scenario):
-
-```console
-$ http PUT http://localhost:8081/rest/orders/1/lines/2 < resources/data/cancel-order-line-request.json
-```
+## Review the outcome
 
 Examine the events produced by the service using _kafkacat_:
 
@@ -87,7 +83,7 @@ $ docker run --tty --rm \
     -t order.events | jq .
 ```
 
-Examine that the receiving services (Quarkus) process the events:
+Examine that the receiving service process the events:
 
 ```console
 $ docker-compose logs -f shipment-service-quarkus
@@ -103,15 +99,6 @@ Getting a session in the Postgres DB of the "order" service:
 $ docker run --tty --rm -i \
         --network outbox_default \
         debezium/tooling:1.0 \
-        bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
-```        
-
-Getting a session to the Postgres DB of the Quarkus "order" service:
-
-```console
-$ docker run --tty --rm -i \
-        --network outbox_default \
-        debezium/tooling:1.0 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db-quarkus:5432/orderdb'        
 ```
 
@@ -121,7 +108,7 @@ E.g. to query for all purchase orders:
 select * from inventory.purchaseorder po, inventory.orderline ol where ol.order_id = po.id;
 ```
 
-Getting a session in the Postgres DB of the "shipment-quarkus" service:
+Getting a session in the Postgres DB of the "shipment" service:
 
 ```console
 $ docker run --tty --rm -i \

@@ -16,14 +16,6 @@ services:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # For local debugging of Main
      # - ADVERTISED_HOST_NAME=192.168.1.3
-  order-db:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
-    ports:
-     - "5432:5432"
-    environment:
-     - POSTGRES_USER=postgresuser
-     - POSTGRES_PASSWORD=postgrespw
-     - POSTGRES_DB=orderdb
   order-db-quarkus:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -59,7 +51,6 @@ services:
      - 5005:5005
     links:
      - kafka
-     - order-db
      - order-db-quarkus
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
@@ -71,24 +62,13 @@ services:
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
-  order-service:
-    image: debezium-examples/outbox-order-service:latest
-    build:
-      context: order-service
-    ports:
-     - 8080:8080
-     - 8787:8787
-     - 9990:9990
-    links:
-     - kafka
-     - order-db
   order-service-quarkus:
     image: debezium-example/outbox-order-service-quarkus:${DEBEZIUM_VERSION}
     build:
       context: order-service-quarkus
-      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-native}
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     ports:
-     - 8081:8080
+     - 8080:8080
     links:
      - kafka
      - order-db-quarkus
@@ -102,7 +82,7 @@ services:
     image: debezium-example/outbox-shipment-service-quarkus:${DEBEZIUM_VERSION}
     build:
       context: shipment-service-quarkus
-      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-native}
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     links:
      - kafka
      - shipment-db-quarkus
