@@ -17,7 +17,7 @@ services:
   primary:
     image: debezium/sql-server-keys
     build:
-      context: debezium-sqlserver-init
+      context: .
     hostname: primary
     ports:
      - 1433:1433
@@ -30,7 +30,7 @@ services:
   secondary:
     image: debezium/sql-server-keys
     build:
-      context: debezium-sqlserver-init
+      context: .
     hostname: secondary
     ports:
      - 11433:1433
