@@ -7,14 +7,12 @@
         "database.hostname": "postgres",
         "database.port": "5432",
         "database.dbname": "postgres",
-	"database.user": "postgres",
-	"database.password": "debezium",
+        "database.user": "postgres",
+        "database.password": "debezium",
         "database.server.name": "dbserver1",
         "plugin.name": "pgoutput",
         "slot.name": "debezium",
         "publication.name": "dbz_publication",
-	"table.whitelist": "inventory.orders,inventory.categories",
-        "database.history.kafka.bootstrap.servers": "kafka:9092",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "table.whitelist": "inventory.orders,inventory.categories"
     }
 }

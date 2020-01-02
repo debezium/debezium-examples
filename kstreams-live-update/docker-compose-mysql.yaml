@@ -16,54 +16,49 @@ services:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # For local debugging of Main
      # - ADVERTISED_HOST_NAME=192.168.1.3
-  postgres:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+  mysql:
+    image: debezium-examples/kstreams-live-update-mysql:${DEBEZIUM_VERSION}
     build:
-      context: example-db
+      context: mysql-db
     ports:
-            - 5432:5432
+     - 3306:3306
     healthcheck:
-      test: "/usr/bin/psql -U postgres -c 'SELECT 1'"
+      test: "/usr/bin/mysql --user=root --password=debezium --execute \"SELECT 1;\""
       interval: 2s
       timeout: 20s
       retries: 10
     environment:
-     - PG_MODE=primary
-     - PG_PRIMARY_PORT=5432
-     - PG_PRIMARY_USER=postgres
-     - PG_DATABASE=inventory
-     - PG_PRIMARY_PASSWORD=debezium
-     - PG_PASSWORD=not
-     - PG_ROOT_PASSWORD=matter
-     - PG_USER=debezium
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw
   connect:
-    image: debezium-examples/connect-es:${DEBEZIUM_VERSION}
+    image: debezium-examples/kstreams-live-update-connect-es:${DEBEZIUM_VERSION}
     build:
       context: debezium-es
     ports:
      - 8083:8083
     links:
      - kafka
-     - postgres 
+     - mysql
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_source_connect_configs
      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
   event-source:
-    image: debezium/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
+    image: debezium-examples/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
     build:
       context: event-source
     links:
-     - postgres
+     - mysql
     environment:
-     - DATABASE_SERVER=postgres 
+     - DATABASE_SERVER=mysql 
      - JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.eventsource.Main
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
   aggregator:
-    image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
+    image: debezium-examples/kstreams-live-update-aggregator:${DEBEZIUM_VERSION}
     build:
       context: aggregator
     ports:

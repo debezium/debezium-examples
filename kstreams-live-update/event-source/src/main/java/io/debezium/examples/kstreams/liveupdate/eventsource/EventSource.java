@@ -30,13 +30,10 @@ class EventSource {
     private final Random random = new Random();
     private final String databaseServer;
 
-    public EventSource() {
-        /* backwards compatibility */
-        this("mysql");
-    }
     public EventSource(String databaseServer) {
         this.databaseServer = databaseServer;
     }
+
     public void run() {
         thread = new Thread(() -> {
             EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory(databaseServer);
@@ -44,8 +41,8 @@ class EventSource {
 
             entityManager.getTransaction().begin();
             List<Category> categories = entityManager.createQuery("from Category c", Category.class).getResultList();
-            Object[] minMaxCustomerIds = (Object[]) entityManager.createQuery("select min(id), max(id) from Customer c", Object[].class).getSingleResult();
-            Object[] minMaxProductIds = (Object[]) entityManager.createQuery("select min(id), max(id) from Product p", Object[].class).getSingleResult();
+            Object[] minMaxCustomerIds = entityManager.createQuery("select min(id), max(id) from Customer c", Object[].class).getSingleResult();
+            Object[] minMaxProductIds = entityManager.createQuery("select min(id), max(id) from Product p", Object[].class).getSingleResult();
 
             entityManager.getTransaction().commit();
 
