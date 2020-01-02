@@ -24,9 +24,14 @@
             <artifactId>hibernate-core</artifactId>
             <version>${version.org.hibernate}</version>
         </dependency>
-	<dependency>
-	    <groupId>org.postgresql</groupId>
-    	    <artifactId>postgresql</artifactId>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
             <version>42.2.9</version>
         </dependency>
         <dependency>
