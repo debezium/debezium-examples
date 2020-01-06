@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.debezium.examples.outbox</groupId>
-  <artifactId>outbox-shipment-service-quarkus</artifactId>
+  <artifactId>outbox-shipment-service</artifactId>
   <name>Debezium Outbox Demo - Shipment Service using Quarkus framework</name>
   <version>1.0.0-SNAPSHOT</version>
 

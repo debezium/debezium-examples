@@ -5,7 +5,7 @@
  */
 package io.debezium.examples.outbox.order.event;
 
-import java.util.Date;
+import java.time.Instant;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,14 +23,14 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     private final long orderLineId;
     private final OrderLineStatus newStatus;
     private final OrderLineStatus oldStatus;
-    private final Long timestamp;
+    private final Instant timestamp;
 
     public OrderLineUpdatedEvent(long orderId, long orderLineId, OrderLineStatus newStatus, OrderLineStatus oldStatus) {
         this.orderId = orderId;
         this.orderLineId = orderLineId;
         this.newStatus = newStatus;
         this.oldStatus = oldStatus;
-        this.timestamp = (new Date()).getTime();
+        this.timestamp = Instant.now();
     }
 
     public static OrderLineUpdatedEvent of(long orderId, long orderLineId, OrderLineStatus newStatus, OrderLineStatus oldStatus) {
@@ -62,7 +62,7 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     }
 
     @Override
-    public Long getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 }

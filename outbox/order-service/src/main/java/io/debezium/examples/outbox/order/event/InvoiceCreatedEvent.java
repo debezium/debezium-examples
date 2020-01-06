@@ -5,7 +5,7 @@
  */
 package io.debezium.examples.outbox.order.event;
 
-import java.util.Date;
+import java.time.Instant;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,12 +22,12 @@ public class InvoiceCreatedEvent implements ExportedEvent {
 
     private final long customerId;
     private final JsonNode order;
-    private final Long timestamp;
+    private final Instant timestamp;
 
     private InvoiceCreatedEvent(long customerId, JsonNode order) {
         this.customerId = customerId;
         this.order = order;
-        this.timestamp = (new Date()).getTime();
+        this.timestamp = Instant.now();
     }
 
     public static InvoiceCreatedEvent of(PurchaseOrder order) {
@@ -60,7 +60,7 @@ public class InvoiceCreatedEvent implements ExportedEvent {
     }
 
     @Override
-    public Long getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 }

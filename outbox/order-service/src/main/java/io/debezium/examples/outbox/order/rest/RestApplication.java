@@ -11,6 +11,6 @@ import javax.ws.rs.core.Application;
 /**
  * Defines the application path for the Order Service rest application.
  */
-@ApplicationPath("/rest")
+@ApplicationPath("/")
 public class RestApplication extends Application {
 }

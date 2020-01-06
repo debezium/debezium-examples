@@ -16,7 +16,7 @@ services:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # For local debugging of Main
      # - ADVERTISED_HOST_NAME=192.168.1.3
-  order-db-quarkus:
+  order-db:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - 5433:5432
@@ -30,7 +30,7 @@ services:
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=orderdb
      - PGPASSWORD=postgrespw
-  shipment-db-quarkus:
+  shipment-db:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
       - 5434:5432
@@ -51,7 +51,7 @@ services:
      - 5005:5005
     links:
      - kafka
-     - order-db-quarkus
+     - order-db
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
@@ -62,32 +62,32 @@ services:
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
-  order-service-quarkus:
-    image: debezium-example/outbox-order-service-quarkus:${DEBEZIUM_VERSION}
+  order-service:
+    image: debezium-example/outbox-order-service:${DEBEZIUM_VERSION}
     build:
-      context: order-service-quarkus
+      context: order-service
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     ports:
      - 8080:8080
     links:
      - kafka
-     - order-db-quarkus
+     - order-db
     depends_on:
-      order-db-quarkus:
+      order-db:
         condition: service_healthy
       connect:
         condition: service_started
-    command: "./application -Dquarkus.datasource.url=jdbc:postgresql://order-db-quarkus:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
-  shipment-service-quarkus:
-    image: debezium-example/outbox-shipment-service-quarkus:${DEBEZIUM_VERSION}
+    command: "./application -Dquarkus.datasource.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
+  shipment-service:
+    image: debezium-example/outbox-shipment-service:${DEBEZIUM_VERSION}
     build:
-      context: shipment-service-quarkus
+      context: shipment-service
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     links:
      - kafka
-     - shipment-db-quarkus
+     - shipment-db
     depends_on:
-      shipment-db-quarkus:
+      shipment-db:
         condition: service_healthy
       connect:
         condition: service_started
