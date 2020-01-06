@@ -15,7 +15,7 @@
   </properties>
 
   <modules>
-    <module>order-service-quarkus</module>
-    <module>shipment-service-quarkus</module>
+    <module>order-service</module>
+    <module>shipment-service</module>
   </modules>
 </project>
