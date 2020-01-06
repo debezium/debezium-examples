@@ -2,7 +2,7 @@
 
 mvn clean install -f event-source/pom.xml
 mvn clean install -f aggregator/pom.xml
-docker-compose up --build
+docker-compose -f docker-compose-mysql up --build
 
 # Console
 
@@ -44,4 +44,4 @@ http "http://localhost:9200/orders/_search?pretty"
 
 # Misc.
 
-docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
+docker-compose  -f docker-compose-mysql exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
