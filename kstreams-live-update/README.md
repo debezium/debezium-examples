@@ -11,9 +11,10 @@ The application has two tables:
 * `categories`: Product categories
 * `orders`: orders with a given category and a (random) sales prices
 
-Debezium is used to capture changes to the two tables in the application's underlying MySQL database.
+The example comes in two variants: one for MySQL and one for Postgres.
+Debezium is used to capture changes to the two tables in the configured database.
 
-The _aggregator_ application runs KStreams to join orders with categories,
+The _aggregator_ application runs Kafka Streams to join orders with categories,
 group the events by category name and accumulate the sales price per category in time windows of 5 seconds.
 The aggregated values are pushed to WebSockets.
 For that purpose, the aggregator application exposes a WebSockets endpoint.
@@ -32,14 +33,22 @@ Start Kafka, Kafka Connect, MySQL, event source and aggregator:
 
 ```shell
 export DEBEZIUM_VERSION=1.0
-docker-compose up --build
+
+# For MySQL
+docker-compose -f docker-compose-mysql.yaml up --build
+
+# For Postgres
+docker-compose -f docker-compose-postgres.yaml up --build
 ```
 
 Once you see the message "Waiting for topics to be created" in the logs,
-deploy the Debezium MySQL connector:
+deploy the corresponding Debezium connector:
 
 ```shell
+# For MySQL
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @mysql-source.json
+
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @pgsql-source.json
 ```
 
 ## Consume aggregated messages
@@ -60,7 +69,11 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
 ## Shut down the cluster
 
 ```shell
-docker-compose down
+# For MySQL
+docker-compose -f docker-compose-mysql.yaml down --build
+
+# For Postgres
+docker-compose -f docker-compose-postgres.yaml down --build
 ```
 
 ## Locally testing the aggregator
@@ -69,8 +82,8 @@ When working on the _aggregator_ application, running it directly on your host (
 using the Quarkus dev mode is the recommended approach.
 For that
 
-* add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in _docker-compose.yaml_.
-* run the Docker Compose set-up without the _aggregator_ service: `docker-compose up --scale aggregator=0`
+* add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in the Docker Compose file.
+* run the Docker Compose set-up without the _aggregator_ service, e.g.: `docker-compose -f docker-compose-mysql.yaml up --scale aggregator=0`
 * run the *aggregator* app in dev mode, specifying your IP as advertised host: `mvn compile quarkus:dev -Dkafka.bootstrap.servers=192.168.1.8:9092 -Dquarkus.http.port=8079`
 
 Any code changes will immediately picked up after reloading the application in the web browser.
