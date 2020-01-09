@@ -11,6 +11,8 @@ activemq-data/
 .settings/
 .checkstyle
 .gradle/
+.vscode/
+bin/
 build/
 deploy/
 target/
