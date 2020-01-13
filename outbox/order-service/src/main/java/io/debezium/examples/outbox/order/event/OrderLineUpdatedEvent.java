@@ -10,12 +10,12 @@ import java.time.Instant;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
-import io.debezium.quarkus.outbox.ExportedEvent;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
 /**
  * An 'Order' event that indicates an order line's status has changed.
  */
-public class OrderLineUpdatedEvent implements ExportedEvent {
+public class OrderLineUpdatedEvent implements ExportedEvent<String, JsonNode> {
 
     private static ObjectMapper mapper = new ObjectMapper();
 

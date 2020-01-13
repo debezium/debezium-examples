@@ -12,13 +12,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.debezium.examples.outbox.order.event.InvoiceCreatedEvent;
 import io.debezium.examples.outbox.order.event.OrderCreatedEvent;
 import io.debezium.examples.outbox.order.event.OrderLineUpdatedEvent;
 import io.debezium.examples.outbox.order.model.EntityNotFoundException;
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
-import io.debezium.quarkus.outbox.ExportedEvent;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
 /**
  * An application-scoped bean that facilitates {@link PurchaseOrder} business functionality.
@@ -31,7 +32,7 @@ public class OrderService {
     EntityManager entityManager;
 
     @Inject
-    Event<ExportedEvent> event;
+    Event<ExportedEvent<String, JsonNode>> event;
 
     /**
      * Add a new {@link PurchaseOrder}.
