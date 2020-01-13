@@ -22,6 +22,8 @@ $ mvn clean install -Pnative -Dnative-image.docker-build=true
 This illustates the usage of Quarkus' `native` profile mode where the quarkus-maven-plugin will generate not only JVM-based artifacts but also native images.
 The `native` profile and `native-image.docker-build` environment variable can be omitted if native image artifacts are not wanted.
 
+NOTE: There is some limitations with the Hibernate ORM Quarkus extension that prohibits running the Debezium Outbox Quarkus extension in native mode, so those arguments should be omitted for now.
+
 ## Environment
 
 Setup the necessary environment variables

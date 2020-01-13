@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.debezium.examples.outbox.order.model.OrderLine;
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
-import io.debezium.quarkus.outbox.ExportedEvent;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
 /**
  * An 'Order' event that indicates an order has been created.
  */
-public class OrderCreatedEvent implements ExportedEvent {
+public class OrderCreatedEvent implements ExportedEvent<String, JsonNode> {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
