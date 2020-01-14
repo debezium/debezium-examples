@@ -35,31 +35,40 @@ public class OrderEventHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public void onOrderEvent(UUID eventId, String key, JsonNode event, Long ts) throws IOException {
+    public void onOrderEvent(UUID eventId, String eventType, String key, String event, Long ts) {
         if (log.alreadyProcessed(eventId)) {
             LOGGER.info("Event with UUID {} was already retrieved, ignoring it", eventId);
             return;
         }
 
-        final JsonNode payload = event.has("schema") ? event.get("payload") : event;
-
-        final String eventType = payload.get("eventType").asText();
-        final String eventPayload = payload.get("payload").asText();
-
-        final JsonNode payloadObject = objectMapper.readTree(eventPayload);
+        JsonNode eventPayload = deserialize(event);
 
         LOGGER.info("Received 'Order' event -- key: {}, event id: '{}', event type: '{}', ts: '{}'", key, eventId, eventType, ts);
 
         if (eventType.equals("OrderCreated")) {
-            shipmentService.orderCreated(payloadObject);
+            shipmentService.orderCreated(eventPayload);
         }
         else if (eventType.equals("OrderLineUpdated")) {
-            shipmentService.orderLineUpdated(payloadObject);
+            shipmentService.orderLineUpdated(eventPayload);
         }
         else {
             LOGGER.warn("Unkown event type");
         }
 
         log.processed(eventId);
+    }
+
+    private JsonNode deserialize(String event) {
+        JsonNode eventPayload;
+
+        try {
+            String unescaped = objectMapper.readValue(event, String.class);
+            eventPayload = objectMapper.readTree(unescaped);
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Couldn't deserialize event", e);
+        }
+
+        return eventPayload.has("schema") ? eventPayload.get("payload") : eventPayload;
     }
 }
