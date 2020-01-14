@@ -63,7 +63,7 @@ services:
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
   order-service:
-    image: debezium-example/outbox-order-service:${DEBEZIUM_VERSION}
+    image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}
     build:
       context: order-service
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
@@ -79,7 +79,7 @@ services:
         condition: service_started
     command: "./application -Dquarkus.datasource.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
   shipment-service:
-    image: debezium-example/outbox-shipment-service:${DEBEZIUM_VERSION}
+    image: debezium-examples/outbox-shipment-service:${DEBEZIUM_VERSION}
     build:
       context: shipment-service
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
