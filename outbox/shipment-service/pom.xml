@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.debezium.examples.outbox</groupId>
   <artifactId>outbox-shipment-service</artifactId>
-  <name>Debezium Outbox Demo - Shipment Service using Quarkus framework</name>
+  <name>Debezium Outbox Demo - Shipment Service</name>
   <version>1.0.0-SNAPSHOT</version>
 
   <properties>

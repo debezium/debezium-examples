@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.debezium.examples.outbox.order.event.InvoiceCreatedEvent;
 import io.debezium.examples.outbox.order.event.OrderCreatedEvent;
 import io.debezium.examples.outbox.order.event.OrderLineUpdatedEvent;
@@ -28,11 +27,12 @@ import io.debezium.outbox.quarkus.ExportedEvent;
  */
 @ApplicationScoped
 public class OrderService {
+
     @PersistenceContext
     EntityManager entityManager;
 
     @Inject
-    Event<ExportedEvent<String, JsonNode>> event;
+    Event<ExportedEvent<?, ?>> event;
 
     /**
      * Add a new {@link PurchaseOrder}.

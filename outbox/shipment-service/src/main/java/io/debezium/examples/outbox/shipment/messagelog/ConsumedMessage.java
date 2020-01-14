@@ -8,7 +8,6 @@ package io.debezium.examples.outbox.shipment.messagelog;
 import java.time.Instant;
 import java.util.UUID;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -16,7 +15,6 @@ import javax.persistence.Id;
 public class ConsumedMessage {
 
     @Id
-    @Column(columnDefinition = "BINARY(16)")
     private UUID eventId;
 
     private Instant timeOfReceiving;
