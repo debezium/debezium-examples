@@ -6,6 +6,7 @@ activemq-data/
 .metadata/
 .recommenders/
 .classpath
+.factorypath
 .project
 .cache
 .settings/
