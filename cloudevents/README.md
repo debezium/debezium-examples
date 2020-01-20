@@ -5,7 +5,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 ## Preparations
 
 ```shell
-export DEBEZIUM_VERSION=1.0
+export DEBEZIUM_VERSION=1.1
 docker-compose up --build
 ```
 
