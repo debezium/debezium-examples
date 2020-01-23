@@ -27,7 +27,7 @@
   </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>io.debezium.quarkus</groupId>
+      <groupId>io.debezium</groupId>
       <artifactId>debezium-quarkus-outbox</artifactId>
       <version>${version.debezium-quarkus}</version>
     </dependency>
