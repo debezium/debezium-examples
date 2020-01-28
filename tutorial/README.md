@@ -84,7 +84,7 @@ docker-compose -f docker-compose-mysql-avro.yaml exec schema-registry /usr/bin/k
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -108,7 +108,7 @@ docker-compose -f docker-compose-postgres.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -148,7 +148,7 @@ and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-oracle.yaml up --build
 
 # Insert test data
@@ -183,7 +183,7 @@ docker-compose -f docker-compose-oracle.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-sqlserver.yaml up
 
 # Initialize database and insert test data
@@ -213,7 +213,7 @@ The configuration is done at both worker and connector level.
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-mysql-ext-secrets.yml up
 
 # Start MySQL connector
