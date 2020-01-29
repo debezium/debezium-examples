@@ -24,6 +24,6 @@ oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_
 # Build a Connect image with Debezium
 sleep 10
 echo Deploying Debezium...
-oc start-build debezium --from-archive http://central.maven.org/maven2/io/debezium/debezium-connector-#{DEBEZIUM_PLUGIN}/#{DEBEZIUM_VERSION}/debezium-connector-#{DEBEZIUM_PLUGIN}-#{DEBEZIUM_VERSION}-plugin.tar.gz -n #{PROJECT} --follow
+oc start-build debezium --from-archive https://repo1.maven.org/maven2/io/debezium/debezium-connector-#{DEBEZIUM_PLUGIN}/#{DEBEZIUM_VERSION}/debezium-connector-#{DEBEZIUM_PLUGIN}-#{DEBEZIUM_VERSION}-plugin.tar.gz -n #{PROJECT} --follow
 
 echo Completed, wait for Debezium start!
