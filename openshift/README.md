@@ -29,7 +29,7 @@ export DEBEZIUM_VERSION=0.8.0.Final
 oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION strimzi-connect-s2i
 mkdir -p plugins && cd plugins && \
 for PLUGIN in {mongodb,mysql,postgres}; do \
-    curl http://central.maven.org/maven2/io/debezium/debezium-connector-$PLUGIN/$DEBEZIUM_VERSION/debezium-connector-$PLUGIN-$DEBEZIUM_VERSION-plugin.tar.gz | tar xz; \
+    curl https://repo1.maven.org/maven2/io/debezium/debezium-connector-$PLUGIN/$DEBEZIUM_VERSION/debezium-connector-$PLUGIN-$DEBEZIUM_VERSION-plugin.tar.gz | tar xz; \
 done && \
 oc start-build debezium --from-dir=. --follow && \
 cd .. && rm -rf plugins
