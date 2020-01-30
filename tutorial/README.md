@@ -211,8 +211,10 @@ docker-compose -f docker-compose-sqlserver.yaml down
 
 ```shell
 # Start the topology as defined in http://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.0
-# DEBEZIUM_DB2_VOLUME is an empty local direcotry
+export DEBEZIUM_VERSION=1.1
+
+# DEBEZIUM_DB2_VOLUME is an empty local directory;
+# Must be given as relative path, e.g. ./db2data
 export DEBEZIUM_DB2_VOLUME=<local persistent volume directory>
 
 docker-compose -f docker-compose-db2.yaml up
@@ -225,17 +227,13 @@ docker-compose -f docker-compose-db2.yaml exec kafka /kafka/bin/kafka-console-co
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
-    --topic server1.dbo.customers
-
+    --topic db2server.DB2INST1.CUSTOMERS
 
 # Modify records in the database via DB2 client 
 docker-compose -f docker-compose-db2.yaml exec db2server bash -c 'su - db2inst1'
 
-
-
 # Shut down the cluster
-docker-compose -f docker-compose-sqlserver.yaml down    
-
+docker-compose -f docker-compose-sqlserver.yaml down
 ```
 
 ## Using externalized secrets
