@@ -5,6 +5,7 @@
  */
 package io.debezium.examples.camel.pipeline;
 
+import java.time.Instant;
 import java.util.Random;
 
 import org.apache.camel.LoggingLevel;
@@ -124,7 +125,7 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                             .bean(store, "readFromStoreAndAddAnswer")
                             .to(ROUTE_MAIL_ANSWER_CHANGE)
                             .filter(hasManyAnswers)
-                                .setBody().simple("Question '${exchangeProperty[aggregate].text}' has many answers" + new Random().nextInt())
+                                .setBody().simple("Question '${exchangeProperty[aggregate].text}' has many answers (generated at " + Instant.now() + ")")
                                 .to(TWITTER_SERVER)
                             .end()
                         .endChoice()
