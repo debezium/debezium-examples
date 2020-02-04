@@ -1,4 +1,11 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.examples.camel.pipeline;
+
+import java.util.Random;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
@@ -11,17 +18,23 @@ import org.apache.camel.support.builder.PredicateBuilder;
 import io.debezium.data.Envelope;
 
 public class QaDatabaseUserNotifier extends RouteBuilder {
-    private static final String SMTP_SERVER = "smtp://localhost:1025?from=debezium-demo@localhost";
+    private static final String SMTP_SERVER = "smtp://{{smtp.hostname}}:{{smtp.port}}?from=debezium-demo@localhost";
     private static final String ROUTE_MAIL_QUESTION_CREATE = "direct:mail-on-question-create";
     private static final String ROUTE_MAIL_ANSWER_CHANGE = "direct:mail-on-answer-change";
+    private static final String TWITTER_SERVER =
+                "twitter-timeline:user?"
+                    + "consumerKey={{twitter.consumerKey}}"
+                    + "&consumerSecret={{twitter.consumerSecret}}"
+                    + "&accessToken={{twitter.accessToken}}"
+                    + "&accessTokenSecret={{twitter.accessTokenSecret}}";
 
     static final String ROUTE_GET_AGGREGATE = "direct:get-aggregate";
     static final String ROUTE_WRITE_AGGREGATE = "direct:write-aggregate";
 
     private final String ROUTE_STORE_QUESTION_AGGREGATE = "infinispan://question";
 
-    private static final String EVENT_TYPE_ANSWER = "qa.inventory.answer";
-    private static final String EVENT_TYPE_QUESTION = "qa.inventory.question";
+    private static final String EVENT_TYPE_ANSWER = ".answer";
+    private static final String EVENT_TYPE_QUESTION = ".question";
 
     @Override
     public void configure() throws Exception {
@@ -30,20 +43,25 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                             constant(Envelope.Operation.READ.code()),
                             constant(Envelope.Operation.CREATE.code()),
                             constant(Envelope.Operation.UPDATE.code()));
+
         final Predicate isCreateEvent =
                 header(DebeziumConstants.HEADER_OPERATION).in(
                         constant(Envelope.Operation.READ.code()),
                         constant(Envelope.Operation.CREATE.code()));
+
         final Predicate isUpdateEvent =
                 header(DebeziumConstants.HEADER_OPERATION).isEqualTo(Envelope.Operation.UPDATE.code());
+
         final Predicate isQuestionEvent =
-                header(DebeziumConstants.HEADER_IDENTIFIER).isEqualTo(EVENT_TYPE_QUESTION);
+                header(DebeziumConstants.HEADER_IDENTIFIER).endsWith(EVENT_TYPE_QUESTION);
+
         final Predicate isAnswerEvent =
-                header(DebeziumConstants.HEADER_IDENTIFIER).isEqualTo(EVENT_TYPE_ANSWER);
+                header(DebeziumConstants.HEADER_IDENTIFIER).endsWith(EVENT_TYPE_ANSWER);
+
         final Predicate hasManyAnswers =
                 PredicateBuilder.and(
                         isCreateEvent,
-                        simple("${exchangeProperty[aggregate].answers.size} == 2"));
+                        simple("${exchangeProperty[aggregate].answers.size} == 3"));
 
         final AggregateStore store = new AggregateStore();
 
@@ -80,14 +98,14 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
             .to(ROUTE_STORE_QUESTION_AGGREGATE);
 
         from("debezium-postgres:localhost?"
-                + "databaseHostname=localhost"
-                + "&databaseUser=postgres"
-                + "&databasePassword=postgres"
+                + "databaseHostname={{database.hostname}}"
+                + "&databasePort={{database.port}}"
+                + "&databaseUser={{database.user}}"
+                + "&databasePassword={{database.password}}"
                 + "&databaseDbname=postgres"
                 + "&databaseServerName=qa"
-                + "&databaseHistoryFileFilename=history"
-                + "&schemaWhitelist=inventory"
-                + "&tableWhitelist=inventory.question,inventory.answer"
+                + "&schemaWhitelist={{database.schema}}"
+                + "&tableWhitelist={{database.schema}}.question,{{database.schema}}.answer"
                 + "&offsetStorage=org.apache.kafka.connect.storage.MemoryOffsetBackingStore")
                 .routeId(QaDatabaseUserNotifier.class.getName() + ".DatabaseReader")
                 .log(LoggingLevel.DEBUG, "Incoming message ${body} with headers ${headers}")
@@ -106,7 +124,8 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                             .bean(store, "readFromStoreAndAddAnswer")
                             .to(ROUTE_MAIL_ANSWER_CHANGE)
                             .filter(hasManyAnswers)
-                                .log("Question '${exchangeProperty[aggregate].text}' has many answers")
+                                .setBody().simple("Question '${exchangeProperty[aggregate].text}' has many answers" + new Random().nextInt())
+                                .to(TWITTER_SERVER)
                             .end()
                         .endChoice()
                     .otherwise()

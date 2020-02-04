@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-debezium-postgres</artifactId>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-ognl</artifactId>
@@ -34,6 +34,10 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-mail</artifactId>
+        </dependency> 
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-twitter</artifactId>
         </dependency> 
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -60,6 +64,40 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>database.hostname</key>
+                            <value>${database.hostname}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>database.port</key>
+                            <value>${database.port}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>database.user</key>
+                            <value>${database.user}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>database.password</key>
+                            <value>${database.password}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>database.dbname</key>
+                            <value>${database.dbname}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>database.schema</key>
+                            <value>${database.schema}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>smtp.hostname</key>
+                            <value>${smtp.hostname}</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>smtp.port</key>
+                            <value>${smtp.port}</value>
+                        </systemProperty>
+                    </systemProperties>
                     <mainClass>io.debezium.examples.camel.pipeline.Runner</mainClass>
                 </configuration>
             </plugin>
