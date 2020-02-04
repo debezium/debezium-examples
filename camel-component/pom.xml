@@ -13,20 +13,24 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <database.hostname>localhost</database.hostname>
-        <database.port>3306</database.port>
-        <database.user>debezium</database.user>
-        <database.password>dbz</database.password>
-        <database.whitelist>inventory</database.whitelist>
-        <table.whitelist>inventory.customers</table.whitelist>
+        <database.port>5432</database.port>
+        <database.user>postgres</database.user>
+        <database.password>postgres</database.password>
+        <database.dbname>postgres</database.dbname>
+        <database.schema>inventory</database.schema>
+
+        <smtp.hostname>localhost</smtp.hostname>
+        <smtp.port>1025</smtp.port>
+        <smtp.ui>8025</smtp.ui>
 
         <mysql.init.timeout>30000</mysql.init.timeout>
 
-        <version.camel>3.0.0</version.camel>
+        <version.camel>3.0.1</version.camel>
         <version.debezium>1.0.0.Final</version.debezium>
         <version.debezium.tag>1.0</version.debezium.tag>
         <version.postgresql.driver>42.2.9</version.postgresql.driver>
         <version.org.slf4j>1.7.29</version.org.slf4j>
-        <version.quarkus>1.1.1.Final</version.quarkus>
+        <version.quarkus>1.2.0.Final</version.quarkus>
         <version.jackson>2.9.1</version.jackson>
         <version.kafka>2.4.0</version.kafka>
         <version.plugin.docker>0.31.0</version.plugin.docker>
@@ -129,8 +133,8 @@
                             <run>
                                 <namingStrategy>none</namingStrategy>
                                 <ports>
-                                    <port>1025:1025</port>
-                                    <port>8025:8025</port>
+                                    <port>${smtp.port}:1025</port>
+                                    <port>${smtp.ui}:8025</port>
                                 </ports>
                                 <log>
                                     <prefix>email</prefix>
@@ -148,7 +152,7 @@
                                     <POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
                                 </env>
                                 <ports>
-                                    <port>5432:5432</port>
+                                    <port>${database.port}:5432</port>
                                 </ports>
                                 <log>
                                     <prefix>postgres</prefix>
