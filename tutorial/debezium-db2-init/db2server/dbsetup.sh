@@ -1,9 +1,13 @@
 #/bin/bash
 
+echo "Compile ASN tool ..."
+cd /asncdctools/src
+/opt/ibm/db2/V11.5/samples/c/bldrtn asncdc
+
 DBNAME=$1
 DB2DIR=/opt/ibm/db2/V11.5
 rc=1
-echo "waiting for DB2 start ( $DBNAME ) ."
+echo "Waiting for DB2 start ( $DBNAME ) ."
 while [ "$rc" -ne 0 ]
 do
    sleep 5

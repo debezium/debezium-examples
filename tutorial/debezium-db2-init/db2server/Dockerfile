@@ -12,7 +12,7 @@ ADD dbsetup.sh /asncdctools/src
 ADD startup-agent.sql /asncdctools/src
 ADD startup-cdc-demo.sql /asncdctools/src
 ADD inventory.sql /asncdctools/src
-ADD asncdc /asncdctools/src
+ADD asncdc.c /asncdctools/src
 
 
 RUN chmod -R  777  /asncdctools
