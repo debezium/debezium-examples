@@ -231,9 +231,11 @@ docker-compose -f docker-compose-db2.yaml exec kafka /kafka/bin/kafka-console-co
 
 # Modify records in the database via DB2 client 
 docker-compose -f docker-compose-db2.yaml exec db2server bash -c 'su - db2inst1'
+db2 connect to TESTDB
+db2 "INSERT INTO DB2INST1.PRODUCTS(name,description,weight) VALUES ('bike','Mountain bike',20.0);"
 
 # Shut down the cluster
-docker-compose -f docker-compose-sqlserver.yaml down
+docker-compose -f docker-compose-db2.yaml down
 ```
 
 ## Using externalized secrets
