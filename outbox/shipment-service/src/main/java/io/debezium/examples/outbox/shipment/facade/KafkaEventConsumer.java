@@ -5,95 +5,43 @@
  */
 package io.debezium.examples.outbox.shipment.facade;
 
-import java.util.Arrays;
-import java.util.Properties;
+import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
-import javax.annotation.Resource;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Destroyed;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.smallrye.reactive.messaging.kafka.KafkaMessage;
 
 @ApplicationScoped
 public class KafkaEventConsumer {
 
-    private static final Logger LOG = LoggerFactory.getLogger( KafkaEventConsumer.class );
-
-    private static final String GROUP_ID = "shipment-service";
-
-    @Resource(name="java:comp/DefaultManagedExecutorService")
-    private ExecutorService executorService;
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaEventConsumer.class);
 
     @Inject
-    private OrderEventHandler orderEventHandler;
+    OrderEventHandler orderEventHandler;
 
-    @Inject
-    @ConfigProperty(name="bootstrap.servers")
-    private String bootstrapServers;
+    @Incoming("orders")
+    public CompletionStage<Void> onMessage(KafkaMessage<String, String> message) throws IOException {
+        return CompletableFuture.runAsync(() -> {
+                LOG.debug("Kafka message with key = {} arrived", message.getKey());
 
-    @Inject
-    @ConfigProperty(name="order.topic.name", defaultValue="orders")
-    private String topicName;
+                String eventId = message.getHeaders().getOneAsString("id").orElseThrow(() -> new IllegalArgumentException("Expected record header 'id' not present"));
+                String eventType = message.getHeaders().getOneAsString("eventType").orElseThrow(() -> new IllegalArgumentException("Expected record header 'eventType' not present"));
 
-    private final AtomicBoolean running = new AtomicBoolean(true);
-
-    public void startConsumer(@Observes @Initialized(ApplicationScoped.class) Object init) {
-        LOG.info("Launching Consumer for topic '{}'", topicName);
-        executorService.submit(new PollingLoop());
-    }
-
-    public void shutdownEngine(@Observes @Destroyed(ApplicationScoped.class) Object init) {
-        LOG.info("Closing consumer");
-        running.set(false);
-    }
-
-    private class PollingLoop implements Runnable {
-
-
-        @Override
-        public void run() {
-            Properties props = new Properties();
-            props.put("bootstrap.servers", bootstrapServers);
-            props.put("group.id", GROUP_ID);
-            props.put("key.deserializer", StringDeserializer.class.getName());
-            props.put("value.deserializer", StringDeserializer.class.getName());
-
-            KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-            consumer.subscribe(Arrays.asList(topicName));
-
-            try {
-                while (running.get()) {
-                    ConsumerRecords<String, String> records = consumer.poll(1000);
-
-                    for (ConsumerRecord<String, String> record : records) {
-                        orderEventHandler.onOrderEvent(
-                                UUID.fromString(new String(record.headers().lastHeader("id").value())),
-                                record.key(),
-                                record.value(),
-                                record.timestamp()
-                        );
-                    }
-                }
-            }
-            catch(Exception e) {
-                LOG.error("Polling loop failed", e);
-            }
-            finally {
-                LOG.info("Polling loop finished");
-                consumer.close();
-            }
-        }
+                orderEventHandler.onOrderEvent(
+                        UUID.fromString(eventId),
+                        eventType,
+                        message.getKey(),
+                        message.getPayload(),
+                        message.getTimestamp()
+                );
+        });
     }
 }

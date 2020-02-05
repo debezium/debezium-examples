@@ -5,7 +5,7 @@ RUN mkdir /tmp/pg-driver && cd /tmp/pg-driver && curl -sO https://jdbc.postgresq
 
 RUN mkdir /tmp/infinispan-modules && \
     cd /tmp/infinispan-modules && \
-    curl -sO http://downloads.jboss.org/infinispan/9.4.2.Final/infinispan-wildfly-modules-9.4.2.Final.zip && \
+    curl -sO https://downloads.jboss.org/infinispan/9.4.2.Final/infinispan-wildfly-modules-9.4.2.Final.zip && \
     unzip infinispan-wildfly-modules-9.4.2.Final.zip && \
     cp -r infinispan-wildfly-modules-9.4.2.Final/modules/* /opt/jboss/wildfly/modules && \
     rm infinispan-wildfly-modules-9.4.2.Final.zip && \

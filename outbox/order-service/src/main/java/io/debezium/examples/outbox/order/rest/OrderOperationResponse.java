@@ -11,6 +11,9 @@ import java.util.stream.Collectors;
 
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
 
+/**
+ * A value object that represents the response of an operation on a {@link PurchaseOrder}.
+ */
 public class OrderOperationResponse {
 
     private final long id;

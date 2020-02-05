@@ -8,6 +8,9 @@ package io.debezium.examples.outbox.order.rest;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-@ApplicationPath("/rest")
+/**
+ * Defines the application path for the Order Service rest application.
+ */
+@ApplicationPath("/")
 public class RestApplication extends Application {
 }

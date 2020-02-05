@@ -6,11 +6,14 @@ activemq-data/
 .metadata/
 .recommenders/
 .classpath
+.factorypath
 .project
 .cache
 .settings/
 .checkstyle
 .gradle/
+.vscode/
+bin/
 build/
 deploy/
 target/

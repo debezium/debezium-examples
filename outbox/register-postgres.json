@@ -13,5 +13,6 @@
     "transforms" : "outbox",
     "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
     "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
-    "transforms.outbox.table.field.event.timestamp" : "timestamp"
+    "transforms.outbox.table.field.event.timestamp" : "timestamp",
+    "transforms.outbox.table.fields.additional.placement" : "type:header:eventType"
 }

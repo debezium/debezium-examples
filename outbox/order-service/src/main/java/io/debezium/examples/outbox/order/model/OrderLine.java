@@ -17,12 +17,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 
+/**
+ * An entity mapping that represents a line item on a {@link PurchaseOrder} entity.
+ */
 @Entity
 public class OrderLine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_line_ids")
-    @SequenceGenerator(name="order_line_ids", sequenceName = "seq_order_line", allocationSize=50)
+    @SequenceGenerator(name = "order_line_ids", sequenceName = "seq_order_line", allocationSize=50)
     private Long id;
 
     private String item;
@@ -32,7 +35,7 @@ public class OrderLine {
     private BigDecimal totalPrice;
 
     @ManyToOne
-    @JoinColumn(name="order_id")
+    @JoinColumn(name = "order_id")
     private PurchaseOrder purchaseOrder;
 
     @Enumerated(EnumType.STRING)
@@ -80,19 +83,19 @@ public class OrderLine {
         this.totalPrice = totalPrice;
     }
 
-    public OrderLineStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(OrderLineStatus status) {
-        this.status = status;
-    }
-
     public PurchaseOrder getPurchaseOrder() {
         return purchaseOrder;
     }
 
     public void setPurchaseOrder(PurchaseOrder purchaseOrder) {
         this.purchaseOrder = purchaseOrder;
+    }
+
+    public OrderLineStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderLineStatus status) {
+        this.status = status;
     }
 }

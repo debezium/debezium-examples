@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import io.debezium.examples.outbox.order.model.OrderLine;
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
 
+/**
+ * A value object that represents a request to create a {@link PurchaseOrder}.
+ */
 public class CreateOrderRequest {
 
     private long customerId;

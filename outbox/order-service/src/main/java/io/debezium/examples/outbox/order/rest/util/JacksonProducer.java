@@ -12,8 +12,11 @@ import javax.ws.rs.ext.Provider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/**
+ * A JAX-RS {@link ContextResolver} implementation.
+ */
 @Provider
-@Produces( MediaType.APPLICATION_JSON )
+@Produces(MediaType.APPLICATION_JSON)
 public class JacksonProducer implements ContextResolver<ObjectMapper> {
 
     private final ObjectMapper mapper;

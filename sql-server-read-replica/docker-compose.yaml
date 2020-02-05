@@ -1,0 +1,56 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+  primary:
+    image: debezium/sql-server-keys
+    build:
+      context: debezium-sqlserver-init
+    hostname: primary
+    ports:
+     - 1433:1433
+    environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_PID=Enterprise
+     - SA_PASSWORD=Password!
+     - MSSQL_AGENT_ENABLED=true
+     - MSSQL_ENABLE_HADR=1
+  secondary:
+    image: debezium/sql-server-keys
+    build:
+      context: debezium-sqlserver-init
+    hostname: secondary
+    ports:
+     - 11433:1433
+    environment:
+     - ACCEPT_EULA=Y
+     - MSSQL_PID=Enterprise
+     - SA_PASSWORD=Password!
+     - MSSQL_AGENT_ENABLED=true
+     - MSSQL_ENABLE_HADR=1
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - primary
+     - secondary
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses

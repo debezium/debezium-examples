@@ -21,7 +21,8 @@
         <version.surefire>2.22.0</version.surefire>
 
         <apache.kafka.version>2.0.0</apache.kafka.version>
-        <version.quarkus>1.0.0.Final</version.quarkus>
+        <version.quarkus>1.0.1.Final</version.quarkus>
+        <version.debezium>1.0.0.CR1</version.debezium>
     </properties>
 
     <dependencyManagement>
@@ -32,6 +33,11 @@
                 <version>${version.quarkus}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-core</artifactId>
+                <version>${version.debezium}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -84,6 +90,10 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-core</artifactId>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -114,7 +124,7 @@
     <repositories>
         <repository>
             <id>confluent</id>
-            <url>http://packages.confluent.io/maven/</url>
+            <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
 

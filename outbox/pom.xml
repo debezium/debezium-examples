@@ -17,6 +17,5 @@
   <modules>
     <module>order-service</module>
     <module>shipment-service</module>
-    <module>shipment-service-quarkus</module>
   </modules>
 </project>

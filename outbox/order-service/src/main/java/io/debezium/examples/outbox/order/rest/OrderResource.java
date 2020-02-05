@@ -5,7 +5,6 @@
  */
 package io.debezium.examples.outbox.order.rest;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -18,14 +17,16 @@ import javax.ws.rs.core.MediaType;
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
 import io.debezium.examples.outbox.order.service.OrderService;
 
-@ApplicationScoped
+/**
+ * A resource endpoint implementation for {@link PurchaseOrder} objects.
+ */
 @Path("/orders")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class OrderResource {
 
     @Inject
-    private OrderService orderService;
+    OrderService orderService;
 
     @POST
     public OrderOperationResponse addOrder(CreateOrderRequest createOrderRequest) {

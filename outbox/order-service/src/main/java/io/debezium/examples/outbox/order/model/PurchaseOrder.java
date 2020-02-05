@@ -18,23 +18,22 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 
+/**
+ * An entity mapping that represents a purchase order.
+ */
 @Entity
 public class PurchaseOrder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "purchase_order_ids")
-    @SequenceGenerator(name="purchase_order_ids", sequenceName = "seq_purchase_order", allocationSize=50)
+    @SequenceGenerator(name = "purchase_order_ids", sequenceName = "seq_purchase_order", allocationSize = 50)
     private Long id;
 
     private long customerId;
 
     private LocalDateTime orderDate;
 
-    @OneToMany(
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            mappedBy="purchaseOrder"
-        )
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "purchaseOrder")
     private List<OrderLine> lineItems;
 
     PurchaseOrder() {
@@ -43,10 +42,8 @@ public class PurchaseOrder {
     public PurchaseOrder(long customerId, LocalDateTime orderDate, List<OrderLine> lineItems) {
         this.customerId = customerId;
         this.orderDate = orderDate;
-        this.lineItems = new ArrayList<>(lineItems);
-        for (OrderLine orderLine : lineItems) {
-            orderLine.setPurchaseOrder(this);
-        }
+        this.lineItems = new ArrayList<>( lineItems );
+        lineItems.forEach( line -> line.setPurchaseOrder( this ) );
     }
 
     public Long getId() {
@@ -90,12 +87,10 @@ public class PurchaseOrder {
             }
         }
 
-        throw new EntityNotFoundException("Order doesn't contain line with id " + orderLineId);
+        throw new EntityNotFoundException("Order does not contain line with id " + orderLineId);
     }
 
     public BigDecimal getTotalValue() {
-        return lineItems.stream()
-            .map(OrderLine::getTotalPrice)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return lineItems.stream().map(OrderLine::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

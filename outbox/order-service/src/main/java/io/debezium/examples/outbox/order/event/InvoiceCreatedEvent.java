@@ -5,27 +5,29 @@
  */
 package io.debezium.examples.outbox.order.event;
 
+import java.time.Instant;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import io.debezium.examples.outbox.order.model.PurchaseOrder;
-import io.debezium.examples.outbox.order.outbox.ExportedEvent;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
-import java.util.Date;
-
-public class InvoiceCreatedEvent implements ExportedEvent {
+/**
+ * A 'Customer' event that indicates an invoice has been created.
+ */
+public class InvoiceCreatedEvent implements ExportedEvent<String, JsonNode> {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
     private final long customerId;
     private final JsonNode order;
-    private final Long timestamp;
+    private final Instant timestamp;
 
     private InvoiceCreatedEvent(long customerId, JsonNode order) {
         this.customerId = customerId;
         this.order = order;
-        this.timestamp = (new Date()).getTime();
+        this.timestamp = Instant.now();
     }
 
     public static InvoiceCreatedEvent of(PurchaseOrder order) {
@@ -48,17 +50,17 @@ public class InvoiceCreatedEvent implements ExportedEvent {
     }
 
     @Override
+    public JsonNode getPayload() {
+        return order;
+    }
+
+    @Override
     public String getType() {
         return "InvoiceCreated";
     }
 
     @Override
-    public Long getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
-    }
-
-    @Override
-    public JsonNode getPayload() {
-        return order;
     }
 }

@@ -11,6 +11,9 @@ import javax.ws.rs.ext.Provider;
 
 import io.debezium.examples.outbox.order.model.EntityNotFoundException;
 
+/**
+ * An exception mapper for {@link EntityNotFoundException} errors.
+ */
 @Provider
 public class EntityNotFoundMapper implements ExceptionMapper<EntityNotFoundException> {
 

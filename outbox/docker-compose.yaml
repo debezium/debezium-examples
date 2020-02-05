@@ -19,33 +19,31 @@ services:
   order-db:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
-     - "5432:5432"
-    environment:
-     - POSTGRES_USER=postgresuser
-     - POSTGRES_PASSWORD=postgrespw
-     - POSTGRES_DB=orderdb
-  shipment-db:
-    image: debezium/example-mysql:${DEBEZIUM_VERSION}
-    ports:
-     - 3306:3306
-    environment:
-     - MYSQL_ROOT_PASSWORD=debezium
-     - MYSQL_USER=mysqluser
-     - MYSQL_PASSWORD=mysqlpw
-  shipment-db-quarkus:
-    image: mariadb/server
-    ports:
-     - "33306:3306"
+     - 5433:5432
     healthcheck:
-      test: "/usr/bin/mysql -h shipment-db-quarkus --user=mariadbuser --password=mariadbpw --execute \"SELECT 1;\" shipmentdb"
+      test: "pg_isready -U postgresuser -d orderdb"
       interval: 2s
       timeout: 20s
       retries: 10
     environment:
-     - MARIADB_USER=mariadbuser
-     - MARIADB_PASSWORD=mariadbpw
-     - MARIADB_DATABASE=shipmentdb
-     - MARIADB_RANDOM_ROOT_PASSWORD=true
+     - POSTGRES_USER=postgresuser
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=orderdb
+     - PGPASSWORD=postgrespw
+  shipment-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5434:5432
+    healthcheck:
+      test: "pg_isready -U postgresuser -d shipmentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=shipmentdb
+      - PGPASSWORD=postgrespw
   connect:
     image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
@@ -65,50 +63,31 @@ services:
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
   order-service:
-    image: debezium-examples/outbox-order-service:latest
+    image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}
     build:
       context: order-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     ports:
      - 8080:8080
-     - 8787:8787
-     - 9990:9990
     links:
      - kafka
      - order-db
+    depends_on:
+      order-db:
+        condition: service_healthy
+      connect:
+        condition: service_started
+    command: "./application -Dquarkus.datasource.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
   shipment-service:
-    image: debezium-example/outbox-shipment-service:${DEBEZIUM_VERSION}
+    image: debezium-examples/outbox-shipment-service:${DEBEZIUM_VERSION}
     build:
       context: shipment-service
-    ports:
-     - 8079:8079
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     links:
      - kafka
      - shipment-db
-    environment:
-     #- JAVA_APP_JAR=shipment-thorntail.jar
-     #- "JAVA_OPTIONS=-Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079"
-     #- AB_JOLOKIA_OFF=true
-     #- AB_OFF=true
-     #- KAFKA_SERVICE_HOST=kafka
-     #- KAFKA_SERVICE_PORT=9092
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - ORDER_TOPIC_NAME=order.events
     depends_on:
-     - connect
-    command: >
-      /bin/bash -c "
-        java -jar /deployments/shipment-thorntail.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
-      "
-  shipment-service-quarkus:
-    image: debezium-example/outbox-shipment-service-quarkus:${DEBEZIUM_VERSION}
-    build:
-      context: shipment-service-quarkus
-    links:
-     - kafka
-     - shipment-db-quarkus
-    depends_on:
-     shipment-db-quarkus:
+      shipment-db:
         condition: service_healthy
-     connect:
+      connect:
         condition: service_started
-    command: "/deployments/application -Dquarkus.datasource.url=jdbc:mariadb://shipment-db-quarkus:3306/shipmentdb"

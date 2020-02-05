@@ -7,8 +7,13 @@ package io.debezium.examples.outbox.order.rest;
 
 import java.math.BigDecimal;
 
+import io.debezium.examples.outbox.order.model.OrderLine;
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
+import io.debezium.examples.outbox.order.model.PurchaseOrder;
 
+/**
+ * A value object that represents an {@link OrderLine} for a {@link PurchaseOrder}.
+ */
 public class OrderLineDto {
 
     private Long id;

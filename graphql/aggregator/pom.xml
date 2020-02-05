@@ -12,7 +12,7 @@
         <mvn.compiler.version>3.5.1</mvn.compiler.version>
         <mvn.dependency.version>3.0.2</mvn.dependency.version>
         <apache.kafka.version>2.0.0</apache.kafka.version>
-        <version.thorntail>2.2.0.Final</version.thorntail>
+        <version.thorntail>2.5.0.Final</version.thorntail>
         <version.org.slf4j>1.7.25</version.org.slf4j>
         <version.com.fasterxml.jackson>2.9.6</version.com.fasterxml.jackson>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -179,7 +179,7 @@
 
         <repository>
             <id>confluent</id>
-            <url>http://packages.confluent.io/maven/</url>
+            <url>https://packages.confluent.io/maven/</url>
         </repository>
         <repository>
             <id>jcenter</id>

@@ -1,6 +1,6 @@
-# Example monitoring of Debezium instance
+# Monitoring a Debezium instance
 
-Debezium collects and exports a set of metrics as JMX beans.
+Debezium [collects and exports](https://debezium.io/documentation/reference/1.0/operations/monitoring.html) a set of metrics as JMX beans.
 Those metrics can be displayed either via an arbitrary JMX console or, for more complex deployments, a Prometheus and Grafana based solution can be deployed.
 This example uses a Docker Compose file to set up and deploy Debezium together with all components necessary to monitor it in Grafana.
 
@@ -15,7 +15,7 @@ We need following components to collect and present Debezium metrics:
 ## Execution
 
 ```
-export DEBEZIUM_VERSION=0.9
+export DEBEZIUM_VERSION=1.0
 docker-compose up --build
 
 # Initialize database and insert test data
@@ -39,8 +39,15 @@ You should see a dashboard similar to the one on the screenshot below.
 You should see metrics of completed initial snapshot.
 When you will modify and create new data in the database, the streaming metrics will be updated too.
 
-When completed shut down the cluster with this command:
+When completed, shut down the cluster with this command:
 
 ```
 docker-compose down
 ```
+
+## More Dashboards
+
+Another dashboard specifically for monitoring the MySQL connector can be found [here](https://github.com/debezium/debezium-examples/blob/master/monitoring/debezium-grafana/debezium-mysql-connector-dashboard.json)
+(see [this post](https://medium.com/searce/grafana-dashboard-for-monitoring-debezium-mysql-connector-d5c28acf905b) to learn more).
+
+If you built awesome dashboards you'd like to share with the Debezium community, please open a pull request for adding them to this repository. Thanks!

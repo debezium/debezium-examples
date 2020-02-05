@@ -5,8 +5,12 @@
  */
 package io.debezium.examples.outbox.order.rest;
 
+import io.debezium.examples.outbox.order.model.OrderLine;
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
 
+/**
+ * A value object that represents updating a {@link OrderLine} status.
+ */
 public class UpdateOrderLineRequest {
 
     private OrderLineStatus newStatus;

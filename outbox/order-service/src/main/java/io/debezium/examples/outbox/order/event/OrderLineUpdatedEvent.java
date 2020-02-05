@@ -5,15 +5,17 @@
  */
 package io.debezium.examples.outbox.order.event;
 
+import java.time.Instant;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.debezium.examples.outbox.order.model.OrderLineStatus;
-import io.debezium.examples.outbox.order.outbox.ExportedEvent;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
-import java.util.Date;
-
-public class OrderLineUpdatedEvent implements ExportedEvent {
+/**
+ * An 'Order' event that indicates an order line's status has changed.
+ */
+public class OrderLineUpdatedEvent implements ExportedEvent<String, JsonNode> {
 
     private static ObjectMapper mapper = new ObjectMapper();
 
@@ -21,35 +23,18 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     private final long orderLineId;
     private final OrderLineStatus newStatus;
     private final OrderLineStatus oldStatus;
-    private final Long timestamp;
+    private final Instant timestamp;
 
     public OrderLineUpdatedEvent(long orderId, long orderLineId, OrderLineStatus newStatus, OrderLineStatus oldStatus) {
         this.orderId = orderId;
         this.orderLineId = orderLineId;
         this.newStatus = newStatus;
         this.oldStatus = oldStatus;
-        this.timestamp = (new Date()).getTime();
+        this.timestamp = Instant.now();
     }
 
-    public static OrderLineUpdatedEvent of(long orderId, long orderLineId, OrderLineStatus newStatus,
-            OrderLineStatus oldStatus) {
+    public static OrderLineUpdatedEvent of(long orderId, long orderLineId, OrderLineStatus newStatus, OrderLineStatus oldStatus) {
         return new OrderLineUpdatedEvent(orderId, orderLineId, newStatus, oldStatus);
-    }
-
-    public long getOrderId() {
-        return orderId;
-    }
-
-    public long getOrderLineId() {
-        return orderLineId;
-    }
-
-    public OrderLineStatus getNewStatus() {
-        return newStatus;
-    }
-
-    public OrderLineStatus getOldStatus() {
-        return oldStatus;
     }
 
     @Override
@@ -60,11 +45,6 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     @Override
     public String getAggregateType() {
         return "Order";
-    }
-
-    @Override
-    public Long getTimestamp() {
-        return timestamp;
     }
 
     @Override
@@ -79,5 +59,10 @@ public class OrderLineUpdatedEvent implements ExportedEvent {
     @Override
     public String getType() {
         return "OrderLineUpdated";
+    }
+
+    @Override
+    public Instant getTimestamp() {
+        return timestamp;
     }
 }
