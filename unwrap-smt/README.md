@@ -65,7 +65,7 @@ How to run:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-jdbc.yaml up
 
 # Start PostgreSQL connector
@@ -135,7 +135,7 @@ Rows matched: 1  Changed: 1  Warnings: 0
 Verify that record in PostgreSQL is updated:
 
 ```shell
-docker-compose-f docker-compose-jdbc.yaml  exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
+docker-compose -f docker-compose-jdbc.yaml  exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
  last_name |  id  | first_name |         email         
 -----------+------+------------+-----------------------
 ...
@@ -219,7 +219,7 @@ How to run:
 ```shell
 # Start the application
 
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose -f docker-compose-es.yaml up
 
 # Start Elasticsearch connector
@@ -511,7 +511,7 @@ How to run:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.0
 docker-compose up
 
 # Start Elasticsearch connector
