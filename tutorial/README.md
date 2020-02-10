@@ -314,11 +314,7 @@ docker-compose -f docker-compose-sqlserver.yaml down
 # Start the topology as defined in http://debezium.io/docs/tutorial/
 export DEBEZIUM_VERSION=1.1
 
-# DEBEZIUM_DB2_VOLUME is an empty local directory;
-# Must be given as relative path, e.g. ./db2data
-export DEBEZIUM_DB2_VOLUME=<local persistent volume directory>
-
-docker-compose -f docker-compose-db2.yaml up
+docker-compose -f docker-compose-db2.yaml up --build
 
 # Start DB2 connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-db2.json
@@ -357,6 +353,7 @@ curl -s http://localhost:8083/connectors/inventory-connector/config | jq .
 
 # Shut down the cluster
 docker-compose -f docker-compose-mysql-ext-secrets.yml down
+```
 
 ## Debugging
 

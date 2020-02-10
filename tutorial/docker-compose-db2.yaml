@@ -26,7 +26,7 @@ services:
      - DBNAME=TESTDB
      - DB2INST1_PASSWORD==Password!
     volumes: 
-     - ${DEBEZIUM_DB2_VOLUME}:/database
+     - ./db2data:/database
   connect:
     image: debezium/connect-db2:${DEBEZIUM_VERSION}
     build:
