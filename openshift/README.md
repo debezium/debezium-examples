@@ -50,7 +50,7 @@ zookeeper-0             1/1       Running     0          3m
 ```
 
 ## Verify Deployment
-Next we are going to verify if the deployment is correct by emulating the [Debezium Tutorial](http://debezium.io/docs/tutorial/) in the OpenShift environment.
+Next we are going to verify if the deployment is correct by emulating the [Debezium Tutorial](https://debezium.io/docs/tutorial/) in the OpenShift environment.
 
 First we need to start a MySQL server instance:
 
