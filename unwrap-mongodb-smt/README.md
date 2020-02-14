@@ -1,7 +1,7 @@
 # Debezium Unwrap MongoDB SMT Demo
 
 This example shows how to capture events from a MongoDB database and stream them to a relational database (Postgres in this case).
-In order to convert the CDC events ebitted by Debezium's MongoDB connector into a "flat" structure consumable by the JDBC sink connector, [Debezium MongoDB Event Flattening SMT](http://debezium.io/docs/configuration/mongodb-event-flattening/) is used.
+In order to convert the CDC events ebitted by Debezium's MongoDB connector into a "flat" structure consumable by the JDBC sink connector, [Debezium MongoDB Event Flattening SMT](https://debezium.io/docs/configuration/mongodb-event-flattening/) is used.
 
 We are using Docker Compose to deploy the following components:
 
@@ -9,7 +9,7 @@ We are using Docker Compose to deploy the following components:
 * Kafka
   * ZooKeeper
   * Kafka Broker
-  * Kafka Connect with the [Debezium CDC](http://debezium.io/) and [JDBC sink](https://github.com/confluentinc/kafka-connect-jdbc) connectors as well as the Postgres JDBC driver
+  * Kafka Connect with the [Debezium CDC](https://debezium.io/) and [JDBC sink](https://github.com/confluentinc/kafka-connect-jdbc) connectors as well as the Postgres JDBC driver
 * PostgreSQL
 
 ## Preparations

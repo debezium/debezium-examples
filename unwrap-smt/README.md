@@ -1,6 +1,6 @@
 # Debezium Unwrap SMT Demo
 
-This setup is going to demonstrate how to receive events from MySQL database and stream them down to a PostgreSQL database and/or an Elasticsearch server using the [Debezium Event Flattening SMT](http://debezium.io/docs/configuration/event-flattening/).
+This setup is going to demonstrate how to receive events from MySQL database and stream them down to a PostgreSQL database and/or an Elasticsearch server using the [Debezium Event Flattening SMT](https://debezium.io/docs/configuration/event-flattening/).
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ We are using Docker Compose to deploy following components
 * Kafka
   * ZooKeeper
   * Kafka Broker
-  * Kafka Connect with [Debezium](http://debezium.io/) and  [JDBC](https://github.com/confluentinc/kafka-connect-jdbc) Connectors
+  * Kafka Connect with [Debezium](https://debezium.io/) and  [JDBC](https://github.com/confluentinc/kafka-connect-jdbc) Connectors
 * PostgreSQL
 
 ### Usage
@@ -209,7 +209,7 @@ We are using Docker Compose to deploy the following components:
 * Kafka
   * ZooKeeper
   * Kafka Broker
-  * Kafka Connect with [Debezium](http://debezium.io/) and  [Elasticsearch](https://github.com/confluentinc/kafka-connect-elasticsearch) Connectors
+  * Kafka Connect with [Debezium](https://debezium.io/) and  [Elasticsearch](https://github.com/confluentinc/kafka-connect-elasticsearch) Connectors
 * Elasticsearch
 
 ### Usage
@@ -501,7 +501,7 @@ We are using Docker Compose to deploy the following components:
 * Kafka
   * ZooKeeper
   * Kafka Broker
-  * Kafka Connect with [Debezium](http://debezium.io/), [JDBC](https://github.com/confluentinc/kafka-connect-jdbc) and  [Elasticsearch](https://github.com/confluentinc/kafka-connect-elasticsearch) Connectors
+  * Kafka Connect with [Debezium](https://debezium.io/), [JDBC](https://github.com/confluentinc/kafka-connect-jdbc) and  [Elasticsearch](https://github.com/confluentinc/kafka-connect-elasticsearch) Connectors
 * PostgreSQL
 * Elasticsearch
 
