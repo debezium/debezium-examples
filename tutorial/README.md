@@ -9,8 +9,8 @@ This demo automatically deploys the topology of services as defined in the [Debe
       - [Debezium Connector configuration](#debezium-connector-configuration)
     + [Using MySQL and Apicurio Registry](#using-mysql-and-apicurio-registry)
       - [JSON format](#json-format)
-      - [Avro format using Confluent Avro converter](#avro-format-using-confluent-avro-converter)
       - [Avro format using Apicurio Avro converter](#avro-format-using-apicurio-avro-converter)
+      - [Avro format using Confluent Avro converter](#avro-format-using-confluent-avro-converter)
   * [Using Postgres](#using-postgres)
   * [Using MongoDB](#using-mongodb)
   * [Using Oracle](#using-oracle)
@@ -48,7 +48,7 @@ docker-compose -f docker-compose-mysql.yaml down
 To use [Avro-style messages](http://debezium.io/docs/configuration/avro/) instead of JSON,
 Avro can be configured one of two ways, 
 in the Kafka Connect worker configuration or in the connector configuration.
-Using Avro in conjunction with the service registry allows for much more compact messages.
+Using Avro in conjunction with the schema registry allows for much more compact messages.
 
 #### Kafka Connect Worker configuration
 
@@ -89,14 +89,16 @@ docker-compose -f docker-compose-mysql-avro.yaml exec schema-registry /usr/bin/k
 ```
 
 ### Using MySQL and Apicurio Registry
-[Apicurio Registry](https://github.com/Apicurio/apicurio-registry) is an API/schema registry that could be used to store schemas of Kafka messages.
-The registry itself is an open source project that brings further additional features
-- The registry provides its own native API and an API compatible with Confluent's Schema Registry. This allows using of already existing tools like Confluent's Avro converter for easier migration.
-- The registry provides its own native Avro converter and Protobuf serializer.
-- The registry provides a JSON converter that exports its schema into the registry.
 
+[Apicurio Registry](https://github.com/Apicurio/apicurio-registry) is an open-source API and schema registry that amongst other things can be used to store schemas of Kafka records.
+It provides
+
+* its own native Avro converter and Protobuf serializer
+* a JSON converter that exports its schema into the registry
+* a compatibility layer with other schema registries such as IBM's or Confluent's; it can be used with the Confluent Avro converter.
 
 #### JSON format
+
 Configuring JSON converter with externalized schema at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
 To do this, follow the same steps above for MySQL but instead using the _docker-compose-mysql-apicurio.yaml_ and _register-mysql-apicurio-converter-json.json_ configuration files.
 The Compose file configures the Connect service to use the default (de-)serializers for the Connect instance and starts one additional service, the Apicurio Registry.
@@ -129,7 +131,30 @@ docker-compose -f docker-compose-mysql-apicurio.yaml exec kafka /kafka/bin/kafka
 
 When you look at the data message you will notice that it contains only `payload` but not `schema` part as this is externalized into the registry.
 
+#### Avro format using Apicurio Avro converter
+
+Configuring Avro at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
+To do this, follow the same steps above for MySQL but instead using the _docker-compose-mysql-apicurio.yaml_ and _register-mysql-apicurio-converter-avro.json_ configuration files.
+The Compose file configures the Connect service to use the default (de-)serializers for the Connect instance and starts one additional service, the Apicurio Registry.
+The connector configuration file configures the connector but explicitly sets the (de-)serializers for the connector to use Avro and specifies the location of the Apicurio registry.
+
+You can access the first version of the schema for `customers` values like so:
+
+```shell
+curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value
+```
+
+Or, if you have the `jq` utility installed, you can get a formatted output like this:
+
+```shell
+curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value | jq .
+```
+
+If you alter the structure of the `customers` table in the database and trigger another change event,
+a new version of that schema will be available in the registry.
+
 #### Avro format using Confluent Avro converter
+
 Configuring Avro at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
 To do this, follow the same steps above for MySQL but instead using the _docker-compose-mysql-apicurio.yaml_ and _register-mysql-apicurio.json_ configuration files.
 The Compose file configures the Connect service to use the default (de-)serializers for the Connect instance and starts one additional service, the Apicurio Registry.
@@ -159,28 +184,6 @@ docker run --rm --tty \
   kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/ccompat \
   -t dbserver1.inventory.customers | jq .
 ```
-
-#### Avro format using Apicurio Avro converter
-Configuring Avro at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
-To do this, follow the same steps above for MySQL but instead using the _docker-compose-mysql-apicurio.yaml_ and _register-mysql-apicurio-converter-avro.json_ configuration files.
-The Compose file configures the Connect service to use the default (de-)serializers for the Connect instance and starts one additional service, the Apicurio Registry.
-The connector configuration file configures the connector but explicitly sets the (de-)serializers for the connector to use Avro and specifies the location of the Apicurio registry.
-
-You can access the first version of the schema for `customers` values like so:
-
-```shell
-curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value
-```
-
-Or, if you have the `jq` utility installed, you can get a formatted output like this:
-
-```shell
-curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value | jq .
-```
-
-If you alter the structure of the `customers` table in the database and trigger another change event,
-a new version of that schema will be available in the registry.
-
 
 ## Using Postgres
 
