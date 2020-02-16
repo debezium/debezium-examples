@@ -11,21 +11,20 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rnorth.ducttape.unreliables.Unreliables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
@@ -66,7 +65,7 @@ public class DebeziumContainerTest {
     }
 
     @Test
-    public void shouldRegisterPostgreSQLConnector() throws Exception {
+    public void shouldStreamChangeEventsFromPostgres() throws Exception {
         try (Connection connection = getConnection(postgresContainer);
                 Statement statement = connection.createStatement();
                 KafkaConsumer<String, String> consumer = getConsumer(kafkaContainer)) {
@@ -126,10 +125,12 @@ public class DebeziumContainerTest {
     private List<ConsumerRecord<String, String>> drain(KafkaConsumer<String, String> consumer, int expectedRecordCount) {
         List<ConsumerRecord<String, String>> allRecords = new ArrayList<>();
 
-        Unreliables.retryUntilTrue(10, TimeUnit.SECONDS, () -> {
-            consumer.poll(Duration.ofMillis(50))
-                    .iterator()
-                    .forEachRemaining(allRecords::add);
+        Awaitility.await()
+                .atMost(Duration.FIVE_SECONDS)
+                .pollInterval(Duration.ONE_HUNDRED_MILLISECONDS).until(() -> {
+            consumer.poll(java.time.Duration.ofMillis(50))
+            .iterator()
+            .forEachRemaining(allRecords::add);
 
             return allRecords.size() == expectedRecordCount;
         });
