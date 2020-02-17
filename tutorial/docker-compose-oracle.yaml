@@ -34,3 +34,4 @@ services:
      - LD_LIBRARY_PATH=/instant_client
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
+     - JAVA_DEBUG_PORT=0.0.0.0:5005
