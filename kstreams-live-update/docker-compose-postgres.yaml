@@ -42,6 +42,7 @@ services:
       context: debezium-es
     ports:
      - 8083:8083
+     - 5005:5005
     links:
      - kafka
      - postgres 
@@ -50,6 +51,10 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_source_connect_configs
      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+     - KAFKA_DEBUG=true
+     - DEBUG_SUSPEND_FLAG=n
+     - JAVA_DEBUG_PORT=0.0.0.0:5005
   event-source:
     image: debezium-examples/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
     build:
@@ -76,7 +81,7 @@ services:
     depends_on:
      - connect
   elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
     ports:
      - "9200:9200"
     environment:

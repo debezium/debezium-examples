@@ -45,6 +45,7 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_source_connect_configs
      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
   event-source:
     image: debezium-examples/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
     build:
@@ -71,7 +72,7 @@ services:
     depends_on:
      - connect
   elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
     ports:
      - "9200:9200"
     environment:
