@@ -59,7 +59,15 @@ It shows a chart with the windowed accumulated order values which is updated in 
 Alternatively, browse the Kafka topic:
 
 ```shell
-docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
+# For MySQL
+docker-compose -f docker-compose-mysql.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic sales_per_category
+
+# For Postgres
+docker-compose -f docker-compose-mysql.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
