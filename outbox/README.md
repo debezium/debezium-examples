@@ -11,6 +11,10 @@ excluding any duplicate messages by comparing incoming event ids with already su
 Both services are implemented using the [Quarkus](https://quarkus.io) stack.
 This allows building a native binary of each service, resulting in significantly less memory usage and faster start-up than the JVM-based version.
 
+The overall solution (including databases, Apache Kafka etc.) looks like so:
+
+![Service Overview](service-overview.png)
+
 ## Building
 
 Prepare the Java components by first performing a Maven build.
