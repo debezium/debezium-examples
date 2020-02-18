@@ -72,11 +72,11 @@ public class Answer {
         this.question = question;
     }
 
-    public void upVote(String email) {
-        votes.add(new Vote(email, VoteType.UP));
+    public void upVote() {
+        votes.add(new Vote(VoteType.UP));
     }
 
-    public void downVote(String email) {
-        votes.add(new Vote(email, VoteType.DOWN));
+    public void downVote() {
+        votes.add(new Vote(VoteType.DOWN));
     }
 }

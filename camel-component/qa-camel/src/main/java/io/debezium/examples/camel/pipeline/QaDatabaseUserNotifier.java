@@ -6,7 +6,6 @@
 package io.debezium.examples.camel.pipeline;
 
 import java.time.Instant;
-import java.util.Random;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Predicate;
@@ -49,9 +48,6 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                 header(DebeziumConstants.HEADER_OPERATION).in(
                         constant(Envelope.Operation.READ.code()),
                         constant(Envelope.Operation.CREATE.code()));
-
-        final Predicate isUpdateEvent =
-                header(DebeziumConstants.HEADER_OPERATION).isEqualTo(Envelope.Operation.UPDATE.code());
 
         final Predicate isQuestionEvent =
                 header(DebeziumConstants.HEADER_IDENTIFIER).endsWith(EVENT_TYPE_QUESTION);

@@ -12,11 +12,9 @@ public class Vote {
         DOWN
     }
 
-    private final String email;
     private final VoteType voteType;
 
-    public Vote(String email, VoteType voteType) {
-        this.email = email;
+    public Vote(VoteType voteType) {
         this.voteType = voteType;
     }
 
@@ -24,4 +22,3 @@ public class Vote {
         return voteType == VoteType.UP ? 1 : -1;
     }
 }
-
