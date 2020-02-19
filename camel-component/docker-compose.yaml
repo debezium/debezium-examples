@@ -1,0 +1,38 @@
+version: '2.1'
+services:
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+     - 8025:8025
+  qa-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  qa-app:
+    image: debezium-examples/qa-app:${DEBEZIUM_VERSION}
+    build:
+      context: qa-app
+    ports:
+     - 8080:8080
+    links:
+     - qa-db
+    environment:
+     - QUARKUS_DATASOURCE_URL=jdbc:postgresql://qa-db:5432/postgres?currentSchema=inventory
+     - QUARKUS_DATASOURCE_DRIVER=org.postgresql.Driver
+     - QUARKUS_DATASOURCE_USERNAME=postgres
+     - QUARKUS_DATASOURCE_PASSWORD=postgres
+     - QUARKUS_HIBERNATE-ORM_DATABASE_GENERATION=drop-and-create
+     - QUARKUS_HIBERNATE-ORM_LOG_SQL=true
+  qa-camel:
+    image: debezium-examples/qa-camel:${DEBEZIUM_VERSION}
+    build:
+      context: qa-camel
+    links:
+     - qa-db
+     - mailhog
+    environment:
+     - JAVA_MAIN_CLASS=io.debezium.examples.camel.pipeline.Runner
+     - JAVA_OPTIONS=-Ddatabase.hostname=qa-db -Ddatabase.port=5432 -Ddatabase.user=postgres -Ddatabase.password=postgres -Ddatabase.dbname=postgres -Ddatabase.schema=inventory -Dsmtp.hostname=mailhog -Dsmtp.port=1025  -Dtwitter.consumerKey=$TWITTER_CONSUMER_KEY -Dtwitter.consumerSecret=$TWITTER_CONSUMER_SECRET -Dtwitter.accessToken=$TWITTER_ACCESS_TOKEN -Dtwitter.accessTokenSecret=$TWITTER_ACCESS_TOKEN_SECRET
