@@ -18,6 +18,8 @@ The example consists of multiple components:
   * sends an email to the author of the question and author of the answer for every answer created
   * when a question has three answers a message is sent to a Twitter timeline
 
+![Topology Overview](docker-compose.png)
+
 ## How to run
 
 Build the application and the pipeline and start PostgreSQL instance and MailHog server by running:
