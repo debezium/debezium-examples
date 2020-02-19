@@ -25,28 +25,16 @@ Build the application and the pipeline and start PostgreSQL instance and MailHog
 ```
 # Terminal One
 $ mvn clean install
-$ mvn docker:start -N
 ```
 
-Start the Q&A application
+Start the deloyment (you need a Twitter developer account)
 ```
-# Terminal Two
-$ java -jar qa-app/target/component-qa-app-1.0.0-SNAPSHOT-runner.jar
-```
-
-Start the integration pipeline (you need a Twitter developer account)
-```
-# Terminal Three
-$ mvn exec:java -Dtwitter.consumerKey=<...> \
-    -Dtwitter.consumerSecret=<...> \
-    -Dtwitter.accessToken=<...> \
-    -Dtwitter.accessTokenSecret=<...> \
-    -pl qa-camel
+$ env TWITTER_CONSUMER_KEY=<...> TWITTER_CONSUMER_SECRET=<...> TWITTER_ACCESS_TOKEN=<...> TWITTER_ACCESS_TOKEN_SECRET=<...> docker-compose up
 ```
 
 Create a question and three answers to it
 ```
-# Terminal One
+# Terminal Two
 $ curl -v -X POST -H 'Content-Type: application/json' http://0.0.0.0:8080/question/ -d @src/test/resources/messages/create-question.json
 $ curl -v -X POST -H 'Content-Type: application/json' http://0.0.0.0:8080/question/1/answer -d @src/test/resources/messages/create-answer1.json
 $ curl -v -X POST -H 'Content-Type: application/json' http://0.0.0.0:8080/question/1/answer -d @src/test/resources/messages/create-answer2.json
