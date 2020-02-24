@@ -1,0 +1,13 @@
+{
+    "name": "camel-sink",
+    "config": {
+        "connector.class": "org.apache.camel.kafkaconnector.CamelSinkConnector",
+        "tasks.max": "1",
+        "topics": "customers",
+        "camel.sink.url": "coap:coap-server:5684/data",
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "true",
+	"value.converter": "org.apache.kafka.connect.storage.StringConverter"
+    }
+}
