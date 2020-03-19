@@ -22,7 +22,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.awaitility.Awaitility;
-import org.awaitility.Duration;
+import org.awaitility.Durations;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -71,7 +71,13 @@ public class DebeziumContainerTest {
                 KafkaConsumer<String, String> consumer = getConsumer(kafkaContainer)) {
 
             statement.execute("create schema todo");
-            statement.execute("create table todo.Todo (id int8 not null, title varchar(255), primary key (id))");
+            statement.execute("""
+                              create table todo.Todo (
+                                 id int8 not null,
+                                 title varchar(255),
+                                 primary key (id)
+                              )
+                              """);
             statement.execute("alter table todo.Todo replica identity full");
             statement.execute("insert into todo.Todo values (1, 'Be Awesome')");
             statement.execute("insert into todo.Todo values (2, 'Learn Quarkus')");
@@ -86,22 +92,25 @@ public class DebeziumContainerTest {
 
             List<ConsumerRecord<String, String>> changeEvents = drain(consumer, 2);
 
-            assertThat(JsonPath.<Integer> read(changeEvents.get(0).key(), "$.id")).isEqualTo(1);
-            assertThat(JsonPath.<String> read(changeEvents.get(0).value(), "$.op")).isEqualTo("r");
-            assertThat(JsonPath.<String> read(changeEvents.get(0).value(), "$.after.title")).isEqualTo("Be Awesome");
+            ConsumerRecord<String, String> changeEvent = changeEvents.get(0);
+            assertThat(JsonPath.<Integer> read(changeEvent.key(), "$.id")).isEqualTo(1);
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.op")).isEqualTo("r");
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.after.title")).isEqualTo("Be Awesome");
 
-            assertThat(JsonPath.<Integer> read(changeEvents.get(1).key(), "$.id")).isEqualTo(2);
-            assertThat(JsonPath.<String> read(changeEvents.get(1).value(), "$.op")).isEqualTo("r");
-            assertThat(JsonPath.<String> read(changeEvents.get(1).value(), "$.after.title")).isEqualTo("Learn Quarkus");
+            changeEvent = changeEvents.get(1);
+            assertThat(JsonPath.<Integer> read(changeEvent.key(), "$.id")).isEqualTo(2);
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.op")).isEqualTo("r");
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.after.title")).isEqualTo("Learn Quarkus");
 
             statement.execute("update todo.Todo set title = 'Learn Java' where id = 2");
 
             changeEvents = drain(consumer, 1);
+            changeEvent = changeEvents.get(0);
 
-            assertThat(JsonPath.<Integer> read(changeEvents.get(0).key(), "$.id")).isEqualTo(2);
-            assertThat(JsonPath.<String> read(changeEvents.get(0).value(), "$.op")).isEqualTo("u");
-            assertThat(JsonPath.<String> read(changeEvents.get(0).value(), "$.before.title")).isEqualTo("Learn Quarkus");
-            assertThat(JsonPath.<String> read(changeEvents.get(0).value(), "$.after.title")).isEqualTo("Learn Java");
+            assertThat(JsonPath.<Integer> read(changeEvent.key(), "$.id")).isEqualTo(2);
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.op")).isEqualTo("u");
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.before.title")).isEqualTo("Learn Quarkus");
+            assertThat(JsonPath.<String> read(changeEvent.value(), "$.after.title")).isEqualTo("Learn Java");
 
             consumer.unsubscribe();
         }
@@ -126,8 +135,8 @@ public class DebeziumContainerTest {
         List<ConsumerRecord<String, String>> allRecords = new ArrayList<>();
 
         Awaitility.await()
-                .atMost(Duration.FIVE_SECONDS)
-                .pollInterval(Duration.ONE_HUNDRED_MILLISECONDS).until(() -> {
+                .atMost(Durations.FIVE_SECONDS)
+                .pollInterval(Durations.ONE_HUNDRED_MILLISECONDS).until(() -> {
             consumer.poll(java.time.Duration.ofMillis(50))
             .iterator()
             .forEachRemaining(allRecords::add);
