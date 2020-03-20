@@ -8,6 +8,6 @@
         "transforms": "unwrap",
         "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
         "transforms.unwrap.drop.tombstones": "true",
-	"value.converter": "org.apache.kafka.connect.storage.StringConverter"
+        "value.converter": "org.apache.kafka.connect.storage.StringConverter"
     }
 }

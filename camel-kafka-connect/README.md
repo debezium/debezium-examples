@@ -3,7 +3,7 @@
 The integration framework [Apache Camel](https://camel.apache.org/) provides a large set of components that provides a declarative interface to communicate with disparate systems using a large set of protocols.
 
 [Camel Kafka Connector](https://github.com/apache/camel-kafka-connector) is an integration layer between Camel components and the Kafka Connect framework.
-This enables the developer to use Camel producers and consumers as a source or sink connector inside the Kafka Connect.
+This enables the developer to use Camel producers and consumers as a source or sink connector for Kafka Connect.
 
 This example demonstrates a simple IoT integration scenario where Debezium listens on a database table and forwards captured changes into an IoT device using [CoAP protocol](https://tools.ietf.org/html/rfc7252).
 
@@ -15,8 +15,8 @@ The example consists of multiple components:
 * CoAP server that prints received requests into the console
 * Kafka Connect deployment consisting of
   * Apache ZooKeeper
-  * Apache kafka broker
-  * Kafka Connect instance with Debezium and Camel connectors
+  * Apache Kafka broker
+  * Kafka Connect instance with the Debezium and Camel connectors
 
 ![Topology Overview](docker-compose.png)
 
@@ -25,16 +25,19 @@ The example consists of multiple components:
 Build the CoAP server and start the example by running:
 
 ```
+$ export DEBEZIUM_VERSION=1.0
 $ mvn clean install
 $ docker-compose up
 ```
 
-Start Camel Kafka Connector:
+Deploy the Camel Kafka Connector:
+
 ```
 $ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @sink.json
 ```
 
-Start Debezium PostgreSQL Connector:
+Deploy Debezium PostgreSQL Connector:
+
 ```
 $ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @source.json
 ```
@@ -52,4 +55,3 @@ End the application:
 # Shut down the cluster
 docker-compose down
 ```
-
