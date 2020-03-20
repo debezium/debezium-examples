@@ -30,9 +30,9 @@ services:
     environment:
      - PG_MODE=primary
      - PG_PRIMARY_PORT=5432
-     - PG_PRIMARY_USER=postgres
+     - POSTGRES_USER=postgres
      - PG_DATABASE=inventory
-     - PG_PRIMARY_PASSWORD=debezium
+     - POSTGRES_PASSWORD=debezium
      - PG_PASSWORD=not
      - PG_ROOT_PASSWORD=matter
      - PG_USER=debezium
