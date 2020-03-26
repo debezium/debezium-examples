@@ -32,7 +32,7 @@ oc patch kafka my-cluster --type merge -p '{ "spec" : { "zookeeper" : { "resourc
 
 echo "Setting up DB"
 
-oc new-app https://github.com/debezium/debezium-examples.git --strategy=docker --name=mysql --context-dir=kstreams-live-update/example-db \
+oc new-app https://github.com/debezium/debezium-examples.git --strategy=docker --name=mysql --context-dir=kstreams-live-update/mysql-db \
     -e MYSQL_ROOT_PASSWORD=debezium \
     -e MYSQL_USER=mysqluser \
     -e MYSQL_PASSWORD=mysqlpw
