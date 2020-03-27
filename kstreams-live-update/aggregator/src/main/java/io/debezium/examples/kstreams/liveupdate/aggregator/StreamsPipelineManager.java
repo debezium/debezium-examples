@@ -38,7 +38,7 @@ import io.debezium.examples.kstreams.liveupdate.aggregator.model.Category;
 import io.debezium.examples.kstreams.liveupdate.aggregator.model.Order;
 import io.debezium.examples.kstreams.liveupdate.aggregator.serdes.StringWindowedSerde;
 import io.debezium.examples.kstreams.liveupdate.aggregator.ws.ChangeEventsWebsocketEndpoint;
-import io.debezium.serde.Serdes;
+import io.debezium.serde.DebeziumSerdes;
 /**
  * Starts up the KStreams pipeline once the source topics have been created.
  *
@@ -66,13 +66,13 @@ public class StreamsPipelineManager {
 
         StreamsBuilder builder = new StreamsBuilder();
 
-        Serde<Long> longKeySerde = Serdes.payloadJson(Long.class);
+        Serde<Long> longKeySerde = DebeziumSerdes.payloadJson(Long.class);
         longKeySerde.configure(Collections.emptyMap(), true);
 
-        Serde<Order> orderSerde = Serdes.payloadJson(Order.class);
+        Serde<Order> orderSerde = DebeziumSerdes.payloadJson(Order.class);
         orderSerde.configure(Collections.singletonMap("from.field", "after"), false);
 
-        Serde<Category> categorySerde = Serdes.payloadJson(Category.class);
+        Serde<Category> categorySerde = DebeziumSerdes.payloadJson(Category.class);
         categorySerde.configure(Collections.singletonMap("from.field", "after"), false);
 
         KTable<Long, Category> category = builder.table(categoriesTopic, Consumed.with(longKeySerde, categorySerde));
