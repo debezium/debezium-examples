@@ -1255,9 +1255,34 @@
         "name": "connector_type",
         "options": [
           {
+            "selected": false,
+            "text": "mysql",
+            "value": "mysql"
+          },
+          {
+            "selected": false,
+            "text": "postgres",
+            "value": "postgres"
+          },
+          {
+            "selected": false,
+            "text": "mongodb",
+            "value": "mongodb"
+          },
+          {
             "selected": true,
             "text": "sql_server",
             "value": "sql_server"
+          },
+          {
+            "selected": false,
+            "text": "oracle",
+            "value": "oracle"
+          },
+          {
+            "selected": false,
+            "text": "db2",
+            "value": "db2"
           }
         ],
         "query": "debezium_metrics_TotalNumberOfEventsSeen",
