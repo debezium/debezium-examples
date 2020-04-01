@@ -20,6 +20,8 @@ The aggregated values are pushed to WebSockets.
 For that purpose, the aggregator application exposes a WebSockets endpoint.
 This application is built with [Quarkus](https://quarkus.io/).
 
+![Topology Overview](docker-compose.png)
+
 ## Preparations
 
 Build data generator application and aggregator application:
@@ -29,7 +31,7 @@ mvn clean install -f event-source/pom.xml
 mvn clean install -f aggregator/pom.xml
 ```
 
-Start Kafka, Kafka Connect, MySQL, event source and aggregator:
+Start Kafka, Kafka Connect, MySQL (or Postgres), event source and aggregator:
 
 ```shell
 export DEBEZIUM_VERSION=1.0
