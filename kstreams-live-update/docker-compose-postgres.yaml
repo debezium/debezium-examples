@@ -45,7 +45,8 @@ services:
      - 5005:5005
     links:
      - kafka
-     - postgres 
+     - postgres
+     - elastic
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1

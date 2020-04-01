@@ -40,6 +40,7 @@ services:
     links:
      - kafka
      - mysql
+     - elastic
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
