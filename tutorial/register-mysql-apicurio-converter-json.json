@@ -12,18 +12,11 @@
         "database.whitelist": "inventory",
         "database.history.kafka.bootstrap.servers": "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory",
-	"time.precision.mode": "connect",
         "key.converter": "io.apicurio.registry.utils.converter.ExtJsonConverter",
-        "value.converter": "io.apicurio.registry.utils.converter.ExtJsonConverter",
         "key.converter.apicurio.registry.url": "http://apicurio:8080",
         "key.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
         "value.converter.apicurio.registry.url": "http://apicurio:8080",
-        "value.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
-        "xkey.converter.apicurio.registry.converter.serializer": "io.apicurio.registry.utils.serde.AvroKafkaSerializer",
-        "xkey.converter.apicurio.registry.converter.deserializer": "io.apicurio.registry.utils.serde.AvroKafkaDeserializer",
-        "xvalue.converter.apicurio.registry.converter.serializer": "io.apicurio.registry.utils.serde.AvroKafkaSerializer",
-        "xkey.converter.apicurio.registry.artifact-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
-        "xvalue.converter.apicurio.registry.artifact-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
-        "xvalue.converter.apicurio.registry.converter.deserializer": "io.apicurio.registry.utils.serde.AvroKafkaDeserializer"
+        "value.converter": "io.apicurio.registry.utils.converter.ExtJsonConverter",
+        "value.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy"
     }
 }
