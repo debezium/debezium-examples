@@ -23,7 +23,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.0
+export DEBEZIUM_VERSION=1.1
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
