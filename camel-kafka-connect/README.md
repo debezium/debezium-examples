@@ -14,7 +14,7 @@ The example consists of multiple components:
 * PostgreSQL database that acts as a source of change events
 * CoAP server that prints received requests into the console
 * Kafka Connect deployment consisting of
-  * Apache ZooKeeper
+  * Apache Zookeeper
   * Apache Kafka broker
   * Kafka Connect instance with the Debezium and Camel connectors
 
@@ -25,9 +25,9 @@ The example consists of multiple components:
 Build the CoAP server and start the example by running:
 
 ```
-$ export DEBEZIUM_VERSION=1.0
+$ export DEBEZIUM_VERSION=1.1
 $ mvn clean install
-$ docker-compose up
+$ docker-compose up --build
 ```
 
 Deploy the Camel Kafka Connector:

@@ -12,30 +12,29 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <database.hostname>localhost</database.hostname>
-        <database.port>5432</database.port>
-        <database.user>postgres</database.user>
-        <database.password>postgres</database.password>
-        <database.dbname>postgres</database.dbname>
-	<database.schema>inventory</database.schema>
-
-        <coap.port>5684</coap.port>
-
         <version.camel>3.0.1</version.camel>
-        <version.debezium>1.0.0.Final</version.debezium>
-        <version.debezium.tag>1.0</version.debezium.tag>
-        <version.postgresql.driver>42.2.9</version.postgresql.driver>
+        <version.camel.kafka.connector>0.0.1-SNAPSHOT</version.camel.kafka.connector>
         <version.org.slf4j>1.7.29</version.org.slf4j>
-        <version.jackson>2.9.1</version.jackson>
-        <version.kafka>2.4.0</version.kafka>
-        <version.plugin.docker>0.31.0</version.plugin.docker>
-        <version.plugin.shade>3.2.1</version.plugin.shade>
     </properties>
 
     <modules>
         <module>coap-server</module>
+        <module>coap-connector-dist</module>
     </modules>
 
+    <repositories>
+        <repository>
+            <id>apache.snapshots</id>
+            <name>Apache Development Snapshot Repository</name>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -46,91 +45,17 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Use required Debezium version -->
             <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-postgres</artifactId>
-                <version>${version.debezium}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-embedded</artifactId>
-                <version>${version.debezium}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-core</artifactId>
-                <version>${version.debezium}</version>
+                <groupId>org.apache.camel.kafkaconnector</groupId>
+                <artifactId>camel-coap-kafka-connector</artifactId>
+                <version>${version.camel.kafka.connector}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${version.postgresql.driver}</version>
-            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${version.org.slf4j}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>${version.kafka}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>${version.plugin.docker}</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>${version.plugin.shade}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>io.fabric8</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <configuration>
-                    <watchInterval>500</watchInterval>
-                    <logDate>default</logDate>
-                    <verbose>true</verbose>
-                    <imagePullPolicy>IfNotPresent</imagePullPolicy>
-                    <images>
-                        <image>
-                            <name>debezium/example-postgres:${version.debezium.tag}</name>
-                            <run>
-                                <namingStrategy>none</namingStrategy>
-                                <env>
-                                    <POSTGRES_USER>postgres</POSTGRES_USER>
-                                    <POSTGRES_PASSWORD>postgres</POSTGRES_PASSWORD>
-                                </env>
-                                <ports>
-                                    <port>${database.port}:5432</port>
-                                </ports>
-                                <log>
-                                    <prefix>postgres</prefix>
-                                    <enabled>true</enabled>
-                                    <color>white</color>
-                                </log>
-                            </run>
-                        </image>
-                    </images>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
