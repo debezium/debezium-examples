@@ -32,19 +32,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <configuration>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>coap.port</key>
-                            <value>${coap.port}</value>
-                        </systemProperty>
-                    </systemProperties>
-                    <mainClass>io.debezium.examples.camel.pipeline.Runner</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
