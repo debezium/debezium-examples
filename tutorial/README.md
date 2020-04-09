@@ -97,6 +97,10 @@ It provides
 * a JSON converter that exports its schema into the registry
 * a compatibility layer with other schema registries such as IBM's or Confluent's; it can be used with the Confluent Avro converter.
 
+For the Apicurio examples we will use the following deployment topology:
+
+![Apicurio example topology](docker-compose-mysql-apicurio.png)
+
 #### JSON format
 
 Configuring JSON converter with externalized schema at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
