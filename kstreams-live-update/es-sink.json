@@ -6,7 +6,7 @@
         "topics": "dbserver1.inventory.orders",
         "connection.url": "http://elastic:9200",
         "transforms": "unwrap,key",
-        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
         "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
         "transforms.key.field": "id",
         "key.ignore": "false",

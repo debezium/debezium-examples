@@ -4,7 +4,7 @@ This demo accompanies the blog post https://debezium.io/blog/2018/05/24/querying
 
 ```shell
 # Start the Kafka, Kafka Connect, KSQL server and CLI etc.
-export DEBEZIUM_VERSION=0.8
+export DEBEZIUM_VERSION=1.1
 docker-compose up
 
 # Start Debezium MySQL connector

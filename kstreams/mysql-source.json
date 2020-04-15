@@ -13,7 +13,7 @@
         "database.history.kafka.bootstrap.servers": "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory",
         "transforms": "unwrap",
-        "transforms.unwrap.type":"io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.type":"io.debezium.transforms.ExtractNewRecordState",
         "transforms.unwrap.drop.tombstones":"false"
     }
 }
