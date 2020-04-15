@@ -102,7 +102,7 @@ cat <<'EOF' > register-elastic-sink.json
         "behavior.on.null.values" : "delete",
         "topic.index.map" : "dbserver1.inventory.orders:orders",
         "transforms": "unwrap,key",
-        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
         "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
         "transforms.key.field": "id",
         "schema.ignore" : "true"
@@ -236,7 +236,7 @@ oc exec -c kafka -i my-cluster-kafka-0 -- curl -s -X POST -w "\n" \
         "behavior.on.null.values" : "delete",
         "topic.index.map" : "dbserver1.inventory.orders:orders",
         "transforms": "unwrap,key",
-        "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
         "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
         "transforms.key.field": "id",
         "schema.ignore" : "true"
