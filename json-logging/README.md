@@ -1,16 +1,16 @@
 # JSON Logging for Debezium
 
 Many production deployments use a log aggregator to gather logs from all systems in the environment and make them available for extended analysis and monitoring.
-Such tools are usually able to work with text-based logs and make them into structured events.
+Such tools are usually able to work with text-based logs and convert them into structured events.
 They can have a problem with multi-line log messages that are typical for Java applications providing stacktraces in the log.
 
 In this case, it might be better to log messages as structured JSON messages containing all the log message information.
 This example uses [Logstash json_event pattern for log4j](https://github.com/logstash/log4j-jsonevent-layout).
-The `connect` image is enriched with the requested JAR files.
+The Debezium `connect` image is enriched with the required JAR files for that purpose.
 
 ## Demonstration
 
-Start the components and register Debezium to stream changes from the database
+Start the components and register Debezium to stream changes from the database:
 
 ```
 $ export DEBEZIUM_VERSION=1.1
@@ -86,7 +86,7 @@ which after formatting looks like:
 
 Even a complex multiline log message is thus formatted as a single event.
 
-Stop the demo
+Stop the demo:
 
 ```
 $ docker-compose down
