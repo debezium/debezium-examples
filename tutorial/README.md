@@ -80,7 +80,7 @@ a new version of that schema will be available in the registry.
 The service registry also comes with a console consumer that can read the Avro messages:
 
 ```shell
-docker-compose -f docker-compose-mysql-avro.yaml exec schema-registry /usr/bin/kafka-avro-console-consumer \
+docker-compose -f docker-compose-mysql-avro-worker.yaml exec schema-registry /usr/bin/kafka-avro-console-consumer \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
