@@ -5,6 +5,9 @@
 Using [Debezium's embedded mode](https://debezium.io/docs/embedded/) it is possible though to stream database changes to arbitrary destinations and thus not be limited to Kafka as the only broker.
 This demo shows how to stream changes from MySQL database running on a local machine to an Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream.
 
+Note: Kinesis is a commercial service by Amazon, running this example will cost you some money.
+We recommend you remove all resources created for this example afterwards to avoid unnecessary cost.
+
 ## Prerequisites
 
 * Java 8 development environment
@@ -20,7 +23,7 @@ This demo shows how to stream changes from MySQL database running on a local mac
 We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](https://debezium.io/docs/tutorial/):
 
 ```
-docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw debezium/example-mysql:0.9
+docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw debezium/example-mysql:1.1
 ```
 
 ### Preparing the CLI environment
@@ -72,7 +75,7 @@ This will return a sequence of JSON messages like this:
     "email": "sally.thomas@acme.com"
   },
   "source": {
-    "version": "0.7.4",
+    "version": "1.1.1.Final",
     "name": "kinesis",
     "server_id": 0,
     "ts_sec": 0,
@@ -97,7 +100,7 @@ This will return a sequence of JSON messages like this:
     "email": "gbailey@foobar.com"
   },
   "source": {
-    "version": "0.7.4",
+    "version": "1.1.1.Final",
     "name": "kinesis",
     "server_id": 0,
     "ts_sec": 0,
@@ -114,4 +117,23 @@ This will return a sequence of JSON messages like this:
   "ts_ms": 1520513267424
 }
 ...
+```
+
+### Updating Records in the Database
+
+Now update a record in the database:
+
+```
+docker run -it --rm --name mysqlterm --link mysql --rm mysql:5.7 sh -c 'exec mysql -h"$MYSQL_PORT_3306_TCP_ADDR" -P"$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$MYSQL_ENV_MYSQL_ROOT_PASSWORD"'
+
+use inventory;
+update customers set first_name = 'Sarah' where id = 1001;
+```
+
+If you query the Kinesis stream iterator again, you'll see an update event corresponding to this change.
+
+### Deleting the Kinesis Stream
+
+```
+aws kinesis delete-stream --stream-name kinesis.inventory.customers
 ```
