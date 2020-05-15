@@ -12,6 +12,8 @@ import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.TimestampedKeyValueStore;
+import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,7 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     private static final Logger LOG = LoggerFactory.getLogger(ChangeEventEnricher.class);
 
     private ProcessorContext context;
-    private KeyValueStore<JsonObject, JsonObject> txMetaDataStore;
+    private TimestampedKeyValueStore<JsonObject, JsonObject> txMetaDataStore;
     private KeyValueStore<Long, JsonObject> streamBuffer;
 
     @Override
@@ -37,7 +39,7 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     public void init(ProcessorContext context) {
         this.context = context;
         streamBuffer = (KeyValueStore<Long, JsonObject>) context.getStateStore(TopologyProducer.STREAM_BUFFER_NAME);
-        txMetaDataStore = (KeyValueStore<JsonObject, JsonObject>) context.getStateStore(TopologyProducer.STORE_NAME);
+        txMetaDataStore = (TimestampedKeyValueStore<JsonObject, JsonObject>) context.getStateStore(TopologyProducer.STORE_NAME);
 
         context.schedule(Duration.ofSeconds(1), PunctuationType.WALL_CLOCK_TIME, ts -> enrichAndEmitBufferedEvents());
     }
@@ -131,19 +133,19 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
                 .add("transaction_id", changeEvent.get("source").asJsonObject().getJsonNumber("txId").longValue())
                 .build();
 
-        JsonObject metaData = txMetaDataStore.get(txId);
+        ValueAndTimestamp<JsonObject> metaData = txMetaDataStore.get(txId);
 
         if (metaData != null) {
             LOG.info("Enriched change event for key {}", key);
 
-            metaData = Json.createObjectBuilder(metaData.get("after").asJsonObject())
+            JsonObject txMetaData = Json.createObjectBuilder(metaData.value().get("after").asJsonObject())
                     .remove("transaction_id")
                     .build();
 
             return KeyValue.pair(
                     key,
                     Json.createObjectBuilder(changeEvent)
-                        .add("audit", metaData)
+                        .add("audit", txMetaData)
                         .build()
             );
         }

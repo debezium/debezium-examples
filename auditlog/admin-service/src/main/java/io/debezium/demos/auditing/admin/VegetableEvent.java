@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class VegetableEvent {
-    
+
     private VegetableData before;
     private VegetableData after;
     private SourceData source;
@@ -16,6 +16,9 @@ public class VegetableEvent {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     @JsonProperty("ts_ms")
     private Date timestamp;
+
+    @JsonIgnore
+    private String transaction;
 
     @JsonIgnore
     private boolean matched;
@@ -66,6 +69,14 @@ public class VegetableEvent {
 
     public void setMatched(boolean matched) {
         this.matched = matched;
+    }
+
+    public String getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(String transaction) {
+        this.transaction = transaction;
     }
 
     @Override
