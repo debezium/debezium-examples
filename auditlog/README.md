@@ -20,7 +20,7 @@ $ mvn clean package
 ```
 
 ```console
-$ export DEBEZIUM_VERSION=0.10
+$ export DEBEZIUM_VERSION=1.1
 $ docker-compose up --build
 ```
 
@@ -98,13 +98,31 @@ Admin service is consuming messages from both topics and attempts to correlate t
 in case there is no data to match within specific amount of time - 2 seconds by default it will
 create a task for administrator to provide the missing data.
 
+### Produce data changes without transaction metadata
+
+```console
+$ docker run --tty --rm -i \
+        --network auditlog_default \
+        debezium/tooling:1.0 \
+        bash -c 'pgcli postgresql://postgresuser:postgrespw@vegetables-db:5432/vegetablesdb'
+```
+
+Insert a new vegetable record; as we're bypassing the application, there'll be no corresponding transaction metadata record:
+
+```sql
+insert into inventory.vegetable (id, description, name) values (nextval('inventory.vegetables_id_seq'), 'Tasty!', 'Banana');
+```
+
+In the logs of the _enricher_ service, you'll see warnings about the unprocessable event.
+
 ### List awaiting records to be fixed
 
 ```console
 http http://localhost:8085/vegetables
 ```
 
-In case there are any missing transaction context events there will be instances returned
+In case there are any missing transaction context events there will be instances returned;
+you should see the "Banana" event in this case.
 
 ### Get list of tasks to provide missing data
 
@@ -122,8 +140,7 @@ http POST http://localhost:8085/vegetables/{uuid}/auditData/{tuuid} audit:='{"us
 
 `{uuid}` is same as in the previous call and `{tuuid}` is the id of the task returned in previous call.
 
-this would then fix the missing event in transaction context data topic and trigger the enricher to provide
-new log entry.
+This would then fix the missing event in the transaction context data topic and trigger the enricher to provide a new log entry.
 
 ## Stopping All Services
 
@@ -158,15 +175,4 @@ $ mvn compile quarkus:dev -f admin-service/pom.xml \
     -Dmp.messaging.incoming.vegetables.bootstrap-servers=<IP_OF_YOUR_HOST_MACHINE>:9092 \
     -Dmp.messaging.outgoing.missingtransactions.bootstrap-servers=<IP_OF_YOUR_HOST_MACHINE>:9092 \
     -Dquarkus.http.port=8085
-```
-
-## Useful Commands
-
-Getting a shell for the Postgres database:
-
-```console
-$ docker run --tty --rm -i \
-    --network auditlog_default \
-    debezium/tooling:1.0 \
-    bash -c 'pgcli postgresql://postgresuser:postgrespw@vegetables-db:5432/vegetablesdb'
 ```
