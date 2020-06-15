@@ -13,6 +13,7 @@
         <version.debezium>1.2.0-SNAPSHOT</version.debezium>
         <version.debezium.tag>1.2</version.debezium.tag>
         <version.quarkus>1.5.0.Final</version.quarkus>
+        <version.jandex>1.0.8</version.jandex>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +50,19 @@
                     <execution>
                         <goals>
                             <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jboss.jandex</groupId>
+                <artifactId>jandex-maven-plugin</artifactId>
+                <version>${version.jandex}</version>
+                <executions>
+                    <execution>
+                        <id>make-index</id>
+                        <goals>
+                            <goal>jandex</goal>
                         </goals>
                     </execution>
                 </executions>
