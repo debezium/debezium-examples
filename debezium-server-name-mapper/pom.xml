@@ -1,0 +1,69 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.debezium.examples</groupId>
+    <artifactId>debezium-server-name-mapper</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <database.hostname>localhost</database.hostname>
+        <database.port>3306</database.port>
+        <database.user>debezium</database.user>
+        <database.password>dbz</database.password>
+        <database.whitelist>inventory</database.whitelist>
+        <table.whitelist>inventory.customers</table.whitelist>
+
+        <kinesis.region>eu-central-1</kinesis.region>
+
+        <mysql.init.timeout>30000</mysql.init.timeout>
+
+        <version.debezium>1.2.0-SNAPSHOT</version.debezium>
+        <version.debezium.tag>1.2</version.debezium.tag>
+        <version.quarkus>1.5.0.Final</version.quarkus>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-server-pulsar</artifactId>
+                <version>${version.debezium}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-connector-postgres</artifactId>
+                <version>${version.debezium}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-server-pulsar</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-connector-postgres</artifactId>
+            </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <version>${version.quarkus}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
