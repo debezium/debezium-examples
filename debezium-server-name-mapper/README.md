@@ -1,14 +1,14 @@
 # Custom Topic Name Mapper
 
-This example demonstrates how to develop and deploy a bean that would allow the developer to implement custom topic naming policy.
+This example demonstrates how to develop and deploy a bean that would allow the developer to implement a custom topic naming policy.
 
 The implementation of the custom naming policy is in the class `PrefixingNameMapper`.
-The class is marked as `@Dependent` is it is injected into the using sink class.
-It exposes `mapper.prefix` configuration option that defines the sting that is inserted before the original topic name.
+The class is marked as `@Dependent` and it is injected into the configured sink adaptor class.
+It exposes a configuration option named `mapper.prefix` which defines a string that is inserted before the original topic name.
 
-The configuration option is configured either via `application.properties` configuration file or via other ways defined in Microprofile Config specification.
+The configuration option is configured either via `application.properties` configuration file or via other ways defined in the Microprofile Config specification, e.g. an environment variable.
 
-As an example - a message intended to be delivered to topic `server.table` would be routed to topic `superprefix.server.table`.
+As an example, when setting `mapper.prefix` to the value `superprefix`, then a message intended to be delivered to the topic `server.schema.table` would be routed to topic `superprefix.server.schema.table`.
 
 
 ## Topology
