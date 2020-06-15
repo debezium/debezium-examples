@@ -1,0 +1,14 @@
+version: '2.1'
+services:
+  db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  pulsar:
+    image: apachepulsar/pulsar:2.5.2
+    command: "bin/pulsar standalone"
+    ports:
+     - 6650:6650
