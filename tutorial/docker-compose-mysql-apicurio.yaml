@@ -23,7 +23,7 @@ services:
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
   apicurio:
-    image: apicurio/apicurio-registry-mem:1.1.2.Final
+    image: apicurio/apicurio-registry-mem:1.2.2.Final
     ports:
      - 8080:8080
   connect:
