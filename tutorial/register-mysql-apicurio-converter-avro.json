@@ -14,13 +14,9 @@
         "database.history.kafka.topic": "schema-changes.inventory",
         "key.converter": "io.apicurio.registry.utils.converter.AvroConverter",
         "key.converter.apicurio.registry.url": "http://apicurio:8080",
-        "key.converter.apicurio.registry.converter.serializer": "io.apicurio.registry.utils.serde.AvroKafkaSerializer",
-        "key.converter.apicurio.registry.converter.deserializer": "io.apicurio.registry.utils.serde.AvroKafkaDeserializer",
         "key.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
         "value.converter": "io.apicurio.registry.utils.converter.AvroConverter",
         "value.converter.apicurio.registry.url": "http://apicurio:8080",
-        "value.converter.apicurio.registry.converter.serializer": "io.apicurio.registry.utils.serde.AvroKafkaSerializer",
-        "value.converter.apicurio.registry.converter.deserializer": "io.apicurio.registry.utils.serde.AvroKafkaDeserializer",
         "value.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy"
     }
 }
