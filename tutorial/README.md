@@ -111,13 +111,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value
+curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value | jq .
+curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value | jq .
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
@@ -145,13 +145,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value
+curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/artifacts/dbserver1.inventory.customers-value | jq .
+curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value | jq .
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
@@ -167,13 +167,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/ccompat/subjects/dbserver1.inventory.customers-value/versions/1
+curl -X GET http://localhost:8080/api/ccompat/subjects/dbserver1.inventory.customers-value/versions/1
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/ccompat/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
+curl -X GET http://localhost:8080/api/ccompat/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
@@ -185,7 +185,7 @@ To consume the Avro messages It is possible to use `kafkacat` tool:
 docker run --rm --tty \
   --network tutorial_default \
   debezium/tooling \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/ccompat \
+  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/api/ccompat \
   -t dbserver1.inventory.customers | jq .
 ```
 
