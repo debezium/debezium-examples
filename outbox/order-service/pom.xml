@@ -10,8 +10,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium-quarkus>1.1.0.Final</version.debezium-quarkus>
-    <version.quarkus>1.2.0.Final</version.quarkus>
+    <version.debezium-quarkus>1.2.0.Final</version.debezium-quarkus>
+    <version.quarkus>1.6.0.Final</version.quarkus>
     <version.surefire>2.22.0</version.surefire>
   </properties>
   <dependencyManagement>

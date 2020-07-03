@@ -31,7 +31,7 @@ The `native` profile and `native-image.docker-build` environment variable can be
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.1
+$ export DEBEZIUM_VERSION=1.2
 $ export QUARKUS_BUILD=native
 ```
 
@@ -103,7 +103,7 @@ Getting a session in the Postgres DB of the "order" service:
 $ docker run --tty --rm -i \
         --network outbox_default \
         debezium/tooling:1.0 \
-        bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'        
+        bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 ```
 
 E.g. to query for all purchase orders:
