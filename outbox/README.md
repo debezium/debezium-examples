@@ -112,6 +112,12 @@ E.g. to query for all purchase orders:
 select * from inventory.purchaseorder po, inventory.orderline ol where ol.order_id = po.id;
 ```
 
+Query for all outbox events:
+
+```sql
+select id, aggregatetype, aggregateid, type, timestamp, left(payload, 100) from inventory.outboxevent;
+ ```
+
 Getting a session in the Postgres DB of the "shipment" service:
 
 ```console
@@ -125,4 +131,18 @@ E.g. to query for all shipments:
 
 ```sql
 select * from inventory.shipment;
+```
+
+## Running the Order Service in Dev Mode
+
+Start all components:
+
+```console
+$ docker-compose up --build --scale order-service=0
+```
+
+```console
+$ mvn compile quarkus:dev \
+    "-Dquarkus.datasource.url=jdbc:postgresql://localhost:5433/orderdb?currentSchema=inventory" \
+    "-Dquarkus.debezium-outbox.remove-after-insert=false"
 ```
