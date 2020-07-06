@@ -90,7 +90,7 @@ $ docker run --tty --rm \
 Examine that the receiving service process the events:
 
 ```console
-$ docker-compose logs -f shipment-service
+$ docker-compose logs shipment-service
 ```
 
 (Look for "Processing '{OrderCreated|OrderLineUpdated}' event" messages in the logs)

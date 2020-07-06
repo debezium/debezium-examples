@@ -72,6 +72,8 @@ services:
     links:
      - kafka
      - order-db
+    environment:
+     - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=false
     depends_on:
       order-db:
         condition: service_healthy

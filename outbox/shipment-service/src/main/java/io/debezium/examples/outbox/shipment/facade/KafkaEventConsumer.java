@@ -6,6 +6,7 @@
 package io.debezium.examples.outbox.shipment.facade;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -13,11 +14,12 @@ import java.util.concurrent.CompletionStage;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.apache.kafka.common.header.Header;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.smallrye.reactive.messaging.kafka.KafkaMessage;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped
 public class KafkaEventConsumer {
@@ -28,12 +30,12 @@ public class KafkaEventConsumer {
     OrderEventHandler orderEventHandler;
 
     @Incoming("orders")
-    public CompletionStage<Void> onMessage(KafkaMessage<String, String> message) throws IOException {
+    public CompletionStage<Void> onMessage(KafkaRecord<String, String> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
                 LOG.debug("Kafka message with key = {} arrived", message.getKey());
 
-                String eventId = message.getHeaders().getOneAsString("id").orElseThrow(() -> new IllegalArgumentException("Expected record header 'id' not present"));
-                String eventType = message.getHeaders().getOneAsString("eventType").orElseThrow(() -> new IllegalArgumentException("Expected record header 'eventType' not present"));
+                String eventId = getHeaderAsString(message, "id");
+                String eventType = getHeaderAsString(message, "eventType");
 
                 orderEventHandler.onOrderEvent(
                         UUID.fromString(eventId),
@@ -43,5 +45,14 @@ public class KafkaEventConsumer {
                         message.getTimestamp()
                 );
         });
+    }
+
+    private String getHeaderAsString(KafkaRecord<?, ?> record, String name) {
+        Header header = record.getHeaders().lastHeader(name);
+        if (header == null) {
+            throw new IllegalArgumentException("Expected record header '" + name + "' not present");
+        }
+
+        return new String(header.value(), Charset.forName("UTF-8"));
     }
 }

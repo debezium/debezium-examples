@@ -6,6 +6,7 @@
 package io.debezium.examples.outbox.shipment.facade;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -35,7 +36,7 @@ public class OrderEventHandler {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public void onOrderEvent(UUID eventId, String eventType, String key, String event, Long ts) {
+    public void onOrderEvent(UUID eventId, String eventType, String key, String event, Instant ts) {
         if (log.alreadyProcessed(eventId)) {
             LOGGER.info("Event with UUID {} was already retrieved, ignoring it", eventId);
             return;

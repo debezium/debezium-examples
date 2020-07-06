@@ -23,7 +23,7 @@ public class Shipment {
 
     private long customerId;
 
-    @Column(unique=true)
+    // should be unique, but not doing so for the sake of restarts during demos
     private long orderId;
 
     private LocalDateTime orderDate;
