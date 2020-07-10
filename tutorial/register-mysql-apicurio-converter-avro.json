@@ -14,9 +14,9 @@
         "database.history.kafka.topic": "schema-changes.inventory",
         "key.converter": "io.apicurio.registry.utils.converter.AvroConverter",
         "key.converter.apicurio.registry.url": "http://apicurio:8080/api",
-        "key.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
+        "key.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.GetOrCreateIdStrategy",
         "value.converter": "io.apicurio.registry.utils.converter.AvroConverter",
         "value.converter.apicurio.registry.url": "http://apicurio:8080/api",
-        "value.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy"
+        "value.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.GetOrCreateIdStrategy"
     }
 }
