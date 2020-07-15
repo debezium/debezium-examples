@@ -1,0 +1,67 @@
+version: '3.5'
+
+services:
+
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+    networks:
+    - my-network
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+     - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=100
+     # For local debugging of aggregator
+     # - ADVERTISED_HOST_NAME=192.168.1.2
+    networks:
+    - my-network
+
+  postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./inventory-addresses.sql:/docker-entrypoint-initdb.d/zzz.sql
+    networks:
+    - my-network
+
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - postgres
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    networks:
+      - my-network
+
+  aggregator:
+    image: debezium-examples/kstreams-fk-join-aggregator:1.0
+    build:
+      context: aggregator
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    environment:
+      QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: kafka:9092
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    name: kstreams-fk-join-network
