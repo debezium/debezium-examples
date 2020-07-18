@@ -1,6 +1,7 @@
 package io.debezium.examples.kstreams.fkjoin.streams;
 
 import java.util.Collections;
+import java.util.function.Function;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -44,51 +45,48 @@ public class TopologyProducer {
         adressKeySerde.configure(Collections.emptyMap(), true);
         Serde<Address> addressSerde = DebeziumSerdes.payloadJson(Address.class);
         addressSerde.configure(Collections.singletonMap("from.field", "after"), false);
-        
+
         Serde<Integer> customersKeySerde = DebeziumSerdes.payloadJson(Integer.class);
         customersKeySerde.configure(Collections.emptyMap(), true);
         Serde<Customer> customersSerde = DebeziumSerdes.payloadJson(Customer.class);
         customersSerde.configure(Collections.singletonMap("from.field", "after"), false);
-        
+
         JsonbSerde<AddressAndCustomer> addressAndCustomerSerde = new JsonbSerde<>(AddressAndCustomer.class);
         JsonbSerde<CustomerWithAddresses> customerWithAddressesSerde = new JsonbSerde<>(CustomerWithAddresses.class);
-        
+
         KTable<Long, Address> addresses = builder.table(
                 addressesTopic,
                 Consumed.with(adressKeySerde, addressSerde)
         );
-        
+
         KTable<Integer, Customer> customers = builder.table(
                 customersTopic,
                 Consumed.with(customersKeySerde, customersSerde)
         );
-        
+
         KTable<Integer, CustomerWithAddresses> customersWithAddresses = addresses.join(
                 customers,
                 address -> address.customer_id,
-                (address, customer) -> new AddressAndCustomer(address, customer),
-                Materialized.with(Serdes.Long(), addressAndCustomerSerde))
+                AddressAndCustomer::new,
+                Materialized.with(Serdes.Long(), addressAndCustomerSerde)
+            )
             .groupBy(
-                (Long addressId, AddressAndCustomer value) -> KeyValue.pair(value.customer.id, value),
-                Grouped.with(Serdes.Integer(), addressAndCustomerSerde))
+                (addressId, addressAndCustomer) -> KeyValue.pair(addressAndCustomer.customer.id, addressAndCustomer),
+                Grouped.with(Serdes.Integer(), addressAndCustomerSerde)
+            )
             .aggregate(
                 CustomerWithAddresses::new,
-                (Integer key, AddressAndCustomer value, CustomerWithAddresses aggregate) -> {
-                        aggregate.addAddress(value);
-                        return aggregate;
-                },
-                (Integer key, AddressAndCustomer value, CustomerWithAddresses aggregate) -> {
-                        aggregate.removeAddress(value);
-                        return aggregate;
-                },
-                Materialized.with(Serdes.Integer(), customerWithAddressesSerde));
-        
+                (customerId, addressAndCustomer, aggregate) -> aggregate.addAddress(addressAndCustomer),
+                (customerId, addressAndCustomer, aggregate) -> aggregate.removeAddress(addressAndCustomer),
+                Materialized.with(Serdes.Integer(), customerWithAddressesSerde)
+            );
+
         customersWithAddresses.toStream()
         .to(
                 customersWithAddressesTopic,
                 Produced.with(Serdes.Integer(), customerWithAddressesSerde)
         );
-        
+
         return builder.build();
     }
 }
