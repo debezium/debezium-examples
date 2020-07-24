@@ -1,6 +1,8 @@
 # Building Audit Logs with Change Data Capture and a Bit of Stream Processing
 
 This demo shows how to create persistent audit logs of an application's data using change data capture and stream processing.
+It accompanies the blog post [Building Audit Logs with Change Data Capture and Stream Processing](https://debezium.io/blog/2019/10/01/audit-logs-with-change-data-capture-and-stream-processing/).
+
 There are two applications (based on [Quarkus](https://quarkus.io/)):
 
 * _vegetables-service_: a simple REST service for inserting and updating vegetable data into a Postgres database;
@@ -20,7 +22,7 @@ $ mvn clean package
 ```
 
 ```console
-$ export DEBEZIUM_VERSION=1.1
+$ export DEBEZIUM_VERSION=1.2
 $ docker-compose up --build
 ```
 
