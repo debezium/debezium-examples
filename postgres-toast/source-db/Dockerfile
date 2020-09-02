@@ -1,3 +1,3 @@
-FROM debezium/example-postgres:0.10
+FROM debezium/example-postgres:1.2
 
 COPY schema-update.sql /docker-entrypoint-initdb.d/

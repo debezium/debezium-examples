@@ -23,7 +23,7 @@ Be sure to work with the latest Debezium and Postgres container images for the f
 ```console
 mvn clean install -f toast-value-store/pom.xml
 
-export DEBEZIUM_VERSION=0.10
+export DEBEZIUM_VERSION=1.2
 docker-compose up --build
 ```
 
@@ -38,8 +38,8 @@ Change a record in the `customers` table by updating one column (which isn't a T
 
 ```console
 docker run --tty --rm -i \
-    --network postgres_toast_default \
-    debezium/tooling:1.0 \
+    --network postgres-toast_default \
+    debezium/tooling:1.1 \
     bash -c 'pgcli postgresql://postgresusersource:postgrespw@source-db:5432/sourcedb'
 ```
 
@@ -51,8 +51,8 @@ Observe the marker value in the `biography` field of corresponding change events
 
 ```console
 docker run -it --rm \
-    --network postgres_toast_default \
-    debezium/tooling:1.0 \
+    --network postgres-toast_default \
+    debezium/tooling:1.1 \
     /bin/bash -c "kafkacat -b kafka:9092 \
     -C -o beginning -q -u -t dbserver1.inventory.customers | jq ."
 ```
@@ -62,8 +62,8 @@ whereas the `biography` column remains unchanged:
 
 ```console
 docker run --tty --rm -i \
-    --network postgres_toast_default \
-    debezium/tooling:1.0 \
+    --network postgres-toast_default \
+    debezium/tooling:1.1 \
     bash -c 'pgcli postgresql://postgresusersink:postgrespw@sink-db:5432/sinkdb'
 ```
 
@@ -85,8 +85,8 @@ it is ensured that the latest value is available in the statestore when receivin
 
 ```console
 docker run --tty --rm -i \
-    --network postgres_toast_default \
-    debezium/tooling:1.0 \
+    --network postgres-toast_default \
+    debezium/tooling:1.1 \
     bash -c 'pgcli postgresql://postgresusersource:postgrespw@source-db:5432/sourcedb'
 ```
 
@@ -96,7 +96,7 @@ sourcedb> update inventory.products set description = 'Much wow' where id = 101;
 
 ```console
 docker run -it --rm \
-    --network postgres_toast_default \
+    --network postgres-toast_default \
     debezium/tooling:1.0 \
     /bin/bash -c "kafkacat -b kafka:9092 \
     -C -o beginning -q -u -t dbserver1.inventory.products | jq ."
@@ -104,8 +104,8 @@ docker run -it --rm \
 
 ```console
 docker run -it --rm \
-    --network postgres_toast_default \
-    debezium/tooling:1.0 \
+    --network postgres-toast_default \
+    debezium/tooling:1.1 \
     /bin/bash -c "kafkacat -b kafka:9092 \
     -C -o beginning -q -u -t dbserver1.inventory.products.enriched | jq ."
 ```
