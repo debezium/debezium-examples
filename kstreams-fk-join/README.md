@@ -90,7 +90,7 @@ using the Quarkus dev mode is the recommended approach.
 For that
 
 * add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in the Docker Compose file.
-* run the Docker Compose set-up without the _aggregator_ service, e.g.: `docker-compose -f docker-compose-mysql.yaml up --scale aggregator=0`
+* run the Docker Compose set-up without the _aggregator_ service, e.g.: `docker-compose up --scale aggregator=0`
 * run the *aggregator* app in dev mode, specifying your IP as advertised host, e.g.: `mvn compile quarkus:dev -Dkafka.bootstrap.servers=192.168.1.8:9092 -Dquarkus.http.port=8079`
 
 Any code changes will immediately picked up after reloading the application in the web browser.
