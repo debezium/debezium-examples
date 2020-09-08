@@ -23,15 +23,11 @@ services:
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
   apicurio:
-    image: apicurio/apicurio-registry-mem:1.2.2.Final
+    image: apicurio/apicurio-registry-mem:1.3.0.Final
     ports:
      - 8080:8080
   connect:
-    image: debezium/debezium-with-apicurio:${DEBEZIUM_VERSION}
-    build:
-      context: debezium-with-apicurio
-      args:
-        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     links:
@@ -44,5 +40,4 @@ services:
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
-     - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-     - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - ENABLE_APICURIO_CONVERTERS=true
