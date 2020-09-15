@@ -1,0 +1,23 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": 1,
+    "database.hostname": "postgres",
+    "database.port": 5432,
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname" : "postgres",
+    "database.server.name": "dbserver1",
+    "schema.include.list": "inventory",
+    "topic.creation.default.replication.factor": 1,
+    "topic.creation.default.partitions": 5,
+    "topic.creation.default.cleanup.policy": "compact",
+    "topic.creation.default.compression.type": "gzip",
+    "topic.creation.default.delete.retention.ms" : 2592000000,
+    "topic.creation.groups": "productlog",
+    "topic.creation.productlog.include": "dbserver1\\.inventory\\.product.*",
+    "topic.creation.productlog.replication.factor": 1,
+    "topic.creation.productlog.partitions": 10,
+    "topic.creation.productlog.cleanup.policy": "delete",
+    "topic.creation.productlog.compression.type": "producer",
+    "topic.creation.productlog.retention.ms": 7776000000
+}
