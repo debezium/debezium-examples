@@ -1,15 +1,15 @@
-FROM jboss/wildfly:14.0.1.Final
+FROM jboss/wildfly:20.0.1.Final
 
 ADD resources/wildfly/customization /opt/jboss/wildfly/customization/
-RUN mkdir /tmp/pg-driver && cd /tmp/pg-driver && curl -sO https://jdbc.postgresql.org/download/postgresql-42.2.5.jar
+RUN mkdir /tmp/pg-driver && cd /tmp/pg-driver && curl -sO https://jdbc.postgresql.org/download/postgresql-42.2.9.jar
 
 RUN mkdir /tmp/infinispan-modules && \
     cd /tmp/infinispan-modules && \
-    curl -sO https://downloads.jboss.org/infinispan/9.4.2.Final/infinispan-wildfly-modules-9.4.2.Final.zip && \
-    unzip infinispan-wildfly-modules-9.4.2.Final.zip && \
-    cp -r infinispan-wildfly-modules-9.4.2.Final/modules/* /opt/jboss/wildfly/modules && \
-    rm infinispan-wildfly-modules-9.4.2.Final.zip && \
-    rm -rf infinispan-wildfly-modules-9.4.2.Final
+    curl -sO https://downloads.jboss.org/infinispan/10.1.8.Final/infinispan-wildfly-modules-10.1.8.Final.zip && \
+    unzip infinispan-wildfly-modules-10.1.8.Final.zip && \
+    cp -r infinispan-wildfly-modules-10.1.8.Final/modules/* /opt/jboss/wildfly/modules && \
+    rm infinispan-wildfly-modules-10.1.8.Final.zip && \
+    rm -rf infinispan-wildfly-modules-10.1.8.Final
 
 # Based on:
 # https://goldmann.pl/blog/2014/07/23/customizing-the-configuration-of-the-wildfly-docker-image/
