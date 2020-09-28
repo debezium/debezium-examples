@@ -14,7 +14,7 @@
         <apache.kafka.version>2.0.0</apache.kafka.version>
         <version.thorntail>2.5.0.Final</version.thorntail>
         <version.org.slf4j>1.7.25</version.org.slf4j>
-        <version.com.fasterxml.jackson>2.9.6</version.com.fasterxml.jackson>
+        <version.com.fasterxml.jackson>2.9.8</version.com.fasterxml.jackson>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
