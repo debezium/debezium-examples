@@ -2,7 +2,7 @@
 batch
 
 # Add module
-module add --name=org.postgres --resources=/tmp/pg-driver/postgresql-42.2.5.jar --dependencies=javax.api,javax.transaction.api
+module add --name=org.postgres --resources=/tmp/pg-driver/postgresql-42.2.9.jar --dependencies=javax.api,javax.transaction.api
 
 # Add PostgreSQL driver
 /subsystem=datasources/jdbc-driver=postgres:add(driver-name=postgres,driver-module-name=org.postgres,driver-class-name=org.postgresql.Driver)
