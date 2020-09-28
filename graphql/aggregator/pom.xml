@@ -11,7 +11,7 @@
     <properties>
         <mvn.compiler.version>3.5.1</mvn.compiler.version>
         <mvn.dependency.version>3.0.2</mvn.dependency.version>
-        <apache.kafka.version>2.0.0</apache.kafka.version>
+        <apache.kafka.version>2.5.0</apache.kafka.version>
         <version.thorntail>2.5.0.Final</version.thorntail>
         <version.org.slf4j>1.7.25</version.org.slf4j>
         <version.com.fasterxml.jackson>2.9.6</version.com.fasterxml.jackson>
@@ -73,7 +73,7 @@
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.11</artifactId>
+            <artifactId>kafka_2.12</artifactId>
             <version>${apache.kafka.version}</version>
         </dependency>
 
