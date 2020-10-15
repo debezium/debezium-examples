@@ -1,6 +1,6 @@
 # Debezium KSQL Demo
 
-This demo accompanies the blog post [https://debezium.io/blog/2018/05/24/querying-debezium-change-data-eEvents-with-ksql/](Querying Debezium Change Data Events With KSQL).
+This demo accompanies the blog post [Querying Debezium Change Data Events With KSQL](https://debezium.io/blog/2018/05/24/querying-debezium-change-data-eEvents-with-ksql/).
 
 ```shell
 # Start the Kafka, Kafka Connect, KSQL server and CLI etc.
