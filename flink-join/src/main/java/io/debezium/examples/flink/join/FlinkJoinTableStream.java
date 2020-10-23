@@ -145,6 +145,9 @@ public class FlinkJoinTableStream {
 
         //we cannot directly write this table result, which has a retract stream as input
         //into an output kafka table, so we create an output stream to direct into the output topic
+
+        //we don't have to filter before update events as they don't make it through this join
+        //but that isn't great because that seems to give us ephemeral deletes on some modifications
         DataStream<Tuple2<Boolean,Row>> output = tableEnv.toRetractStream(join, Row.class);
 
         //we have to use the appropriate type information for serialization

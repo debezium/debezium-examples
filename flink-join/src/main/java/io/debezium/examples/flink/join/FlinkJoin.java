@@ -16,6 +16,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer.Semantic;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
+import org.apache.flink.types.RowKind;
 
 /**
  * Performs an inner join of a customer and an address
@@ -67,7 +68,11 @@ public class FlinkJoin {
         //-- coming soon in flink, we should be able to output a changelog/cdc stream
         //DebeziumJsonSerializationSchema schema ...
 
-        DataStream<Tuple2<Boolean, Row>> output = tableEnv.toRetractStream(addressWithEmail, Row.class);
+        //we cannot directly write this table result, which has a retract stream as input
+        //into an output kafka table, so we create an output stream to direct into the output topic
+        //we have to filter the before update as we want an unwrapped result
+        DataStream<Tuple2<Boolean, Row>> output = tableEnv.toRetractStream(addressWithEmail, Row.class)
+                .filter((t)->t.f1.getKind()!=RowKind.UPDATE_BEFORE);
 
         TypeInformation<Row> rowType = ((TupleTypeInfo)output.getType()).getTypeAt(1);
         JsonRowSerializationSchema rowSerialization = JsonRowSerializationSchema.builder().withTypeInfo(rowType).build();
