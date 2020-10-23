@@ -47,7 +47,7 @@ This executes all configurations set forth by the `docker-compose.yaml` file.
 
 ## Configure the Debezium connector
 
-Register the connector that to stream outbox changes from the order service: 
+Register the connector to stream outbox changes from the order service: 
 
 ```console
 $ http PUT http://localhost:8083/connectors/inventory-connector/config < register-postgres.json
