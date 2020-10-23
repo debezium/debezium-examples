@@ -1,5 +1,4 @@
 #/bin/bash
-
 echo "Compile ASN tool ..."
 cd /asncdctools/src
 /opt/ibm/db2/V11.5/samples/c/bldrtn asncdc
@@ -18,7 +17,7 @@ done
 
 # enable metacatalog read via JDBC
 cd $HOME/sqllib/bnd
-db2 bind db2schema.bnd blocking all grant public sqlerror continue 
+db2 bind db2schema.bnd blocking all grant public sqlerror continue
 
 # do a backup and restart the db
 db2 backup db $DBNAME to /dev/null
@@ -43,12 +42,10 @@ db2 -tvmf /asncdctools/src/asncdcaddremove.sql
 
 
 # create sample table and datat
-db2 -tvmf /asncdctools/src/inventory.sql 
-db2 -tvmf /asncdctools/src/startup-agent.sql 
+db2 -tvmf /asncdctools/src/inventory.sql
+db2 -tvmf /asncdctools/src/startup-agent.sql
 sleep 10
-db2 -tvmf /asncdctools/src/startup-cdc-demo.sql 
-
-
+db2 -tvmf /asncdctools/src/startup-cdc-demo.sql
 
 
 echo "done"

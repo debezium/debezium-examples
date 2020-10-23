@@ -19,3 +19,5 @@ RUN mkdir /var/custom
 RUN chmod -R  777 /var/custom
 
 ADD cdcsetup.sh /var/custom
+ADD custom-init /var/custom-init
+ADD openshift_entrypoint.sh /var/db2_setup/lib/
