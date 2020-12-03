@@ -31,7 +31,7 @@ The `native` profile and `native-image.docker-build` environment variable can be
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.2
+$ export DEBEZIUM_VERSION=1.4
 $ export QUARKUS_BUILD=native
 ```
 

@@ -7,12 +7,13 @@
     "database.password": "postgrespw",
     "database.dbname" : "orderdb",
     "database.server.name": "dbserver1",
-    "schema.whitelist": "inventory",
-    "table.whitelist" : "inventory.outboxevent",
+    "schema.include.list": "inventory",
+    "table.include.list" : "inventory.outboxevent",
     "tombstones.on.delete" : "false",
-    "transforms" : "outbox",
+    "transforms" : "opentracing,outbox",
     "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
     "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
     "transforms.outbox.table.field.event.timestamp" : "timestamp",
-    "transforms.outbox.table.fields.additional.placement" : "type:header:eventType"
+    "transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
+    "transforms.opentracing.type" : "io.debezium.transforms.tracing.ActivateOpenTracingSpan"
 }

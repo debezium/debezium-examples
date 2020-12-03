@@ -19,6 +19,9 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentracing.Scope;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.kafka.TracingKafkaUtils;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped
@@ -29,22 +32,31 @@ public class KafkaEventConsumer {
     @Inject
     OrderEventHandler orderEventHandler;
 
+    @Inject
+    Tracer tracer;
+
     @Incoming("orders")
     public CompletionStage<Void> onMessage(KafkaRecord<String, String> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
-                LOG.debug("Kafka message with key = {} arrived", message.getKey());
-
-                String eventId = getHeaderAsString(message, "id");
-                String eventType = getHeaderAsString(message, "eventType");
-
-                orderEventHandler.onOrderEvent(
-                        UUID.fromString(eventId),
-                        eventType,
-                        message.getKey(),
-                        message.getPayload(),
-                        message.getTimestamp()
-                );
-        });
+                try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer)).startActive(true)) {
+                    LOG.debug("Kafka message with key = {} arrived", message.getKey());
+    
+                    String eventId = getHeaderAsString(message, "id");
+                    String eventType = getHeaderAsString(message, "eventType");
+    
+                    orderEventHandler.onOrderEvent(
+                            UUID.fromString(eventId),
+                            eventType,
+                            message.getKey(),
+                            message.getPayload(),
+                            message.getTimestamp()
+                    );
+                }
+                catch (Exception e) {
+                    LOG.error("Error while preparing shipment");
+                    throw e;
+                }
+        }).thenRun(() -> message.ack());
     }
 
     private String getHeaderAsString(KafkaRecord<?, ?> record, String name) {

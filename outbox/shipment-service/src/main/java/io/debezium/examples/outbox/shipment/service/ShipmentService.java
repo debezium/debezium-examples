@@ -13,6 +13,7 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
 
+import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.debezium.examples.outbox.shipment.model.Shipment;
 
 @ApplicationScoped
+@Traced
 public class ShipmentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShipmentService.class);
