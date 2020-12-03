@@ -2,41 +2,21 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.debezium.examples.outbox</groupId>
+
+  <parent>
+    <groupId>io.debezium.examples.outbox</groupId>
+    <artifactId>outbox-aggregator</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
   <artifactId>outbox-order-service</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
   <name>Debezium Outbox Demo - Order Service</name>
-  <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium-quarkus>1.2.0.Final</version.debezium-quarkus>
-    <version.quarkus>1.5.2.Final</version.quarkus>
-    <version.surefire>2.22.0</version.surefire>
-  </properties>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-universe-bom</artifactId>
-        <version>${version.quarkus}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${version.quarkus}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>io.debezium</groupId>
       <artifactId>debezium-quarkus-outbox</artifactId>
-      <version>${version.debezium-quarkus}</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

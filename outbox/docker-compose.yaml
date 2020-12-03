@@ -1,5 +1,14 @@
 version: '2.1'
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:1
+    ports:
+     - 5775:5775/udp
+     - 6831:6831/udp
+     - 6832:6832/udp
+     - 5778:5778
+     - 16686:16686
+     - 14268:14268
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
@@ -55,23 +64,39 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: strimzi/kafka:0.20.0-kafka-2.6.0
     ports:
      - 8083:8083
-     - 5005:5005
     links:
      - kafka
      - order-db
     environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_source_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_source_connect_statuses
-     - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
-     - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+     - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
+     - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:9092
+     - |
+         KAFKA_CONNECT_CONFIGURATION=
+         key.converter=org.apache.kafka.connect.json.JsonConverter
+         value.converter=org.apache.kafka.connect.json.JsonConverter
+         key.converter.schemas.enable=false
+         value.converter.schemas.enable=false
+         group.id=connect
+         offset.storage.topic=connect-offsets
+         offset.storage.replication.factor=1
+         config.storage.topic=connect-configs
+         config.storage.replication.factor=1
+         status.storage.topic=connect-status
+         status.storage.replication.factor=1
+         consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
+         producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
+     - JAEGER_SERVICE_NAME=kafka-connect
+     - JAEGER_AGENT_HOST=jaeger
+     - STRIMZI_TRACING=jaeger
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
+     - JAVA_DEBUG_PORT=*:5005
+    volumes:
+      - $HOME/tmp/debezium:/opt/kafka/plugins
+    command: /opt/kafka/kafka_connect_run.sh
   order-service:
     image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}
     build:
@@ -82,14 +107,19 @@ services:
     links:
      - kafka
      - order-db
+     - jaeger
     environment:
      - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=false
+     - JAEGER_SERVICE_NAME=order-service
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
+     - JAEGER_AGENT_HOST=jaeger
     depends_on:
       order-db:
         condition: service_healthy
       connect:
         condition: service_started
-    command: "./application -Dquarkus.datasource.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
+    command: "./application -Dquarkus.datasource.jdbc.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
   shipment-service:
     image: debezium-examples/outbox-shipment-service:${DEBEZIUM_VERSION}
     build:
@@ -98,6 +128,12 @@ services:
     links:
      - kafka
      - shipment-db
+     - jaeger
+    environment:
+     - JAEGER_SERVICE_NAME=order-service
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
+     - JAEGER_AGENT_HOST=jaeger
     depends_on:
       shipment-db:
         condition: service_healthy
