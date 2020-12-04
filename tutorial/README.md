@@ -16,6 +16,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using Oracle](#using-oracle)
   * [Using SQL Server](#using-sql-server)
   * [Using Db2](#using-db2)
+  * [Using Cassandra](#using-cassandra)
   * [Using externalized secrets](#using-externalized-secrets)
   * [Debugging](#debugging)
 
@@ -339,6 +340,28 @@ db2 connect to TESTDB
 db2 "INSERT INTO DB2INST1.CUSTOMERS(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');"
 # Shut down the cluster
 docker-compose -f docker-compose-db2.yaml down
+```
+
+## Using Cassandra
+
+```shell 
+# Start the topology as defined in https://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=1.3
+
+docker-compose -f docker-compose-cassandra.yaml up
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-cassandra.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic server1.dbo.customers
+
+# Modify records in the database via Cassandra client
+docker-compose -f docker-compose-cassandra.yaml exec cassandra bash -c 'cqlsh --keyspace=testdb'
+
+# Shut down the cluster
+docker-compose -f docker-compose-cassandra.yaml down
 ```
 
 ## Using externalized secrets
