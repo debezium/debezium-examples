@@ -14,7 +14,7 @@
 # docker run -i --rm -p 8080:8080 quarkus/order-service-quarkus-jvm
 #
 ###
-FROM fabric8/java-jboss-openjdk8-jdk
+FROM fabric8/java-centos-openjdk11-jdk
 ENV JAVA_OPTIONS=-Dquarkus.http.host=0.0.0.0
 COPY target/lib/* /deployments/lib/
 COPY target/*-runner.jar /deployments/app.jar
