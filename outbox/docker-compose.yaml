@@ -90,6 +90,8 @@ services:
          producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
      - JAEGER_SERVICE_NAME=kafka-connect
      - JAEGER_AGENT_HOST=jaeger
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
      - STRIMZI_TRACING=jaeger
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
@@ -109,7 +111,7 @@ services:
      - order-db
      - jaeger
     environment:
-     - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=false
+     - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=true
      - JAEGER_SERVICE_NAME=order-service
      - JAEGER_SAMPLER_TYPE=const
      - JAEGER_SAMPLER_PARAM=1
