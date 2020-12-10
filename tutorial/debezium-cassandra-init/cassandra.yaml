@@ -70,7 +70,7 @@ max_hints_delivery_threads: 2
 
 # Directory where Cassandra should store hints.
 # If not set, the default directory is $CASSANDRA_HOME/data/hints.
-# hints_directory: /var/lib/cassandra/hints
+hints_directory: /var/lib/cassandra/hints
 
 # How often hints should be flushed from the internal buffers to disk.
 # Will *not* trigger fsync.
@@ -187,24 +187,24 @@ partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 # will spread data evenly across them, subject to the granularity of
 # the configured compaction strategy.
 # If not set, the default directory is $CASSANDRA_HOME/data/data.
-# data_file_directories:
-#     - /var/lib/cassandra/data
+data_file_directories:
+  - /var/lib/cassandra/data
 
 # commit log.  when running on magnetic HDD, this should be a
 # separate spindle than the data directories.
 # If not set, the default directory is $CASSANDRA_HOME/data/commitlog.
-# commitlog_directory: /var/lib/cassandra/commitlog
+commitlog_directory: /var/lib/cassandra/commitlog
 
 # Enable / disable CDC functionality on a per-node basis. This modifies the logic used
 # for write path allocation rejection (standard: never reject. cdc: reject Mutation
 # containing a CDC-enabled table if at space limit in cdc_raw_directory).
-cdc_enabled: false
+cdc_enabled: true
 
 # CommitLogSegments are moved to this directory on flush if cdc_enabled: true and the
 # segment contains mutations for a CDC-enabled table. This should be placed on a
 # separate spindle than the data directories. If not set, the default directory is
 # $CASSANDRA_HOME/data/cdc_raw.
-# cdc_raw_directory: /var/lib/cassandra/cdc_raw_directory
+cdc_raw_directory: /var/lib/cassandra/cdc_raw_directory
 
 # Policy for data disk failures:
 #
@@ -365,7 +365,7 @@ counter_cache_save_period: 7200
 
 # saved caches
 # If not set, the default directory is $CASSANDRA_HOME/data/saved_caches.
-# saved_caches_directory: /var/lib/cassandra/saved_caches
+saved_caches_directory: /var/lib/cassandra/saved_caches
 
 # commitlog_sync may be either "periodic" or "batch."
 #
@@ -422,7 +422,7 @@ seed_provider:
     parameters:
       # seeds is actually a comma-delimited list of addresses.
       # Ex: "<ip1>,<ip2>,<ip3>"
-      - seeds: "172.18.0.4"
+      - seeds: "127.0.0.1"
 
 # For workloads with more data than can fit in memory, Cassandra's
 # bottleneck will be reads that need to fetch data from
@@ -609,7 +609,7 @@ ssl_storage_port: 7001
 #
 # Setting listen_address to 0.0.0.0 is always wrong.
 
-listen_address: 172.18.0.4
+listen_address: 127.0.0.1
 
 # Set listen_address OR listen_interface, not both. Interfaces must correspond
 # to a single address, IP aliasing is not supported.
@@ -623,7 +623,7 @@ listen_address: 172.18.0.4
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
-broadcast_address: 172.18.0.4
+broadcast_address: 127.0.0.1
 
 # When using multiple physical network interfaces, set this
 # to true to listen on broadcast_address in addition to
@@ -705,7 +705,7 @@ rpc_port: 9160
 # be set to 0.0.0.0. If left blank, this will be set to the value of
 # rpc_address. If rpc_address is set to 0.0.0.0, broadcast_rpc_address must
 # be set.
-broadcast_rpc_address: 172.18.0.4
+broadcast_rpc_address: 127.0.0.1
 
 # enable or disable keepalive on rpc/native connections
 rpc_keepalive: true
@@ -1167,7 +1167,7 @@ tombstone_failure_threshold: 100000
   # not violate consistency. (See CASSANDRA-8272 and CASSANDRA-15907 for more details.) This
   # mechanism materializes replica results by partition on-heap at the coordinator. The more possibly
   # stale results returned by the replicas, the more rows materialized during the query.
-  replica_filtering_protection:
+  #replica_filtering_protection:
   # These thresholds exist to limit the damage severely out-of-date replicas can cause during these
   # queries. They limit the number of rows from all replicas individual index and filtering queries
   # can materialize on-heap to return correct results at the desired read consistency level.
@@ -1179,8 +1179,8 @@ tombstone_failure_threshold: 100000
   #
   # If the failure threshold is breached, it is likely that either the current page/fetch size
   # is too large or one or more replicas is severely out-of-sync and in need of repair.
-  cached_rows_warn_threshold: 2000
-  cached_rows_fail_threshold: 32000
+  # cached_rows_warn_threshold: 2000
+# cached_rows_fail_threshold: 32000
 
 # Log WARN on any multiple-partition batch size exceeding this value. 5kb per batch by default.
 # Caution should be taken on increasing the size of this threshold as it can lead to node instability.
@@ -1273,4 +1273,4 @@ enable_materialized_views: true
 
 # Enables SASI index creation on this node.
 # SASI indexes are considered experimental and are not recommended for production use.
-enable_sasi_indexes: true
+#enable_sasi_indexes: true
