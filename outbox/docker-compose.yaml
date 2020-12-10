@@ -64,7 +64,9 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
   connect:
-    image: strimzi/kafka:0.20.0-kafka-2.6.0
+    image: debezium/strimzi-connect
+    build:
+      context: debezium-strimzi
     ports:
      - 8083:8083
     links:
@@ -93,11 +95,6 @@ services:
      - JAEGER_SAMPLER_TYPE=const
      - JAEGER_SAMPLER_PARAM=1
      - STRIMZI_TRACING=jaeger
-     - KAFKA_DEBUG=true
-     - DEBUG_SUSPEND_FLAG=n
-     - JAVA_DEBUG_PORT=*:5005
-    volumes:
-      - $HOME/tmp/debezium:/opt/kafka/plugins
     command: /opt/kafka/kafka_connect_run.sh
   order-service:
     image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}

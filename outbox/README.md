@@ -133,6 +133,14 @@ E.g. to query for all shipments:
 select * from inventory.shipment;
 ```
 
+## Tracing
+
+The example is enabled to support tracing via OpenTracing specification.
+One of the components deployed is the Jaeger server that collects and presents tracing information.
+Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace for `order-service` service you should see a trace diagram similar too the one below
+
+![Example of the application trace](jaeger.png)
+
 ## Running the Order Service in Dev Mode
 
 Start all components:
