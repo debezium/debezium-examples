@@ -32,6 +32,7 @@ Setup the necessary environment variables
 
 ```console
 $ export DEBEZIUM_VERSION=1.4
+$ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
 
@@ -81,7 +82,7 @@ Examine the events produced by the service using _kafkacat_:
 ```console
 $ docker run --tty --rm \
     --network outbox_default \
-    debezium/tooling:1.0 \
+    debezium/tooling:1.1 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t Order.events | jq .
@@ -102,7 +103,7 @@ Getting a session in the Postgres DB of the "order" service:
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
-        debezium/tooling:1.0 \
+        debezium/tooling:1.1 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 ```
 
@@ -123,7 +124,7 @@ Getting a session in the Postgres DB of the "shipment" service:
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
-        debezium/tooling:1.0 \
+        debezium/tooling:1.1 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@shipment-db:5432/shipmentdb'
 ```
 
@@ -135,9 +136,9 @@ select * from inventory.shipment;
 
 ## Tracing
 
-The example is enabled to support tracing via OpenTracing specification.
+The example is enabled to support tracing via the https://opentracing.io/[OpenTracing] specification.
 One of the components deployed is the Jaeger server that collects and presents tracing information.
-Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace for `order-service` service you should see a trace diagram similar too the one below
+Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace for the `order-service` service, you should see a trace diagram similar too the one below:
 
 ![Example of the application trace](jaeger.png)
 
