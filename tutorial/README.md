@@ -357,7 +357,9 @@ docker-compose -f docker-compose-cassandra.yaml exec kafka /kafka/bin/kafka-cons
     --property print.key=true \
     --topic server1.dbo.customers
 
-# Modify records in the database via Cassandra client
+# Modify records in the database via Cassandra client (note the TX logs will only be flushed out,
+and thus be picked up by the connector, after accumulating 1 MB of changes)
+
 docker-compose -f docker-compose-cassandra.yaml exec cassandra bash -c 'cqlsh --keyspace=testdb'
 
 INSERT INTO customers(id,first_name,last_name,email) VALUES (5,'Roger','Poor','roger@poor.com');
