@@ -1,0 +1,35 @@
+version: '2.1'
+services:
+  order-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5432:5432
+    healthcheck:
+      test: "pg_isready -U todouser -d tododb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+     - POSTGRES_USER=todouser
+     - POSTGRES_PASSWORD=todopw
+     - POSTGRES_DB=tododb
+    volumes:
+     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+     - my-network
+     #- PGPASSWORD=todopw
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - my-network
+networks:
+  my-network:
+    name: saga-network
