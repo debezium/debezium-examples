@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface Saga {
 
     UUID getId();
+    SagaStatus getStatus();
     String getType();
     String getPayload();
     Set<String> stepIds();

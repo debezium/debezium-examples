@@ -16,17 +16,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.debezium.example.saga.framework.Saga;
+import io.debezium.example.saga.framework.SagaBase;
+import io.debezium.example.saga.framework.SagaStatus;
 import io.debezium.example.saga.framework.SagaStepMessage;
-import io.debezium.example.saga.framework.internal.SagaStepState;
-import io.debezium.example.saga.framework.internal.SagaStepStatus;
 import io.debezium.example.saga.order.model.PurchaseOrder;
-import io.debezium.example.saga.order.rest.CreditApprovalStatus;
-import io.debezium.example.saga.order.rest.CreditApprovalStatusEvent;
-import io.debezium.example.saga.order.rest.PaymentStatus;
-import io.debezium.example.saga.order.rest.PaymentStatusEvent;
+import io.debezium.example.saga.order.model.PurchaseOrderStatus;
+import io.debezium.example.saga.order.rest.CreditApprovalEvent;
+import io.debezium.example.saga.order.rest.PaymentEvent;
 
-public class OrderPlacementSaga implements Saga {
+public class OrderPlacementSaga extends SagaBase {
 
     private static final String PAYMENT = "payment";
     private static final String CREDIT_APPROVAL = "credit-approval";
@@ -96,25 +94,32 @@ public class OrderPlacementSaga implements Saga {
         }
     }
 
-    public SagaStepState onPaymentEvent(PaymentStatusEvent event) {
-        return new SagaStepState(
-                PAYMENT,
-                event.status == PaymentStatus.ABORTED ? SagaStepStatus.ABORTED : event.status == PaymentStatus.FAILED ? SagaStepStatus.FAILED : SagaStepStatus.SUCCEEDED
-        );
+    public void onPaymentEvent(PaymentEvent event) {
+        updateStepStatus(PAYMENT, event.status.toStepStatus());
+        updateOrderStatus();
     }
 
-    public SagaStepState onCreditApprovalEvent(CreditApprovalStatusEvent event) {
-        return new SagaStepState(
-                CREDIT_APPROVAL,
-                event.status == CreditApprovalStatus.ABORTED ? SagaStepStatus.ABORTED : event.status == CreditApprovalStatus.FAILED ? SagaStepStatus.FAILED : SagaStepStatus.SUCCEEDED
-        );
+    public void onCreditApprovalEvent(CreditApprovalEvent event) {
+        updateStepStatus(CREDIT_APPROVAL, event.status.toStepStatus());
+        updateOrderStatus();
+    }
+
+    private void updateOrderStatus() {
+        if (getStatus() == SagaStatus.COMPLETED) {
+            PurchaseOrder order = PurchaseOrder.findById(getOrderId());
+            order.status = PurchaseOrderStatus.PROCESSING;
+        }
+        else if (getStatus() == SagaStatus.ABORTED) {
+            PurchaseOrder order = PurchaseOrder.findById(getOrderId());
+            order.status = PurchaseOrderStatus.CANCELLED;
+        }
     }
 
     public long getOrderId() {
         TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {};
         try {
             HashMap<String, Object> state = objectMapper.readValue(payload, typeRef);
-            return (long) state.get("order-id");
+            return (int) state.get("order-id");
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);

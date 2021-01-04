@@ -7,7 +7,7 @@ package io.debezium.example.saga.order.rest;
 
 import java.util.UUID;
 
-public class CreditApprovalStatusEvent {
+public class CreditApprovalEvent {
 
     public UUID sagaId;
     public CreditApprovalStatus status;

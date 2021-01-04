@@ -5,6 +5,12 @@
  */
 package io.debezium.example.saga.order.rest;
 
+import io.debezium.example.saga.framework.internal.SagaStepStatus;
+
 public enum CreditApprovalStatus {
     SUCCEEDED, FAILED, ABORTED;
+
+    public SagaStepStatus toStepStatus() {
+        return this == ABORTED ? SagaStepStatus.ABORTED : this == FAILED ? SagaStepStatus.FAILED : SagaStepStatus.SUCCEEDED;
+    }
 }

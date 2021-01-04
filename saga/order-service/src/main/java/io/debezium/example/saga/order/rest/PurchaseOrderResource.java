@@ -15,10 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.debezium.example.saga.framework.SagaManager;
-import io.debezium.example.saga.framework.SagaStatus;
-import io.debezium.example.saga.framework.internal.SagaStepState;
 import io.debezium.example.saga.order.model.PurchaseOrder;
-import io.debezium.example.saga.order.model.PurchaseOrderStatus;
 import io.debezium.example.saga.order.saga.OrderPlacementSaga;
 
 @Path("/orders")
@@ -44,33 +41,16 @@ public class PurchaseOrderResource {
     @POST
     @Path("/payment")
     @Transactional
-    public void onPaymentEvent(PaymentStatusEvent event) {
+    public void onPaymentEvent(PaymentEvent event) {
         OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, event.sagaId);
-        SagaStepState stepState = saga.onPaymentEvent(event);
-        sagaManager.process(saga, stepState);
-
-        updateOrderStatus(saga);
+        saga.onPaymentEvent(event);
     }
 
     @POST
     @Path("/credit-approval")
     @Transactional
-    public void onCreditEvent(CreditApprovalStatusEvent event) {
+    public void onCreditEvent(CreditApprovalEvent event) {
         OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, event.sagaId);
-        SagaStepState stepState = saga.onCreditApprovalEvent(event);
-        sagaManager.process(saga, stepState);
-
-        updateOrderStatus(saga);
-    }
-
-    private void updateOrderStatus(OrderPlacementSaga saga) {
-        if (sagaManager.getStatus(saga) == SagaStatus.COMPLETED) {
-            PurchaseOrder order = PurchaseOrder.findById(saga.getId());
-            order.status = PurchaseOrderStatus.PROCESSING;
-        }
-        else if (sagaManager.getStatus(saga) == SagaStatus.ABORTED) {
-            PurchaseOrder order = PurchaseOrder.findById(saga.getId());
-            order.status = PurchaseOrderStatus.CANCELLED;
-        }
+        saga.onCreditApprovalEvent(event);
     }
 }
