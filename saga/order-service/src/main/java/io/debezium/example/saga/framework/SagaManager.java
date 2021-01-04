@@ -1,3 +1,8 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.example.saga.framework;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,8 +21,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.debezium.example.saga.order.saga.SagaStatus;
-import io.debezium.example.saga.order.saga.SagaStepStatus;
+import io.debezium.example.saga.framework.internal.SagaState;
+import io.debezium.example.saga.framework.internal.SagaStepMessageState;
+import io.debezium.example.saga.framework.internal.SagaStepState;
+import io.debezium.example.saga.framework.internal.SagaStepStatus;
 
 @ApplicationScoped
 public class SagaManager {
@@ -39,9 +46,9 @@ public class SagaManager {
         entityManager.persist(state);
 
         for (String stepId : saga.stepIds()) {
-            SagaStepEvent stepEvent = saga.getStepEvent(stepId);
+            SagaStepMessage stepEvent = saga.getStepMessage(stepId);
 
-            SagaStepEventState stepState = new SagaStepEventState();
+            SagaStepMessageState stepState = new SagaStepMessageState();
             stepState.sagaId = state.getId();
             stepState.type = stepEvent.type;
             stepState.payload = stepEvent.payload;
@@ -70,7 +77,7 @@ public class SagaManager {
         }
     }
 
-    public <S extends Saga> void process(S saga, SagaStepState stepState) {
+    public void process(Saga saga, SagaStepState stepState) {
         SagaState state = entityManager.find(SagaState.class, saga.getId());
         TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
         try {
@@ -80,9 +87,9 @@ public class SagaManager {
                 for (Entry<String, SagaStepStatus> oneState : stepStates.entrySet()) {
                     if (!oneState.getKey().equals(stepState.type)) {
                         if (oneState.getValue() == SagaStepStatus.STARTED || oneState.getValue() == SagaStepStatus.SUCCEEDED) {
-                            SagaStepEvent compensation = saga.getCompensatingStep(oneState.getKey());
+                            SagaStepMessage compensation = saga.getCompensatingStepMessage(oneState.getKey());
 
-                            SagaStepEventState compensationStepState = new SagaStepEventState();
+                            SagaStepMessageState compensationStepState = new SagaStepMessageState();
                             compensationStepState.sagaId = state.getId();
                             compensationStepState.type = compensation.type;
                             compensationStepState.payload = compensation.payload;
@@ -100,6 +107,10 @@ public class SagaManager {
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public SagaStatus getStatus(Saga saga) {
+        return entityManager.find(SagaState.class, saga.getId()).getStatus();
     }
 
     private SagaStatus getSagaStatus(Collection<SagaStepStatus> stepStates) {

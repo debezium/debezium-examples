@@ -1,8 +1,12 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.example.saga.order.rest;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -11,8 +15,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import io.debezium.example.saga.framework.SagaManager;
+import io.debezium.example.saga.framework.SagaStatus;
+import io.debezium.example.saga.framework.internal.SagaStepState;
 import io.debezium.example.saga.order.model.PurchaseOrder;
-import io.debezium.example.saga.order.saga.MyOrderPlacementSaga;
+import io.debezium.example.saga.order.model.PurchaseOrderStatus;
+import io.debezium.example.saga.order.saga.OrderPlacementSaga;
 
 @Path("/orders")
 @Produces(MediaType.APPLICATION_JSON)
@@ -23,32 +30,47 @@ public class PurchaseOrderResource {
     @Inject
     private SagaManager sagaManager;
 
-    @Inject
-    private EntityManager entityManager;
-
     @POST
     @Transactional
     public PlaceOrderResponse placeOrder(PlaceOrderRequest req) {
         PurchaseOrder order = req.toPurchaseOrder();
         order.persist();
 
-        sagaManager.begin(new MyOrderPlacementSaga(order));
-//
-//        OrderPlacementSaga saga = OrderPlacementSaga.forOrder(order);
-//        entityManager.persist(saga);
-//
-//        OrderPlacementSagaEvent paymentRequest = new OrderPlacementSagaEvent();
-//        paymentRequest.saga = saga;
-//        paymentRequest.type = "payment-request";
-//        paymentRequest.payload = "{ \"sagaId\" : " + saga.getId() + ", \"amountDue\" : " + req.paymentDue + "}";
-//        entityManager.persist(paymentRequest);
-//
-//        OrderPlacementSagaEvent creditRequest = new OrderPlacementSagaEvent();
-//        creditRequest.saga = saga;
-//        creditRequest.type = "credit-request";
-//        creditRequest.payload = "{ \"sagaId\" : " + saga.getId() + ", \"amountDue\" : " + req.paymentDue + "}";
-//        entityManager.persist(creditRequest);
+        sagaManager.begin(OrderPlacementSaga.forPurchaseOrder(order));
 
         return PlaceOrderResponse.fromPurchaseOrder(order);
+    }
+
+    @POST
+    @Path("/payment")
+    @Transactional
+    public void onPaymentEvent(PaymentStatusEvent event) {
+        OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, event.sagaId);
+        SagaStepState stepState = saga.onPaymentEvent(event);
+        sagaManager.process(saga, stepState);
+
+        updateOrderStatus(saga);
+    }
+
+    @POST
+    @Path("/credit-approval")
+    @Transactional
+    public void onCreditEvent(CreditApprovalStatusEvent event) {
+        OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, event.sagaId);
+        SagaStepState stepState = saga.onCreditApprovalEvent(event);
+        sagaManager.process(saga, stepState);
+
+        updateOrderStatus(saga);
+    }
+
+    private void updateOrderStatus(OrderPlacementSaga saga) {
+        if (sagaManager.getStatus(saga) == SagaStatus.COMPLETED) {
+            PurchaseOrder order = PurchaseOrder.findById(saga.getId());
+            order.status = PurchaseOrderStatus.PROCESSING;
+        }
+        else if (sagaManager.getStatus(saga) == SagaStatus.ABORTED) {
+            PurchaseOrder order = PurchaseOrder.findById(saga.getId());
+            order.status = PurchaseOrderStatus.CANCELLED;
+        }
     }
 }

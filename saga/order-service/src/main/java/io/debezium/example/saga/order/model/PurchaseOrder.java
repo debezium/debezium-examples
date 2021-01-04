@@ -1,10 +1,14 @@
+/*
+ * Copyright Debezium Authors.
+ *
+ * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
+ */
 package io.debezium.example.saga.order.model;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import io.debezium.example.saga.order.rest.PurchaseOrderStatus;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
