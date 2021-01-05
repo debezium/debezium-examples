@@ -5,17 +5,18 @@
  */
 package io.debezium.example.saga.order.saga;
 
-import java.util.Arrays;
+import static io.debezium.example.saga.order.saga.OrderPlacementSaga.CREDIT_APPROVAL;
+import static io.debezium.example.saga.order.saga.OrderPlacementSaga.PAYMENT;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.debezium.example.saga.framework.Saga;
 import io.debezium.example.saga.framework.SagaBase;
 import io.debezium.example.saga.framework.SagaStatus;
 import io.debezium.example.saga.framework.SagaStepMessage;
@@ -24,19 +25,16 @@ import io.debezium.example.saga.order.model.PurchaseOrderStatus;
 import io.debezium.example.saga.order.rest.CreditApprovalEvent;
 import io.debezium.example.saga.order.rest.PaymentEvent;
 
+@Saga(type="order-placement", stepIds = {CREDIT_APPROVAL, PAYMENT})
 public class OrderPlacementSaga extends SagaBase {
 
-    private static final String PAYMENT = "payment";
-    private static final String CREDIT_APPROVAL = "credit-approval";
+    protected static final String PAYMENT = "payment";
+    protected static final String CREDIT_APPROVAL = "credit-approval";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private UUID id;
-    private String payload;
-
     public OrderPlacementSaga(UUID id, String payload) {
-        this.id = id;
-        this.payload = payload;
+        super(id, payload);
     }
 
     public static OrderPlacementSaga forPurchaseOrder(PurchaseOrder purchaseOrder) {
@@ -55,32 +53,12 @@ public class OrderPlacementSaga extends SagaBase {
     }
 
     @Override
-    public UUID getId() {
-        return id;
-    }
-
-    @Override
-    public String getType() {
-        return "order-placement";
-    }
-
-    @Override
-    public String getPayload() {
-        return payload;
-    }
-
-    @Override
-    public Set<String> stepIds() {
-        return new HashSet<>(Arrays.asList(CREDIT_APPROVAL, PAYMENT));
-    }
-
-    @Override
     public SagaStepMessage getStepMessage(String id) {
         if (id.equals(PAYMENT)) {
-            return new SagaStepMessage(PAYMENT, payload);
+            return new SagaStepMessage(PAYMENT, getPayload());
         }
         else {
-            return new SagaStepMessage(CREDIT_APPROVAL, payload);
+            return new SagaStepMessage(CREDIT_APPROVAL, getPayload());
         }
     }
 
@@ -94,14 +72,26 @@ public class OrderPlacementSaga extends SagaBase {
         }
     }
 
-    public void onPaymentEvent(PaymentEvent event) {
+    public void onPaymentEvent(UUID messageId, PaymentEvent event) {
+        if (alreadyProcessed(messageId)) {
+            return;
+        }
+
         updateStepStatus(PAYMENT, event.status.toStepStatus());
         updateOrderStatus();
+
+        processed(messageId);
     }
 
-    public void onCreditApprovalEvent(CreditApprovalEvent event) {
+    public void onCreditApprovalEvent(UUID messageId, CreditApprovalEvent event) {
+        if (alreadyProcessed(messageId)) {
+            return;
+        }
+
         updateStepStatus(CREDIT_APPROVAL, event.status.toStepStatus());
         updateOrderStatus();
+
+        processed(messageId);
     }
 
     private void updateOrderStatus() {
@@ -115,10 +105,10 @@ public class OrderPlacementSaga extends SagaBase {
         }
     }
 
-    public long getOrderId() {
+    private long getOrderId() {
         TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {};
         try {
-            HashMap<String, Object> state = objectMapper.readValue(payload, typeRef);
+            HashMap<String, Object> state = objectMapper.readValue(getPayload(), typeRef);
             return (int) state.get("order-id");
         }
         catch (JsonProcessingException e) {

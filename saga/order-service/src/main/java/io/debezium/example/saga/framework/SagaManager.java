@@ -29,7 +29,7 @@ public class SagaManager {
     @Inject
     private EntityManager entityManager;
 
-    public void begin(Saga saga) {
+    public void begin(SagaBase saga) {
         SagaState state = new SagaState();
         state.setId(UUID.randomUUID());
         state.setType(saga.getType());
@@ -40,7 +40,7 @@ public class SagaManager {
 
         entityManager.persist(state);
 
-        for (String stepId : saga.stepIds()) {
+        for (String stepId : saga.getStepIds()) {
             SagaStepMessage stepEvent = saga.getStepMessage(stepId);
 
             SagaStepMessageState stepState = new SagaStepMessageState();
@@ -59,7 +59,7 @@ public class SagaManager {
         }
     }
 
-    public <S extends Saga> S find(Class<S> sagaType, UUID sagaId) {
+    public <S extends SagaBase> S find(Class<S> sagaType, UUID sagaId) {
         SagaState state = entityManager.find(SagaState.class, sagaId);
 
         try {

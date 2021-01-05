@@ -5,25 +5,64 @@
  */
 package io.debezium.example.saga.framework;
 
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.debezium.example.saga.framework.internal.ConsumedMessage;
 import io.debezium.example.saga.framework.internal.SagaState;
 import io.debezium.example.saga.framework.internal.SagaStepMessageState;
 import io.debezium.example.saga.framework.internal.SagaStepStatus;
 import io.quarkus.hibernate.orm.panache.runtime.JpaOperations;
 
-public abstract class SagaBase implements Saga {
+public abstract class SagaBase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SagaBase.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    private final UUID id;
+    private final String payload;
+
+    protected SagaBase(UUID id, String payload) {
+        this.id = id;
+        this.payload = payload;
+    }
+
+    public final UUID getId() {
+        return id;
+    }
+
+    public final String getPayload() {
+        return payload;
+    }
+
+    public final String getType() {
+        return getClass().getAnnotation(Saga.class).type();
+    }
+
+    public final Set<String> getStepIds() {
+        return new HashSet<>(Arrays.asList(getClass().getAnnotation(Saga.class).stepIds()));
+    }
+
+    public SagaStatus getStatus() {
+        EntityManager em = JpaOperations.getEntityManager(SagaState.class);
+        return em.find(SagaState.class, getId()).getStatus();
+    }
 
     protected void updateStepStatus(String type, SagaStepStatus status) {
         EntityManager em = JpaOperations.getEntityManager(SagaState.class);
@@ -59,10 +98,19 @@ public abstract class SagaBase implements Saga {
         }
     }
 
-    @Override
-    public SagaStatus getStatus() {
-        EntityManager em = JpaOperations.getEntityManager(SagaState.class);
-        return em.find(SagaState.class, getId()).getStatus();
+    protected abstract SagaStepMessage getStepMessage(String id);
+
+    protected abstract SagaStepMessage getCompensatingStepMessage(String id);
+
+    protected void processed(UUID eventId) {
+        EntityManager em = JpaOperations.getEntityManager(ConsumedMessage.class);
+        em.persist(new ConsumedMessage(eventId, Instant.now()));
+    }
+
+    protected boolean alreadyProcessed(UUID eventId) {
+        LOG.debug("Looking for event with id {} in message log", eventId);
+        EntityManager em = JpaOperations.getEntityManager(ConsumedMessage.class);
+        return em.find(ConsumedMessage.class, eventId) != null;
     }
 
     private SagaStatus getSagaStatus(Collection<SagaStepStatus> stepStates) {

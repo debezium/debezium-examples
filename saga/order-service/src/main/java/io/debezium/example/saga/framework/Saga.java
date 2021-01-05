@@ -5,16 +5,8 @@
  */
 package io.debezium.example.saga.framework;
 
-import java.util.Set;
-import java.util.UUID;
+public @interface Saga {
 
-public interface Saga {
-
-    UUID getId();
-    SagaStatus getStatus();
-    String getType();
-    String getPayload();
-    Set<String> stepIds();
-    SagaStepMessage getStepMessage(String id);
-    SagaStepMessage getCompensatingStepMessage(String id);
+    String type();
+    String[] stepIds();
 }

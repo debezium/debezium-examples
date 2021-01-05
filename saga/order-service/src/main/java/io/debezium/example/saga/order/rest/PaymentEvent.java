@@ -5,10 +5,6 @@
  */
 package io.debezium.example.saga.order.rest;
 
-import java.util.UUID;
-
 public class PaymentEvent {
-
-    public UUID sagaId;
     public PaymentStatus status;
 }
