@@ -44,9 +44,10 @@ public class SagaManager {
             SagaStepMessage stepEvent = saga.getStepMessage(stepId);
 
             SagaStepMessageState stepState = new SagaStepMessageState();
-            stepState.sagaId = state.getId();
-            stepState.type = stepEvent.type;
-            stepState.payload = stepEvent.payload;
+            stepState.setId(UUID.randomUUID());
+            stepState.setSagaId(state.getId());
+            stepState.setType(stepEvent.type);
+            stepState.setPayload(stepEvent.payload);
             stepStates.put(stepId, SagaStepStatus.STARTED.name());
             entityManager.persist(stepState);
         }

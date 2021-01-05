@@ -1,5 +1,42 @@
 version: '2.1'
 services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+    networks:
+     - my-network
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+    networks:
+     - my-network
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+     - 8083:8083
+     - 5005:5005
+    links:
+     - kafka
+     - order-db
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+     - KAFKA_DEBUG=true
+     - DEBUG_SUSPEND_FLAG=n
+     - JAVA_DEBUG_PORT=0.0.0.0:5005
+    networks:
+     - my-network
   order-db:
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -17,7 +54,6 @@ services:
      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
-     #- PGPASSWORD=todopw
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4

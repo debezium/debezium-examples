@@ -79,9 +79,10 @@ public abstract class SagaBase {
                             SagaStepMessage compensation = getCompensatingStepMessage(oneState.getKey());
 
                             SagaStepMessageState compensationStepState = new SagaStepMessageState();
-                            compensationStepState.sagaId = state.getId();
-                            compensationStepState.type = compensation.type;
-                            compensationStepState.payload = compensation.payload;
+                            compensationStepState.setId(UUID.randomUUID());
+                            compensationStepState.setSagaId(state.getId());
+                            compensationStepState.setType(compensation.type);
+                            compensationStepState.setPayload(compensation.payload);
                             oneState.setValue(SagaStepStatus.ABORTING);
                             em.persist(compensationStepState);
                         }
