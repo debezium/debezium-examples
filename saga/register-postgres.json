@@ -1,0 +1,19 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "order-db",
+    "database.port": "5432",
+    "database.user": "todouser",
+    "database.password": "todopw",
+    "database.dbname" : "tododb",
+    "database.server.name": "dbserver1",
+    "schema.include.list": "todo",
+    "table.include.list" : "todo.sagastepmessagestate",
+    "tombstones.on.delete" : "false",
+    "transforms" : "saga",
+    "transforms.saga.type" : "io.debezium.transforms.outbox.EventRouter",
+    "transforms.saga.route.by.field" : "type",
+    "transforms.saga.route.topic.replacement" : "${routedByValue}.request",
+    "transforms.saga.table.field.event.key" : "sagaid",
+    "transforms.saga.table.field.event.payload.id" : "sagaid"
+}

@@ -8,13 +8,47 @@ package io.debezium.example.saga.framework.internal;
 import java.util.UUID;
 
 import javax.persistence.Entity;
-
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import javax.persistence.Id;
 
 @Entity
-public class SagaStepMessageState extends PanacheEntity {
+public class SagaStepMessageState {
 
-    public UUID sagaId;
-    public String type;
-    public String payload;
+    @Id
+    private UUID id;
+
+    private UUID sagaId;
+    private String type;
+    private String payload;
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public UUID getSagaId() {
+        return sagaId;
+    }
+
+    public void setSagaId(UUID sagaId) {
+        this.sagaId = sagaId;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
 }
