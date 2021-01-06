@@ -13,12 +13,14 @@ import java.util.concurrent.CompletionStage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.persistence.OptimisticLockException;
 
 import org.apache.kafka.common.header.Header;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.debezium.examples.saga.order.event.CreditApprovalEvent;
 import io.debezium.examples.saga.order.event.PaymentEvent;
 import io.debezium.examples.saga.order.saga.OrderPlacementEventHandler;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
@@ -27,6 +29,8 @@ import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 public class KafkaEventConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaEventConsumer.class);
+
+    private static final int RETRIES = 3;
 
     @Inject
     private OrderPlacementEventHandler eventHandler;
@@ -39,7 +43,50 @@ public class KafkaEventConsumer {
             UUID messageId = UUID.fromString(getHeaderAsString(message, "id"));
             UUID sagaId = UUID.fromString(message.getKey());
 
-            eventHandler.onPaymentEvent(sagaId, messageId, message.getPayload());
+            int tries = 0;
+
+            while (tries < RETRIES) {
+                try {
+                    tries++;
+                    eventHandler.onPaymentEvent(sagaId, messageId, message.getPayload());
+                }
+                catch(OptimisticLockException ole) {
+                    if (tries == RETRIES) {
+                        throw ole;
+                    }
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }).thenRun(() -> message.ack());
+    }
+
+    @Incoming("creditresponse")
+    public CompletionStage<Void> onCreditMessage(KafkaRecord<String, CreditApprovalEvent> message) throws IOException {
+        return CompletableFuture.runAsync(() -> {
+            LOG.debug("Kafka message with key = {} arrived", message.getKey());
+
+            UUID messageId = UUID.fromString(getHeaderAsString(message, "id"));
+            UUID sagaId = UUID.fromString(message.getKey());
+
+            int tries = 0;
+
+            while (tries < RETRIES) {
+                try {
+                    tries++;
+                    eventHandler.onCreditApprovalEvent(sagaId, messageId, message.getPayload());
+                }
+                catch(OptimisticLockException ole) {
+                    if (tries == RETRIES) {
+                        throw ole;
+                    }
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
         }).thenRun(() -> message.ack());
     }

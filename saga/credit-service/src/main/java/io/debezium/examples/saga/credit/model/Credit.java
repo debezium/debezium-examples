@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.saga.payment.model;
+package io.debezium.examples.saga.credit.model;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 
 @Entity
-public class Payment extends PanacheEntity {
+public class Credit extends PanacheEntity {
 
     @JsonProperty("order-id")
     public long orderId;
@@ -29,12 +29,12 @@ public class Payment extends PanacheEntity {
     public String creditCardNo;
 
     @Enumerated(EnumType.STRING)
-    public PaymentRequestType type;
+    public CreditRequestType type;
 
-    public Payment() {
+    public Credit() {
     }
 
-    public Payment(long orderId, long customerId, long paymentDue, String creditCardNo, PaymentRequestType type) {
+    public Credit(long orderId, long customerId, long paymentDue, String creditCardNo, CreditRequestType type) {
         this.orderId = orderId;
         this.customerId = customerId;
         this.paymentDue = paymentDue;

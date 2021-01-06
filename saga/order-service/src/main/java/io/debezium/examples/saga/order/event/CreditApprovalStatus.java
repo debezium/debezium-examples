@@ -8,9 +8,9 @@ package io.debezium.examples.saga.order.event;
 import io.debezium.examples.saga.framework.internal.SagaStepStatus;
 
 public enum CreditApprovalStatus {
-    SUCCEEDED, FAILED, ABORTED;
+    APPROVED, REJECTED, CANCELLED;
 
     public SagaStepStatus toStepStatus() {
-        return this == ABORTED ? SagaStepStatus.ABORTED : this == FAILED ? SagaStepStatus.FAILED : SagaStepStatus.SUCCEEDED;
+        return this == CANCELLED ? SagaStepStatus.ABORTED : this == REJECTED ? SagaStepStatus.FAILED : SagaStepStatus.SUCCEEDED;
     }
 }
