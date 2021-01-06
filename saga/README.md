@@ -22,10 +22,11 @@ $ mvn compile quarkus:dev -f order-service/pom.xml
 $ docker-compose up
 ```
 
-Register the connector:
+Register the connectors for the different services:
 
 ```console
-$ http PUT http://localhost:8083/connectors/order-saga-connector/config < register-postgres.json
+$ http PUT http://localhost:8083/connectors/order-outbox-connector/config < register-order-connector.json
+$ http PUT http://localhost:8083/connectors/payment-outbox-connector/config < register-payment-connector.json
 ```
 
 Place an order:
@@ -95,3 +96,31 @@ Emulate a crediat approval response (status=ABORTED) and observe how the Saga is
 Eventually,
 actual service implementations will be provided for the customer and payment services,
 which respond back via Kafka instead of HTTP.
+
+## Running Locally
+
+Set the ADVERTISED_HOST_NAME env variable of the _kafka_ service in _docker-compose.yml_ to the address of your host machine.
+
+```console
+$ docker-compose up --build --scale order-service=0 --scale payment-service=0 --scale customer-service=0
+```
+
+```console
+$ mvn compile quarkus:dev -f order-service/pom.xml
+```
+
+```console
+$ mvn compile quarkus:dev -f payment-service/pom.xml
+```
+
+```console
+$ mvn compile quarkus:dev -f customer-service/pom.xml
+```
+
+## Misc. Commands
+
+Listing all topics:
+
+```console
+$ docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
+```

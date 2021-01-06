@@ -16,10 +16,15 @@ services:
      - zookeeper
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
+     - ADVERTISED_HOST_NAME=192.168.1.11
     networks:
      - my-network
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: debezium-examples/connect-with-expandjsonsmt:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-with-expand-json-smt
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
@@ -31,7 +36,7 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses
+     - STATUS_STORAGE_TOPIC=my_connect_statuses 
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
      - JAVA_DEBUG_PORT=0.0.0.0:5005
@@ -52,6 +57,23 @@ services:
      - POSTGRES_DB=tododb
     volumes:
      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+     - my-network
+  payment-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5433:5432
+    healthcheck:
+      test: "pg_isready -U paymentuser -d paymentdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+     - POSTGRES_USER=paymentuser
+     - POSTGRES_PASSWORD=paymentpw
+     - POSTGRES_DB=paymentdb
+    volumes:
+     - ./init-payment.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
   pgadmin:
