@@ -44,7 +44,7 @@ public class OrderPlacementSaga extends SagaBase {
             payload.put("customer-id", purchaseOrder.customerId);
             payload.put("payment-due", purchaseOrder.paymentDue);
             payload.put("credit-card-no", purchaseOrder.creditCardNo);
-            payload.put("status", "REQUESTED");
+            payload.put("type", "REQUEST");
 
             return new OrderPlacementSaga(UUID.randomUUID(), objectMapper.writeValueAsString(payload));
         }
@@ -66,10 +66,10 @@ public class OrderPlacementSaga extends SagaBase {
     @Override
     public SagaStepMessage getCompensatingStepMessage(String id) {
         if (id.equals(PAYMENT)) {
-            return new SagaStepMessage(PAYMENT, "{ \"status\" : \"CANCELLED\", \"order-id\" : " + getOrderId() + "}");
+            return new SagaStepMessage(PAYMENT, "{ \"type\" : \"CANCEL\", \"order-id\" : " + getOrderId() + "}");
         }
         else {
-            return new SagaStepMessage(CREDIT_APPROVAL, "{ \"status\" : \"CANCELLED\", \"order-id\" : " + getOrderId() + "}");
+            return new SagaStepMessage(CREDIT_APPROVAL, "{ \"type\" : \"CANCEL\", \"order-id\" : " + getOrderId() + "}");
         }
     }
 

@@ -20,11 +20,7 @@ services:
     networks:
      - my-network
   connect:
-    image: debezium-examples/connect-with-expandjsonsmt:${DEBEZIUM_VERSION}
-    build:
-      context: debezium-with-expand-json-smt
-      args:
-        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
@@ -56,7 +52,7 @@ services:
      - POSTGRES_PASSWORD=todopw
      - POSTGRES_DB=tododb
     volumes:
-     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+     - ./init-order.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
   payment-db:
@@ -74,6 +70,23 @@ services:
      - POSTGRES_DB=paymentdb
     volumes:
      - ./init-payment.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+     - my-network
+  credit-db:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5434:5432
+    healthcheck:
+      test: "pg_isready -U credituser -d creditdb"
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+     - POSTGRES_USER=credituser
+     - POSTGRES_PASSWORD=creditpw
+     - POSTGRES_DB=creditdb
+    volumes:
+     - ./init-credit.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
   pgadmin:

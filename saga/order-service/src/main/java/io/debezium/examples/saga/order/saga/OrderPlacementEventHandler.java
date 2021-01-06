@@ -22,6 +22,7 @@ public class OrderPlacementEventHandler {
         saga.onPaymentEvent(messageId, event);
     }
 
+    @Transactional
     public void onCreditApprovalEvent(UUID sagaId, UUID messageId, CreditApprovalEvent event) {
         OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, sagaId);
         saga.onCreditApprovalEvent(messageId, event);

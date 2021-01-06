@@ -1,0 +1,19 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "credit-db",
+    "database.port": "5432",
+    "database.user": "credituser",
+    "database.password": "creditpw",
+    "database.dbname" : "creditdb",
+    "database.server.name": "dbserver3",
+    "schema.include.list": "credit",
+    "table.include.list" : "credit.outboxevent",
+    "tombstones.on.delete" : "false",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter.schemas.enable": "false",
+    "transforms" : "outbox",
+    "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
+    "transforms.outbox.route.topic.replacement" : "${routedByValue}.response"
+}

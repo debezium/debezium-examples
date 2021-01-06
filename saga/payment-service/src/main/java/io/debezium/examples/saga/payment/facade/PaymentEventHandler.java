@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import io.debezium.examples.saga.payment.event.PaymentEvent;
 import io.debezium.examples.saga.payment.messagelog.MessageLog;
 import io.debezium.examples.saga.payment.model.Payment;
+import io.debezium.examples.saga.payment.model.PaymentRequestType;
 import io.debezium.examples.saga.payment.model.PaymentStatus;
 import io.debezium.outbox.quarkus.ExportedEvent;
 
@@ -39,15 +40,23 @@ public class PaymentEventHandler {
             return;
         }
 
-        if (event.status == PaymentStatus.REQUESTED) {
+        PaymentStatus status;
+
+        if (event.type == PaymentRequestType.REQUEST) {
             if (event.creditCardNo.endsWith("9999")) {
-                event.status = PaymentStatus.FAILED;
+                status = PaymentStatus.FAILED;
             }
-
-            event.persist();
-
-            this.event.fire(PaymentEvent.of(sagaId, event.status));
+            else {
+                status = PaymentStatus.REQUESTED;
+            }
         }
+        else {
+            status = PaymentStatus.CANCELLED;
+        }
+
+        event.persist();
+
+        this.event.fire(PaymentEvent.of(sagaId, status));
 
         log.processed(eventId);
     }
