@@ -10,8 +10,8 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>saga-credit-service</artifactId>
-  <name>Debezium Saga Demo - Credit Service</name>
+  <artifactId>saga-customer-service</artifactId>
+  <name>Debezium Saga Demo - Customer Service</name>
 
   <dependencies>
     <dependency>

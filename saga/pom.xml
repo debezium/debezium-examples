@@ -36,6 +36,6 @@
   <modules>
     <module>order-service</module>
     <module>payment-service</module>
-    <module>credit-service</module>
+    <module>customer-service</module>
   </modules>
 </project>

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.saga.credit.event;
+package io.debezium.examples.saga.customer.event;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.debezium.examples.saga.credit.model.CreditStatus;
+import io.debezium.examples.saga.customer.model.CreditStatus;
 import io.debezium.outbox.quarkus.ExportedEvent;
 
 public class CreditEvent implements ExportedEvent<String, JsonNode> {

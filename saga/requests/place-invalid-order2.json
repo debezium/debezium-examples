@@ -2,6 +2,6 @@
     "itemId" : 123,
     "quantity" : 2,
     "customerId" : 456,
-    "paymentDue" : 5999.98,
+    "paymentDue" : 5999,
     "creditCardNo" : "xxxx-yyyy-dddd-aaa"
 }

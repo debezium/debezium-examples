@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.saga.credit.model;
+package io.debezium.examples.saga.customer.model;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
