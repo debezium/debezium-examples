@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.saga.credit.facade;
+package io.debezium.examples.saga.customer.facade;
 
 import java.util.UUID;
 
@@ -15,11 +15,11 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.examples.saga.credit.event.CreditEvent;
-import io.debezium.examples.saga.credit.messagelog.MessageLog;
-import io.debezium.examples.saga.credit.model.Credit;
-import io.debezium.examples.saga.credit.model.CreditRequestType;
-import io.debezium.examples.saga.credit.model.CreditStatus;
+import io.debezium.examples.saga.customer.event.CreditEvent;
+import io.debezium.examples.saga.customer.messagelog.MessageLog;
+import io.debezium.examples.saga.customer.model.Credit;
+import io.debezium.examples.saga.customer.model.CreditRequestType;
+import io.debezium.examples.saga.customer.model.CreditStatus;
 import io.debezium.outbox.quarkus.ExportedEvent;
 
 @ApplicationScoped

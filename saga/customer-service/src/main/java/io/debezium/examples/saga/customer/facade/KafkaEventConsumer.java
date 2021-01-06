@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.saga.credit.facade;
+package io.debezium.examples.saga.customer.facade;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -19,7 +19,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.examples.saga.credit.model.Credit;
+import io.debezium.examples.saga.customer.model.Credit;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped

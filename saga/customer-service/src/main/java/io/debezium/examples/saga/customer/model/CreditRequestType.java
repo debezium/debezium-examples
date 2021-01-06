@@ -3,8 +3,8 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.saga.credit.model;
+package io.debezium.examples.saga.customer.model;
 
-public enum CreditStatus {
-    APPROVED, REJECTED, CANCELLED;
+public enum CreditRequestType {
+    REQUEST, CANCEL;
 }

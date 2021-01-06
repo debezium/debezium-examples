@@ -7,15 +7,17 @@ Similarly to the outbox pattern, this implementation avoids unsafe dual writes t
 There are three services involved:
 
 * _order-service:_ originator and orchestrator of the Saga
-* _customer-service:_ approves or rejects the customer's credit needed to fulfill an incoming order (tbd.)
-* _payment-service_ executes the payment associated to an incoming order (tbd.)
+* _customer-service:_ approves or rejects the customer's credit needed to fulfill an incoming order
+* _payment-service_ executes the payment associated to an incoming order
 
 ## Running the Example
 
 Build and start up:
 
+Note: the services are not part of the Docker Compose set-up yet. Instead, run them locally as described below.
+
 ```console
-$ mvn compile quarkus:dev -f order-service/pom.xml
+$ mvn clean verify
 ```
 
 ```console
@@ -27,6 +29,7 @@ Register the connectors for the different services:
 ```console
 $ http PUT http://localhost:8083/connectors/order-outbox-connector/config < register-order-connector.json
 $ http PUT http://localhost:8083/connectors/payment-outbox-connector/config < register-payment-connector.json
+$ http PUT http://localhost:8083/connectors/credit-outbox-connector/config < register-credit-connector.json
 ```
 
 Place an order:
@@ -63,39 +66,31 @@ $ docker run --tty --rm -i \
 
 select * from todo.sagastate;
 
-+--------------------------------------+------------------------------------------------------------------------------------------+----------+-----------------------
-----------------------------+-----------------+-----------+
-| id                                   | payload                                                                                  | status   | stepstate
-                            | type            | version   |
-|--------------------------------------+------------------------------------------------------------------------------------------+----------+-----------------------
-----------------------------+-----------------+-----------|
-| d08b4e43-8522-4539-9aba-de4bb0dc1a8e | {"payment-due":59,"customer-id":456,"order-id":2,"credit-card-no":"xxxx-yyyy-dddd-aaaa"} | STARTED  | {"credit-approval":"ST
-ARTED","payment":"STARTED"} | order-placement | 1         |
-+--------------------------------------+------------------------------------------------------------------------------------------+----------+-----------------------
-----------------------------+-----------------+-----------+
++--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------+
+| id                                   | payload                                                                                  | status   | stepstate                            | type            | version   |
+|--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------|
+| d08b4e43-8522-4539-9aba-de4bb0dc1a8e | {"payment-due":59,"customer-id":456,"order-id":2,"credit-card-no":"xxxx-yyyy-dddd-aaaa"} | COMPLETED  | {"credit-approval":"SUCCEEDED","payment":"SUCCEEDED"} | order-placement | 1         |
++--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------+
 ```
 
-Emulate a response by the _customer-service_:
+Place an order with an invalid credit card number (the payment service rejects any number that ends with "9999"):
 
 ```console
-$ http POST http://localhost:8080/orders/credit-approval status=SUCCEEDED saga-id:<obtained from database> message-id:d2b19439-b9aa-49f7-b6fe-e9d4c1d33e4
+$ http POST http://localhost:8080/orders < requests/place-invalid-order1.json
 ```
 
-Observe how the Saga state gets updated accordingly. Do the same for the payment:
+Observe how the saga's state is `ABORTED`, with the `payment` step `FAILED` and the `credit-approval` step `ABORTED`.
+
+Now place an order which exceeds the credit limit (the customer service rejects any value over 5000):
 
 ```console
-$ http POST http://localhost:8080/orders/payment status=SUCCEEDED saga-id:<obtained from database> message-id:d2b19439-b9aa-49f7-b6fe-e9d4c1d33e5
+$ http POST http://localhost:8080/orders < requests/place-invalid-order2.json
 ```
 
-Observe how the Saga is in state `COMPLETED` and the purchase order changed its state from `CREATED` to `PROCESSING`.
+Observe how the saga's state again is `ABORTED`, with the step states set accordingly.
 
-Create another order and emulate a failed response (status=FAILED) for the payment service.
-This will trigger another outgoing message to abort the credit approval process.
-Emulate a crediat approval response (status=ABORTED) and observe how the Saga is in state `ABORTED` and the purchase order in state `CANCELLED`.
-
-Eventually,
-actual service implementations will be provided for the customer and payment services,
-which respond back via Kafka instead of HTTP.
+Now stop the payment service and place a valid order again. Observe how the saga remains in state `STARTED`, with the `credit-approval` step `SUCCEEDED` and the `payment` step `STARTED`.
+Start the payment service again and observe how the saga completes.
 
 ## Running Locally
 
