@@ -8,13 +8,11 @@ package io.debezium.examples.saga.order.saga;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.CREDIT_APPROVAL;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.PAYMENT;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.debezium.examples.saga.framework.Saga;
 import io.debezium.examples.saga.framework.SagaBase;
@@ -33,24 +31,20 @@ public class OrderPlacementSaga extends SagaBase {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    public OrderPlacementSaga(UUID id, String payload) {
+    public OrderPlacementSaga(UUID id, JsonNode payload) {
         super(id, payload);
     }
 
     public static OrderPlacementSaga forPurchaseOrder(PurchaseOrder purchaseOrder) {
-        try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("order-id", purchaseOrder.id);
-            payload.put("customer-id", purchaseOrder.customerId);
-            payload.put("payment-due", purchaseOrder.paymentDue);
-            payload.put("credit-card-no", purchaseOrder.creditCardNo);
-            payload.put("type", "REQUEST");
+        ObjectNode payload = objectMapper.createObjectNode();
 
-            return new OrderPlacementSaga(UUID.randomUUID(), objectMapper.writeValueAsString(payload));
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        payload.put("order-id", purchaseOrder.id);
+        payload.put("customer-id", purchaseOrder.customerId);
+        payload.put("payment-due", purchaseOrder.paymentDue);
+        payload.put("credit-card-no", purchaseOrder.creditCardNo);
+        payload.put("type", "REQUEST");
+
+        return new OrderPlacementSaga(UUID.randomUUID(), payload);
     }
 
     @Override
@@ -65,11 +59,13 @@ public class OrderPlacementSaga extends SagaBase {
 
     @Override
     public SagaStepMessage getCompensatingStepMessage(String id) {
+        ObjectNode payload = objectMapper.createObjectNode().put("type", "CANCEL").put("order-id", getOrderId());
+
         if (id.equals(PAYMENT)) {
-            return new SagaStepMessage(PAYMENT, "{ \"type\" : \"CANCEL\", \"order-id\" : " + getOrderId() + "}");
+            return new SagaStepMessage(PAYMENT, payload);
         }
         else {
-            return new SagaStepMessage(CREDIT_APPROVAL, "{ \"type\" : \"CANCEL\", \"order-id\" : " + getOrderId() + "}");
+            return new SagaStepMessage(CREDIT_APPROVAL, payload);
         }
     }
 
@@ -107,13 +103,6 @@ public class OrderPlacementSaga extends SagaBase {
     }
 
     private long getOrderId() {
-        TypeReference<HashMap<String, Object>> typeRef = new TypeReference<>() {};
-        try {
-            HashMap<String, Object> state = objectMapper.readValue(getPayload(), typeRef);
-            return (int) state.get("order-id");
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return getPayload().get("order-id").asLong();
     }
 }
