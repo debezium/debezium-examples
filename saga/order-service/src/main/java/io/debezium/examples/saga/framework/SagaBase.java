@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.debezium.examples.saga.framework.internal.ConsumedMessage;
@@ -36,9 +37,9 @@ public abstract class SagaBase {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     private final UUID id;
-    private final String payload;
+    private final JsonNode payload;
 
-    protected SagaBase(UUID id, String payload) {
+    protected SagaBase(UUID id, JsonNode payload) {
         this.id = id;
         this.payload = payload;
     }
@@ -47,7 +48,7 @@ public abstract class SagaBase {
         return id;
     }
 
-    public final String getPayload() {
+    public final JsonNode getPayload() {
         return payload;
     }
 
@@ -82,7 +83,7 @@ public abstract class SagaBase {
                             compensationStepState.setId(UUID.randomUUID());
                             compensationStepState.setSagaId(state.getId());
                             compensationStepState.setType(compensation.type);
-                            compensationStepState.setPayload(compensation.payload);
+                            compensationStepState.setPayload(objectMapper.writeValueAsString(compensation.payload));
                             oneState.setValue(SagaStepStatus.ABORTING);
                             em.persist(compensationStepState);
                         }
