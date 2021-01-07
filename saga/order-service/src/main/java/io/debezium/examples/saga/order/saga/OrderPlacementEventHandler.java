@@ -1,7 +1,5 @@
 package io.debezium.examples.saga.order.saga;
 
-import java.util.UUID;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -17,14 +15,24 @@ public class OrderPlacementEventHandler {
     private SagaManager sagaManager;
 
     @Transactional
-    public void onPaymentEvent(UUID sagaId, UUID messageId, PaymentEvent event) {
-        OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, sagaId);
-        saga.onPaymentEvent(messageId, event);
+    public void onPaymentEvent(PaymentEvent event) {
+        OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, event.sagaId);
+
+        if (saga == null) {
+            return;
+        }
+
+        saga.onPaymentEvent(event);
     }
 
     @Transactional
-    public void onCreditApprovalEvent(UUID sagaId, UUID messageId, CreditApprovalEvent event) {
-        OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, sagaId);
-        saga.onCreditApprovalEvent(messageId, event);
+    public void onCreditApprovalEvent(CreditApprovalEvent event) {
+        OrderPlacementSaga saga = sagaManager.find(OrderPlacementSaga.class, event.sagaId);
+
+        if (saga == null) {
+            return;
+        }
+
+        saga.onCreditApprovalEvent(event);
     }
 }

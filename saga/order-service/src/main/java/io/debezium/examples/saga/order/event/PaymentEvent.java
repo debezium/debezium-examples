@@ -5,6 +5,17 @@
  */
 package io.debezium.examples.saga.order.event;
 
+import java.util.UUID;
+
 public class PaymentEvent {
+
+    public UUID sagaId;
+    public UUID messageId;
     public PaymentStatus status;
+
+    public PaymentEvent(UUID sagaId, UUID messageId, PaymentStatus status) {
+        this.sagaId = sagaId;
+        this.messageId = messageId;
+        this.status = status;
+    }
 }

@@ -19,7 +19,9 @@ import javax.ws.rs.core.MediaType;
 
 import io.debezium.examples.saga.framework.SagaManager;
 import io.debezium.examples.saga.order.event.CreditApprovalEvent;
+import io.debezium.examples.saga.order.event.CreditApprovalEventPayload;
 import io.debezium.examples.saga.order.event.PaymentEvent;
+import io.debezium.examples.saga.order.event.PaymentEventPayload;
 import io.debezium.examples.saga.order.model.PurchaseOrder;
 import io.debezium.examples.saga.order.saga.OrderPlacementEventHandler;
 import io.debezium.examples.saga.order.saga.OrderPlacementSaga;
@@ -50,14 +52,14 @@ public class PurchaseOrderResource {
     @POST
     @Path("/payment")
     @Transactional
-    public void onPaymentEvent(@HeaderParam("saga-id") UUID sagaId, @HeaderParam("message-id") UUID messageId, PaymentEvent event) {
-        eventHandler.onPaymentEvent(sagaId, messageId, event);
+    public void onPaymentEvent(@HeaderParam("saga-id") UUID sagaId, @HeaderParam("message-id") UUID messageId, PaymentEventPayload event) {
+        eventHandler.onPaymentEvent(new PaymentEvent(sagaId, messageId, event.status));
     }
 
     @POST
     @Path("/credit-approval")
     @Transactional
-    public void onCreditEvent(@HeaderParam("saga-id") UUID sagaId, @HeaderParam("message-id") UUID messageId, CreditApprovalEvent event) {
-        eventHandler.onCreditApprovalEvent(sagaId, messageId, event);
+    public void onCreditEvent(@HeaderParam("saga-id") UUID sagaId, @HeaderParam("message-id") UUID messageId, CreditApprovalEventPayload event) {
+        eventHandler.onCreditApprovalEvent(new CreditApprovalEvent(sagaId, messageId, event.status));
     }
 }

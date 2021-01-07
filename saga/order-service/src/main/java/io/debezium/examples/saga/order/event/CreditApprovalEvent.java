@@ -5,6 +5,17 @@
  */
 package io.debezium.examples.saga.order.event;
 
+import java.util.UUID;
+
 public class CreditApprovalEvent {
+
+    public UUID sagaId;
+    public UUID messageId;
     public CreditApprovalStatus status;
+
+    public CreditApprovalEvent(UUID sagaId, UUID messageId, CreditApprovalStatus status) {
+        this.sagaId = sagaId;
+        this.messageId = messageId;
+        this.status = status;
+    }
 }
