@@ -63,6 +63,10 @@ public class SagaManager {
     public <S extends SagaBase> S find(Class<S> sagaType, UUID sagaId) {
         SagaState state = entityManager.find(SagaState.class, sagaId);
 
+        if (state == null) {
+            return null;
+        }
+
         try {
             return sagaType.getConstructor(UUID.class, String.class).newInstance(state.getId(), state.getPayload());
 

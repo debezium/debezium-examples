@@ -73,26 +73,26 @@ public class OrderPlacementSaga extends SagaBase {
         }
     }
 
-    public void onPaymentEvent(UUID messageId, PaymentEvent event) {
-        if (alreadyProcessed(messageId)) {
+    public void onPaymentEvent(PaymentEvent event) {
+        if (alreadyProcessed(event.messageId)) {
             return;
         }
 
         updateStepStatus(PAYMENT, event.status.toStepStatus());
         updateOrderStatus();
 
-        processed(messageId);
+        processed(event.messageId);
     }
 
-    public void onCreditApprovalEvent(UUID messageId, CreditApprovalEvent event) {
-        if (alreadyProcessed(messageId)) {
+    public void onCreditApprovalEvent(CreditApprovalEvent event) {
+        if (alreadyProcessed(event.messageId)) {
             return;
         }
 
         updateStepStatus(CREDIT_APPROVAL, event.status.toStepStatus());
         updateOrderStatus();
 
-        processed(messageId);
+        processed(event.messageId);
     }
 
     private void updateOrderStatus() {
