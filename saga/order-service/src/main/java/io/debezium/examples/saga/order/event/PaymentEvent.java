@@ -18,4 +18,9 @@ public class PaymentEvent {
         this.messageId = messageId;
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "PaymentEvent [sagaId=" + sagaId + ", messageId=" + messageId + ", status=" + status + "]";
+    }
 }
