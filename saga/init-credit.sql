@@ -1,2 +1,0 @@
-create schema credit;
-
