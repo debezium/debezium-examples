@@ -14,14 +14,12 @@ There are three services involved:
 
 Build and start up:
 
-Note: the services are not part of the Docker Compose set-up yet. Instead, run them locally as described below.
-
 ```console
 $ mvn clean verify
 ```
 
 ```console
-$ docker-compose up
+$ docker-compose up --build
 ```
 
 Register the connectors for the different services:
@@ -62,9 +60,9 @@ Examine the saga state in the order service's database:
 $ docker run --tty --rm -i \
         --network saga-network \
         debezium/tooling:1.1 \
-        bash -c 'pgcli postgresql://todouser:todopw@order-db:5432/tododb'
+        bash -c 'pgcli postgresql://orderuser:orderpw@order-db:5432/orderdb'
 
-select * from todo.sagastate;
+select * from order.sagastate;
 
 +--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------+
 | id                                   | payload                                                                                  | status   | stepstate                            | type            | version   |
@@ -73,13 +71,15 @@ select * from todo.sagastate;
 +--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------+
 ```
 
+Alternatively, you also can access pgAdmin on http://localhost:5050 (pgadmin4@pgadmin.org/admin).
+
 Place an order with an invalid credit card number (the payment service rejects any number that ends with "9999"):
 
 ```console
 $ http POST http://localhost:8080/orders < requests/place-invalid-order1.json
 ```
 
-Observe how the saga's state is `ABORTED`, with the `payment` step `FAILED` and the `credit-approval` step `ABORTED`.
+Observe how the saga's state is `ABORTED`, with the `payment` step in state `FAILED`, and the `credit-approval` first in step in state `ABORTING`, then `ABORTED`.
 
 Now place an order which exceeds the credit limit (the customer service rejects any value over 5000):
 
@@ -89,7 +89,7 @@ $ http POST http://localhost:8080/orders < requests/place-invalid-order2.json
 
 Observe how the saga's state again is `ABORTED`, with the step states set accordingly.
 
-Now stop the payment service and place a valid order again. Observe how the saga remains in state `STARTED`, with the `credit-approval` step `SUCCEEDED` and the `payment` step `STARTED`.
+Now stop the payment service and place a valid order again. Observe how the saga remains in state `STARTED`, with the `credit-approval` step in state `SUCCEEDED` and the `payment` step in state `STARTED`.
 Start the payment service again and observe how the saga completes.
 
 ## Running Locally

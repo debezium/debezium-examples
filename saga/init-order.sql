@@ -1,2 +1,2 @@
-create schema todo;
+create schema purchaseorder;
 
