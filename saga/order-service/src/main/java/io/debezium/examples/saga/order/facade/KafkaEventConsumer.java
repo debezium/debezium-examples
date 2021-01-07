@@ -48,6 +48,7 @@ public class KafkaEventConsumer {
             try {
                 tries++;
                 runnable.run();
+                return;
             }
             catch(OptimisticLockException ole) {
                 if (tries == RETRIES) {

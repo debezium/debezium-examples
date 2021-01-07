@@ -18,4 +18,9 @@ public class CreditApprovalEvent {
         this.messageId = messageId;
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "CreditApprovalEvent [sagaId=" + sagaId + ", messageId=" + messageId + ", status=" + status + "]";
+    }
 }
