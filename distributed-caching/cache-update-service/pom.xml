@@ -14,7 +14,7 @@
   <name>Debezium/Infinispan Distributed Caching Demo - Cach Update Services</name>
 
   <build>
-    <finalName>shipment</finalName>
+    <finalName>cache-update-service</finalName>
     <plugins>
       <plugin>
         <groupId>io.quarkus</groupId>

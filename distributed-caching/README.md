@@ -103,6 +103,19 @@ List all Kafka topics:
 $ docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
 ```
 
+Get the status of the CDC connector:
+
+```console
+$ http GET http://localhost:8083/connectors/order-connector/status
+```
+
+Delete the CDC connector:
+
+```console
+$ http DELETE http://localhost:8083/connectors/order-connector
+```
+
+http DELETE http://localhost:8083/connectors/order-connector
 ## Running the Quarkus Services Locally in Dev Mode
 
 When working on the Quarkus services, it's better to use the dev mode locally instead of rebuilding the container images all the time.

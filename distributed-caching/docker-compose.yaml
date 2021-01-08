@@ -82,12 +82,14 @@ services:
      - kafka
      - order-db
     environment:
-     - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb
+     - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory
     depends_on:
       order-db:
         condition: service_healthy
       connect:
         condition: service_started
+    networks:
+     - my-network
   cache-update-service:
     image: debezium-examples/distributed-caching-cache-update-service:${DEBEZIUM_VERSION}
     build:
@@ -100,6 +102,8 @@ services:
     depends_on:
       connect:
         condition: service_started
+    networks:
+     - my-network
 networks:
   my-network:
     name: distributed-caching-network
