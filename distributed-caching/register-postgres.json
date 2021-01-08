@@ -1,0 +1,12 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "order-db",
+    "database.port": "5432",
+    "database.user": "postgresuser",
+    "database.password": "postgrespw",
+    "database.dbname" : "orderdb",
+    "database.server.name": "dbserver1",
+    "schema.include.list": "inventory",
+    "table.include.list": ".*purchaseorder,.*orderline"
+}

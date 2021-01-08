@@ -1,0 +1,9 @@
+####
+# This Dockerfile is used to build a container that runs shipment-service-quarkus in JVM mode
+#
+###
+FROM fabric8/java-centos-openjdk11-jdk
+ENV JAVA_OPTIONS=-Dquarkus.http.host=0.0.0.0
+COPY target/lib/* /deployments/lib/
+COPY target/*-runner.jar /deployments/app.jar
+ENTRYPOINT [ "/deployments/run-java.sh" ]
