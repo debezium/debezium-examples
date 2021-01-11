@@ -6,7 +6,7 @@
 package io.debezium.examples.saga.customer.facade;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -51,6 +51,6 @@ public class KafkaEventConsumer {
             throw new IllegalArgumentException("Expected record header '" + name + "' not present");
         }
 
-        return new String(header.value(), Charset.forName("UTF-8"));
+        return new String(header.value(), StandardCharsets.UTF_8);
     }
 }

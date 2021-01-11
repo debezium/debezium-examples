@@ -32,29 +32,29 @@ public class SagaManager {
 
     public void begin(SagaBase saga) {
         try {
-            SagaState state = new SagaState();
-            state.setId(UUID.randomUUID());
-            state.setType(saga.getType());
-            state.setPayload(objectMapper.writeValueAsString(saga.getPayload()));
-            state.setStatus(SagaStatus.STARTED);
+            UUID sagaId = UUID.randomUUID();
 
             Map<String, String> stepStates = new HashMap<>();
-
-            entityManager.persist(state);
 
             for (String stepId : saga.getStepIds()) {
                 SagaStepMessage stepEvent = saga.getStepMessage(stepId);
 
                 SagaStepMessageState stepState = new SagaStepMessageState();
                 stepState.setId(UUID.randomUUID());
-                stepState.setSagaId(state.getId());
+                stepState.setSagaId(sagaId);
                 stepState.setType(stepEvent.type);
                 stepState.setPayload(objectMapper.writeValueAsString(stepEvent.payload));
                 stepStates.put(stepId, SagaStepStatus.STARTED.name());
                 entityManager.persist(stepState);
             }
 
+            SagaState state = new SagaState();
+            state.setId(sagaId);
+            state.setType(saga.getType());
+            state.setPayload(objectMapper.writeValueAsString(saga.getPayload()));
+            state.setStatus(SagaStatus.STARTED);
             state.setStepState(objectMapper.writeValueAsString(stepStates));
+            entityManager.persist(state);
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
