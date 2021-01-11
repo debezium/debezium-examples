@@ -26,6 +26,8 @@ import io.debezium.examples.saga.order.model.PurchaseOrderStatus;
 @Saga(type="order-placement", stepIds = {CREDIT_APPROVAL, PAYMENT})
 public class OrderPlacementSaga extends SagaBase {
 
+    private static final String CANCEL = "CANCEL";
+    private static final String REQUEST = "REQUEST";
     protected static final String PAYMENT = "payment";
     protected static final String CREDIT_APPROVAL = "credit-approval";
 
@@ -42,7 +44,7 @@ public class OrderPlacementSaga extends SagaBase {
         payload.put("customer-id", purchaseOrder.customerId);
         payload.put("payment-due", purchaseOrder.paymentDue);
         payload.put("credit-card-no", purchaseOrder.creditCardNo);
-        payload.put("type", "REQUEST");
+        payload.put("type", REQUEST);
 
         return new OrderPlacementSaga(UUID.randomUUID(), payload);
     }
@@ -59,7 +61,7 @@ public class OrderPlacementSaga extends SagaBase {
 
     @Override
     public SagaStepMessage getCompensatingStepMessage(String id) {
-        ObjectNode payload = objectMapper.createObjectNode().put("type", "CANCEL").put("order-id", getOrderId());
+        ObjectNode payload = objectMapper.createObjectNode().put("type", CANCEL).put("order-id", getOrderId());
 
         if (id.equals(PAYMENT)) {
             return new SagaStepMessage(PAYMENT, payload);

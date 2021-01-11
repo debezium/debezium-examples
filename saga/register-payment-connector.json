@@ -12,7 +12,6 @@
     "tombstones.on.delete" : "false",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "org.apache.kafka.connect.storage.StringConverter",
-    "value.converter.schemas.enable": "false",
     "transforms" : "outbox",
     "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
     "transforms.outbox.route.topic.replacement" : "${routedByValue}.response"

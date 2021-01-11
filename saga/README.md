@@ -2,12 +2,13 @@
 
 This example demonstrates how to implement the [Saga pattern](https://microservices.io/patterns/data/saga.html) for realizing distributed transactions across multiple microservices, in a safe and reliable way using change data capture.
 
-Similarly to the outbox pattern, this implementation avoids unsafe dual writes to a service's database and Apache Kafka by channeling all outgoing messages through the originating service's database and capturing them from there using CDC and Debezium.
+Based on the [outbox pattern](https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/),
+this implementation avoids unsafe dual writes to a service's database and Apache Kafka by channeling all outgoing messages through the originating service's database and capturing them from there using CDC and Debezium.
 
 There are three services involved:
 
 * _order-service:_ originator and orchestrator of the Saga
-* _customer-service:_ approves or rejects the customer's credit needed to fulfill an incoming order
+* _customer-service:_ validates whether an incoming order is within the customer's credit limit and and approves or rejects it accordingly
 * _payment-service_ executes the payment associated to an incoming order
 
 ## Running the Example
@@ -19,6 +20,7 @@ $ mvn clean verify
 ```
 
 ```console
+$ export DEBEZIUM_VERSION=1.4
 $ docker-compose up --build
 ```
 
@@ -34,6 +36,15 @@ Place an order:
 
 ```console
 $ http POST http://localhost:8080/orders < requests/place-order.json
+
+HTTP/1.1 200 OK
+Content-Length: 32
+Content-Type: application/json
+
+{
+    "orderId": 1,
+    "status": "CREATED"
+}
 ```
 
 Examine the emitted messages for `payment` and `credit-approval` in Apache Kafka:
@@ -46,12 +57,20 @@ $ docker run --tty --rm \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t payment.request
 
+{"key":17ef865e-39bf-404d-8d35-25c61ae0e082, "headers":"id=e88e463f-047d-49a9-be08-988a1552c571"}
+{"order-id":1,"customer-id":456,"payment-due":59,"credit-card-no":"xxxx-yyyy-dddd-aaaa","type":"REQUEST"}
+```
+
+```console
 $ docker run --tty --rm \
     --network saga-network \
     debezium/tooling:1.1 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t credit-approval.request
+
+{"key":17ef865e-39bf-404d-8d35-25c61ae0e082, "headers":"id=6ab3c538-5899-4a61-aa22-ebf5dee45b9d"}
+{"order-id":1,"customer-id":456,"payment-due":59,"credit-card-no":"xxxx-yyyy-dddd-aaaa","type":"REQUEST"}
 ```
 
 Examine the saga state in the order service's database:
@@ -62,12 +81,12 @@ $ docker run --tty --rm -i \
         debezium/tooling:1.1 \
         bash -c 'pgcli postgresql://orderuser:orderpw@order-db:5432/orderdb'
 
-select * from order.sagastate;
+select * from purchaseorder.sagastate;
 
 +--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------+
 | id                                   | payload                                                                                  | status   | stepstate                            | type            | version   |
 |--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------|
-| d08b4e43-8522-4539-9aba-de4bb0dc1a8e | {"payment-due":59,"customer-id":456,"order-id":2,"credit-card-no":"xxxx-yyyy-dddd-aaaa"} | COMPLETED  | {"credit-approval":"SUCCEEDED","payment":"SUCCEEDED"} | order-placement | 1         |
+| 17ef865e-39bf-404d-8d35-25c61ae0e082 | {"order-id":1,"customer-id":456,"payment-due":59,"credit-card-no":"xxxx-yyyy-dddd-aaaa","type":"REQUEST"} | COMPLETED | {"credit-approval":"SUCCEEDED","payment":"SUCCEEDED"} | order-placement | 2         |
 +--------------------------------------+------------------------------------------------------------------------------------------+----------+---------------------------------------------------+-----------------+-----------+
 ```
 
@@ -79,7 +98,7 @@ Place an order with an invalid credit card number (the payment service rejects a
 $ http POST http://localhost:8080/orders < requests/place-invalid-order1.json
 ```
 
-Observe how the saga's state is `ABORTED`, with the `payment` step in state `FAILED`, and the `credit-approval` first in step in state `ABORTING`, then `ABORTED`.
+Observe how the saga's state is `ABORTED`, with the `payment` step in state `FAILED`, and the `credit-approval` first in state `ABORTING`, then `ABORTED`.
 
 Now place an order which exceeds the credit limit (the customer service rejects any value over 5000):
 
@@ -89,8 +108,15 @@ $ http POST http://localhost:8080/orders < requests/place-invalid-order2.json
 
 Observe how the saga's state again is `ABORTED`, with the step states set accordingly.
 
-Now stop the payment service and place a valid order again. Observe how the saga remains in state `STARTED`, with the `credit-approval` step in state `SUCCEEDED` and the `payment` step in state `STARTED`.
-Start the payment service again and observe how the saga completes.
+Now stop the payment service and place a valid order again:
+
+```console
+$ http POST http://localhost:8080/orders < requests/place-order.json
+$ docker-compose stop payment-service
+```
+
+Observe how the saga remains in state `STARTED`, with the `credit-approval` step in state `SUCCEEDED` and the `payment` step in state `STARTED`.
+Start the payment service again (`docker-compose start payment-service`) and observe how the saga completes.
 
 ## Running Locally
 
