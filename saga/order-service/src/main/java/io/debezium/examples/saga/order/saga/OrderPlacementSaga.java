@@ -8,6 +8,8 @@ package io.debezium.examples.saga.order.saga;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.CREDIT_APPROVAL;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.PAYMENT;
 
+import javax.enterprise.event.Event;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,6 +23,7 @@ import io.debezium.examples.saga.order.event.CreditApprovalEvent;
 import io.debezium.examples.saga.order.event.PaymentEvent;
 import io.debezium.examples.saga.order.model.PurchaseOrder;
 import io.debezium.examples.saga.order.model.PurchaseOrderStatus;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
 @Saga(type="order-placement", stepIds = {CREDIT_APPROVAL, PAYMENT})
 public class OrderPlacementSaga extends SagaBase {
@@ -44,17 +47,17 @@ public class OrderPlacementSaga extends SagaBase {
         return payload;
     }
 
-    public OrderPlacementSaga(SagaState state) {
-        super(state);
+    public OrderPlacementSaga(Event<ExportedEvent<?, ?>> event, SagaState state) {
+        super(event, state);
     }
 
     @Override
     public SagaStepMessage getStepMessage(String id) {
         if (id.equals(PAYMENT)) {
-            return new SagaStepMessage(PAYMENT, getPayload());
+            return new SagaStepMessage(PAYMENT, REQUEST, getPayload());
         }
         else {
-            return new SagaStepMessage(CREDIT_APPROVAL, getPayload());
+            return new SagaStepMessage(CREDIT_APPROVAL, REQUEST, getPayload());
         }
     }
 
@@ -63,10 +66,10 @@ public class OrderPlacementSaga extends SagaBase {
         ObjectNode payload = objectMapper.createObjectNode().put("type", CANCEL).put("order-id", getOrderId());
 
         if (id.equals(PAYMENT)) {
-            return new SagaStepMessage(PAYMENT, payload);
+            return new SagaStepMessage(PAYMENT, CANCEL, payload);
         }
         else {
-            return new SagaStepMessage(CREDIT_APPROVAL, payload);
+            return new SagaStepMessage(CREDIT_APPROVAL, CANCEL, payload);
         }
     }
 
