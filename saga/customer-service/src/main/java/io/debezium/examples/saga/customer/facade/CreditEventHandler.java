@@ -12,6 +12,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,7 @@ import io.debezium.examples.saga.customer.model.CreditStatus;
 import io.debezium.outbox.quarkus.ExportedEvent;
 
 @ApplicationScoped
+@Traced
 public class CreditEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreditEventHandler.class);

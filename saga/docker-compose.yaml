@@ -1,5 +1,12 @@
 version: '2.1'
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:1
+    ports:
+     - 6831:6831/udp
+     - 16686:16686
+    networks:
+     - my-network
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
@@ -17,26 +24,42 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
     # Set to host IP address when working on the services locally
-    # - ADVERTISED_HOST_NAME=192.168.1.16
+     - ADVERTISED_HOST_NAME=192.168.1.13
     networks:
      - my-network
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: debezium/strimzi-connect
+    build:
+      context: debezium-strimzi
     ports:
      - 8083:8083
-     - 5005:5005
     links:
      - kafka
      - order-db
     environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses 
-     - KAFKA_DEBUG=true
-     - DEBUG_SUSPEND_FLAG=n
-     - JAVA_DEBUG_PORT=0.0.0.0:5005
+     - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
+     - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:9092
+     - |
+         KAFKA_CONNECT_CONFIGURATION=
+         key.converter=org.apache.kafka.connect.json.JsonConverter
+         value.converter=org.apache.kafka.connect.json.JsonConverter
+         key.converter.schemas.enable=false
+         value.converter.schemas.enable=false
+         group.id=connect
+         offset.storage.topic=connect-offsets
+         offset.storage.replication.factor=1
+         config.storage.topic=connect-configs
+         config.storage.replication.factor=1
+         status.storage.topic=connect-status
+         status.storage.replication.factor=1
+         consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
+         producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
+     - JAEGER_SERVICE_NAME=kafka-connect
+     - JAEGER_AGENT_HOST=jaeger
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
+     - STRIMZI_TRACING=jaeger
+    command: /opt/kafka/kafka_connect_run.sh
     networks:
      - my-network
   order-db:
@@ -112,10 +135,15 @@ services:
     links:
      - kafka
      - order-db
+     - jaeger
     environment:
      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb
      - MP_MESSAGING_INCOMING_PAYMENTRESPONSE_BOOTSTRAP_SERVERS=kafka:9092
      - MP_MESSAGING_INCOMING_CREDITRESPONSE_BOOTSTRAP_SERVERS=kafka:9092
+     - JAEGER_SERVICE_NAME=order-service
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
+     - JAEGER_AGENT_HOST=jaeger
     depends_on:
       order-db:
         condition: service_healthy
@@ -129,9 +157,14 @@ services:
     links:
      - kafka
      - payment-db
+     - jaeger
     environment:
      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://payment-db:5432/paymentdb
      - MP_MESSAGING_INCOMING_PAYMENT_BOOTSTRAP_SERVERS=kafka:9092
+     - JAEGER_SERVICE_NAME=payment-service
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
+     - JAEGER_AGENT_HOST=jaeger
     depends_on:
       payment-db:
         condition: service_healthy
@@ -145,9 +178,14 @@ services:
     links:
      - kafka
      - customer-db
+     - jaeger
     environment:
      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://customer-db:5432/customerdb
      - MP_MESSAGING_INCOMING_CREDIT_BOOTSTRAP_SERVERS=kafka:9092
+     - JAEGER_SERVICE_NAME=customer-service
+     - JAEGER_SAMPLER_TYPE=const
+     - JAEGER_SAMPLER_PARAM=1
+     - JAEGER_AGENT_HOST=jaeger
     depends_on:
       customer-db:
         condition: service_healthy
