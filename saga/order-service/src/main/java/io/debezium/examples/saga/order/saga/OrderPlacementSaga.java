@@ -8,8 +8,6 @@ package io.debezium.examples.saga.order.saga;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.CREDIT_APPROVAL;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.PAYMENT;
 
-import java.util.UUID;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,6 +16,7 @@ import io.debezium.examples.saga.framework.Saga;
 import io.debezium.examples.saga.framework.SagaBase;
 import io.debezium.examples.saga.framework.SagaStatus;
 import io.debezium.examples.saga.framework.SagaStepMessage;
+import io.debezium.examples.saga.framework.internal.SagaState;
 import io.debezium.examples.saga.order.event.CreditApprovalEvent;
 import io.debezium.examples.saga.order.event.PaymentEvent;
 import io.debezium.examples.saga.order.model.PurchaseOrder;
@@ -26,18 +25,14 @@ import io.debezium.examples.saga.order.model.PurchaseOrderStatus;
 @Saga(type="order-placement", stepIds = {CREDIT_APPROVAL, PAYMENT})
 public class OrderPlacementSaga extends SagaBase {
 
-    private static final String CANCEL = "CANCEL";
     private static final String REQUEST = "REQUEST";
+    private static final String CANCEL = "CANCEL";
     protected static final String PAYMENT = "payment";
     protected static final String CREDIT_APPROVAL = "credit-approval";
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    public OrderPlacementSaga(UUID id, JsonNode payload) {
-        super(id, payload);
-    }
-
-    public static OrderPlacementSaga forPurchaseOrder(PurchaseOrder purchaseOrder) {
+    public static JsonNode payloadFor(PurchaseOrder purchaseOrder) {
         ObjectNode payload = objectMapper.createObjectNode();
 
         payload.put("order-id", purchaseOrder.id);
@@ -46,7 +41,11 @@ public class OrderPlacementSaga extends SagaBase {
         payload.put("credit-card-no", purchaseOrder.creditCardNo);
         payload.put("type", REQUEST);
 
-        return new OrderPlacementSaga(UUID.randomUUID(), payload);
+        return payload;
+    }
+
+    public OrderPlacementSaga(SagaState state) {
+        super(state);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class OrderPlacementSaga extends SagaBase {
             return;
         }
 
-        updateStepStatus(PAYMENT, event.status.toStepStatus());
+        onStepEvent(PAYMENT, event.status.toStepStatus());
         updateOrderStatus();
 
         processed(event.messageId);
@@ -87,7 +86,7 @@ public class OrderPlacementSaga extends SagaBase {
             return;
         }
 
-        updateStepStatus(CREDIT_APPROVAL, event.status.toStepStatus());
+        onStepEvent(CREDIT_APPROVAL, event.status.toStepStatus());
         updateOrderStatus();
 
         processed(event.messageId);

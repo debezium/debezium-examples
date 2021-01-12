@@ -28,6 +28,8 @@ public class SagaState {
 
     private String payload;
 
+    private String currentStep;
+
     private String stepState;
 
     @Enumerated(EnumType.STRING)
@@ -67,6 +69,14 @@ public class SagaState {
 
     public String getStepState() {
         return stepState;
+    }
+
+    public String getCurrentStep() {
+        return currentStep;
+    }
+
+    public void setCurrentStep(String currentStep) {
+        this.currentStep = currentStep;
     }
 
     public void setStepState(String stepState) {

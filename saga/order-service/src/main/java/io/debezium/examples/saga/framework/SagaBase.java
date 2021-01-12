@@ -9,9 +9,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
@@ -36,28 +34,31 @@ public abstract class SagaBase {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private final UUID id;
-    private final JsonNode payload;
+    private final SagaState state;
 
-    protected SagaBase(UUID id, JsonNode payload) {
-        this.id = id;
-        this.payload = payload;
+    protected SagaBase(SagaState state) {
+        this.state = state;
     }
 
     public final UUID getId() {
-        return id;
+        return state.getId();
     }
 
     public final JsonNode getPayload() {
-        return payload;
+        try {
+            return objectMapper.readTree(state.getPayload());
+        }
+        catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public final String getType() {
         return getClass().getAnnotation(Saga.class).type();
     }
 
-    public final Set<String> getStepIds() {
-        return new HashSet<>(Arrays.asList(getClass().getAnnotation(Saga.class).stepIds()));
+    public final List<String> getStepIds() {
+        return Arrays.asList(getClass().getAnnotation(Saga.class).stepIds());
     }
 
     public SagaStatus getStatus() {
@@ -65,35 +66,24 @@ public abstract class SagaBase {
         return em.find(SagaState.class, getId()).getStatus();
     }
 
-    protected void updateStepStatus(String type, SagaStepStatus status) {
-        EntityManager em = JpaOperations.getEntityManager(SagaState.class);
-        SagaState state = em.find(SagaState.class, getId());
-
+    protected void onStepEvent(String type, SagaStepStatus status) {
         TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
         try {
             HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
-
-            if (status == SagaStepStatus.FAILED) {
-                for (Entry<String, SagaStepStatus> oneState : stepStates.entrySet()) {
-                    if (!oneState.getKey().equals(type)) {
-                        if (oneState.getValue() == SagaStepStatus.STARTED || oneState.getValue() == SagaStepStatus.SUCCEEDED) {
-                            SagaStepMessage compensation = getCompensatingStepMessage(oneState.getKey());
-
-                            SagaStepMessageState compensationStepState = new SagaStepMessageState();
-                            compensationStepState.setId(UUID.randomUUID());
-                            compensationStepState.setSagaId(state.getId());
-                            compensationStepState.setType(compensation.type);
-                            compensationStepState.setPayload(objectMapper.writeValueAsString(compensation.payload));
-                            oneState.setValue(SagaStepStatus.ABORTING);
-                            em.persist(compensationStepState);
-                        }
-                    }
-                }
-            }
-
             stepStates.put(type, status);
             state.setStepState(objectMapper.writeValueAsString(stepStates));
-            state.setStatus(getSagaStatus(stepStates.values()));
+
+            if (status == SagaStepStatus.SUCCEEDED) {
+                advance();
+            }
+            else if (status == SagaStepStatus.FAILED) {
+                compensate();
+            }
+            else if (status == SagaStepStatus.ABORTED) {
+                goBack();
+            }
+
+            state.setStatus(getSagaStatus(objectMapper.readValue(state.getStepState(), typeRef).values()));
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -116,19 +106,123 @@ public abstract class SagaBase {
     }
 
     private SagaStatus getSagaStatus(Collection<SagaStepStatus> stepStates) {
-        stepStates = new HashSet<>(stepStates);
-
-        if (stepStates.size() == 1 && stepStates.contains(SagaStepStatus.SUCCEEDED)) {
-            return SagaStatus.COMPLETED;
-        }
-        else if (stepStates.size() == 2 && stepStates.contains(SagaStepStatus.FAILED) && stepStates.contains(SagaStepStatus.ABORTED)) {
-            return SagaStatus.ABORTED;
-        }
-        else if (stepStates.contains(SagaStepStatus.ABORTING)) {
-            return SagaStatus.ABORTING;
-        }
-        else {
+        if (containsOnly(stepStates, SagaStepStatus.STARTED, SagaStepStatus.SUCCEEDED)) {
             return SagaStatus.STARTED;
         }
+        else if (containsOnly(stepStates, SagaStepStatus.SUCCEEDED)) {
+            return SagaStatus.COMPLETED;
+        }
+        else if (containsOnly(stepStates, SagaStepStatus.FAILED, SagaStepStatus.ABORTED)) {
+            return SagaStatus.ABORTED;
+        }
+        else {
+            return SagaStatus.ABORTING;
+        }
+    }
+
+    private boolean containsOnly(Collection<SagaStepStatus> stepStates, SagaStepStatus status) {
+        for (SagaStepStatus sagaStepStatus : stepStates) {
+            if (sagaStepStatus != status) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean containsOnly(Collection<SagaStepStatus> stepStates, SagaStepStatus status1, SagaStepStatus status2) {
+        for (SagaStepStatus sagaStepStatus : stepStates) {
+            if (sagaStepStatus != status1 && sagaStepStatus != status2) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected final void advance() throws JsonProcessingException {
+        String nextStep = getNextStep();
+
+        if (nextStep == null) {
+            return;
+        }
+
+        SagaStepMessage stepEvent = getStepMessage(nextStep);
+        persistStepMessage(stepEvent);
+
+        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
+        HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
+        stepStates.put(nextStep, SagaStepStatus.STARTED);
+
+        state.setCurrentStep(nextStep);
+        state.setStepState(objectMapper.writeValueAsString(stepStates));
+    }
+
+    private void compensate() throws JsonProcessingException {
+        SagaStepMessage stepEvent = getCompensatingStepMessage(getCurrentStep());
+        persistStepMessage(stepEvent);
+
+        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
+        HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
+        stepStates.put(getCurrentStep(), SagaStepStatus.ABORTING);
+
+        state.setStepState(objectMapper.writeValueAsString(stepStates));
+    }
+
+    protected final void goBack() throws JsonProcessingException {
+        String previousStep = getPreviousStep();
+
+        if (previousStep == null) {
+            return;
+        }
+
+        SagaStepMessage stepEvent = getCompensatingStepMessage(previousStep);
+        persistStepMessage(stepEvent);
+
+        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
+        HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
+        stepStates.put(previousStep, SagaStepStatus.ABORTING);
+
+        state.setCurrentStep(previousStep);
+        state.setStepState(objectMapper.writeValueAsString(stepStates));
+    }
+
+    private void persistStepMessage(SagaStepMessage stepEvent) throws JsonProcessingException {
+        SagaStepMessageState stepState = new SagaStepMessageState();
+        stepState.setId(UUID.randomUUID());
+        stepState.setSagaId(getId());
+        stepState.setType(stepEvent.type);
+        stepState.setPayload(objectMapper.writeValueAsString(stepEvent.payload));
+
+        EntityManager em = JpaOperations.getEntityManager(SagaState.class);
+        em.persist(stepState);
+    }
+
+    protected String getCurrentStep() {
+        return state.getCurrentStep();
+    }
+
+    private String getNextStep() {
+        if (getCurrentStep() == null) {
+            return getStepIds().get(0);
+        }
+
+        int idx = getStepIds().indexOf(getCurrentStep());
+
+        if (idx == getStepIds().size() - 1) {
+            return null;
+        }
+
+        return getStepIds().get(idx + 1);
+    }
+
+    private String getPreviousStep() {
+        int idx = getStepIds().indexOf(getCurrentStep());
+
+        if (idx == 0) {
+            return null;
+        }
+
+        return getStepIds().get(idx - 1);
     }
 }
