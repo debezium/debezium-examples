@@ -5,7 +5,6 @@
  */
 package io.debezium.examples.saga.framework;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -14,13 +13,10 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.debezium.examples.saga.framework.internal.SagaState;
-import io.debezium.examples.saga.framework.internal.SagaStepMessageState;
-import io.debezium.examples.saga.framework.internal.SagaStepStatus;
 
 @ApplicationScoped
 public class SagaManager {
@@ -30,33 +26,26 @@ public class SagaManager {
     @Inject
     private EntityManager entityManager;
 
-    public void begin(SagaBase saga) {
+    public <S extends SagaBase> S begin(Class<S> sagaType, JsonNode payload) {
         try {
             UUID sagaId = UUID.randomUUID();
 
             Map<String, String> stepStates = new HashMap<>();
 
-            for (String stepId : saga.getStepIds()) {
-                SagaStepMessage stepEvent = saga.getStepMessage(stepId);
-
-                SagaStepMessageState stepState = new SagaStepMessageState();
-                stepState.setId(UUID.randomUUID());
-                stepState.setSagaId(sagaId);
-                stepState.setType(stepEvent.type);
-                stepState.setPayload(objectMapper.writeValueAsString(stepEvent.payload));
-                stepStates.put(stepId, SagaStepStatus.STARTED.name());
-                entityManager.persist(stepState);
-            }
-
             SagaState state = new SagaState();
             state.setId(sagaId);
-            state.setType(saga.getType());
-            state.setPayload(objectMapper.writeValueAsString(saga.getPayload()));
+            state.setType(sagaType.getAnnotation(Saga.class).type());
+            state.setPayload(objectMapper.writeValueAsString(payload));
             state.setStatus(SagaStatus.STARTED);
             state.setStepState(objectMapper.writeValueAsString(stepStates));
             entityManager.persist(state);
+
+
+            S saga = sagaType.getConstructor(SagaState.class).newInstance(state);
+            saga.advance();
+            return saga;
         }
-        catch (JsonProcessingException e) {
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -69,11 +58,9 @@ public class SagaManager {
         }
 
         try {
-            return sagaType.getConstructor(UUID.class, JsonNode.class).newInstance(state.getId(), objectMapper.readTree(state.getPayload()));
-
+            return sagaType.getConstructor(SagaState.class).newInstance(state);
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-                | NoSuchMethodException | SecurityException | JsonProcessingException e) {
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

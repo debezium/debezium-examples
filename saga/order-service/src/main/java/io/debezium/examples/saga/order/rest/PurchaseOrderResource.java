@@ -44,7 +44,7 @@ public class PurchaseOrderResource {
         PurchaseOrder order = req.toPurchaseOrder();
         order.persist();
 
-        sagaManager.begin(OrderPlacementSaga.forPurchaseOrder(order));
+        sagaManager.begin(OrderPlacementSaga.class, OrderPlacementSaga.payloadFor(order));
 
         return PlaceOrderResponse.fromPurchaseOrder(order);
     }
