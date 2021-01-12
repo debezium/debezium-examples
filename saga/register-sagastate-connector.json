@@ -1,0 +1,20 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "order-db",
+    "database.port": "5432",
+    "database.user": "orderuser",
+    "database.password": "orderpw",
+    "database.dbname" : "orderdb",
+    "database.server.name": "dbserver4",
+    "schema.include.list": "purchaseorder",
+    "table.include.list" : "purchaseorder.sagastate",
+    "tombstones.on.delete" : "false",
+    "slot.name" : "debezium2",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false",
+    "transforms" : "unwrap",
+    "transforms.unwrap.type" : "io.debezium.transforms.ExtractNewRecordState"
+}

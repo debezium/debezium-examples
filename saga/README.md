@@ -145,3 +145,18 @@ Listing all topics:
 ```console
 $ docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
 ```
+
+Register connector for logging the saga state:
+
+```console
+$ http PUT http://localhost:8083/connectors/order-sagastate-connector/config < register-sagastate-connector.json
+```
+
+Examine saga state log:
+
+$ docker run --tty --rm \
+    --network saga-network \
+    debezium/tooling:1.1 \
+    kafkacat -b kafka:9092 -C -o beginning -q \
+    -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
+    -t dbserver4.purchaseorder.sagastate
