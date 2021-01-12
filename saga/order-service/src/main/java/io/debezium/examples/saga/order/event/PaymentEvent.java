@@ -7,16 +7,20 @@ package io.debezium.examples.saga.order.event;
 
 import java.util.UUID;
 
+import org.apache.kafka.common.header.Headers;
+
 public class PaymentEvent {
 
     public UUID sagaId;
     public UUID messageId;
     public PaymentStatus status;
+    public Headers headers;
 
-    public PaymentEvent(UUID sagaId, UUID messageId, PaymentStatus status) {
+    public PaymentEvent(UUID sagaId, UUID messageId, PaymentStatus status, Headers headers) {
         this.sagaId = sagaId;
         this.messageId = messageId;
         this.status = status;
+        this.headers = headers;
     }
 
     @Override

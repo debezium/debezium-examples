@@ -53,13 +53,13 @@ public class PurchaseOrderResource {
     @Path("/payment")
     @Transactional
     public void onPaymentEvent(@HeaderParam("saga-id") UUID sagaId, @HeaderParam("message-id") UUID messageId, PaymentEventPayload event) {
-        eventHandler.onPaymentEvent(new PaymentEvent(sagaId, messageId, event.status));
+        eventHandler.onPaymentEvent(new PaymentEvent(sagaId, messageId, event.status, null));
     }
 
     @POST
     @Path("/credit-approval")
     @Transactional
     public void onCreditEvent(@HeaderParam("saga-id") UUID sagaId, @HeaderParam("message-id") UUID messageId, CreditApprovalEventPayload event) {
-        eventHandler.onCreditApprovalEvent(new CreditApprovalEvent(sagaId, messageId, event.status));
+        eventHandler.onCreditApprovalEvent(new CreditApprovalEvent(sagaId, messageId, event.status, null));
     }
 }

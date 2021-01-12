@@ -38,7 +38,7 @@ public class PaymentEventConverter implements MessageConverter {
         UUID messageId = UUID.fromString(getHeaderAsString(metadata.getHeaders(), "id"));
         UUID sagaId = UUID.fromString((String) metadata.getKey());
 
-        return in.withPayload(new PaymentEvent(sagaId, messageId, ((PaymentEventPayload) in.getPayload()).status));
+        return in.withPayload(new PaymentEvent(sagaId, messageId, ((PaymentEventPayload) in.getPayload()).status, metadata.getHeaders()));
     }
 
     private String getHeaderAsString(Headers headers, String name) {

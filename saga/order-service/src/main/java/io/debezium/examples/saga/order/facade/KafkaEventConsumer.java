@@ -18,6 +18,9 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import io.debezium.examples.saga.order.event.CreditApprovalEvent;
 import io.debezium.examples.saga.order.event.PaymentEvent;
 import io.debezium.examples.saga.order.saga.OrderPlacementEventHandler;
+import io.opentracing.Scope;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.kafka.TracingKafkaUtils;
 
 @ApplicationScoped
 public class KafkaEventConsumer {
@@ -27,17 +30,24 @@ public class KafkaEventConsumer {
     @Inject
     private OrderPlacementEventHandler eventHandler;
 
+    @Inject
+    Tracer tracer;
+
     @Incoming("paymentresponse")
     public CompletionStage<Void> onPaymentMessage(PaymentEvent event) throws IOException {
         return CompletableFuture.runAsync(() -> {
-            retrying(() -> eventHandler.onPaymentEvent(event));
+            try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(event.headers, tracer)).startActive(true)) {
+                retrying(() -> eventHandler.onPaymentEvent(event));
+            }
         });
     }
 
     @Incoming("creditresponse")
     public CompletionStage<Void> onCreditMessage(CreditApprovalEvent event) throws IOException {
         return CompletableFuture.runAsync(() -> {
-            retrying(() -> eventHandler.onCreditApprovalEvent(event));
+            try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(event.headers, tracer)).startActive(true)) {
+                retrying(() -> eventHandler.onCreditApprovalEvent(event));
+            }
         });
     }
 

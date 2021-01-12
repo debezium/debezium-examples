@@ -20,6 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.debezium.examples.saga.payment.model.Payment;
+import io.opentracing.Scope;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.kafka.TracingKafkaUtils;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped
@@ -30,18 +33,23 @@ public class KafkaEventConsumer {
     @Inject
     PaymentEventHandler paymentEventHandler;
 
+    @Inject
+    Tracer tracer;
+
     @Incoming("payment")
     public CompletionStage<Void> onMessage(KafkaRecord<String, Payment> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
-            LOG.debug("Kafka message with key = {} arrived", message.getKey());
+            try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer)).startActive(true)) {
+                LOG.debug("Kafka message with key = {} arrived", message.getKey());
 
-            String eventId = getHeaderAsString(message, "id");
+                String eventId = getHeaderAsString(message, "id");
 
-            paymentEventHandler.onPaymentEvent(
-                    UUID.fromString(eventId),
-                    UUID.fromString(message.getKey()),
-                    message.getPayload()
-            );
+                paymentEventHandler.onPaymentEvent(
+                        UUID.fromString(eventId),
+                        UUID.fromString(message.getKey()),
+                        message.getPayload()
+                );
+            }
         }).thenRun(() -> message.ack());
     }
 
