@@ -8,14 +8,11 @@
     "database.dbname" : "orderdb",
     "database.server.name": "dbserver1",
     "schema.include.list": "purchaseorder",
-    "table.include.list" : "purchaseorder.sagastepmessagestate",
+    "table.include.list" : "purchaseorder.outboxevent",
     "tombstones.on.delete" : "false",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "org.apache.kafka.connect.storage.StringConverter",
     "transforms" : "saga",
     "transforms.saga.type" : "io.debezium.transforms.outbox.EventRouter",
-    "transforms.saga.route.by.field" : "type",
-    "transforms.saga.route.topic.replacement" : "${routedByValue}.request",
-    "transforms.saga.table.field.event.key" : "sagaid",
-    "transforms.saga.table.field.event.payload.id" : "sagaid"
+    "transforms.saga.route.topic.replacement" : "${routedByValue}.request"
 }

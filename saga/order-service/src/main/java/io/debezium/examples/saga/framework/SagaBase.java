@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.enterprise.event.Event;
 import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
@@ -24,8 +25,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.debezium.examples.saga.framework.internal.ConsumedMessage;
 import io.debezium.examples.saga.framework.internal.SagaState;
-import io.debezium.examples.saga.framework.internal.SagaStepMessageState;
 import io.debezium.examples.saga.framework.internal.SagaStepStatus;
+import io.debezium.examples.saga.order.saga.SagaEvent;
+import io.debezium.outbox.quarkus.ExportedEvent;
 import io.quarkus.hibernate.orm.panache.runtime.JpaOperations;
 
 public abstract class SagaBase {
@@ -34,9 +36,13 @@ public abstract class SagaBase {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
+    private final Event<ExportedEvent<?, ?>> event;
+
     private final SagaState state;
 
-    protected SagaBase(SagaState state) {
+
+    protected SagaBase(Event<ExportedEvent<?, ?>> event, SagaState state) {
+        this.event = event;
         this.state = state;
     }
 
@@ -148,7 +154,7 @@ public abstract class SagaBase {
         }
 
         SagaStepMessage stepEvent = getStepMessage(nextStep);
-        persistStepMessage(stepEvent);
+        event.fire(new SagaEvent(getId(), stepEvent.type, stepEvent.eventType, stepEvent.payload));
 
         TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
         HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
@@ -160,7 +166,7 @@ public abstract class SagaBase {
 
     private void compensate() throws JsonProcessingException {
         SagaStepMessage stepEvent = getCompensatingStepMessage(getCurrentStep());
-        persistStepMessage(stepEvent);
+        event.fire(new SagaEvent(getId(), stepEvent.type, stepEvent.eventType, stepEvent.payload));
 
         TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
         HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
@@ -177,7 +183,7 @@ public abstract class SagaBase {
         }
 
         SagaStepMessage stepEvent = getCompensatingStepMessage(previousStep);
-        persistStepMessage(stepEvent);
+        event.fire(new SagaEvent(getId(), stepEvent.type, stepEvent.eventType, stepEvent.payload));
 
         TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
         HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
@@ -185,17 +191,6 @@ public abstract class SagaBase {
 
         state.setCurrentStep(previousStep);
         state.setStepState(objectMapper.writeValueAsString(stepStates));
-    }
-
-    private void persistStepMessage(SagaStepMessage stepEvent) throws JsonProcessingException {
-        SagaStepMessageState stepState = new SagaStepMessageState();
-        stepState.setId(UUID.randomUUID());
-        stepState.setSagaId(getId());
-        stepState.setType(stepEvent.type);
-        stepState.setPayload(objectMapper.writeValueAsString(stepEvent.payload));
-
-        EntityManager em = JpaOperations.getEntityManager(SagaState.class);
-        em.persist(stepState);
     }
 
     protected String getCurrentStep() {

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
@@ -17,11 +18,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.debezium.examples.saga.framework.internal.SagaState;
+import io.debezium.outbox.quarkus.ExportedEvent;
 
 @ApplicationScoped
 public class SagaManager {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
+
+    @Inject
+    private Event<ExportedEvent<?, ?>> event;
 
     @Inject
     private EntityManager entityManager;
@@ -41,7 +46,7 @@ public class SagaManager {
             entityManager.persist(state);
 
 
-            S saga = sagaType.getConstructor(SagaState.class).newInstance(state);
+            S saga = sagaType.getConstructor(Event.class, SagaState.class).newInstance(event, state);
             saga.advance();
             return saga;
         }
@@ -58,7 +63,7 @@ public class SagaManager {
         }
 
         try {
-            return sagaType.getConstructor(SagaState.class).newInstance(state);
+            return sagaType.getConstructor(Event.class, SagaState.class).newInstance(event, state);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
