@@ -12,6 +12,8 @@ This demo automatically deploys the topology of services as defined in the [Debe
       - [Avro format using Apicurio Avro converter](#avro-format-using-apicurio-avro-converter)
       - [Avro format using Confluent Avro converter](#avro-format-using-confluent-avro-converter)
   * [Using Postgres](#using-postgres)
+    - [Avro format with Postgres using Apicurio Avro converter](#avro-format-with-postgres-using-apicurio-avro-converter)
+    - [Avro format with Postgres using Confluent Avro converter](#avro-format-with-postgres-using-confluent-avro-converter)
   * [Using MongoDB](#using-mongodb)
   * [Using Oracle](#using-oracle)
   * [Using SQL Server](#using-sql-server)
@@ -212,6 +214,62 @@ docker-compose -f docker-compose-postgres.yaml exec postgres env PGOPTIONS="--se
 
 # Shut down the cluster
 docker-compose -f docker-compose-postgres.yaml down
+```
+
+### Avro format with Postgres using Apicurio Avro converter
+```shell
+# Start the topology as defined in https://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=1.3
+docker-compose -f docker-compose-postgres-apicurio.yaml up
+
+# Start Postgres connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-apicurio.json
+
+# Modify records in the database via Postgres client
+docker-compose -f docker-compose-postgres-apicurio.yaml exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
+
+# Shut down the cluster
+docker-compose -f docker-compose-postgres-apicurio.yaml down
+
+```
+You can access the first version of the schema for `customers` values like this:
+
+```shell
+curl -X GET http://localhost:8080/api/ccompat/subjects/dbserver1.inventory.customers-value/versions/1
+```
+
+Or, if you have the `jq` utility installed, you can get a formatted output like this:
+
+```shell
+curl -X GET http://localhost:8080/api/ccompat/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
+```
+
+### Avro format with Postgres using Confluent Avro converter
+```shell
+# Start the topology as defined in https://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=1.3
+docker-compose -f docker-compose-postgres-avro.yaml up
+
+# Start Postgres connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-avro.json
+
+# Modify records in the database via Postgres client
+docker-compose -f docker-compose-postgres-avro.yaml exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
+
+# Shut down the cluster
+docker-compose -f docker-compose-postgres-avro.yaml down
+
+```
+You can access the first version of the schema for `customers` values like this:
+
+```shell
+curl -X GET http://localhost:8081/subjects/dbserver1.inventory.customers-value/versions/1
+```
+
+Or, if you have the `jq` utility installed, you can get a formatted output like this:
+
+```shell
+curl -X GET http://localhost:8081/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
 ```
 
 ## Using MongoDB
