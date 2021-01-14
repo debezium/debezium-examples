@@ -14,5 +14,6 @@
     "value.converter": "org.apache.kafka.connect.storage.StringConverter",
     "transforms" : "saga",
     "transforms.saga.type" : "io.debezium.transforms.outbox.EventRouter",
-    "transforms.saga.route.topic.replacement" : "${routedByValue}.request"
+    "transforms.saga.route.topic.replacement" : "${routedByValue}.request",
+    "poll.interval.ms": "100"
 }

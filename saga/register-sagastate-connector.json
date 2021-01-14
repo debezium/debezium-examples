@@ -16,5 +16,6 @@
     "key.converter.schemas.enable": "false",
     "value.converter.schemas.enable": "false",
     "transforms" : "unwrap",
-    "transforms.unwrap.type" : "io.debezium.transforms.ExtractNewRecordState"
+    "transforms.unwrap.type" : "io.debezium.transforms.ExtractNewRecordState",
+    "poll.interval.ms": "100"
 }

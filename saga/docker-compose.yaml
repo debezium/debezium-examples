@@ -24,7 +24,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
     # Set to host IP address when working on the services locally
-     - ADVERTISED_HOST_NAME=192.168.1.13
+    # - ADVERTISED_HOST_NAME=172.17.0.1
     networks:
      - my-network
   connect:
