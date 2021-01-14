@@ -50,19 +50,7 @@ Content-Type: application/json
 }
 ```
 
-Examine the emitted messages for `payment` and `credit-approval` in Apache Kafka:
-
-```console
-$ docker run --tty --rm \
-    --network saga-network \
-    debezium/tooling:1.1 \
-    kafkacat -b kafka:9092 -C -o beginning -q \
-    -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
-    -t payment.request
-
-{"key":17ef865e-39bf-404d-8d35-25c61ae0e082, "headers":"id=e88e463f-047d-49a9-be08-988a1552c571"}
-{"order-id":1,"customer-id":456,"payment-due":59,"credit-card-no":"xxxx-yyyy-dddd-aaaa","type":"REQUEST"}
-```
+Examine the emitted messages for `credit-approval` and `payment` in Apache Kafka:
 
 ```console
 $ docker run --tty --rm \
@@ -73,6 +61,18 @@ $ docker run --tty --rm \
     -t credit-approval.request
 
 {"key":17ef865e-39bf-404d-8d35-25c61ae0e082, "headers":"id=6ab3c538-5899-4a61-aa22-ebf5dee45b9d"}
+{"order-id":1,"customer-id":456,"payment-due":59,"credit-card-no":"xxxx-yyyy-dddd-aaaa","type":"REQUEST"}
+```
+
+```console
+$ docker run --tty --rm \
+    --network saga-network \
+    debezium/tooling:1.1 \
+    kafkacat -b kafka:9092 -C -o beginning -q \
+    -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
+    -t payment.request
+
+{"key":17ef865e-39bf-404d-8d35-25c61ae0e082, "headers":"id=e88e463f-047d-49a9-be08-988a1552c571"}
 {"order-id":1,"customer-id":456,"payment-due":59,"credit-card-no":"xxxx-yyyy-dddd-aaaa","type":"REQUEST"}
 ```
 
@@ -114,8 +114,9 @@ Observe how the saga's state again is `ABORTED`, with the step states set accord
 Now stop the payment service and place a valid order again:
 
 ```console
-$ http POST http://localhost:8080/orders < requests/place-order.json
 $ docker-compose stop payment-service
+
+$ http POST http://localhost:8080/orders < requests/place-order.json
 ```
 
 Observe how the saga remains in state `STARTED`, with the `credit-approval` step in state `SUCCEEDED` and the `payment` step in state `STARTED`.
