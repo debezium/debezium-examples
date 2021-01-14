@@ -99,6 +99,7 @@ services:
      - kafka
     environment:
      - MP_MESSAGING_INCOMING_ORDERS_BOOTSTRAP_SERVERS=kafka:9092
+     - MP_MESSAGING_INCOMING_ORDERLINES_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       connect:
         condition: service_started
