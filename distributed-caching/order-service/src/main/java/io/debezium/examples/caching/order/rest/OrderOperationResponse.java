@@ -5,11 +5,11 @@
  */
 package io.debezium.examples.caching.order.rest;
 
+import io.debezium.examples.caching.order.model.PurchaseOrder;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import io.debezium.examples.caching.order.model.PurchaseOrder;
 
 /**
  * A value object that represents the response of an operation on a {@link PurchaseOrder}.

@@ -11,8 +11,7 @@
   </parent>
 
   <artifactId>distributed-caching-cache-update-service</artifactId>
-  <name>Debezium/Infinispan Distributed Caching Demo - Cach Update Services</name>
-
+  <name>Debezium/Infinispan Distributed Caching Demo - Cache Update Services</name>
   <build>
     <finalName>cache-update-service</finalName>
     <plugins>
@@ -61,8 +60,12 @@
     <dependency>
       <groupId>io.debezium</groupId>
       <artifactId>debezium-core</artifactId>
+      <version>1.4.0.Final</version>
     </dependency>
-
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-infinispan-client</artifactId>
+    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>io.quarkus</groupId>

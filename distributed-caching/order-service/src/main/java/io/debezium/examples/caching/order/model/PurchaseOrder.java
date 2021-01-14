@@ -39,7 +39,7 @@ public class PurchaseOrder {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "purchaseOrder")
     private List<OrderLine> lineItems;
 
-    PurchaseOrder() {
+    public PurchaseOrder() {
     }
 
     public PurchaseOrder(long customerId, LocalDateTime orderDate, List<OrderLine> lineItems) {

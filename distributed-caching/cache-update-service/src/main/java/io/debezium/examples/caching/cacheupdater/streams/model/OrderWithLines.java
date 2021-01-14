@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class OrderWithLines {
 
     public List<OrderLine> lines = new ArrayList<>();
 
-    public OrderWithLines addAddress(OrderLineAndPurchaseOrder lineAndPurchaseOrder) {
+    public OrderWithLines addOrderLine(OrderLineAndPurchaseOrder lineAndPurchaseOrder) {
         LOGGER.info("Adding: " + lineAndPurchaseOrder);
 
         id = lineAndPurchaseOrder.purchaseOrder.id;
@@ -35,7 +36,7 @@ public class OrderWithLines {
         return this;
     }
 
-    public OrderWithLines removeAddress(OrderLineAndPurchaseOrder lineAndPurchaseOrder) {
+    public OrderWithLines removeOrderLine(OrderLineAndPurchaseOrder lineAndPurchaseOrder) {
         LOGGER.info("Removing: " + lineAndPurchaseOrder);
 
         Iterator<OrderLine> it = lines.iterator();
@@ -54,5 +55,21 @@ public class OrderWithLines {
     public String toString() {
         return "OrderWithLines [id=" + id + ", customerId=" + customerId + ", orderDate=" + orderDate + ", lines="
                 + lines + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        OrderWithLines that = (OrderWithLines) o;
+        return customerId == that.customerId && Objects.equals(id, that.id) && Objects.equals(orderDate, that.orderDate)
+              && Objects.equals(lines, that.lines);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, customerId, orderDate, lines);
     }
 }

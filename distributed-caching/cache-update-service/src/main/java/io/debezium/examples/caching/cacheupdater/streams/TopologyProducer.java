@@ -75,8 +75,8 @@ public class TopologyProducer {
             )
             .aggregate(
                 OrderWithLines::new,
-                (customerId, orderLineAndOrder, aggregate) -> aggregate.addAddress(orderLineAndOrder),
-                (customerId, orderLineAndOrder, aggregate) -> aggregate.removeAddress(orderLineAndOrder),
+                (customerId, orderLineAndOrder, aggregate) -> aggregate.addOrderLine(orderLineAndOrder),
+                (customerId, orderLineAndOrder, aggregate) -> aggregate.removeOrderLine(orderLineAndOrder),
                 Materialized.with(Serdes.Long(), orderWithLinesSerde)
             );
 
