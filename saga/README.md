@@ -11,6 +11,9 @@ There are three services involved:
 * _customer-service:_ validates whether an incoming order is within the customer's credit limit and and approves or rejects it accordingly
 * _payment-service_ executes the payment associated to an incoming order
 
+
+![Solution Overview](solution-overview.png)
+
 ## Running the Example
 
 Build and start up:
