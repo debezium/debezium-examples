@@ -5,14 +5,24 @@
  */
 package io.debezium.examples.caching.order.service;
 
+import io.debezium.examples.caching.commons.ProtoOrderLine;
+import io.debezium.examples.caching.commons.ProtoPurchaseOrder;
+import io.debezium.examples.caching.order.model.EntityNotFoundException;
+import io.debezium.examples.caching.order.model.OrderLine;
+import io.debezium.examples.caching.order.model.OrderLineStatus;
+import io.debezium.examples.caching.order.model.PurchaseOrder;
+import io.quarkus.infinispan.client.Remote;
+import org.infinispan.client.hotrod.RemoteCache;
+
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-
-import io.debezium.examples.caching.order.model.EntityNotFoundException;
-import io.debezium.examples.caching.order.model.OrderLineStatus;
-import io.debezium.examples.caching.order.model.PurchaseOrder;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * An application-scoped bean that facilitates {@link PurchaseOrder} business functionality.
@@ -24,6 +34,10 @@ public class OrderService {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    @Inject
+    @Remote("orders")
+    RemoteCache<String, ProtoPurchaseOrder> orders;
 
     /**
      * Add a new {@link PurchaseOrder}.
@@ -55,5 +69,27 @@ public class OrderService {
         order.updateOrderLine(orderLineId, newStatus);
 
         return order;
+    }
+
+    public Optional<PurchaseOrder> getById(String id) {
+        ProtoPurchaseOrder order = orders.get(id);
+        if(order == null) {
+            return Optional.empty();
+        }
+        PurchaseOrder purchaseOrder = new PurchaseOrder();
+        purchaseOrder.setId(order.getId());
+        purchaseOrder.setLineItems(new ArrayList<>());
+        purchaseOrder.setCustomerId(order.getCustomerId());
+        // TODO handle date
+        purchaseOrder.setOrderDate(order.getOrderDate());
+
+        for(ProtoOrderLine ol: order.getLineItems()) {
+            OrderLine orderLine = new OrderLine(ol.getItem(), ol.getQuantity(), new BigDecimal(ol.getTotalPrice()));
+            orderLine.setId(ol.getId());
+            orderLine.setStatus(OrderLineStatus.valueOf(orderLine.getStatus().name()));
+            purchaseOrder.getLineItems().add(orderLine);
+        }
+
+        return Optional.of(purchaseOrder);
     }
 }

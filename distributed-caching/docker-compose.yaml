@@ -17,7 +17,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # Set to host IP address when working on the services locally
-     - ADVERTISED_HOST_NAME=192.168.1.16
+     # - ADVERTISED_HOST_NAME=192.168.1.12
     networks:
      - my-network
   order-db:
@@ -71,7 +71,7 @@ services:
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
     networks:
      - my-network
-  order-service:
+  order-service-1:
     image: debezium-examples/distributed-caching-order-service:${DEBEZIUM_VERSION}
     build:
       context: order-service
@@ -83,6 +83,7 @@ services:
      - order-db
     environment:
      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory
+     - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-nyc-1:11222
     depends_on:
       order-db:
         condition: service_healthy
@@ -90,6 +91,46 @@ services:
         condition: service_started
     networks:
      - my-network
+    command: >
+      /bin/sh -c "
+        echo Waiting for Infinispan service start ...;
+        while ! curl --silent --output /dev/null --fail-early http://ispn-nyc-1:8080;
+        do
+          sleep 1;
+        done;
+        echo Infinispan service started!;
+        ./deployments/run-java.sh
+      "
+  order-service-2:
+    image: debezium-examples/distributed-caching-order-service:${DEBEZIUM_VERSION}
+    build:
+      context: order-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    ports:
+      - 8081:8080
+    links:
+      - kafka
+      - order-db
+    environment:
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory
+      - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-lon-1:11222
+    depends_on:
+      order-db:
+        condition: service_healthy
+      connect:
+        condition: service_started
+    networks:
+      - my-network
+    command: >
+      /bin/sh -c "
+        echo Waiting for Infinispan service start ...;
+        while ! curl --silent --output /dev/null --fail-early http://ispn-lon-1:8080;
+        do
+          sleep 1;
+        done;
+        echo Infinispan service started!;
+        ./deployments/run-java.sh
+      "
   cache-update-service:
     image: debezium-examples/distributed-caching-cache-update-service:${DEBEZIUM_VERSION}
     build:
@@ -99,11 +140,52 @@ services:
      - kafka
     environment:
      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+     - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-tyo-1:11222
     depends_on:
       connect:
         condition: service_started
     networks:
      - my-network
+    command: >
+      /bin/sh -c "
+        echo Waiting for Infinispan service start ...;
+        while ! curl --silent --output /dev/null --fail-early http://ispn-tyo-1:8080;
+        do
+          sleep 1;
+        done;
+        echo Infinispan service started!;
+        ./deployments/run-java.sh -Dquarkus.infinispan-client.server-list=ispn-tyo-1:11222
+      "
+  infinispan-server-lon-1:
+    image: infinispan/server:11.0
+    ports:
+      - "11222:11222"
+    container_name: ispn-lon-1
+    networks:
+      - my-network
+    volumes:
+      - ${PWD}:/user-config
+    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-lon.xml -Djgroups.cluster.mcast_addr=228.6.7.10 -Drelay.site=LON
+  infinispan-server-nyc-1:
+    image: infinispan/server:11.0
+    ports:
+      - "31222:11222"
+    container_name: ispn-nyc-1
+    networks:
+      - my-network
+    volumes:
+      - ${PWD}:/user-config
+    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-nyc.xml -Djgroups.cluster.mcast_addr=228.6.7.15 -Drelay.site=NYC
+  infinispan-server-tyo-1:
+    image: infinispan/server:11.0
+    ports:
+      - "41222:11222"
+    container_name: ispn-tyo-1
+    networks:
+      - my-network
+    volumes:
+      - ${PWD}:/user-config
+    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-tyo.xml -Djgroups.cluster.mcast_addr=228.6.7.20 -Drelay.site=TYO
 networks:
   my-network:
     name: distributed-caching-network

@@ -115,7 +115,36 @@ Delete the CDC connector:
 $ http DELETE http://localhost:8083/connectors/order-connector
 ```
 
-http DELETE http://localhost:8083/connectors/order-connector
+## Infinispan
+
+3 Infinispan nodes that run in 3 different sites run in the docker-compose.
+
+Cache Update Service connects to TYO, for writes.
+Order Service 1 to NYC, for reads.
+Order Service 2 to LON, for reads.
+
+From your local navigator, you can access to the Infinispan server different web console in:
+LON in `http://localhost:11222/console/`
+NYC in `http://localhost:31222/console/`
+TYO in `http://localhost:41222/console/`
+
+TYO 'orders' cache has to write backups to NYC and LON.
+
+Test a query on the console
+```console
+from caching.ProtoPurchaseOrder po where po.lineItems.status="CANCELLED
+```
+
+Order Service 1 runs in `http://localhost:8080/`
+Order Service 2 runs in `http://localhost:8081/`
+
+```console
+$ http GET http://localhost:8080/orders/1
+$ http GET http://localhost:8081/orders/1
+```
+Add an order from the order service in LON or NYC city.
+Using the console, check the data available in every cluster.
+
 ## Running the Quarkus Services Locally in Dev Mode
 
 When working on the Quarkus services, it's better to use the dev mode locally instead of rebuilding the container images all the time.
@@ -125,7 +154,7 @@ Otherwise, the consuming application (_cache-update-service_) will not be able t
 Start all components besides the two services:
 
 ```console
-$ docker-compose up --build --scale order-service=0 --scale cache-update-service=0
+$ docker-compose up --scale order-service=0 --scale cache-update-service=0
 ```
 
 Then start the two services in dev mode:

@@ -5,17 +5,19 @@
  */
 package io.debezium.examples.caching.order.rest;
 
+import io.debezium.examples.caching.order.model.PurchaseOrder;
+import io.debezium.examples.caching.order.service.OrderService;
+import org.jboss.resteasy.annotations.jaxrs.PathParam;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import io.debezium.examples.caching.order.model.PurchaseOrder;
-import io.debezium.examples.caching.order.service.OrderService;
 
 /**
  * A resource endpoint implementation for {@link PurchaseOrder} objects.
@@ -27,6 +29,13 @@ public class OrderResource {
 
     @Inject
     OrderService orderService;
+
+    @GET
+    @Path("/{id}")
+    public OrderOperationResponse getById(@PathParam("id") String orderId) {
+        return orderService.getById(orderId).map(OrderOperationResponse::from)
+              .orElseThrow(() -> new NotFoundException("Order not found"));
+    }
 
     @POST
     public OrderOperationResponse addOrder(CreateOrderRequest createOrderRequest) {
