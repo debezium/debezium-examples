@@ -9,7 +9,7 @@
         "database.password": "dbz",
         "database.server.id": "184054",
         "database.server.name": "dbserver1",
-        "table.whitelist": "inventory.customers,inventory.addresses",
+        "table.include": "inventory.customers,inventory.addresses",
         "database.history.kafka.bootstrap.servers": "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory",
         "transforms": "unwrap",

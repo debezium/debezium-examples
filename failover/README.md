@@ -19,7 +19,7 @@ The deployment consists of the following components
 
 Start the components and register Debezium to stream changes from the database
 ```
-export DEBEZIUM_VERSION=0.9
+export DEBEZIUM_VERSION=1.4
 docker-compose up --build
 curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
 ```

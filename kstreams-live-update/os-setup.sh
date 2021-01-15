@@ -54,7 +54,7 @@ oc process strimzi-connect-s2i \
     -p KAFKA_CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=true \
     | oc apply -f -
 
-export DEBEZIUM_VERSION=0.10.0.Final
+export DEBEZIUM_VERSION=1.4
 mkdir -p plugins && cd plugins && \
 curl https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/$DEBEZIUM_VERSION/debezium-connector-mysql-$DEBEZIUM_VERSION-plugin.tar.gz | tar xz; \
 mkdir confluent-jdbc-sink && cd confluent-jdbc-sink && \

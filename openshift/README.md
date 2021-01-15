@@ -25,7 +25,7 @@ Next we will create a Kafka Connect image with deployed Debezium connectors and 
 oc new-app -p ZOOKEEPER_NODE_COUNT=1 strimzi
 
 # Build a Debezium image
-export DEBEZIUM_VERSION=0.8.0.Final
+export DEBEZIUM_VERSION=1.4
 oc new-app -p BUILD_NAME=debezium -p TARGET_IMAGE_NAME=debezium -p TARGET_IMAGE_TAG=$DEBEZIUM_VERSION strimzi-connect-s2i
 mkdir -p plugins && cd plugins && \
 for PLUGIN in {mongodb,mysql,postgres}; do \
@@ -117,6 +117,6 @@ minishift addon install tutorial-database
 Deploy the Kafka broker, Kafka Connect with Debezium and MySQL example database:
 
 ```
-minishift addon apply -a DEBEZIUM_VERSION=0.8.0.Final -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
+minishift addon apply -a DEBEZIUM_VERSION=1.4.0.Final -a DEBEZIUM_PLUGIN=mysql -a PROJECT=myproject debezium
 minishift addon apply -a DEBEZIUM_TAG=0.8 -a PROJECT=myproject tutorial-database
 ```

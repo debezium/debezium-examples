@@ -16,7 +16,7 @@ To spin up some example infrastructure like Kafka, Debezium and a Postgres datab
 have to execute from this example directory (`./topic-auto-create` directory):
 
 ```bash
-$ DEBEZIUM_VERSION=1.3 docker-compose up -d
+$ DEBEZIUM_VERSION=1.4 docker-compose up -d
 
   Creating network "topic-auto-create_default" with the default driver
   Creating topic-auto-create_zookeeper_1 ... done

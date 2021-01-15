@@ -5,7 +5,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 ## Preparations
 
 ```shell
-export DEBEZIUM_VERSION=1.1
+export DEBEZIUM_VERSION=1.4
 mvn clean install -f avro-data-extractor/pom.xml
 docker-compose up --build
 ```
