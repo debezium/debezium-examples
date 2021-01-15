@@ -15,7 +15,7 @@ How to run:
 cd json-smt-es && mvn clean install && cd ../
 
 # Start the DB, Kafka Connect, Elasticsearch etc.
-export DEBEZIUM_VERSION=0.9
+export DEBEZIUM_VERSION=1.4
 docker-compose up --build
 
 # Register MySQL connector to capture changes from the "aggregates" table

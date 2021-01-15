@@ -68,7 +68,7 @@ cat <<'EOF' > register-mysql-source.json
         "database.server.id": "184055",
         "database.server.name": "dbserver1",
         "decimal.handling.mode" : "string",
-        "table.whitelist": "inventory.orders,inventory.categories",
+        "table.include": "inventory.orders,inventory.categories",
         "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
         "database.history.kafka.topic": "schema-changes.inventory"
     }
@@ -211,7 +211,7 @@ oc exec -c kafka -i my-cluster-kafka-0 -- curl -s -w "\n" -X POST \
         "database.server.id": "184055",
         "database.server.name": "dbserver1",
         "decimal.handling.mode" : "string",
-        "table.whitelist": "inventory.orders,inventory.categories",
+        "table.include": "inventory.orders,inventory.categories",
         "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
         "database.history.kafka.topic": "schema-changes.inventory"
     }

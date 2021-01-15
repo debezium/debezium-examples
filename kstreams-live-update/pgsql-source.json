@@ -13,6 +13,6 @@
         "plugin.name": "pgoutput",
         "slot.name": "debezium",
         "publication.name": "dbz_publication",
-        "table.whitelist": "inventory.orders,inventory.categories"
+        "table.include": "inventory.orders,inventory.categories"
     }
 }

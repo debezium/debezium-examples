@@ -10,7 +10,7 @@
   <properties>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium>1.1.0.Final</version.debezium>
+    <version.debezium>1.4.0.Final</version.debezium>
   </properties>
   <dependencyManagement>
     <dependencies>

@@ -7,5 +7,5 @@
     "database.password": "postgrespw",
     "database.dbname" : "vegetablesdb",
     "database.server.name": "dbserver1",
-    "table.whitelist": "inventory.vegetable,inventory.transaction_context_data"
+    "table.include": "inventory.vegetable,inventory.transaction_context_data"
 }

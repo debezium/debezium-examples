@@ -26,7 +26,7 @@ $ cd aggregator && mvn clean install
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.2
+$ export DEBEZIUM_VERSION=1.4
 $ export QUARKUS_BUILD=jvm
 ```
 

@@ -17,7 +17,7 @@ It does these things:
 
 ## Setup Environment
 
-- export DEBEZIUM_VERSION=0.10
+- export DEBEZIUM_VERSION=1.4
 
 ## Build maven artifacts used by the Docker builds
 

@@ -75,7 +75,7 @@ public class DatabaseChangeEventListener {
                 .with("database.password", "postgrespw")
                 .with("database.server.name", "dbserver1")
                 .with("database.dbname", "inventory")
-                .with("database.whitelist", "public")
+                .with("database.include", "public")
                 .with(PostgresConnectorConfig.SNAPSHOT_MODE, SnapshotMode.NEVER)
                 .build();
 
