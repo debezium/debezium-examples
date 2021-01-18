@@ -7,6 +7,8 @@
     "database.password": "postgrespw",
     "database.dbname" : "orderdb",
     "database.server.name": "dbserver1",
+    "decimal.handling.mode" : "string",
     "schema.include.list": "inventory",
-    "table.include.list": ".*purchaseorder,.*orderline"
+    "table.include.list": ".*purchaseorder,.*orderline",
+    "poll.interval.ms": "100"
 }
