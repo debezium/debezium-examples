@@ -17,7 +17,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
      # Set to host IP address when working on the services locally
-     # - ADVERTISED_HOST_NAME=192.168.1.16
+     - ADVERTISED_HOST_NAME=192.168.1.16
     networks:
      - my-network
   order-db:
@@ -98,8 +98,7 @@ services:
     links:
      - kafka
     environment:
-     - MP_MESSAGING_INCOMING_ORDERS_BOOTSTRAP_SERVERS=kafka:9092
-     - MP_MESSAGING_INCOMING_ORDERLINES_BOOTSTRAP_SERVERS=kafka:9092
+     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
       connect:
         condition: service_started

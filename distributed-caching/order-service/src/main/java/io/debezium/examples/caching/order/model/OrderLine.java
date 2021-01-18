@@ -7,6 +7,7 @@ package io.debezium.examples.caching.order.model;
 
 import java.math.BigDecimal;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,6 +33,7 @@ public class OrderLine {
 
     private int quantity;
 
+    @Column(name="total_price")
     private BigDecimal totalPrice;
 
     @ManyToOne

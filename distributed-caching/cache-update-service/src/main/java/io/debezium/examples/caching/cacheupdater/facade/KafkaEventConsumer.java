@@ -35,4 +35,11 @@ public class KafkaEventConsumer {
             System.out.println("Received OL: " + message.getKey() + " - " + message.getPayload());
         }).thenRun(() -> message.ack());
     }
+
+    @Incoming("orderswithlines")
+    public CompletionStage<Void> onOrderWithLines(KafkaRecord<String, String> message) throws IOException {
+        return CompletableFuture.runAsync(() -> {
+            System.out.println("Received OWL: " + message.getKey() + " - " + message.getPayload());
+        }).thenRun(() -> message.ack());
+    }
 }
