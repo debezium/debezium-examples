@@ -1,0 +1,16 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.vitess.VitessConnector",
+        "tasks.max": "1",
+        "database.hostname": "vitess",
+        "database.port": "15991",
+        "database.user": "vitess",
+        "database.password": "vitess_password",
+        "database.server.name": "dbserver1",
+        "vitess.keyspace": "inventory",
+        "vitess.vtctld.host": "vitess",
+        "vitess.vtctld.port": "15999",
+        "vitess.tablet.type": "MASTER"
+    }
+}
