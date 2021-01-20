@@ -41,6 +41,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.debezium.examples.distributedcaching</groupId>
+      <artifactId>distributed-caching-order-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-resteasy</artifactId>
     </dependency>

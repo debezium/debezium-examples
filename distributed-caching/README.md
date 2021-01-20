@@ -103,7 +103,7 @@ The "Central" 'orders' cache has to write backups to NYC and LON.
 Test a query on the console:
 
 ```console
-from caching.ProtoPurchaseOrder po where po.lineItems.status="CANCELLED"
+from caching.PurchaseOrder po where po.lineItems.status="CANCELLED"
 ```
 
 Order Service 1 runs in `http://localhost:8080/`

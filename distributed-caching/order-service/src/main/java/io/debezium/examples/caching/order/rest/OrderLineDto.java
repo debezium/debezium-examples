@@ -5,14 +5,14 @@
  */
 package io.debezium.examples.caching.order.rest;
 
+import io.debezium.examples.caching.commons.OrderLineStatus;
+
 import java.math.BigDecimal;
 
-import io.debezium.examples.caching.order.model.OrderLine;
-import io.debezium.examples.caching.order.model.OrderLineStatus;
-import io.debezium.examples.caching.order.model.PurchaseOrder;
 
 /**
- * A value object that represents an {@link OrderLine} for a {@link PurchaseOrder}.
+ * A value object that represents an {@link io.debezium.examples.caching.commons.OrderLine}
+ * for a {@link io.debezium.examples.caching.commons.PurchaseOrder}.
  */
 public class OrderLineDto {
 
