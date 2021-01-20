@@ -5,22 +5,7 @@
  */
 package io.debezium.examples.caching.cacheupdater.facade;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.debezium.examples.caching.commons.ProtoOrderLine;
-import io.debezium.examples.caching.commons.ProtoOrderLineStatus;
-import io.debezium.examples.caching.commons.ProtoPurchaseOrder;
-import io.quarkus.infinispan.client.Remote;
-import io.smallrye.reactive.messaging.kafka.KafkaRecord;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -28,6 +13,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.infinispan.client.hotrod.RemoteCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.debezium.examples.caching.commons.ProtoOrderLine;
+import io.debezium.examples.caching.commons.ProtoOrderLineStatus;
+import io.debezium.examples.caching.commons.ProtoPurchaseOrder;
+import io.quarkus.infinispan.client.Remote;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 /**
  * cache-update-service_1     | Received PO: {"id":1} - {"before":null,"after":{"id":1,"customerid":123,"orderdate":1548936781000000},"source":{"version":"1.4.0.Final","connector":"postgresql","name":"dbserver1","ts_ms":1610716846989,"snapshot":"false","db":"orderdb","schema":"inventory","table":"purchaseorder","txId":608,"lsn":34250896,"xmin":null},"op":"c","ts_ms":1610716847249,"transaction":null}
@@ -80,7 +82,8 @@ public class KafkaEventConsumer {
                     Long lineId = orderLineNode.get("id").asLong();
                     String item = orderLineNode.get("item").asText();
                     int quantity = orderLineNode.get("quantity").asInt();
-                    Double price = new BigDecimal(orderLineNode.get("total_price").asDouble()).doubleValue();
+                    // Keep TODO BigDecimal?
+                    Double price = (orderLineNode.get("total_price").decimalValue()).doubleValue();
                     ProtoOrderLineStatus status = ProtoOrderLineStatus.valueOf(orderLineNode.get("status").asText());
                     ProtoOrderLine orderLine = new ProtoOrderLine(lineId, item, quantity, price, status, orderId);
                     protoPurchaseOrder.getLineItems().add(orderLine);

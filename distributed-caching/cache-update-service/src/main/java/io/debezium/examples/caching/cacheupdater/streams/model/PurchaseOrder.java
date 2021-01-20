@@ -5,8 +5,6 @@
  */
 package io.debezium.examples.caching.cacheupdater.streams.model;
 
-import java.time.Instant;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PurchaseOrder {
@@ -16,6 +14,9 @@ public class PurchaseOrder {
     @JsonProperty("customer_id")
     public long customerId;
 
+    /**
+     * Coming in as *micros* since epoch.
+     */
     @JsonProperty("order_date")
-    public Instant orderDate;
+    public long orderDate;
 }

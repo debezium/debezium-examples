@@ -1,6 +1,5 @@
 package io.debezium.examples.caching.cacheupdater.streams.model;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,7 +20,9 @@ public class OrderWithLines {
     public long customerId;
 
     @JsonProperty("order_date")
-    public Instant orderDate;
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+//    public ZonedDateTime orderDate;
+    public long orderDate;
 
     public List<OrderLine> lines = new ArrayList<>();
 
@@ -30,7 +31,7 @@ public class OrderWithLines {
 
         id = lineAndPurchaseOrder.purchaseOrder.id;
         customerId = lineAndPurchaseOrder.purchaseOrder.customerId;
-        orderDate = lineAndPurchaseOrder.purchaseOrder.orderDate;
+        orderDate = lineAndPurchaseOrder.purchaseOrder.orderDate / 1_000;
         lines.add(lineAndPurchaseOrder.orderLine);
 
         return this;
