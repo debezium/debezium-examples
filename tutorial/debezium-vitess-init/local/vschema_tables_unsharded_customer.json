@@ -1,0 +1,19 @@
+{
+  "tables": {
+    "my_product_seq": {
+      "type": "sequence"
+    },
+    "my_order_seq": {
+      "type": "sequence"
+    },
+    "my_customer_seq": {
+      "type": "sequence"
+    },
+    "customers": {
+      "auto_increment": {
+        "column": "id",
+        "sequence": "my_customer_seq"
+      }
+    }
+  }
+}

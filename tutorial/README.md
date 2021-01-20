@@ -17,6 +17,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using SQL Server](#using-sql-server)
   * [Using Db2](#using-db2)
   * [Using Cassandra](#using-cassandra)
+  * [Using Vitess](#using-vitess)
   * [Using externalized secrets](#using-externalized-secrets)
   * [Debugging](#debugging)
 
@@ -368,6 +369,35 @@ DELETE FROM customers WHERE id = 5;
 
 # Shut down the cluster
 docker-compose -f docker-compose-cassandra.yaml down
+```
+
+## Using Vitess
+
+```shell 
+# Start the topology as defined in https://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=1.4
+
+docker-compose -f docker-compose-vitess.yaml up --build
+
+# Start Vitess connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-vitess.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-vitess.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic dbserver1.inventory.products
+
+# Modify records in the database via MySQL client
+docker-compose -f docker-compose-vitess.yaml exec vitess bash -c 'mysql -h 127.0.0.1 -P 15306 inventory'
+
+INSERT INTO products (name, description, weight) VALUES ('Debezium in Action', 'Book', 10);
+UPDATE products SET description = 'Video' WHERE id = 1000;
+DELETE FROM products WHERE id = 1000;
+
+# Shut down the cluster
+docker-compose -f docker-compose-vitess.yaml down
 ```
 
 ## Using externalized secrets
