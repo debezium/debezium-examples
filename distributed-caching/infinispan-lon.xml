@@ -121,7 +121,7 @@
          <remote-sites default-stack="bridge">
             <remote-site name="LON"/>
             <remote-site name="NYC"/>
-            <remote-site name="TYO"/>
+            <remote-site name="CEN"/>
          </remote-sites>
       </stack>
    </jgroups>

@@ -120,7 +120,7 @@
          <relay.RELAY2 site="${relay.site}"/>
          <remote-sites default-stack="bridge">
             <remote-site name="NYC"/>
-            <remote-site name="TYO"/>
+            <remote-site name="CEN"/>
             <remote-site name="LON"/>
          </remote-sites>
       </stack>
