@@ -5,7 +5,7 @@
  */
 package io.debezium.examples.caching.order.rest;
 
-import io.debezium.examples.caching.order.model.PurchaseOrder;
+import io.debezium.examples.caching.commons.PurchaseOrder;
 
 import java.time.LocalDateTime;
 import java.util.List;

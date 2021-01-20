@@ -3,9 +3,10 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.caching.order.model;
+package io.debezium.examples.caching.commons;
 
-import java.math.BigDecimal;
+import org.infinispan.protostream.annotations.ProtoFactory;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
+import java.math.BigDecimal;
 
 /**
  * An entity mapping that represents a line item on a {@link PurchaseOrder} entity.
@@ -31,7 +33,7 @@ public class OrderLine {
 
     private String item;
 
-    private int quantity;
+    private Integer quantity;
 
     @Column(name="total_price")
     private BigDecimal totalPrice;
@@ -43,16 +45,26 @@ public class OrderLine {
     @Enumerated(EnumType.STRING)
     private OrderLineStatus status;
 
-    OrderLine() {
+    public OrderLine() {
     }
 
-    public OrderLine(String item, int quantity, BigDecimal totalPrice) {
+    @ProtoFactory
+    public OrderLine(Long id, String item, Integer quantity, BigDecimal totalPrice, OrderLineStatus status) {
+        this.id = id;
+        this.item = item;
+        this.quantity = quantity;
+        this.totalPrice = totalPrice;
+        this.status = status;
+    }
+
+    public OrderLine(String item, Integer quantity, BigDecimal totalPrice) {
         this.item = item;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.status = OrderLineStatus.ENTERED;
     }
 
+    @ProtoField(number = 1)
     public Long getId() {
         return id;
     }
@@ -61,6 +73,7 @@ public class OrderLine {
         this.id = id;
     }
 
+    @ProtoField(number = 2)
     public String getItem() {
         return item;
     }
@@ -69,14 +82,16 @@ public class OrderLine {
         this.item = item;
     }
 
-    public int getQuantity() {
+    @ProtoField(number = 3)
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
+    @ProtoField(number = 4)
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
@@ -85,19 +100,20 @@ public class OrderLine {
         this.totalPrice = totalPrice;
     }
 
-    public PurchaseOrder getPurchaseOrder() {
-        return purchaseOrder;
-    }
-
-    public void setPurchaseOrder(PurchaseOrder purchaseOrder) {
-        this.purchaseOrder = purchaseOrder;
-    }
-
+    @ProtoField(number = 5)
     public OrderLineStatus getStatus() {
         return status;
     }
 
     public void setStatus(OrderLineStatus status) {
         this.status = status;
+    }
+
+    public PurchaseOrder getPurchaseOrder() {
+        return purchaseOrder;
+    }
+
+    public void setPurchaseOrder(PurchaseOrder purchaseOrder) {
+        this.purchaseOrder = purchaseOrder;
     }
 }

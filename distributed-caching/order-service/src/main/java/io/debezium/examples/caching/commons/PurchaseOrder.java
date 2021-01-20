@@ -3,12 +3,10 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.caching.order.model;
+package io.debezium.examples.caching.commons;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import org.infinispan.protostream.annotations.ProtoFactory;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,6 +16,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An entity mapping that represents a purchase order.
@@ -31,7 +33,7 @@ public class PurchaseOrder {
     private Long id;
 
     @Column(name="customer_id")
-    private long customerId;
+    private Long customerId;
 
     @Column(name="order_date")
     private LocalDateTime orderDate;
@@ -42,6 +44,14 @@ public class PurchaseOrder {
     public PurchaseOrder() {
     }
 
+    @ProtoFactory
+    public PurchaseOrder(Long id, Long customerId, LocalDateTime orderDate, List<OrderLine> lineItems) {
+        this.id = id;
+        this.customerId = customerId;
+        this.orderDate = orderDate;
+        this.lineItems = lineItems;
+    }
+
     public PurchaseOrder(long customerId, LocalDateTime orderDate, List<OrderLine> lineItems) {
         this.customerId = customerId;
         this.orderDate = orderDate;
@@ -49,6 +59,7 @@ public class PurchaseOrder {
         lineItems.forEach( line -> line.setPurchaseOrder( this ) );
     }
 
+    @ProtoField(number = 1)
     public Long getId() {
         return id;
     }
@@ -57,14 +68,16 @@ public class PurchaseOrder {
         this.id = id;
     }
 
-    public long getCustomerId() {
+    @ProtoField(number = 2)
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(long customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 
+    @ProtoField(number = 3)
     public LocalDateTime getOrderDate() {
         return orderDate;
     }
@@ -73,6 +86,7 @@ public class PurchaseOrder {
         this.orderDate = orderDate;
     }
 
+    @ProtoField(number = 4, collectionImplementation = ArrayList.class)
     public List<OrderLine> getLineItems() {
         return lineItems;
     }

@@ -8,9 +8,9 @@ package io.debezium.examples.caching.commons;
 import org.infinispan.protostream.annotations.ProtoEnumValue;
 
 /**
- * Various statuses in which a {@link ProtoOrderLine} may be within.
+ * Various statuses in which a {@link OrderLine} may be within.
  */
-public enum ProtoOrderLineStatus {
+public enum OrderLineStatus {
     @ProtoEnumValue(number = 1)
     ENTERED,
     @ProtoEnumValue(number = 2)

@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import io.debezium.examples.caching.order.model.EntityNotFoundException;
+import io.debezium.examples.caching.commons.EntityNotFoundException;
 
 /**
  * An exception mapper for {@link EntityNotFoundException} errors.
