@@ -6,8 +6,8 @@
 package io.debezium.examples.caching.order.service;
 
 import io.debezium.examples.caching.commons.EntityNotFoundException;
-import io.debezium.examples.caching.commons.OrderLineStatus;
-import io.debezium.examples.caching.commons.PurchaseOrder;
+import io.debezium.examples.caching.model.OrderLineStatus;
+import io.debezium.examples.caching.model.PurchaseOrder;
 import io.quarkus.infinispan.client.Remote;
 import org.infinispan.client.hotrod.RemoteCache;
 

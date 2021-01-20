@@ -5,10 +5,10 @@
  */
 package io.debezium.examples.caching.order.rest;
 
-import io.debezium.examples.caching.commons.OrderLineStatus;
+import io.debezium.examples.caching.model.OrderLineStatus;
 
 /**
- * A value object that represents updating a {@link io.debezium.examples.caching.commons.OrderLine} status.
+ * A value object that represents updating a {@link io.debezium.examples.caching.model.OrderLine} status.
  */
 public class UpdateOrderLineRequest {
 

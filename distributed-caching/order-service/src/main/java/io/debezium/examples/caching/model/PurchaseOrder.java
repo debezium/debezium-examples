@@ -3,10 +3,12 @@
  *
  * Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
  */
-package io.debezium.examples.caching.commons;
+package io.debezium.examples.caching.model;
 
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
+
+import io.debezium.examples.caching.commons.EntityNotFoundException;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;

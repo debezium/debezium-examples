@@ -5,13 +5,13 @@
  */
 package io.debezium.examples.caching.order.rest;
 
-import io.debezium.examples.caching.commons.OrderLine;
-import io.debezium.examples.caching.commons.PurchaseOrder;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import io.debezium.examples.caching.model.OrderLine;
+import io.debezium.examples.caching.model.PurchaseOrder;
 
 
 /**
