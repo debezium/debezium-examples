@@ -5,20 +5,6 @@
  */
 package io.debezium.examples.caching.cacheupdater.facade;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.debezium.examples.caching.commons.OrderLine;
-import io.debezium.examples.caching.commons.OrderLineStatus;
-import io.debezium.examples.caching.commons.PurchaseOrder;
-import io.quarkus.infinispan.client.Remote;
-import io.smallrye.reactive.messaging.kafka.KafkaRecord;
-import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.infinispan.client.hotrod.RemoteCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,6 +14,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+import org.infinispan.client.hotrod.RemoteCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.debezium.examples.caching.model.OrderLine;
+import io.debezium.examples.caching.model.OrderLineStatus;
+import io.debezium.examples.caching.model.PurchaseOrder;
+import io.quarkus.infinispan.client.Remote;
+import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 /**
  * cache-update-service_1     | Received PO: {"id":1} - {"before":null,"after":{"id":1,"customerid":123,"orderdate":1548936781000000},"source":{"version":"1.4.0.Final","connector":"postgresql","name":"dbserver1","ts_ms":1610716846989,"snapshot":"false","db":"orderdb","schema":"inventory","table":"purchaseorder","txId":608,"lsn":34250896,"xmin":null},"op":"c","ts_ms":1610716847249,"transaction":null}
@@ -41,6 +44,8 @@ import java.util.concurrent.CompletionStage;
 public class KafkaEventConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaEventConsumer.class);
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
     @Remote("orders")
@@ -64,7 +69,7 @@ public class KafkaEventConsumer {
     public CompletionStage<Void> onOrderWithLines(KafkaRecord<String, String> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
             System.out.println("PO+OL " + message.getPayload());
-            ObjectMapper objectMapper = new ObjectMapper();
+
             JsonNode jsonNode;
             try {
                 jsonNode = objectMapper.readTree(message.getPayload());
@@ -73,6 +78,7 @@ public class KafkaEventConsumer {
                 Long customerId = jsonNode.get("customer_id").asLong();
                 PurchaseOrder protoPurchaseOrder = new PurchaseOrder(orderId, customerId, orderDate,
                       new ArrayList<>());
+
                 JsonNode lines = jsonNode.withArray("lines");
                 Iterator<JsonNode> elements = lines.elements();
                 while (elements.hasNext()) {
@@ -86,8 +92,9 @@ public class KafkaEventConsumer {
                     protoPurchaseOrder.getLineItems().add(orderLine);
                 }
                 orders.put(orderId.toString(), protoPurchaseOrder);
-            }catch (Exception e) {
-                e.printStackTrace();
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }).thenRun(() -> message.ack());
     }

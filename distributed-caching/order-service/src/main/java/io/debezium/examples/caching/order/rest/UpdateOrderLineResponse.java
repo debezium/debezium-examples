@@ -5,7 +5,7 @@
  */
 package io.debezium.examples.caching.order.rest;
 
-import io.debezium.examples.caching.commons.OrderLineStatus;
+import io.debezium.examples.caching.model.OrderLineStatus;
 
 /**
  * A value object that represents the response for a {@link UpdateOrderLineRequest}.

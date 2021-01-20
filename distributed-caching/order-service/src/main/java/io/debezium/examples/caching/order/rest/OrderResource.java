@@ -5,7 +5,7 @@
  */
 package io.debezium.examples.caching.order.rest;
 
-import io.debezium.examples.caching.commons.PurchaseOrder;
+import io.debezium.examples.caching.model.PurchaseOrder;
 import io.debezium.examples.caching.order.service.OrderService;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
