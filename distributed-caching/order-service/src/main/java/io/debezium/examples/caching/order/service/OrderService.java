@@ -86,7 +86,7 @@ public class OrderService {
         for(ProtoOrderLine ol: order.getLineItems()) {
             OrderLine orderLine = new OrderLine(ol.getItem(), ol.getQuantity(), new BigDecimal(ol.getTotalPrice()));
             orderLine.setId(ol.getId());
-            orderLine.setStatus(OrderLineStatus.valueOf(orderLine.getStatus().name()));
+            orderLine.setStatus(OrderLineStatus.valueOf(ol.getStatus().name()));
             purchaseOrder.getLineItems().add(orderLine);
         }
 
