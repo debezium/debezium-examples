@@ -1,8 +1,14 @@
 # Distributed Caching
 
-This example demonstrates how to combine Debezium and Infinispan.
+This example demonstrates how to combine Debezium and Infinispan for an CQRS-style application design.
 
-TODO: expand
+Multiple instances of the "Order" microservice (one in "London", one in "New York") use a shared Postgres database at a "Central" location as a system of record; i.e. all writes they do go against that Postgres database.
+For performance reasons, read requests are done against local Infinispan caches.
+These caches are kept in sync via Debezium.
+Another service, "Cache Updater", is subscribed to the change event topics in Kafka and updates an Infinispan cache at "Central", from where the data is replicated to "London" and "New York" using Infinispan's cross-site replication feature.
+In addition, the data view in Infinispan is denormalized (materialized join between purchase orders and order lines), so data can be obtained very efficiently.
+
+![Solution Overview](architecture-overview.png)
 
 ## Building
 
@@ -78,6 +84,61 @@ $ docker-compose logs cache-update-service
 
 (Look for "Received '{PO]OL}'" messages in the logs)
 
+## Infinispan
+
+3 Infinispan nodes that run in 3 different sites via Docker Compose.
+
+The Cache Update Service connects to "Central", for writes.
+Order Service 1 to "NYC", for reads.
+Order Service 2 to "LON", for reads.
+
+From your local navigator, you can access the different Infinispan server web consoles at:
+
+LON in `http://localhost:11222/console/`
+NYC in `http://localhost:31222/console/`
+Central in `http://localhost:41222/console/`
+
+The "Central" 'orders' cache has to write backups to NYC and LON.
+
+Test a query on the console:
+
+```console
+from caching.ProtoPurchaseOrder po where po.lineItems.status="CANCELLED"
+```
+
+Order Service 1 runs in `http://localhost:8080/`
+Order Service 2 runs in `http://localhost:8081/`
+
+```console
+$ http GET http://localhost:8080/orders/1
+$ http GET http://localhost:8081/orders/1
+```
+
+Add an order from the order service in LON or NYC.
+Using the console, check the data available in every cluster.
+
+## Running the Quarkus Services Locally in Dev Mode
+
+When working on the Quarkus services, it's better to use the dev mode locally instead of rebuilding the container images all the time.
+In order to do so, in the _docker-compose.yml_ file, set the `ADVERTISED_HOST_NAME` variable of the `kafka` service to the IP of your host machine.
+Otherwise, the consuming application (_cache-update-service_) will not be able to connect Kafka.
+
+Start all components besides the two services:
+
+```console
+$ docker-compose up --scale order-service=0 --scale cache-update-service=0
+```
+
+Then start the two services in dev mode:
+
+```console
+$ mvn compile quarkus:dev -f order-service/pom.xml
+```
+
+```console
+$ mvn compile quarkus:dev -f cache-update-service/pom.xml
+```
+
 ## Useful Commands
 
 Getting a session in the Postgres DB of the "order" service:
@@ -113,56 +174,4 @@ Delete the CDC connector:
 
 ```console
 $ http DELETE http://localhost:8083/connectors/order-connector
-```
-
-## Infinispan
-
-3 Infinispan nodes that run in 3 different sites run in the docker-compose.
-
-Cache Update Service connects to TYO, for writes.
-Order Service 1 to NYC, for reads.
-Order Service 2 to LON, for reads.
-
-From your local navigator, you can access to the Infinispan server different web console in:
-LON in `http://localhost:11222/console/`
-NYC in `http://localhost:31222/console/`
-TYO in `http://localhost:41222/console/`
-
-TYO 'orders' cache has to write backups to NYC and LON.
-
-Test a query on the console
-```console
-from caching.ProtoPurchaseOrder po where po.lineItems.status="CANCELLED
-```
-
-Order Service 1 runs in `http://localhost:8080/`
-Order Service 2 runs in `http://localhost:8081/`
-
-```console
-$ http GET http://localhost:8080/orders/1
-$ http GET http://localhost:8081/orders/1
-```
-Add an order from the order service in LON or NYC city.
-Using the console, check the data available in every cluster.
-
-## Running the Quarkus Services Locally in Dev Mode
-
-When working on the Quarkus services, it's better to use the dev mode locally instead of rebuilding the container images all the time.
-In order to do so, in the _docker-compose.yml_ file, set the `ADVERTISED_HOST_NAME` variable of the `kafka` service to the IP of your host machine.
-Otherwise, the consuming application (_cache-update-service_) will not be able to connect Kafka.
-
-Start all components besides the two services:
-
-```console
-$ docker-compose up --scale order-service=0 --scale cache-update-service=0
-```
-
-Then start the two services in dev mode:
-
-```console
-$ mvn compile quarkus:dev -f order-service/pom.xml
-```
-
-```console
-$ mvn compile quarkus:dev -f cache-update-service/pom.xml
 ```

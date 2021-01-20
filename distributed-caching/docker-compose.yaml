@@ -71,7 +71,7 @@ services:
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
     networks:
      - my-network
-  order-service-1:
+  order-service-nyc:
     image: debezium-examples/distributed-caching-order-service:${DEBEZIUM_VERSION}
     build:
       context: order-service
@@ -101,7 +101,7 @@ services:
         echo Infinispan service started!;
         ./deployments/run-java.sh
       "
-  order-service-2:
+  order-service-lon:
     image: debezium-examples/distributed-caching-order-service:${DEBEZIUM_VERSION}
     build:
       context: order-service
@@ -140,7 +140,7 @@ services:
      - kafka
     environment:
      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-     - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-tyo-1:11222
+     - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-cen-1:11222
     depends_on:
       connect:
         condition: service_started
@@ -149,12 +149,12 @@ services:
     command: >
       /bin/sh -c "
         echo Waiting for Infinispan service start ...;
-        while ! curl --silent --output /dev/null --fail-early http://ispn-tyo-1:8080;
+        while ! curl --silent --output /dev/null --fail-early http://ispn-cen-1:8080;
         do
           sleep 1;
         done;
         echo Infinispan service started!;
-        ./deployments/run-java.sh -Dquarkus.infinispan-client.server-list=ispn-tyo-1:11222
+        ./deployments/run-java.sh -Dquarkus.infinispan-client.server-list=ispn-cen-1:11222
       "
   infinispan-server-lon-1:
     image: infinispan/server:11.0
@@ -176,16 +176,16 @@ services:
     volumes:
       - ${PWD}:/user-config
     command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-nyc.xml -Djgroups.cluster.mcast_addr=228.6.7.15 -Drelay.site=NYC
-  infinispan-server-tyo-1:
+  infinispan-server-cen-1:
     image: infinispan/server:11.0
     ports:
       - "41222:11222"
-    container_name: ispn-tyo-1
+    container_name: ispn-cen-1
     networks:
       - my-network
     volumes:
       - ${PWD}:/user-config
-    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-tyo.xml -Djgroups.cluster.mcast_addr=228.6.7.20 -Drelay.site=TYO
+    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-cen.xml -Djgroups.cluster.mcast_addr=228.6.7.20 -Drelay.site=CEN
 networks:
   my-network:
     name: distributed-caching-network
