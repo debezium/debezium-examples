@@ -150,6 +150,13 @@ $ docker run --tty --rm -i \
     bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 ```
 
+E.g. to enable the before row state:
+
+```sql
+ALTER TABLE inventory.purchaseorder REPLICA IDENTITY FULL;
+ALTER TABLE inventory.orderline REPLICA IDENTITY FULL;
+```
+
 E.g. to query for all purchase orders:
 
 ```sql
