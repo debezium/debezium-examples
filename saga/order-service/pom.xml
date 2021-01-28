@@ -48,6 +48,11 @@
       <artifactId>opentracing-kafka-client</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.vladmihalcea</groupId>
+      <artifactId>hibernate-types-52</artifactId>
+    <version>2.10.2</version>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>

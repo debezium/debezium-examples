@@ -13,7 +13,7 @@ public enum PaymentStatus {
     public SagaStepStatus toStepStatus() {
         switch(this) {
         case CANCELLED:
-            return SagaStepStatus.ABORTED;
+            return SagaStepStatus.COMPENSATED;
         case COMPLETED:
         case REQUESTED:
             return SagaStepStatus.SUCCEEDED;

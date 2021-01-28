@@ -19,7 +19,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.examples.saga.customer.model.Credit;
+import io.debezium.examples.saga.customer.model.CreditLimitEvent;
 import io.opentracing.Scope;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.kafka.TracingKafkaUtils;
@@ -37,7 +37,7 @@ public class KafkaEventConsumer {
     Tracer tracer;
 
     @Incoming("credit")
-    public CompletionStage<Void> onMessage(KafkaRecord<String, Credit> message) throws IOException {
+    public CompletionStage<Void> onMessage(KafkaRecord<String, CreditLimitEvent> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
             try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer)).startActive(true)) {
                 LOG.debug("Kafka message with key = {} arrived", message.getKey());

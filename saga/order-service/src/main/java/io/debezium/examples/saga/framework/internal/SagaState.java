@@ -7,14 +7,22 @@ package io.debezium.examples.saga.framework.internal;
 
 import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+
 import io.debezium.examples.saga.framework.SagaStatus;
 
+@TypeDef(name = "jsonb", typeClass = JsonNodeBinaryType.class)
 @Entity
 public class SagaState {
 
@@ -26,14 +34,18 @@ public class SagaState {
 
     private String type;
 
-    private String payload;
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb")
+    private JsonNode payload;
 
     private String currentStep;
 
-    private String stepState;
+    @Type(type = "jsonb")
+    @Column(columnDefinition = "jsonb")
+    private JsonNode stepStatus;
 
     @Enumerated(EnumType.STRING)
-    private SagaStatus status;
+    private SagaStatus sagaStatus;
 
     public UUID getId() {
         return id;
@@ -59,16 +71,12 @@ public class SagaState {
         this.type = type;
     }
 
-    public String getPayload() {
+    public JsonNode getPayload() {
         return payload;
     }
 
-    public void setPayload(String payload) {
+    public void setPayload(JsonNode payload) {
         this.payload = payload;
-    }
-
-    public String getStepState() {
-        return stepState;
     }
 
     public String getCurrentStep() {
@@ -79,15 +87,19 @@ public class SagaState {
         this.currentStep = currentStep;
     }
 
-    public void setStepState(String stepState) {
-        this.stepState = stepState;
+    public JsonNode getStepStatus() {
+        return stepStatus;
     }
 
-    public SagaStatus getStatus() {
-        return status;
+    public void setStepStatus(JsonNode stepStatus) {
+        this.stepStatus = stepStatus;
     }
 
-    public void setStatus(SagaStatus status) {
-        this.status = status;
+    public SagaStatus getSagaStatus() {
+        return sagaStatus;
+    }
+
+    public void setSagaStatus(SagaStatus sagaStatus) {
+        this.sagaStatus = sagaStatus;
     }
 }

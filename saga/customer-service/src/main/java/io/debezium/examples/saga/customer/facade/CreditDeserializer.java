@@ -5,12 +5,12 @@
  */
 package io.debezium.examples.saga.customer.facade;
 
-import io.debezium.examples.saga.customer.model.Credit;
+import io.debezium.examples.saga.customer.model.CreditLimitEvent;
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
 
-public class CreditDeserializer extends ObjectMapperDeserializer<Credit> {
+public class CreditDeserializer extends ObjectMapperDeserializer<CreditLimitEvent> {
 
     public CreditDeserializer() {
-        super(Credit.class);
+        super(CreditLimitEvent.class);
     }
 }
