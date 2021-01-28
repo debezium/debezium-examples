@@ -6,5 +6,5 @@
 package io.debezium.examples.saga.framework.internal;
 
 public enum SagaStepStatus {
-    STARTED, FAILED, SUCCEEDED, ABORTING, ABORTED;
+    STARTED, FAILED, SUCCEEDED, COMPENSATING, COMPENSATED;
 }

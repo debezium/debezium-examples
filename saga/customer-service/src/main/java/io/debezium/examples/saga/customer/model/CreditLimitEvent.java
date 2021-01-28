@@ -5,16 +5,12 @@
  */
 package io.debezium.examples.saga.customer.model;
 
-import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-
-@Entity
-public class Credit extends PanacheEntity {
+public class CreditLimitEvent {
 
     @JsonProperty("order-id")
     public long orderId;
@@ -31,14 +27,6 @@ public class Credit extends PanacheEntity {
     @Enumerated(EnumType.STRING)
     public CreditRequestType type;
 
-    public Credit() {
-    }
-
-    public Credit(long orderId, long customerId, long paymentDue, String creditCardNo, CreditRequestType type) {
-        this.orderId = orderId;
-        this.customerId = customerId;
-        this.paymentDue = paymentDue;
-        this.creditCardNo = creditCardNo;
-        this.type = type;
+    public CreditLimitEvent() {
     }
 }

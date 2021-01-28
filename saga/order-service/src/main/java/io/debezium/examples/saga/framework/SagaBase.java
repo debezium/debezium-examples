@@ -8,7 +8,8 @@ package io.debezium.examples.saga.framework;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,9 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.debezium.examples.saga.framework.internal.ConsumedMessage;
 import io.debezium.examples.saga.framework.internal.SagaState;
@@ -33,8 +33,6 @@ import io.quarkus.hibernate.orm.panache.runtime.JpaOperations;
 public abstract class SagaBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(SagaBase.class);
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private final Event<ExportedEvent<?, ?>> event;
 
@@ -51,12 +49,7 @@ public abstract class SagaBase {
     }
 
     public final JsonNode getPayload() {
-        try {
-            return objectMapper.readTree(state.getPayload());
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return state.getPayload();
     }
 
     public final String getType() {
@@ -69,27 +62,28 @@ public abstract class SagaBase {
 
     public SagaStatus getStatus() {
         EntityManager em = JpaOperations.getEntityManager(SagaState.class);
-        return em.find(SagaState.class, getId()).getStatus();
+        return em.find(SagaState.class, getId()).getSagaStatus();
     }
 
     protected void onStepEvent(String type, SagaStepStatus status) {
-        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
         try {
-            HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
-            stepStates.put(type, status);
-            state.setStepState(objectMapper.writeValueAsString(stepStates));
+            ObjectNode stepStatus = (ObjectNode) state.getStepStatus();
+            stepStatus.put(type, status.name());
 
             if (status == SagaStepStatus.SUCCEEDED) {
                 advance();
             }
-            else if (status == SagaStepStatus.FAILED) {
-                compensate();
-            }
-            else if (status == SagaStepStatus.ABORTED) {
+            else if (status == SagaStepStatus.FAILED || status == SagaStepStatus.COMPENSATED) {
                 goBack();
             }
 
-            state.setStatus(getSagaStatus(objectMapper.readValue(state.getStepState(), typeRef).values()));
+            EnumSet<SagaStepStatus> allStatus = EnumSet.noneOf(SagaStepStatus.class);
+            Iterator<String> fieldNames = stepStatus.fieldNames();
+            while (fieldNames.hasNext()) {
+                allStatus.add(SagaStepStatus.valueOf(stepStatus.get(fieldNames.next()).asText()));
+            }
+
+            state.setSagaStatus(getSagaStatus(allStatus));
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException(e);
@@ -111,14 +105,14 @@ public abstract class SagaBase {
         return em.find(ConsumedMessage.class, eventId) != null;
     }
 
-    private SagaStatus getSagaStatus(Collection<SagaStepStatus> stepStates) {
-        if (containsOnly(stepStates, SagaStepStatus.STARTED, SagaStepStatus.SUCCEEDED)) {
-            return SagaStatus.STARTED;
-        }
-        else if (containsOnly(stepStates, SagaStepStatus.SUCCEEDED)) {
+    private SagaStatus getSagaStatus(EnumSet<SagaStepStatus> stepStates) {
+        if (containsOnly(stepStates, SagaStepStatus.SUCCEEDED)) {
             return SagaStatus.COMPLETED;
         }
-        else if (containsOnly(stepStates, SagaStepStatus.FAILED, SagaStepStatus.ABORTED)) {
+        else if (containsOnly(stepStates, SagaStepStatus.STARTED, SagaStepStatus.SUCCEEDED)) {
+            return SagaStatus.STARTED;
+        }
+        else if (containsOnly(stepStates, SagaStepStatus.FAILED, SagaStepStatus.COMPENSATED)) {
             return SagaStatus.ABORTED;
         }
         else {
@@ -150,47 +144,34 @@ public abstract class SagaBase {
         String nextStep = getNextStep();
 
         if (nextStep == null) {
+            state.setCurrentStep(null);
             return;
         }
 
         SagaStepMessage stepEvent = getStepMessage(nextStep);
         event.fire(new SagaEvent(getId(), stepEvent.type, stepEvent.eventType, stepEvent.payload));
 
-        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
-        HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
-        stepStates.put(nextStep, SagaStepStatus.STARTED);
+        ObjectNode stepStatus = (ObjectNode) state.getStepStatus();
+        stepStatus.put(nextStep, SagaStepStatus.STARTED.name());
 
         state.setCurrentStep(nextStep);
-        state.setStepState(objectMapper.writeValueAsString(stepStates));
-    }
-
-    private void compensate() throws JsonProcessingException {
-        SagaStepMessage stepEvent = getCompensatingStepMessage(getCurrentStep());
-        event.fire(new SagaEvent(getId(), stepEvent.type, stepEvent.eventType, stepEvent.payload));
-
-        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
-        HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
-        stepStates.put(getCurrentStep(), SagaStepStatus.ABORTING);
-
-        state.setStepState(objectMapper.writeValueAsString(stepStates));
     }
 
     protected final void goBack() throws JsonProcessingException {
         String previousStep = getPreviousStep();
 
         if (previousStep == null) {
+            state.setCurrentStep(null);
             return;
         }
 
         SagaStepMessage stepEvent = getCompensatingStepMessage(previousStep);
         event.fire(new SagaEvent(getId(), stepEvent.type, stepEvent.eventType, stepEvent.payload));
 
-        TypeReference<HashMap<String, SagaStepStatus>> typeRef = new TypeReference<>() {};
-        HashMap<String, SagaStepStatus> stepStates = objectMapper.readValue(state.getStepState(), typeRef);
-        stepStates.put(previousStep, SagaStepStatus.ABORTING);
+        ObjectNode stepStatus = (ObjectNode) state.getStepStatus();
+        stepStatus.put(previousStep, SagaStepStatus.COMPENSATING.name());
 
         state.setCurrentStep(previousStep);
-        state.setStepState(objectMapper.writeValueAsString(stepStates));
     }
 
     protected String getCurrentStep() {

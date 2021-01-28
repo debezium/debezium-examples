@@ -5,8 +5,6 @@
  */
 package io.debezium.examples.saga.framework;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -15,15 +13,13 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import io.debezium.examples.saga.framework.internal.SagaState;
 import io.debezium.outbox.quarkus.ExportedEvent;
 
 @ApplicationScoped
 public class SagaManager {
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
     private Event<ExportedEvent<?, ?>> event;
@@ -35,14 +31,12 @@ public class SagaManager {
         try {
             UUID sagaId = UUID.randomUUID();
 
-            Map<String, String> stepStates = new HashMap<>();
-
             SagaState state = new SagaState();
             state.setId(sagaId);
             state.setType(sagaType.getAnnotation(Saga.class).type());
-            state.setPayload(objectMapper.writeValueAsString(payload));
-            state.setStatus(SagaStatus.STARTED);
-            state.setStepState(objectMapper.writeValueAsString(stepStates));
+            state.setPayload(payload);
+            state.setSagaStatus(SagaStatus.STARTED);
+            state.setStepStatus(JsonNodeFactory.instance.objectNode());
             entityManager.persist(state);
 
 

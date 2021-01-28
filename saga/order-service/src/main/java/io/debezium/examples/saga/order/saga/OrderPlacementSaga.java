@@ -33,9 +33,9 @@ public class OrderPlacementSaga extends SagaBase {
     protected static final String PAYMENT = "payment";
     protected static final String CREDIT_APPROVAL = "credit-approval";
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
     public static JsonNode payloadFor(PurchaseOrder purchaseOrder) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
         ObjectNode payload = objectMapper.createObjectNode();
 
         payload.put("order-id", purchaseOrder.id);
@@ -63,14 +63,10 @@ public class OrderPlacementSaga extends SagaBase {
 
     @Override
     public SagaStepMessage getCompensatingStepMessage(String id) {
-        ObjectNode payload = objectMapper.createObjectNode().put("type", CANCEL).put("order-id", getOrderId());
+        ObjectNode payload = getPayload().deepCopy();
+        payload.put("type", CANCEL);
 
-        if (id.equals(PAYMENT)) {
-            return new SagaStepMessage(PAYMENT, CANCEL, payload);
-        }
-        else {
-            return new SagaStepMessage(CREDIT_APPROVAL, CANCEL, payload);
-        }
+        return new SagaStepMessage(CREDIT_APPROVAL, CANCEL, payload);
     }
 
     public void onPaymentEvent(PaymentEvent event) {
