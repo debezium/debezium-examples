@@ -8,9 +8,8 @@ this implementation avoids unsafe dual writes to a service's database and Apache
 There are three services involved:
 
 * _order-service:_ originator and orchestrator of the Saga
-* _customer-service:_ validates whether an incoming order is within the customer's credit limit and and approves or rejects it accordingly
+* _customer-service:_ validates whether an incoming order is within the customer's credit limit and approves or rejects it accordingly
 * _payment-service_ executes the payment associated to an incoming order
-
 
 ![Solution Overview](solution-overview.png)
 
@@ -101,9 +100,9 @@ Place an order with an invalid credit card number (the payment service rejects a
 $ http POST http://localhost:8080/orders < requests/place-invalid-order1.json
 ```
 
-Observe how the saga's state is `ABORTED`, with the `payment` step in state `FAILED`, and the `credit-approval` first in state `ABORTING`, then `ABORTED`.
+Observe how the saga's state is `ABORTED`, with the `payment` step in state `FAILED`, and the `credit-approval` first in state `COMPENSATING`, then `COMPENSATED`.
 
-Now place an order which exceeds the credit limit (the customer service rejects any value over 5000):
+Now place an order which exceeds the credit limit (customer 456 has an initial credit limit of $500.00, and this order exceeds this; alternatively, you can place the valid order request a number of times, until the accumlated value exceeds the limit):
 
 ```console
 $ http POST http://localhost:8080/orders < requests/place-invalid-order2.json
