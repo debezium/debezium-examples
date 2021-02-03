@@ -400,6 +400,35 @@ DELETE FROM products WHERE id = 1000;
 docker-compose -f docker-compose-vitess.yaml down
 ```
 
+In this example, the Vitess setup has 2 keyspaces (a.k.a. schemas in MySQL's term):
+
+- 1 unsharded keyspace: `customer`, which contains 1 table `customer`, and some technical Sequence tables used by Vitess itself.
+- 1 sharded keyspace: `inventory`, which contains 3 tables `products`, `products_on_hand` and `orders`. This sharded keyspace has 2 shards (`-80` and `80-`), the sharding key is the product id column of each of the 3 tables, this is, the `id` column in the `products` table, the `product_id` column in the `products_on_hand` table, the `product_id` column in the `orders` table. 
+
+The unsharded keyspace `customer` has only 1 shard, the sharded keyspace `inventory` has 2 shards. Each shard consists of their own MySQL cluster that has 3 MySQL processes: 1 master and 2 replicas. Vitess uses 1 instance of `vttablet` as the sidecar for each MySQL process.
+
+There are 3 other Vitess processes running in the same container: `vtgate`, `vtctld` and `etcd`. Typically, MySQL clients (e.g. JDBC) send queries to `vtgate`, who routes queries to `vttablets`, who in turn run the query in their local MySQL instance. `vtctld` is a long-running process for admin operations such as adding new keyspaces. Keyspaces' metadata (a.k.a topology) is stored in `etcd`. `vtgate` is stateless and reads the topology from `etcd` and cache it locally. 
+
+In summary, the following diagram shows the Vitess container's sharding setup and all the processes running inside the Vitess container:
+
+![Vitess Sharding Setup](vitess-sharding-setup.png)
+
+If you want to experiment with taking down individual vitess component (e.g. `vtgate`), or taking down any MySQL process, or even a single shard, you need to get a shell within the Vitess container and kill the corresponding process(es). For example:
+```shell
+# Get a shell within the Vitess container
+docker exec -it tutorial_vitess_1 bash
+
+# List all the processes in the Vitess container
+ps -ef
+
+# Find and kill the vtgate process
+ps -ef | grep vtgate
+kill -9 <vtgate_process_id>
+
+# Find and kill all the processes of the -80 shard
+for pid in $(ps -ef | awk '/00000002/ {print $2}'); do kill -9 $pid; done
+```
+
 ## Using externalized secrets
 
 Kafka Connect allows [externalization](https://cwiki.apache.org/confluence/display/KAFKA/KIP-297%3A+Externalizing+Secrets+for+Connect+Configurations) of secrets into a separate configuration repository.
