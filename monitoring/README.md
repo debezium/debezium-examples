@@ -1,6 +1,6 @@
 # Monitoring a Debezium instance
 
-Debezium [collects and exports](https://debezium.io/documentation/reference/1.0/operations/monitoring.html) a set of metrics as JMX beans.
+Debezium [collects and exports](https://debezium.io/documentation/reference/1.5/operations/monitoring.html) a set of metrics as JMX beans.
 Those metrics can be displayed either via an arbitrary JMX console or, for more complex deployments, a Prometheus and Grafana based solution can be deployed.
 This example uses a Docker Compose file to set up and deploy Debezium together with all components necessary to monitor it in Grafana.
 
