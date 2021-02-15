@@ -9,6 +9,7 @@
     "database.server.name": "dbserver1",
     "schema.include": "inventory",
     "decimal.handling.mode" : "string",
+    "poll.interval.ms": "100",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
