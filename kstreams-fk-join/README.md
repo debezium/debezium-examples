@@ -18,7 +18,7 @@ Amongst other things, this allows building a native binary of each service, resu
 Prepare the Java components by first performing a Maven build.
 
 ```console
-$ cd aggregator && mvn clean install
+$ mvn clean verify -f aggregator/pom.xml
 ```
 
 ## Environment
@@ -51,6 +51,7 @@ Register the connector that to stream outbox changes from the order service:
 
 ```console
 $ http PUT http://localhost:8083/connectors/inventory-connector/config < register-postgres.json
+
 HTTP/1.1 201 Created
 ```
 
