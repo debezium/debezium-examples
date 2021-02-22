@@ -72,11 +72,10 @@ mongo -u debezium -p dbz --authenticationDatabase admin localhost:37017/inventor
 
 ```shell
 # Open in a new terminal
-# Viewing the change events in kafka dbzui-kafka containner 
+# Viewing the change events in kafka dbzui-kafka container
 docker exec -it dbzui-kafka bash
 
 ./bin/kafka-console-consumer.sh --bootstrap-server $BOOTSTRAP_SERVERS --topic [TOPIC_NAME] --from-beginning
 
 ```
-
 
