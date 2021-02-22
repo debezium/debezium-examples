@@ -10,7 +10,7 @@ Debezium UI is only available with Debezium version 1.5 and above.
 
 ## Launching UI
 
-Lanuch all the required component
+Launch all the required component
 
 ```shell
 # Start the required topology as defined in https://debezium.io/docs/tutorial/
@@ -71,7 +71,7 @@ mongo -u debezium -p dbz --authenticationDatabase admin localhost:37017/inventor
 ## Examine the change events
 
 ```shell
-# Open in new terminal
+# Open in a new terminal
 # Viewing the change events in kafka dbzui-kafka containner 
 docker exec -it dbzui-kafka bash
 
