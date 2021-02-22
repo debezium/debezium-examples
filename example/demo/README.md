@@ -32,24 +32,17 @@ Debezium UI will be available on http://localhost:8080
 
 ## Register connectors
 
-Registration of the Postgres, Mongo DB, MySQL & SQL server(coming soon) connectors can be done using [Debezium UI](http://localhost:8080). The first two steps are mandatory in registering connector wizard `` Connector type `` & `` Properties step`` (where all the basic required connection properties are entered).  
+Registration of the Postgres, Mongo DB, MySQL & SQL server(coming soon) connectors can be done using [Debezium UI](http://localhost:8080). The first two steps of *Create connector* wizard in the Debezium UI are mandatory i.r `` Connector type `` & `` Properties step`` (where all the required basic connection properties are entered).  
 
 ### MySQL
 
-Required values 
-``{
-  "database.server.name": "fullfillment",
-  "database.server.id": 5808,
-  "database.hostname": "dbzui-db-mysql",
-  "database.user": "debezium",
-  "database.password": "***",
-  "database.history.kafka.bootstrap.servers": "kafka:9092",
-  "database.history.kafka.topic": "dbhistory.inventory"
-}``
+Required values `` Hostname: dbzui-db-mysql``, `` User: debezium``, `` Password: dbz``, `` Kafka broker addresses: kafka:9092``, `` Database history topic name: dbhistory.inventory``.
+
 
 To connect with MySQL Cli clinet 
 ```shell
-docker exec -it dbzui-db-mysql bash -c 'mysql -u debezium -pdbz inventory'
+docker exec -it dbzui-db-mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+
 ```
 
 
