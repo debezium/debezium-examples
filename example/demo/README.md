@@ -10,7 +10,7 @@ Debezium UI is only available with Debezium version 1.5 and above.
 
 ## Launching UI
 
-Launch all the required component
+Launch all the required components:
 
 ```shell
 # Start the required topology as defined in https://debezium.io/docs/tutorial/
