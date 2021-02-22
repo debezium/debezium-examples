@@ -36,12 +36,34 @@ Registration of the Postgres, Mongo DB, MySQL & SQL server(coming soon) connecto
 
 ### MySQL
 
-Required values `` Hostname: dbzui-db-mysql``, `` User: debezium``, `` Password: dbz``, `` Kafka broker addresses: kafka:9092``, `` Database history topic name: dbhistory.inventory``.
+Required values **Hostname**: dbzui-db-mysql, **User**: debezium, **Password**: dbz, **Kafka broker addresses**: kafka:9092, **Database history topic name**: dbhistory.inventory.
 
 
 To connect with MySQL Cli clinet 
 ```shell
 docker exec -it dbzui-db-mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
+
+```
+
+### Postgres
+
+Required values **Hostname**: dbzui-db-pg, **User**: postgres, **Password**: postgres, **Database**:postgres.
+
+
+To connect with Postgres Cli clinet 
+```shell
+docker exec -it dbzui-db-pg bash -c 'psql -U $POSTGRES_USER $POSTGRES_PASSWORD'
+
+```
+
+### Mongo
+
+Required values **Hostname**: dbzui-db-mongo:27017, **User**: debezium, **Password**: dbz.
+
+
+To connect with Mongo Cli clinet 
+```shell
+mongo -u debezium -p dbz --authenticationDatabase admin localhost:37017/inventory
 
 ```
 
