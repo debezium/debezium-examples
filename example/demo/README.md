@@ -39,7 +39,7 @@ Registration of the Postgres, Mongo DB, MySQL & SQL server(coming soon) connecto
 Required values **Hostname**: dbzui-db-mysql, **User**: debezium, **Password**: dbz, **Kafka broker addresses**: kafka:9092, **Database history topic name**: dbhistory.inventory.
 
 
-To connect with MySQL Cli clinet 
+To connect with MySQL Cli client:
 ```shell
 docker exec -it dbzui-db-mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
 
@@ -78,4 +78,3 @@ docker exec -it dbzui-kafka bash
 ./bin/kafka-console-consumer.sh --bootstrap-server $BOOTSTRAP_SERVERS --topic [TOPIC_NAME] --from-beginning
 
 ```
-
