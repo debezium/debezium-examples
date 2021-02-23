@@ -1,0 +1,90 @@
+version: '3'
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    networks:
+      - ui-network
+  kafka:
+    container_name: kafka
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+    networks:
+      - ui-network
+  db-pg:
+    container_name: db-pg
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - "65432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - ui-network
+  db-mysql:
+    container_name: db-mysql
+    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+    ports:
+      - "63306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysql
+    networks:
+      - ui-network
+  db-mongo:
+    container_name: db-mongo
+    image: mongo:3.6
+    command: ["mongod", "--replSet", "rs0", "--auth"]
+    ports:
+      - "37017:27017"
+    volumes:
+    - ./resources/initialize-mongo-single.js:/docker-entrypoint-initdb.d/initialize-mongo-single.js
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+      - MONGO_INITDB_DATABASE=admin
+    networks:
+      - ui-network
+  mongo-initializer:
+    image: mongo:3.6
+    networks:
+      - ui-network
+    depends_on:
+      - db-mongo
+    command: bash -c 'sleep 20 && mongo -u admin -p admin --authenticationDatabase admin db-mongo:27017/inventory --eval "rs.initiate();"'
+  connect:
+    container_name: connect
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+      - db-pg
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    networks:
+      - ui-network
+  debezium-ui:
+    container_name: debezium-ui
+    image: debezium/debezium-ui:${DEBEZIUM_VERSION}
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CONNECT_URI: http://connect:8083
+    depends_on:
+      - connect
+    networks:
+      - ui-network
+networks:
+  ui-network:
+    external: false
