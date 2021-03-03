@@ -12,8 +12,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium-quarkus>1.4.0-SNAPSHOT</version.debezium-quarkus>
-    <version.quarkus>1.10.2.Final</version.quarkus>
+    <version.debezium-quarkus>1.4.2.Final</version.debezium-quarkus>
+    <version.quarkus>1.12.0.Final</version.quarkus>
     <version.surefire>2.22.0</version.surefire>
     <version.kafka.opentracing>0.31.0</version.kafka.opentracing>
   </properties>
