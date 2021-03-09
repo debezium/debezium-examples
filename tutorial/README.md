@@ -264,19 +264,17 @@ docker-compose -f docker-compose-oracle.yaml up --build
 cat debezium-with-oracle-jdbc/init/inventory.sql | docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
 ```
 
-The Oracle connector can be used to interact with Oracle either using the Oracle XStreams API or LogMiner.
+The Oracle connector can be used to interact with Oracle either using LogMiner or the Oracle XStreams API.
 
-### XStreams
+### LogMiner
 
-The connector by default will chose to use the XStreams API, which requires a license for the Golden Gate product
-(which itself is not required be installed, though).
-
-Adjust the host name of the database server and the name of the XStream outbound server in `register-oracle-xstreams.json` as per your environment.
+The connector by default will chose to use Oracle LogMiner to ingest change events from Oracle.
+Adjust the host name of the database server in the `register-oracle-logminer.json` as per your environment.
 Then register the Debezium Oracle connector:
 
 ```shell
 # Start Oracle connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-xstreams.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-logminer.json
 
 # Create a test change record
 echo "INSERT INTO customers VALUES (NULL, 'John', 'Doe', 'john.doe@example.com');" | docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
@@ -295,15 +293,18 @@ docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
 docker-compose -f docker-compose-oracle.yaml down
 ```
 
-### LogMiner
+### XStreams
 
-The connector can be used with Oracle LogMiner but the `database.connection.adapter` must be specified with `logminer` to do so.
-Adjust the host name of the database server in the `register-oracle-logminer.json` as per your environment.
+The connector can be used with the Oracle XStreams API but the `database.connection.adapter` must be specified with `xstream` to do so.
+This requires a license for the Golden Gate product
+(which itself is not required be installed, though).
+
+Adjust the host name of the database server and the name of the XStream outbound server in `register-oracle-xstreams.json` as per your environment.
 Then register the Debezium Oracle connector:
 
 ```shell
 # Start Oracle connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-logminer.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-xstreams.json
 
 # Create a test change record
 echo "INSERT INTO customers VALUES (NULL, 'John', 'Doe', 'john.doe@example.com');" | docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
