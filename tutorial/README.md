@@ -295,8 +295,9 @@ docker-compose -f docker-compose-oracle.yaml down
 
 ### XStreams
 
-The connector can use the XStreams API, which requires a license for the Golden Gate product
+Instead of LogMiner, the connector can use the XStreams API, which requires a license for the Golden Gate product
 (which itself is not required be installed, though).
+The connector option `database.connection.adapter` must be set to `xstream` to do so.
 
 Adjust the host name of the database server and the name of the XStream outbound server in `register-oracle-xstreams.json` as per your environment.
 Then register the Debezium Oracle connector:
