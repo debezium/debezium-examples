@@ -13,7 +13,7 @@ This allows building a native binary of each service, resulting in significantly
 
 The overall solution looks like so:
 
-![Service Overview](outbox-overview.png.png)
+![Service Overview](outbox-overview.png)
 
 ## Building
 
