@@ -2998,7 +2998,7 @@
         "options": [],
         "query": "debezium_metrics_BinlogPosition",
         "refresh": 1,
-        "regex": "/.*name=\"([^\"]+)\".*/",
+        "regex": "/.*[,\\(]name=\"([^\"]+)\".*/",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",

@@ -1317,7 +1317,7 @@
         ],
         "query": "debezium_metrics_TotalNumberOfEventsSeen{plugin=\"$connector_type\"}",
         "refresh": 0,
-        "regex": "/.*name=\"([^\"]+)\".*/",
+        "regex": "/.*[,\\(]name=\"([^\"]+)\".*/",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
