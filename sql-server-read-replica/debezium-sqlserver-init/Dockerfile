@@ -1,3 +1,3 @@
-FROM microsoft/mssql-server-linux:2017-CU9-GDR2
+FROM mcr.microsoft.com/mssql/server:2017-latest
 
 COPY ./debezium.* /etc/sqlserver/
