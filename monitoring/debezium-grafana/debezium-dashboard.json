@@ -95,7 +95,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_MilliSecondsSinceLastEvent{plugin=\"$connector_type\",name=\"$connector_name\",context=\"streaming\"}",
+          "expr": "debezium_metrics_MilliSecondsSinceLastEvent{plugin=\"$connector_type\",name=\"$connector_name\",context=~\"(binlog|streaming)\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -151,7 +151,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_TotalNumberOfEventsSeen{plugin=\"$connector_type\",name=\"$connector_name\",context=\"streaming\"}",
+          "expr": "debezium_metrics_TotalNumberOfEventsSeen{plugin=\"$connector_type\",name=\"$connector_name\",context=~\"(binlog|streaming)\"}",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -159,7 +159,7 @@
           "refId": "A"
         },
         {
-          "expr": "debezium_metrics_NumberOfEventsSkipped{plugin=\"$connector_type\",name=\"$connector_name\",context=\"streaming\"}",
+          "expr": "debezium_metrics_NumberOfEventsSkipped{plugin=\"$connector_type\",name=\"$connector_name\",context=~\"(binlog|streaming)\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Events skipped",
@@ -267,7 +267,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_Connected{plugin=\"$connector_type\",name=\"$connector_name\",context=\"streaming\"}",
+          "expr": "debezium_metrics_Connected{plugin=\"$connector_type\",name=\"$connector_name\",context=~\"(binlog|streaming)\"}",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
