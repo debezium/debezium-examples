@@ -43,13 +43,13 @@ services:
     ports:
       - "8088:8088"
     environment:
-      KSQL_CONFIG_DIR: "/etc/ksql"
-      KSQL_LOG4J_OPTS: "-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
-      KSQL_BOOTSTRAP_SERVERS: "kafka:9092"
-      KSQL_HOST_NAME: ksql-server
-      KSQL_APPLICATION_ID: "cp-all-in-one"
-      KSQL_LISTENERS: "http://0.0.0.0:8088"
-      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      - KSQL_CONFIG_DIR="/etc/ksql"
+      - KSQL_LOG4J_OPTS="-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
+      - KSQL_BOOTSTRAP_SERVERS="kafka:9092"
+      - KSQL_HOST_NAME=ksql-server
+      - KSQL_APPLICATION_ID="cp-all-in-one"
+      - KSQL_LISTENERS="http://0.0.0.0:8088"
+      - KSQL_CACHE_MAX_BYTES_BUFFERING=0
   ksql-cli:
     image: confluentinc/cp-ksql-cli:5.0.1
     depends_on:
