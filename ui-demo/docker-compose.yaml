@@ -80,7 +80,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      KAFKA_CONNECT_URI: http://connect:8083
+      - KAFKA_CONNECT_URI=http://connect:8083
     depends_on:
       - connect
     networks:
