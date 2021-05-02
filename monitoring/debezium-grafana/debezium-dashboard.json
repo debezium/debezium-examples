@@ -970,14 +970,14 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "kafka_connect_connect_metrics_incoming_byte_rate",
+              "expr": "kafka_connect_metrics_incoming_byte_rate",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Incoming({{client}})",
               "refId": "A"
             },
             {
-              "expr": "kafka_connect_connect_metrics_outgoing_byte_rate",
+              "expr": "kafka_connect_metrics_outgoing_byte_rate",
               "format": "time_series",
               "intervalFactor": 1,
               "legendFormat": "Outgoing({{client}})",
