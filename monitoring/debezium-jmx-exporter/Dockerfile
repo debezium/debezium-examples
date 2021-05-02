@@ -1,4 +1,9 @@
-FROM debezium/connect:1.1
+ARG DEBEZIUM_VERSION
+FROM debezium/connect:${DEBEZIUM_VERSION}
 
-RUN curl https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.3.1/jmx_prometheus_javaagent-0.3.1.jar > /kafka/jmx_prometheus_javaagent.jar
-COPY config.yml /kafka/config.yml
+ARG JMX_AGENT_VERSION
+RUN mkdir /kafka/etc && cd /kafka/etc &&\
+        curl -so jmx_prometheus_javaagent.jar \
+        https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/$JMX_AGENT_VERSION/jmx_prometheus_javaagent-$JMX_AGENT_VERSION.jar
+
+COPY config.yml /kafka/etc/config.yml

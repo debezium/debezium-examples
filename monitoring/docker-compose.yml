@@ -26,6 +26,9 @@ services:
   connect:
     build:
       context: debezium-jmx-exporter
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+        JMX_AGENT_VERSION: 0.3.1
     ports:
      - 8083:8083
      - 1976:1976
@@ -38,11 +41,13 @@ services:
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
-     - KAFKA_OPTS=-javaagent:/kafka/jmx_prometheus_javaagent.jar=8080:/kafka/config.yml
+     - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
      - JMX_PORT=1976
   prometheus:
     build:
       context: debezium-prometheus
+      args:
+        PROMETHEUS_VERSION: v2.4.3
     ports:
      - 9090:9090
     links:
@@ -50,6 +55,8 @@ services:
   grafana:
     build:
       context: debezium-grafana
+      args:
+        GRAFANA_VERSION: 5.3.2
     ports:
      - 3000:3000
     links:
