@@ -1,0 +1,60 @@
+version: '2'
+services:
+  kafka-1:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 19092:9092
+     - 19093:9093
+     - 9012:9012
+    environment:
+     - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+     - BROKER_ID=1
+     - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+     - JMXPORT=9012
+     - JMXHOST=0.0.0.0
+  kafka-2:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 29092:9092
+      - 29093:9093
+      - 9013:9013
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - BROKER_ID=2
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - JMXPORT=9013
+      - JMXHOST=0.0.0.0
+  kafka-3:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 39092:9092
+      - 39093:9093
+      - 9014:9014
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - BROKER_ID=3
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - JMXPORT=9014
+      - JMXHOST=0.0.0.0
+  postgres:
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - 8083:8083
+    links:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - postgres
+    environment:
+      - BOOTSTRAP_SERVERS=kafka-1:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
