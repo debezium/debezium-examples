@@ -19,6 +19,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using Cassandra](#using-cassandra)
   * [Using Vitess](#using-vitess)
   * [Using externalized secrets](#using-externalized-secrets)
+  * [Running without ZooKeeper](#running-without-zookeeper)
   * [Debugging](#debugging)
 
 ## Using MySQL
@@ -481,6 +482,34 @@ curl -s http://localhost:8083/connectors/inventory-connector/config | jq .
 # Shut down the cluster
 docker-compose -f docker-compose-mysql-ext-secrets.yml down
 ```
+
+## Running without ZooKeeper
+
+Since Apache Kafka 2.8 and Debezium 1.7, there is **experimental** support for running Kafka without ZooKeeper ("KRaft" mode).
+
+```shell
+# Start the topology as defined in https://debezium.io/docs/tutorial/
+export DEBEZIUM_VERSION=1.7
+docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml up
+
+# Start Postgres connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml exec kafka-1 /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic dbserver1.inventory.customers
+
+# Modify records in the database via Postgres client
+docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
+
+# Shut down the cluster
+docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml down
+```
+
+Running in KRaft mode is not recommended for production as of Apache Kafka 2.8/3.0.
 
 ## Debugging
 
