@@ -42,7 +42,8 @@ services:
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
      - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
-     - JMX_PORT=1976
+     - JMXHOST=localhost
+     - JMXPORT=1976
   prometheus:
     build:
       context: debezium-prometheus
