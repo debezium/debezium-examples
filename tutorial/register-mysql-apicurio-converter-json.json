@@ -13,10 +13,12 @@
         "database.history.kafka.bootstrap.servers": "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory",
         "key.converter": "io.apicurio.registry.utils.converter.ExtJsonConverter",
-        "key.converter.apicurio.registry.url": "http://apicurio:8080/api",
-        "key.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy",
-        "value.converter.apicurio.registry.url": "http://apicurio:8080/api",
+        "key.converter.apicurio.registry.url": "http://apicurio:8080/apis/registry/v2",
+        "key.converter.apicurio.registry.auto-register": "true",
+        "key.converter.apicurio.registry.find-latest": "true",
         "value.converter": "io.apicurio.registry.utils.converter.ExtJsonConverter",
-        "value.converter.apicurio.registry.global-id": "io.apicurio.registry.utils.serde.strategy.AutoRegisterIdStrategy"
+        "value.converter.apicurio.registry.url": "http://apicurio:8080/apis/registry/v2",
+        "value.converter.apicurio.registry.auto-register": "true",
+        "value.converter.apicurio.registry.find-latest": "true"
     }
 }
