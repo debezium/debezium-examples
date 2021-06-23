@@ -25,7 +25,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
@@ -113,13 +113,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value
+curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value | jq .
+curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value | jq .
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
@@ -147,13 +147,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value
+curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/api/artifacts/dbserver1.inventory.customers-value | jq .
+curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value | jq .
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
@@ -169,13 +169,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/api/ccompat/subjects/dbserver1.inventory.customers-value/versions/1
+curl -X GET http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/api/ccompat/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
+curl -X GET http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
@@ -187,7 +187,7 @@ To consume the Avro messages It is possible to use `kafkacat` tool:
 docker run --rm --tty \
   --network tutorial_default \
   debezium/tooling \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/api/ccompat \
+  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/apis/ccompat/v6 \
   -t dbserver1.inventory.customers | jq .
 ```
 
@@ -195,7 +195,7 @@ docker run --rm --tty \
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -219,7 +219,7 @@ docker-compose -f docker-compose-postgres.yaml down
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -257,7 +257,7 @@ and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 docker-compose -f docker-compose-oracle.yaml up --build
 
 # Insert test data
@@ -327,7 +327,7 @@ docker-compose -f docker-compose-oracle.yaml down
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 docker-compose -f docker-compose-sqlserver.yaml up
 
 # Initialize database and insert test data
@@ -354,7 +354,7 @@ docker-compose -f docker-compose-sqlserver.yaml down
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 
 docker-compose -f docker-compose-db2.yaml up --build
 
@@ -380,7 +380,7 @@ docker-compose -f docker-compose-db2.yaml down
 
 ```shell 
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 
 docker-compose -f docker-compose-cassandra.yaml up --build
 
@@ -408,7 +408,7 @@ docker-compose -f docker-compose-cassandra.yaml down
 
 ```shell 
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 
 docker-compose -f docker-compose-vitess.yaml up --build
 
@@ -469,7 +469,7 @@ The configuration is done at both worker and connector level.
 
 ```shell
 # Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.6
 docker-compose -f docker-compose-mysql-ext-secrets.yml up
 
 # Start MySQL connector
