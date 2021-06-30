@@ -20,18 +20,18 @@ The overall solution looks like so:
 Prepare the Java components by first performing a Maven build.
 
 ```console
-$ mvn clean install -Pnative -Dnative-image.docker-build=true
+$ mvn clean install -Pnative
 ```
 
-This illustates the usage of Quarkus' `native` profile mode where the quarkus-maven-plugin will generate not only JVM-based artifacts but also native images.
-The `native` profile and `native-image.docker-build` environment variable can be omitted if native image artifacts are not wanted.
+This illustrates the usage of Quarkus' `native` profile mode where the quarkus-maven-plugin will generate not only JVM-based artifacts but also native images.
+The `native` profile can be omitted if native image artifacts aren't required.
 
 ## Environment
 
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.4
+$ export DEBEZIUM_VERSION=1.6
 $ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
@@ -50,7 +50,8 @@ $ docker-compose up --build
 
 This executes all configurations set forth by the `docker-compose.yaml` file.
 
-It's important to note that sometimes the order or shipment service may fail to start if the dependent database takes longer than expected to initialize.  If that happens, simply re-execute the command again and it will start the remaining services. 
+It's important to note that sometimes the order or shipment service may fail to start if the dependent database takes longer than expected to initialize.  
+If that happens, simply re-execute the command again, and it will start the remaining services. 
 
 ## Configure the Debezium connector
 
@@ -136,9 +137,9 @@ select * from inventory.shipment;
 
 ## Tracing
 
-The example is enabled to support tracing via the https://opentracing.io/[OpenTracing] specification.
+The example enables support for tracing via the https://opentracing.io/[OpenTracing] specification.
 One of the components deployed is the Jaeger server that collects and presents tracing information.
-Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace for the `order-service` service, you should see a trace diagram similar too the one below:
+Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace for the `order-service` service, you should see a trace diagram similar to the one below:
 
 ![Example of the application trace](jaeger.png)
 
