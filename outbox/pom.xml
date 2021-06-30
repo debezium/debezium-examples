@@ -12,21 +12,14 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium-quarkus>1.4.2.Final</version.debezium-quarkus>
-    <version.quarkus>1.12.0.Final</version.quarkus>
+    <version.debezium-quarkus>1.6.0.Final</version.debezium-quarkus>
+    <version.quarkus>2.0.0.Final</version.quarkus>
     <version.surefire>2.22.0</version.surefire>
     <version.kafka.opentracing>0.31.0</version.kafka.opentracing>
   </properties>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-universe-bom</artifactId>
-        <version>${version.quarkus}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-bom</artifactId>

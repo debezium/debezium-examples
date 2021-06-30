@@ -38,7 +38,9 @@ public class KafkaEventConsumer {
     @Incoming("orders")
     public CompletionStage<Void> onMessage(KafkaRecord<String, String> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
-                try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer)).startActive(true)) {
+                final Tracer.SpanBuilder spanBuilder = tracer.buildSpan("orders")
+                        .asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer));
+                try (final Scope span = tracer.scopeManager().activate(spanBuilder.start())) {
                     LOG.debug("Kafka message with key = {} arrived", message.getKey());
     
                     String eventId = getHeaderAsString(message, "id");
