@@ -15,6 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.kafka.common.header.Header;
+import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class KafkaEventConsumer {
     Tracer tracer;
 
     @Incoming("orders")
+    @Acknowledgment(Acknowledgment.Strategy.MANUAL)
     public CompletionStage<Void> onMessage(KafkaRecord<String, String> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
                 final Tracer.SpanBuilder spanBuilder = tracer.buildSpan("orders")
@@ -53,12 +55,14 @@ public class KafkaEventConsumer {
                             message.getPayload(),
                             message.getTimestamp()
                     );
+
+                    message.ack();
                 }
                 catch (Exception e) {
                     LOG.error("Error while preparing shipment");
                     throw e;
                 }
-        }).thenRun(() -> message.ack());
+        });
     }
 
     private String getHeaderAsString(KafkaRecord<?, ?> record, String name) {
