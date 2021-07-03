@@ -61,7 +61,7 @@ public abstract class SagaBase {
     }
 
     public SagaStatus getStatus() {
-        EntityManager em = JpaOperations.getEntityManager(SagaState.class);
+        EntityManager em = JpaOperations.INSTANCE.getEntityManager(SagaState.class);
         return em.find(SagaState.class, getId()).getSagaStatus();
     }
 
@@ -95,13 +95,13 @@ public abstract class SagaBase {
     protected abstract SagaStepMessage getCompensatingStepMessage(String id);
 
     protected void processed(UUID eventId) {
-        EntityManager em = JpaOperations.getEntityManager(ConsumedMessage.class);
+        EntityManager em = JpaOperations.INSTANCE.getEntityManager(ConsumedMessage.class);
         em.persist(new ConsumedMessage(eventId, Instant.now()));
     }
 
     protected boolean alreadyProcessed(UUID eventId) {
         LOG.debug("Looking for event with id {} in message log", eventId);
-        EntityManager em = JpaOperations.getEntityManager(ConsumedMessage.class);
+        EntityManager em = JpaOperations.INSTANCE.getEntityManager(ConsumedMessage.class);
         return em.find(ConsumedMessage.class, eventId) != null;
     }
 
