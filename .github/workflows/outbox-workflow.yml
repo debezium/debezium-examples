@@ -1,0 +1,26 @@
+name: Build [outbox]
+
+on:
+  push:
+    paths:
+      - 'outbox/**'
+      - '.github/workflows/outbox-workflow.yml'
+  pull_request:
+    paths:
+      - 'outbox/**'
+      - '.github/workflows/outbox-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('outbox/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [outbox] example
+        run: cd outbox && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
