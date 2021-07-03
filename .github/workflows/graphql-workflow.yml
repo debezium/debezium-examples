@@ -1,0 +1,28 @@
+name: Build [graphql]
+
+on:
+  push:
+    paths:
+      - 'graphql/**'
+      - '.github/workflows/graphql-workflow.yml'
+  pull_request:
+    paths:
+      - 'graphql/**'
+      - '.github/workflows/graphql-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('graphql/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [graphql] (event-source) example
+        run: cd graphql && mvn clean install -f event-source/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [graphql] (aggregator) example
+        run: cd graphql && mvn clean install -f aggregator/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

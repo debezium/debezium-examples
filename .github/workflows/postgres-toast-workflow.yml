@@ -1,0 +1,26 @@
+name: Build [postgres-toast]
+
+on:
+  push:
+    paths:
+      - 'postgres-toast/**'
+      - '.github/workflows/postgres-toast-workflow.yml'
+  pull_request:
+    paths:
+      - 'postgres-toast/**'
+      - '.github/workflows/postgres-toast-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('postgres-toast/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [postgres-toast] example
+        run: cd postgres-toast && mvn clean install -f toast-value-store/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
