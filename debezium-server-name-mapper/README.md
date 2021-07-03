@@ -22,6 +22,7 @@ Both Apache Pulsar and the source database are deployed via Docker Compose file.
 From terminal start the source database and the sink system:
 
 ```
+$ export DEBEZIUM_VERSION=1.6
 $ docker-compose up
 ```
 
@@ -34,13 +35,13 @@ $ mvn clean install
 Start the application:
 
 ```
-$ java -jar target/debezium-server-name-mapper-1.0.0-SNAPSHOT-runner.jar
+$ java -jar target/quarkus-app/quarkus-run.jar
 ```
 
 In another terminal check the created topics:
 
 ```
-docker-compose exec pulsar bn/pulsar-admin broker-stats topics -i
+docker-compose exec pulsar bin/pulsar-admin broker-stats topics -i
 ```
 
 The resulting topic list should contain for example a topic named
