@@ -74,18 +74,18 @@ services:
      - mysql
     ports:
      - 8080:8080
-  swarm:
-    image: debezium/swarm-example:${DEBEZIUM_VERSION}
+  thorntail:
+    image: debezium/thorntail-example:${DEBEZIUM_VERSION}
     build:
-      context: debezium-swarm-demo
+      context: debezium-thorntail-demo
     links:
      - kafka
     ports:
      - 8079:8079
     environment:
-     - JAVA_APP_JAR=demo-swarm.jar
-     - JAVA_OPTIONS=-Dswarm.http.port=8079
+     - JAVA_APP_JAR=demo-thorntail.jar
+     - JAVA_OPTIONS=-Dthorntail.http.port=8079
     command: >
       /bin/bash -c "
-        java -jar /deployments/demo-swarm.jar -Djava.net.preferIPv4Stack=true -Dswarm.http.port=8079
+        java -jar /deployments/demo-thorntail.jar -Djava.net.preferIPv4Stack=true -Dthorntail.http.port=8079
       "

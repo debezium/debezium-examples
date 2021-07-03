@@ -6,12 +6,8 @@ It does these things:
 * displaying events using console consumer
 * setting up JDBC sink connector to stream the events to Postgres
 * demonstrating how a downtime of Kafka Connect doesn't affect the source app
-* demonstrating how to consume events using WildFly Swarm + CDI and stream them to a WebSockets client in another browser window
+* demonstrating how to consume events using Thorntail + CDI and stream them to a WebSockets client in another browser window
 * demonstrating how a single connect instance can support Avro and Json serialization for multiple connector configurations
-
----
-
-**IMPORTANT:** Use Maven 3.5.x and latest version of docker to build and execute demo applications.
 
 ---
 
@@ -22,12 +18,12 @@ It does these things:
 ## Build maven artifacts used by the Docker builds
 
 - mvn clean package -f debezium-hiking-demo/pom.xml
-- mvn clean package -f debezium-swarm-demo/pom.xml
+- mvn clean package -f debezium-thorntail-demo/pom.xml
 
 ## Prepare Kafka etc.
 
 - docker ps -a
-- docker-compose up --scale swarm=0 --scale hiking-manager=0
+- docker-compose up --scale thorntail=0 --scale hiking-manager=0
 
 ## Prepare WildFly
 
@@ -64,7 +60,7 @@ The configuration used for the hiking-connector and its accompanying jdbc-sink a
 - cat register-hiking-connector-json.json | http POST http://localhost:8083/connectors/
 - docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --from-beginning --property print.key=true --topic dbserver1_inventory_Hike_json
 
-## Start WildFly Swarm app
+## Start Thorntail app
 
 - docker-compose up -d --build
 - Open in other browser: http://localhost:8079/
