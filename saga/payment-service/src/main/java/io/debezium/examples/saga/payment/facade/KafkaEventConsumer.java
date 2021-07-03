@@ -15,6 +15,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class KafkaEventConsumer {
     @Incoming("payment")
     public CompletionStage<Void> onMessage(KafkaRecord<String, Payment> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
-            try (final Scope span = tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer)).startActive(true)) {
+            try (final Scope span = tracer.scopeManager().activate(getOrdersSpanBuilder(message.getHeaders()).start())) {
                 LOG.debug("Kafka message with key = {} arrived", message.getKey());
 
                 String eventId = getHeaderAsString(message, "id");
@@ -51,6 +52,10 @@ public class KafkaEventConsumer {
                 );
             }
         }).thenRun(() -> message.ack());
+    }
+
+    private Tracer.SpanBuilder getOrdersSpanBuilder(Headers headers) {
+        return tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(headers, tracer));
     }
 
     private String getHeaderAsString(KafkaRecord<?, ?> record, String name) {
