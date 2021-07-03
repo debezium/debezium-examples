@@ -1,0 +1,28 @@
+name: Build [end-to-end-demo]
+
+on:
+  push:
+    paths:
+      - 'end-to-end-demo/**'
+      - '.github/workflows/end-to-end-demo-workflow.yml'
+  pull_request:
+    paths:
+      - 'end-to-end-demo/**'
+      - '.github/workflows/end-to-end-demo-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('end-to-end-demo/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [end-to-end-demo] (hiking demo) example
+        run: cd end-to-end-demo && mvn clean package -f debezium-hiking-demo/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [end-to-end-demo] (swarm demo) example
+        run: cd end-to-end-demo && mvn clean package -f debezium-swarm-demo/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

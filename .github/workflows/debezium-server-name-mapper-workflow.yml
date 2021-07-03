@@ -1,0 +1,26 @@
+name: Build [debezium-server-name-mapper]
+
+on:
+  push:
+    paths:
+      - 'debezium-server-name-mapper/**'
+      - '.github/workflows/debezium-server-name-mapper-workflow.yml'
+  pull_request:
+    paths:
+      - 'debezium-server-name-mapper/**'
+      - '.github/workflows/debezium-server-name-mapper-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('debezium-server-name-mapper/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [debezium-server-name-mapper] example
+        run: cd debezium-server-name-mapper && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

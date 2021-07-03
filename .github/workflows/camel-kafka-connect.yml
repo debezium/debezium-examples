@@ -1,0 +1,26 @@
+name: Build [camel-kafka-connect]
+
+on:
+  push:
+    paths:
+      - 'camel-kafka-connect/**'
+      - '.github/workflows/camel-kafka-connect-workflow.yml'
+  pull_request:
+    paths:
+      - 'camel-kafka-connect/**'
+      - '.github/workflows/camel-kafka-connect-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('camel-kafka-connect/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [camel-kafka-connect] example
+        run: cd camel-kafka-connect && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

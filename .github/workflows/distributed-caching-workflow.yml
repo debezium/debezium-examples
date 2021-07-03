@@ -1,0 +1,26 @@
+name: Build [distributed-caching]
+
+on:
+  push:
+    paths:
+      - 'distributed-caching/**'
+      - '.github/workflows/distributed-caching-workflow.yml'
+  pull_request:
+    paths:
+      - 'distributed-caching/**'
+      - '.github/workflows/distributed-caching-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('distributed-caching/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [distributed-caching] example
+        run: cd distributed-caching && mvn clean verify -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

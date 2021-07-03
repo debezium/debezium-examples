@@ -1,0 +1,26 @@
+name: Build [tescontainers]
+
+on:
+  push:
+    paths:
+      - 'tescontainers/**'
+      - '.github/workflows/tescontainers-workflow.yml'
+  pull_request:
+    paths:
+      - 'tescontainers/**'
+      - '.github/workflows/tescontainers-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('tescontainers/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [tescontainers] example
+        run: cd tescontainers && mvn clean package -f avro-data-extractor/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
