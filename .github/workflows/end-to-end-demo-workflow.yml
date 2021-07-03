@@ -24,5 +24,5 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Check changes in [end-to-end-demo] (hiking demo) example
         run: cd end-to-end-demo && mvn clean package -f debezium-hiking-demo/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
-      - name: Check changes in [end-to-end-demo] (swarm demo) example
-        run: cd end-to-end-demo && mvn clean package -f debezium-swarm-demo/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [end-to-end-demo] (thorntail demo) example
+        run: cd end-to-end-demo && mvn clean package -f debezium-thorntail-demo/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
