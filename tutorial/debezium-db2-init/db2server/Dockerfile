@@ -1,6 +1,6 @@
-FROM ibmcom/db2
+FROM ibmcom/db2:11.5.4.0
 
-MAINTAINER  Peter Urbanetz
+LABEL maintainer="Debezium Community"
 
 RUN mkdir -p /asncdctools/src
 
@@ -13,11 +13,15 @@ ADD startup-cdc-demo.sql /asncdctools/src
 ADD inventory.sql /asncdctools/src
 ADD asncdc.c /asncdctools/src
 
-RUN chmod -R  777  /asncdctools
-
-RUN mkdir /var/custom
-RUN chmod -R  777 /var/custom
+RUN mkdir /var/custom && \
+    chmod -R  777 /asncdctools && \
+    chmod -R  777 /var/custom
 
 ADD cdcsetup.sh /var/custom
 ADD custom-init /var/custom-init
-ADD openshift_entrypoint.sh /var/db2_setup/lib/
+
+RUN chmod -R 777 /var/custom-init
+
+ADD openshift_entrypoint.sh /var/db2_setup/lib
+
+RUN chmod 777 /var/custom/cdcsetup.sh
