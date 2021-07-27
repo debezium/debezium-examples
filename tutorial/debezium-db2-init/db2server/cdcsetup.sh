@@ -15,4 +15,4 @@ su  -c "/asncdctools/src/dbsetup.sh $DBNAME"   - db2inst1
 fi
 touch /asncdctools/src/asncdc.nlk
 
-echo "done"
+echo "CDC setup completed."
