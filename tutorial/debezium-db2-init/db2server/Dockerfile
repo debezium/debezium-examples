@@ -24,4 +24,5 @@ RUN chmod -R 777 /var/custom-init
 
 ADD openshift_entrypoint.sh /var/db2_setup/lib
 
-RUN chmod 777 /var/custom/cdcsetup.sh
+RUN chmod 777 /var/custom/cdcsetup.sh && \
+    chmod 777 /var/db2_setup/lib/openshift_entrypoint.sh
