@@ -13,7 +13,7 @@ The Debezium UI is only available with Debezium version 1.5 and above.
 Launch all the required components for the topology as defined in [tutorial example](../tutorial)
 
 ```shell
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.7
 docker-compose up -d
 
 Creating db-mysql  ... done
