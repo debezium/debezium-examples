@@ -497,7 +497,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 # Consume messages from a Debezium topic
 docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml exec kafka-1 /kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server kafka:9092 \
+    --bootstrap-server kafka-1:9092 \
     --from-beginning \
     --property print.key=true \
     --topic dbserver1.inventory.customers
