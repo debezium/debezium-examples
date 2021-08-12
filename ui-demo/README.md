@@ -42,6 +42,7 @@ For this demo, see the connection properties you can use for each connector type
 **Password**: dbz  
 **Kafka broker addresses**: kafka:9092  
 **Database history topic name**: dbhistory.inventory  
+
 ![MySQL Connnector](connMySQL.png)
 
 ### PostgreSQL
@@ -50,6 +51,7 @@ For this demo, see the connection properties you can use for each connector type
 **User**: postgres  
 **Password**: postgres  
 **Database**:postgres  
+
 ![PostgreSQL Connector](connPostgres.png)
 
 ### MongoDB
@@ -57,6 +59,7 @@ For this demo, see the connection properties you can use for each connector type
 **User**: admin  
 **Password**: admin  
 **Namespace**: inventory  
+
 ![MongoDB Connector](connMongo.png)
 
 ## Command line clients
