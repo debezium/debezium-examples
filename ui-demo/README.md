@@ -95,7 +95,7 @@ You can examine change events which occur due to database changes
 # Viewing the change events in the kafka container
 docker exec -it kafka bash
 
-./bin/kafka-console-consumer.sh --bootstrap-server $BOOTSTRAP_SERVERS --topic [TOPIC_NAME] --from-beginning
+./bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic [TOPIC_NAME] --from-beginning
 
 ```
 
