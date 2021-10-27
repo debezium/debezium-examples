@@ -2,7 +2,7 @@
 
 This example demonstrates how two Debezium change data topics can be joined via Kafka Streams,
 using the new foreign key join feature in Apache Kafka 2.4 ([KIP-213](https://cwiki.apache.org/confluence/display/KAFKA/KIP-213+Support+non-key+joining+in+KTable)).
-It accompanies the blog post https://debezium.io/blog/2021/03/18/understanding-non-key-joins-with-quarkus-extension-for-kafka-streams/[Understanding Non-Key Joins With the Quarkus Extension for Kafka Streams].
+It accompanies the blog post [Understanding Non-Key Joins With the Quarkus Extension for Kafka Streams](https://debezium.io/blog/2021/03/18/understanding-non-key-joins-with-quarkus-extension-for-kafka-streams/).
 
 The source database contains two tables, `customers` and `addresses`, with a foreign key relationship from the latter to the former,
 i.e. a customer can have multiple addresses.
