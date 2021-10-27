@@ -47,7 +47,7 @@ docker-compose down
 
 ## More Dashboards
 
-Another dashboard specifically for monitoring the MySQL connector can be found [here](https://github.com/debezium/debezium-examples/blob/master/monitoring/debezium-grafana/debezium-mysql-connector-dashboard.json)
+Another dashboard specifically for monitoring the MySQL connector can be found [here](https://github.com/debezium/debezium-examples/blob/main/monitoring/debezium-grafana/debezium-mysql-connector-dashboard.json)
 (see [this post](https://medium.com/searce/grafana-dashboard-for-monitoring-debezium-mysql-connector-d5c28acf905b) to learn more).
 
 If you built awesome dashboards you'd like to share with the Debezium community, please open a pull request for adding them to this repository. Thanks!
