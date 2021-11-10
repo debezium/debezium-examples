@@ -31,7 +31,7 @@ The `native` profile can be omitted if native image artifacts aren't required.
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.6
+$ export DEBEZIUM_VERSION=1.7
 $ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
@@ -137,7 +137,7 @@ select * from inventory.shipment;
 
 ## Tracing
 
-The example enables support for tracing via the https://opentracing.io/[OpenTracing] specification.
+The example enables support for tracing via the [OpenTracing](https://opentracing.io/) specification.
 One of the components deployed is the Jaeger server that collects and presents tracing information.
 Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace for the `order-service` service, you should see a trace diagram similar to the one below:
 
