@@ -35,3 +35,7 @@ services:
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
+# For testing newer connector versions, unpack the connector archive into this
+# directory and uncomment the lines below
+#    volumes:
+#     - ./debezium-connector-mongodb:/kafka/connect/debezium-connector-mongodb
