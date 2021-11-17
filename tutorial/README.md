@@ -1,6 +1,6 @@
 # Debezium Tutorial
 
-This demo automatically deploys the topology of services as defined in the [Debezium Tutorial](https://debezium.io/docs/tutorial/).
+This demo automatically deploys the topology of services as defined in the [Debezium Tutorial](https://debezium.io/documentation/reference/stable/tutorial.html).
 
 - [Debezium Tutorial](#debezium-tutorial)
   * [Using MySQL](#using-mysql)
@@ -25,8 +25,8 @@ This demo automatically deploys the topology of services as defined in the [Debe
 ## Using MySQL
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
@@ -48,7 +48,7 @@ docker-compose -f docker-compose-mysql.yaml down
 
 ### Using MySQL and the Avro message format
 
-To use [Avro-style messages](https://debezium.io/docs/configuration/avro/) instead of JSON,
+To use [Avro-style messages](https://debezium.io/documentation/reference/stable/configuration/avro.html) instead of JSON,
 Avro can be configured one of two ways, 
 in the Kafka Connect worker configuration or in the connector configuration.
 Using Avro in conjunction with the schema registry allows for much more compact messages.
@@ -195,8 +195,8 @@ docker run --rm --tty \
 ## Using Postgres
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -219,8 +219,8 @@ docker-compose -f docker-compose-postgres.yaml down
 ## Using MongoDB
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -257,8 +257,8 @@ Also you must download the [Oracle instant client for Linux](http://www.oracle.c
 and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-oracle.yaml up --build
 
 # Insert test data
@@ -327,8 +327,8 @@ docker-compose -f docker-compose-oracle.yaml down
 ## Using SQL Server
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-sqlserver.yaml up
 
 # Initialize database and insert test data
@@ -354,8 +354,8 @@ docker-compose -f docker-compose-sqlserver.yaml down
 ## Using Db2
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 
 docker-compose -f docker-compose-db2.yaml up --build
 
@@ -380,8 +380,8 @@ docker-compose -f docker-compose-db2.yaml down
 ## Using Cassandra
 
 ```shell 
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 
 docker-compose -f docker-compose-cassandra.yaml up --build
 
@@ -408,8 +408,8 @@ docker-compose -f docker-compose-cassandra.yaml down
 ## Using Vitess
 
 ```shell 
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 
 docker-compose -f docker-compose-vitess.yaml up --build
 
@@ -469,8 +469,8 @@ Kafka Connect allows [externalization](https://cwiki.apache.org/confluence/displ
 The configuration is done at both worker and connector level.
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
-export DEBEZIUM_VERSION=1.6
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-mysql-ext-secrets.yml up
 
 # Start MySQL connector
@@ -488,7 +488,7 @@ docker-compose -f docker-compose-mysql-ext-secrets.yml down
 Since Apache Kafka 2.8 and Debezium 1.7, there is **experimental** support for running Kafka without ZooKeeper ("KRaft" mode).
 
 ```shell
-# Start the topology as defined in https://debezium.io/docs/tutorial/
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
 export DEBEZIUM_VERSION=1.7
 docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml up
 
