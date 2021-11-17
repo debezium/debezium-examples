@@ -153,6 +153,6 @@ $ docker-compose up --build --scale order-service=0
 
 ```console
 $ mvn compile quarkus:dev \
-    "-Dquarkus.datasource.url=jdbc:postgresql://localhost:5433/orderdb?currentSchema=inventory" \
+    "-Dquarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5433/orderdb?currentSchema=inventory" \
     "-Dquarkus.debezium-outbox.remove-after-insert=false"
 ```
