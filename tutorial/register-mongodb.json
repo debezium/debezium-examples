@@ -7,7 +7,7 @@
         "mongodb.name" : "dbserver1",
         "mongodb.user" : "debezium",
         "mongodb.password" : "dbz",
-        "database.include" : "inventory",
+        "database.include.list" : "inventory",
         "database.history.kafka.bootstrap.servers" : "kafka:9092"
     }
 }

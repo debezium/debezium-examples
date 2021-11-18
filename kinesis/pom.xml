@@ -14,8 +14,8 @@
         <database.port>3306</database.port>
         <database.user>debezium</database.user>
         <database.password>dbz</database.password>
-        <database.include>inventory</database.include>
-        <table.include>inventory.customers</table.include>
+        <database.include.list>inventory</database.include.list>
+        <table.include.list>inventory.customers</table.include.list>
 
         <kinesis.region>eu-central-1</kinesis.region>
 
@@ -106,12 +106,12 @@
                             <value>${database.password}</value>
                         </systemProperty>
                         <systemProperty>
-                            <key>database.include</key>
-                            <value>${database.include}</value>
+                            <key>database.include.list</key>
+                            <value>${database.include.list}</value>
                         </systemProperty>
                         <systemProperty>
-                            <key>table.include</key>
-                            <value>${table.include}</value>
+                            <key>table.include.list</key>
+                            <value>${table.include.list}</value>
                         </systemProperty>
                         <systemProperty>
                             <key>kinesis.region</key>
