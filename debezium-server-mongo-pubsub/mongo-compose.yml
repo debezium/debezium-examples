@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   mongodb:
-    image: debezium/example-mongodb:1.6
+    image: debezium/example-mongodb:1.7
     container_name: mongodb
     ports:
       - 27017:27017

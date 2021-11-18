@@ -10,7 +10,7 @@
         "database.server.id": "184054",
         "database.server.name": "dbserver1",
         "decimal.handling.mode": "string",
-        "table.include": "inventory.orders,inventory.customers",
+        "table.include.list": "inventory.orders,inventory.customers",
         "database.history.kafka.bootstrap.servers": "kafka:9092",
         "database.history.kafka.topic": "schema-changes.inventory"
     }

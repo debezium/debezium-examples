@@ -7,7 +7,7 @@
     "database.password": "postgres",
     "database.dbname" : "postgres",
     "database.server.name": "dbserver1",
-    "schema.include": "inventory",
+    "schema.include.list": "inventory",
     "decimal.handling.mode" : "string",
     "poll.interval.ms": "100",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",

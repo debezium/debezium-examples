@@ -8,7 +8,7 @@
     "database.dbname" : "postgres",
     "database.server.name": "dbserver3",
     "slot.name":"dbserver3",
-    "schema.include": "inventory",
+    "schema.include.list": "inventory",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
     "value.converter": "io.debezium.converters.CloudEventsConverter",
