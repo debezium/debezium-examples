@@ -60,7 +60,7 @@ services:
     command: bash -c 'sleep 20 && mongo -u admin -p admin --authenticationDatabase admin db-mongo:27017/inventory --eval "rs.initiate();"'
   connect:
     container_name: connect
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: debezium/connect:nightly
     ports:
       - "8083:8083"
     depends_on:
@@ -72,6 +72,8 @@ services:
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - ENABLE_DEBEZIUM_SCRIPTING=true
+      - CONNECT_REST_EXTENSION_CLASSES=io.debezium.kcrestextension.DebeziumConnectRestExtension
     networks:
       - ui-network
   debezium-ui:
