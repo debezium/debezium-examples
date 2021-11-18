@@ -7,7 +7,7 @@ This demo explains how to deploy [Debezium Server](https://debezium.io/documenta
 **In the terminal:**
 
 ```shell
-export DEBEZIUM_VERSION=1.6
+export DEBEZIUM_VERSION=1.7
 ```
 
 **In GCP:**

@@ -25,7 +25,7 @@ The example consists of multiple components:
 Build the CoAP server and start the example by running:
 
 ```
-$ export DEBEZIUM_VERSION=1.4
+$ export DEBEZIUM_VERSION=1.7
 $ mvn clean install
 $ docker-compose up --build
 ```

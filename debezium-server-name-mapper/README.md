@@ -22,7 +22,7 @@ Both Apache Pulsar and the source database are deployed via Docker Compose file.
 From terminal start the source database and the sink system:
 
 ```
-$ export DEBEZIUM_VERSION=1.6
+$ export DEBEZIUM_VERSION=1.7
 $ docker-compose up
 ```
 

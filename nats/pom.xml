@@ -10,8 +10,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <version.debezium>1.4.0.Final</version.debezium>
-        <version.debezium.tag>1.4</version.debezium.tag>
+        <version.debezium>1.7.1.Final</version.debezium>
+        <version.debezium.tag>1.7</version.debezium.tag>
         <version.nats>2.4.1</version.nats>
     </properties>
 

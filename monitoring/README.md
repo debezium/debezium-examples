@@ -15,7 +15,7 @@ We need following components to collect and present Debezium metrics:
 ## Execution
 
 ```
-export DEBEZIUM_VERSION=1.5
+export DEBEZIUM_VERSION=1.7
 docker-compose up --build
 
 # Initialize database and insert test data
