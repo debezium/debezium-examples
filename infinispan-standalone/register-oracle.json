@@ -1,0 +1,28 @@
+{
+  "name": "inventory-connector",
+  "config": {
+    "connector.class" : "io.debezium.connector.oracle.OracleConnector",
+    "tasks.max" : "1",
+    "database.server.name" : "server1",
+    "database.hostname" : "<machine ip address>",
+    "database.port" : "1521",
+    "database.oracle.net.disableOob": "true",
+    "database.user" : "c##dbzuser",
+    "database.password" : "dbz",
+    "database.dbname" : "ORCLCDB",
+    "database.pdb.name" : "ORCLPDB1",
+    "database.connection.adapter" : "logminer",
+    "database.history.kafka.bootstrap.servers" : "kafka:9092",
+    "database.history.kafka.topic": "schema-changes.inventory",
+    "log.mining.strategy": "online_catalog",
+    "log.mining.buffer.type": "infinispan_remote",
+    "log.mining.buffer.infinispan.cache.transactions": "<distributed-cache name=\"transactions\" statistics=\"true\">\n  <encoding media-type=\"application/x-protostream\" />\n  <persistence passivation=\"false\">\n    <file-store fetch-state=\"true\" read-only=\"false\" preload=\"true\" shared=\"false\" segmented=\"false\" />\n  </persistence>\n</distributed-cache>",
+    "log.mining.buffer.infinispan.cache.processed_transactions": "<distributed-cache name=\"processed-transactions\" statistics=\"true\">\n  <encoding media-type=\"application/x-protostream\" />\n  <persistence passivation=\"false\">\n    <file-store fetch-state=\"true\" read-only=\"false\" preload=\"true\" shared=\"false\" segmented=\"false\" />\n  </persistence>\n</distributed-cache>",
+    "log.mining.buffer.infinispan.cache.events": "<distributed-cache name=\"events\" statistics=\"true\">\n  <encoding media-type=\"application/x-protostream\" />\n  <persistence passivation=\"false\">\n    <file-store fetch-state=\"true\" read-only=\"false\" preload=\"true\" shared=\"false\" segmented=\"false\" />\n  </persistence>\n</distributed-cache>",
+    "log.mining.buffer.infinispan.cache.schema_changes": "<distributed-cache name=\"schema-changes\" statistics=\"true\">\n  <encoding media-type=\"application/x-protostream\" />\n  <persistence passivation=\"false\">\n    <file-store fetch-state=\"true\" read-only=\"false\" preload=\"true\" shared=\"false\" segmented=\"false\" />\n  </persistence>\n</distributed-cache>",
+    "log.mining.buffer.infinispan.client.hotrod.server_list": "infinispan:11222",
+    "log.mining.buffer.infinispan.client.hotrod.auth_username": "admin",
+    "log.mining.buffer.infinispan.client.hotrod.auth_password": "admin",
+    "table.include.list": "DEBEZIUM\\.CUSTOMERS"
+  }
+}
