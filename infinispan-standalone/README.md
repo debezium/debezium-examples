@@ -70,7 +70,7 @@ Now lets check the state of the buffered record in Infinispan.
 Open a new shell and start the Infinispan CLI tool.
 In the CLI tool, we want to inspect the contents of the `transactions` and `events` caches.  
 
-The `transactions` cache describes the in-progress tranasction's metadata such as the transaction identifier, the SCN that started the transaction and the time the transaction began.
+The `transactions` cache describes the in-progress transaction's metadata such as the transaction identifier, the SCN that started the transaction and the time the transaction began.
 
 The `events` cache describes the individual events that participate in a given transaction.
 Each event consists of a type, the SQL command and its data, the time the event occurred and the SCN.
