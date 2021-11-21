@@ -34,6 +34,37 @@ $ http PUT http://localhost:8083/connectors/payment-outbox-connector/config < re
 $ http PUT http://localhost:8083/connectors/credit-outbox-connector/config < register-credit-connector.json
 ```
 
+As an example, here is the connector for capturing outbox events from the order service's database:
+
+```json5
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    
+    /* database coordinates */
+    "database.hostname": "order-db",
+    "database.port": "5432",
+    "database.user": "orderuser",
+    "database.password": "orderpw",
+    "database.dbname" : "orderdb",
+    "database.server.name": "dbserver1",
+    
+    /* only capture changes from the outboxevent table */
+    "schema.include.list": "purchaseorder",
+    "table.include.list" : "purchaseorder.outboxevent",
+    "tombstones.on.delete" : "false",
+    "poll.interval.ms": "100",
+
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+    
+    /* apply the outbox event routing SMT */
+    "transforms" : "saga",
+    "transforms.saga.type" : "io.debezium.transforms.outbox.EventRouter",
+    "transforms.saga.route.topic.replacement" : "${routedByValue}.request"
+}
+```
+
 Place an order:
 
 ```console
