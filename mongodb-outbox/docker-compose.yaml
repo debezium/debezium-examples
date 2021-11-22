@@ -1,0 +1,84 @@
+version: '2.1'
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1
+    ports:
+      - 6831:6831/udp
+      - 16686:16686
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    networks:
+      - my-network
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+    # Set to host IP address when working on the services locally
+    # - ADVERTISED_HOST_NAME=172.17.0.1
+    networks:
+      - my-network
+    depends_on:
+      - zookeeper
+  connect:
+    image: debezium/strimzi-connect
+    build:
+      context: debezium-strimzi
+    ports:
+      - 8083:8083
+    links:
+      - kafka
+      - mongodb
+    environment:
+      - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
+      - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:9092
+      - |
+        KAFKA_CONNECT_CONFIGURATION=
+        key.converter=org.apache.kafka.connect.json.JsonConverter
+        value.converter=org.apache.kafka.connect.json.JsonConverter
+        key.converter.schemas.enable=false
+        value.converter.schemas.enable=false
+        group.id=connect
+        offset.storage.topic=connect-offsets
+        offset.storage.replication.factor=1
+        config.storage.topic=connect-configs
+        config.storage.replication.factor=1
+        status.storage.topic=connect-status
+        status.storage.replication.factor=1
+        consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
+        producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
+      - JAEGER_SERVICE_NAME=kafka-connect
+      - JAEGER_AGENT_HOST=jaeger
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+      - STRIMZI_TRACING=jaeger
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+    command: /opt/kafka/kafka_connect_run.sh
+    networks:
+      - my-network
+    depends_on:
+      - kafka
+  mongodb:
+    image: debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: mongodb
+    ports:
+      - 27017:27017
+    environment:
+      - MONGODB_USER=debezium
+      - MONGODB_PASSWORD=dbz
+    networks:
+      - my-network
+networks:
+  my-network:
+    name: mongo-outbox-network
