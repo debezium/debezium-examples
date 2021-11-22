@@ -1,0 +1,20 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class" : "io.debezium.connector.mongodb.MongoDbConnector",
+        "tasks.max" : "1",
+        "mongodb.hosts" : "rs0/mongodb:27017",
+        "mongodb.name" : "dbserver1",
+        "mongodb.user" : "debezium",
+        "mongodb.password" : "dbz",
+        "database.include.list" : "inventory",
+        "collection.include.list": "inventory.outboxevent",
+        "database.history.kafka.bootstrap.servers" : "kafka:9092",
+        "transforms" : "outbox",
+        "transforms.outbox.type" : "io.debezium.connector.mongodb.transforms.outbox.MongoEventRouter",
+        "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
+        "transforms.outbox.collection.expand.json.payload" : true,
+        "transforms.outbox.collection.field.event.timestamp" : "timestamp",
+        "transforms.outbox.collection.fields.additional.placement" : "type:header:eventType"
+    }
+}
