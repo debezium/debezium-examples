@@ -1,5 +1,5 @@
 {
-    "name": "inventory-connector",
+    "name": "outbox-connector",
     "config": {
         "connector.class" : "io.debezium.connector.mongodb.MongoDbConnector",
         "tasks.max" : "1",
@@ -13,8 +13,10 @@
         "transforms" : "outbox",
         "transforms.outbox.type" : "io.debezium.connector.mongodb.transforms.outbox.MongoEventRouter",
         "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
-        "transforms.outbox.collection.expand.json.payload" : true,
+        "transforms.outbox.collection.expand.json.payload" : "true",
         "transforms.outbox.collection.field.event.timestamp" : "timestamp",
-        "transforms.outbox.collection.fields.additional.placement" : "type:header:eventType"
+        "transforms.outbox.collection.fields.additional.placement" : "type:header:eventType",
+        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+        "value.converter": "org.apache.kafka.connect.storage.StringConverter"
     }
 }
