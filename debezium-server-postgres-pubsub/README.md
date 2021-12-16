@@ -2,6 +2,7 @@
 
 This example demonstrates how to deploy [Debezium Server](https://debezium.io/documentation/reference/stable/operations/debezium-server.html) using PostgreSQL as the source and [Google Cloud Pub/Sub](https://cloud.google.com/pubsub/docs) as a sink.
 
+**Attention:** Running this example may incur cost for managed Google Cloud services. Make sure to delete all the resources once you are done running the example.
 
 ## Topology
 
@@ -35,23 +36,32 @@ Edit the _conf/application.properties_ file, and replace `project-id` with your 
 
 Edit the _docker-compose.yml_ file, and replace `/your/path/to/service-account.json` with the GCP Service Account path
 
-From the terminal create a Pub/Sub topic
+From the terminal create a Pub/Sub topic:
 
 ```shell
 gcloud pubsub topics create tutorial.inventory.customers
 ```
 
-Export environment variable
+Export environment variable:
 
 ```shell
 export DEBEZIUM_VERSION=1.8
 ```
 
-Start the containers
+Start the containers:
 
 ```shell
 docker-compose up -d --build
 ```
 
+Once everything has started up, test the setup by inserting, updating or deleting some records in the customers table. The logs will appear in Google Cloud Pub/Sub in a few seconds. Xou can get a shell to Postgres by running the following:
 
-Once everything has started up, test the setup by inserting, updating or deleting some records in the customers table. The logs will appear in Google Cloud Pub/Sub in a few seconds.
+```shell
+docker-compose exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
+```
+
+Once you're done, stop all the containers:
+
+```shell
+docker-compose down
+```
