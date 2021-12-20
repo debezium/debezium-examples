@@ -3,4 +3,4 @@ ENV KAFKA_CONNECT_PLUGIN_PATH=/tmp/connect-plugins
 
 RUN mkdir $KAFKA_CONNECT_PLUGIN_PATH &&\
     cd $KAFKA_CONNECT_PLUGIN_PATH &&\
-    curl -sfSL https://oss.sonatype.org/content/repositories/snapshots/io/debezium/debezium-connector-mongodb/1.8.0-SNAPSHOT/debezium-connector-mongodb-1.8.0-20211121.120228-187-plugin.tar.gz | tar xz
+    curl -sfSL https://repo1.maven.org/maven2/io/debezium/debezium-connector-mongodb/1.8.0.Final/debezium-connector-mongodb-1.8.0.Final-plugin.tar.gz | tar xz
