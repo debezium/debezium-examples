@@ -1,4 +1,4 @@
-version: '2'
+version: '3.7'
 services:
   zookeeper:
     image: debezium/zookeeper:${DEBEZIUM_VERSION}
@@ -21,6 +21,10 @@ services:
     environment:
      - POSTGRES_USER=postgres
      - POSTGRES_PASSWORD=postgres
+    command:
+     - "postgres"
+     - "-c"
+     - "wal_level=logical"     
   connect:
     image: debezium/connect:${DEBEZIUM_VERSION}
     ports:
