@@ -2,7 +2,7 @@ ARG DEBEZIUM_VERSION
 FROM debezium/connect:$DEBEZIUM_VERSION
 
 USER root
-RUN yum -y install libaio curl && yum clean all
+RUN microdnf -y install libaio curl && microdnf clean all
 
 USER kafka
 
