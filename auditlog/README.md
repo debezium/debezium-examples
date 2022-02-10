@@ -22,7 +22,7 @@ $ mvn clean package
 ```
 
 ```console
-$ export DEBEZIUM_VERSION=1.7
+$ export DEBEZIUM_VERSION=1.8
 $ docker-compose up --build
 ```
 

@@ -46,7 +46,7 @@
     <dependency>
       <groupId>io.debezium</groupId>
       <artifactId>debezium-core</artifactId>
-      <version>1.8.0.Final</version>
+      <version>1.8.1.Final</version>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>

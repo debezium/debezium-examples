@@ -36,7 +36,7 @@ This demo automatically deploys the topology of services to stream from SQL Serv
 
 ```shell
 # Start the topology with two SQL Servers
-export DEBEZIUM_VERSION=1.7
+export DEBEZIUM_VERSION=1.8
 docker-compose up
 
 # Initialize database and insert test data
