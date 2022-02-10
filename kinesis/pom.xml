@@ -22,7 +22,6 @@
         <mysql.init.timeout>30000</mysql.init.timeout>
 
         <version.debezium>1.8.1.Final</version.debezium>
-        <version.debezium.tag>1.7</version.debezium.tag>
         <version.kinesis.client>1.13.3</version.kinesis.client>
         <version.jackson>2.10.0</version.jackson>
         <version.plugin.docker>0.24.0</version.plugin.docker>
