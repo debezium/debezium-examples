@@ -1,9 +1,9 @@
 # Streaming Postgres Database Changes to Apache Pulsar Using Debezium
 
-This example shows how to consume change events programmatically using the [Debezium's embedded mode](https://debezium.io/docs/embedded/),
+This example shows how to consume change events programmatically using the [Debezium's embedded mode](https://debezium.io/documentation/reference/stable/development/engine.html),
 This approach allows to stream database changes to arbitrary destinations.
 The demo shows how to stream changes from a Postgres database to Apache [Pulsar](https://pulsar.apache.org/).
-However, if you want to stream change events into Apache Pulsar, take a look at the ready-made sink for [Debezium Server](https://debezium.io/documentation/reference/stable/operations/debezium-server.html#_apache_pulsar).
+However, if you want to stream change events into Apache Pulsar in a production scenario, take a look at the ready-made sink for [Debezium Server](https://debezium.io/documentation/reference/stable/operations/debezium-server.html#_apache_pulsar).
 
 Note: An alternative approach for ingesting change events from Debezium into Apache Pulsar is to use Pulsar IO,
 which comes with [support for Debezium's connectors](https://pulsar.apache.org/docs/en/io-cdc-debezium/) as of Pulsar 2.3.
