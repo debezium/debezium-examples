@@ -15,9 +15,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <io.debezium.version>1.2.5.Final</io.debezium.version>
-        <org.hibernate.version>5.4.24.Final</org.hibernate.version>
-        <org.infinispan.version>11.0.6.Final</org.infinispan.version>
+	<version.debezium>1.8.1.Final</version.debezium>
+	<version.debezium.tag>1.8</version.debezium.tag>
+        <version.hibernate>5.4.24.Final</version.hibernate>
+        <version.infinispan>11.0.6.Final</version.infinispan>
     </properties>
 
     <dependencyManagement>
@@ -33,23 +34,23 @@
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-embedded</artifactId>
-            <version>${io.debezium.version}</version>
+            <version>${version.debezium}</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
-            <version>${io.debezium.version}</version>
+            <version>${version.debezium}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${org.hibernate.version}</version>
+            <version>${version.hibernate}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>${org.infinispan.version}</version>
+            <version>${version.infinispan}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -105,7 +106,7 @@
                     <images>
                         <image>
                             <alias>db</alias>
-                            <name>debezium/postgres:9.6</name>
+                            <name>debezium/example-postgres:${version.debezium.tag}</name>
                             <run>
                                 <env>
                                     <POSTGRES_USER>postgresuser</POSTGRES_USER>

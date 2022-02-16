@@ -2,8 +2,7 @@
 <jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <deployment>
         <dependencies>
-            <module name="org.infinispan" slot="ispn-10.1" services="export"/>
-            <module name="org.infinispan.commons" slot="ispn-10.1" services="export"/>
+            <module name="org.infinispan" slot="ispn-12.0" services="export"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>
