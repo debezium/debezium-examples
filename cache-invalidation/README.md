@@ -12,6 +12,7 @@ it must be purged from the 2nd-level cache in order to correctly calculate the p
 
 To run the app, follow these steps:
 
+    export DEBEZIUM_VERSION=1.8
     mvn clean package
     docker-compose up --build
 
@@ -90,7 +91,7 @@ After code changes the application can be re-deployed like so:
 
 To get a session in Postgres run:
 
-    docker run -it --rm --link postgres-1:postgres debezium/postgres:9.6 psql -h postgres -U postgresuser --dbname inventory
+    docker run -it --rm --link postgres-1:postgres debezium/example-postgres:${DEBEZIUM_VERSION} psql -h postgres -U postgresuser --dbname inventory
 
 Run
 
