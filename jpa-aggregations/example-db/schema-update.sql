@@ -47,4 +47,4 @@ CREATE TABLE aggregates (
   valueSchema LONGTEXT,
   materialization LONGTEXT,
   PRIMARY KEY (rootId, rootType)
-);
+) CHARSET=latin1;
