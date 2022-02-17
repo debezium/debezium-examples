@@ -85,7 +85,7 @@ Examine the emitted messages for `credit-approval` and `payment` in Apache Kafka
 ```console
 $ docker run --tty --rm \
     --network saga-network \
-    debezium/tooling:1.1 \
+    debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t credit-approval.request
@@ -97,7 +97,7 @@ $ docker run --tty --rm \
 ```console
 $ docker run --tty --rm \
     --network saga-network \
-    debezium/tooling:1.1 \
+    debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t payment.request
@@ -111,7 +111,7 @@ Examine the saga state in the order service's database:
 ```console
 $ docker run --tty --rm -i \
         --network saga-network \
-        debezium/tooling:1.1 \
+        debezium/tooling:1.2 \
         bash -c 'pgcli postgresql://orderuser:orderpw@order-db:5432/orderdb'
 
 select * from purchaseorder.sagastate;
@@ -191,7 +191,7 @@ Examining saga state log:
 ```console
 $ docker run --tty --rm \
     --network saga-network \
-    debezium/tooling:1.1 \
+    debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t dbserver4.purchaseorder.sagastate

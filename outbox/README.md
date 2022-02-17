@@ -83,7 +83,7 @@ Examine the events produced by the service using _kafkacat_:
 ```console
 $ docker run --tty --rm \
     --network outbox_default \
-    debezium/tooling:1.1 \
+    debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t Order.events | jq .
@@ -104,7 +104,7 @@ Getting a session in the Postgres DB of the "order" service:
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
-        debezium/tooling:1.1 \
+        debezium/tooling:1.2 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 ```
 
@@ -125,7 +125,7 @@ Getting a session in the Postgres DB of the "shipment" service:
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
-        debezium/tooling:1.1 \
+        debezium/tooling:1.2 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@shipment-db:5432/shipmentdb'
 ```
 
