@@ -23,19 +23,14 @@ services:
     ports:
      - 5432:5432
     healthcheck:
-      test: "/usr/bin/psql -U postgres -c 'SELECT 1'"
+      test: "pg_isready -U postgresuser -d inventory"
       interval: 2s
       timeout: 20s
       retries: 10
     environment:
-     - PG_MODE=primary
-     - PG_PRIMARY_PORT=5432
-     - PG_PRIMARY_USER=postgres
-     - PG_DATABASE=inventory
-     - PG_PRIMARY_PASSWORD=debezium
-     - PG_PASSWORD=not
-     - PG_ROOT_PASSWORD=matter
-     - PG_USER=debezium
+     - POSTGRES_USER=postgresuser
+     - POSTGRES_PASSWORD=postgrespw
+     - POSTGRES_DB=inventory
   connect:
     image: debezium-examples/kstreams-live-update-connect-es:${DEBEZIUM_VERSION}
     build:
