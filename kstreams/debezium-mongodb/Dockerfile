@@ -1,4 +1,4 @@
-FROM debezium/connect:0.8
+FROM debezium/connect:1.8
 ENV KAFKA_CONNECT_MONGODB_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-mongodb
 
 USER root

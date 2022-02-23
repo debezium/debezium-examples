@@ -1,4 +1,4 @@
-FROM debezium/connect:1.0
+FROM debezium/connect:1.8
 ENV KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 
 ARG KAFKA_ELASTICSEARCH_VERSION=5.3.2

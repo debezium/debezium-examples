@@ -1,4 +1,4 @@
-FROM debezium/connect:0.10
+FROM debezium/connect:1.8
 ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc
 
 ARG POSTGRES_VERSION=42.2.8
