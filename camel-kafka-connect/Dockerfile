@@ -1,4 +1,4 @@
-FROM debezium/connect:1.1
+FROM debezium/connect:1.8
 
 ARG CAMEL_KAFKA_CONNECT_VERSION=0.1.0
 
