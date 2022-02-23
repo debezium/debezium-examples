@@ -1,13 +1,13 @@
 version: '2.1'
 services:
   zookeeper:
-    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
      - 2181:2181
      - 2888:2888
      - 3888:3888
   kafka:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
      - 9092:9092
     links:
@@ -18,7 +18,7 @@ services:
      # - ADVERTISED_HOST_NAME=192.168.1.6
      - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
   vegetables-db:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - 5432:5432
     environment:
@@ -26,7 +26,7 @@ services:
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=vegetablesdb
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     links:

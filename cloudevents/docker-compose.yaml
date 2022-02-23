@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   zookeeper:
-    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
      - 2181:2181
      - 2888:2888
@@ -9,7 +9,7 @@ services:
     networks:
      - my-network
   kafka:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
      - 9092:9092
     links:
@@ -19,7 +19,7 @@ services:
     networks:
      - my-network
   postgres:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - 5432:5432
     environment:
@@ -28,7 +28,7 @@ services:
     networks:
      - my-network
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005

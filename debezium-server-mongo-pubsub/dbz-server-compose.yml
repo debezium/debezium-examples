@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   debezium-server:
-    image: debezium/server:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
     container_name: debezium-server
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials/service-account.json

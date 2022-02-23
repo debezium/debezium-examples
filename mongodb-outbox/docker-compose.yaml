@@ -8,7 +8,7 @@ services:
     networks:
       - my-network
   zookeeper:
-    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
       - 2181:2181
       - 2888:2888
@@ -16,7 +16,7 @@ services:
     networks:
       - my-network
   kafka:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 9092:9092
     links:
@@ -72,7 +72,7 @@ services:
     depends_on:
       - kafka
   mongodb:
-    image: debezium/example-mongodb:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     hostname: mongodb
     ports:
       - 27017:27017

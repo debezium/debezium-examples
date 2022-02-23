@@ -1,13 +1,13 @@
 version: '2'
 services:
   zookeeper:
-    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
      - 2181:2181
      - 2888:2888
      - 3888:3888
   kafka:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
      - 9092:9092
     links:
@@ -15,14 +15,14 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
   mongodb:
-    image: debezium/example-mongodb:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     ports:
      - 27017:27017
     environment:
      - MONGODB_USER=debezium
      - MONGODB_PASSWORD=dbz
   postgres:
-    image: debezium/postgres:9.6
+    image: quay.io/debezium/postgres:9.6
     ports:
      - "5432:5432"
     environment:

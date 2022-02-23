@@ -6,13 +6,13 @@ services:
      - 6831:6831/udp
      - 16686:16686
   zookeeper:
-    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
      - 2181:2181
      - 2888:2888
      - 3888:3888
   kafka:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
      - 9092:9092
     links:
@@ -20,7 +20,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
   order-db:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - 5433:5432
     healthcheck:
@@ -34,7 +34,7 @@ services:
      - POSTGRES_DB=orderdb
      - PGPASSWORD=postgrespw
   shipment-db:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
       - 5434:5432
     healthcheck:

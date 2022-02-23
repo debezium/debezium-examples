@@ -2,12 +2,12 @@ version: '3'
 services:
   zookeeper:
     container_name: zookeeper
-    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     networks:
       - ui-network
   kafka:
     container_name: kafka
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - "9092:9092"
     depends_on:
@@ -18,7 +18,7 @@ services:
       - ui-network
   db-pg:
     container_name: db-pg
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
       - "65432:5432"
     environment:
@@ -28,7 +28,7 @@ services:
       - ui-network
   db-mysql:
     container_name: db-mysql
-    image: debezium/example-mysql:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
     ports:
       - "63306:3306"
     environment:
@@ -60,7 +60,7 @@ services:
     command: bash -c 'sleep 20 && mongo -u admin -p admin --authenticationDatabase admin db-mongo:27017/inventory --eval "rs.initiate();"'
   connect:
     container_name: connect
-    image: debezium/connect:nightly
+    image: quay.io/debezium/connect:nightly
     ports:
       - "8083:8083"
     depends_on:
@@ -78,7 +78,7 @@ services:
       - ui-network
   debezium-ui:
     container_name: debezium-ui
-    image: debezium/debezium-ui:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/debezium-ui:${DEBEZIUM_VERSION}
     ports:
       - "8080:8080"
     environment:

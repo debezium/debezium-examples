@@ -1,5 +1,5 @@
 ARG DEBEZIUM_VERSION
-FROM debezium/connect:$DEBEZIUM_VERSION
+FROM quay.io/debezium/connect:$DEBEZIUM_VERSION
 
 USER root
 RUN microdnf -y install libaio curl && microdnf clean all

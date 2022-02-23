@@ -144,7 +144,7 @@
                             </run>
                         </image>
                         <image>
-                            <name>debezium/example-postgres:${version.debezium.tag}</name>
+                            <name>quay.io/debezium/example-postgres:${version.debezium.tag}</name>
                             <run>
                                 <namingStrategy>none</namingStrategy>
                                 <env>

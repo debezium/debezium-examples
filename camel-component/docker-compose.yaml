@@ -5,7 +5,7 @@ services:
     ports:
      - 8025:8025
   qa-db:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - 5432:5432
     environment:

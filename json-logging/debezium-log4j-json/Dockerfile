@@ -1,4 +1,4 @@
-FROM debezium/connect:1.8
+FROM quay.io/debezium/connect:1.8
 
 RUN curl https://repo1.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar > /kafka/libs/jsonevent-layout.jar &&\
     curl https://repo1.maven.org/maven2/commons-lang/commons-lang/2.6/commons-lang-2.6.jar > /kafka/libs/commons-lang.jar &&\
