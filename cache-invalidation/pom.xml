@@ -106,7 +106,7 @@
                     <images>
                         <image>
                             <alias>db</alias>
-                            <name>debezium/example-postgres:${version.debezium.tag}</name>
+                            <name>quay.io/debezium/example-postgres:${version.debezium.tag}</name>
                             <run>
                                 <env>
                                     <POSTGRES_USER>postgresuser</POSTGRES_USER>

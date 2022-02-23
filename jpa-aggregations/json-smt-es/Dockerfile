@@ -1,4 +1,4 @@
-FROM debezium/connect:1.8
+FROM quay.io/debezium/connect:1.8
 ENV KAFKA_CONNECT_JSON_SMT_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-json-smt \
     KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 

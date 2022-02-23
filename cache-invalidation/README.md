@@ -91,7 +91,7 @@ After code changes the application can be re-deployed like so:
 
 To get a session in Postgres run:
 
-    docker run -it --rm --link postgres-1:postgres debezium/example-postgres:${DEBEZIUM_VERSION} psql -h postgres -U postgresuser --dbname inventory
+    docker run -it --rm --link postgres-1:postgres quay.io/debezium/example-postgres:${DEBEZIUM_VERSION} psql -h postgres -U postgresuser --dbname inventory
 
 Run
 

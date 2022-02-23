@@ -1,7 +1,7 @@
 version: '2'
 services:
   kafka-1:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
      - 19092:9092
      - 19093:9093
@@ -14,7 +14,7 @@ services:
      - JMXPORT=9012
      - JMXHOST=0.0.0.0
   kafka-2:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 29092:9092
       - 29093:9093
@@ -27,7 +27,7 @@ services:
       - JMXPORT=9013
       - JMXHOST=0.0.0.0
   kafka-3:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 39092:9092
       - 39093:9093
@@ -40,7 +40,7 @@ services:
       - JMXPORT=9014
       - JMXHOST=0.0.0.0
   kafka-4:
-    image: debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 49092:9092
       - 49093:9093
@@ -53,14 +53,14 @@ services:
       - JMXPORT=9014
       - JMXHOST=0.0.0.0
   postgres:
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
       - 5432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
   connect:
-    image: debezium/connect:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
       - 8083:8083
     links:

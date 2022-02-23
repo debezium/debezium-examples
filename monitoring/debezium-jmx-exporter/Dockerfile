@@ -1,5 +1,5 @@
 ARG DEBEZIUM_VERSION
-FROM debezium/connect:${DEBEZIUM_VERSION}
+FROM quay.io/debezium/connect:${DEBEZIUM_VERSION}
 
 ARG JMX_AGENT_VERSION
 RUN mkdir /kafka/etc && cd /kafka/etc &&\
