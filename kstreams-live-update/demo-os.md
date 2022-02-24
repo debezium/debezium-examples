@@ -28,7 +28,7 @@ oc cluster up --routing-suffix=`ifconfig eth0 | grep -Eo 'inet (addr:)?([0-9]*\.
 ## Start tooling container
 
 ```
-oc run tooling -it --image=debezium/tooling --restart=Never
+oc run tooling -it --image=quay.io/debezium/tooling:1.2 --restart=Never
 ```
 
 Verify connectors are deployed:

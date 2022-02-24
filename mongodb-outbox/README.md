@@ -24,7 +24,7 @@ s.commitTransaction()
 # Consume messages from the outbox event topic
 docker run --tty --rm \
     --network mongo-outbox-network \
-    debezium/tooling:1.2 \
+    quay.io/debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t Order.events
