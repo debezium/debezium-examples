@@ -69,7 +69,7 @@ Examine the events produced by the service using _kafkacat_:
 ```console
 $ docker run --tty --rm \
     --network distributed-caching-network \
-    debezium/tooling:1.2 \
+    quay.io/debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -t dbserver1.inventory.purchaseorder | jq .
 ```
@@ -146,7 +146,7 @@ Getting a session in the Postgres DB of the "order" service:
 ```console
 $ docker run --tty --rm -i \
     --network distributed-caching-network \
-    debezium/tooling:1.2 \
+    quay.io/debezium/tooling:1.2 \
     bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 ```
 

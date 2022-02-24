@@ -187,7 +187,7 @@ To consume the Avro messages It is possible to use `kafkacat` tool:
 ```shell
 docker run --rm --tty \
   --network tutorial_default \
-  debezium/tooling \
+  quay.io/debezium/tooling:1.2 \
   kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/apis/ccompat/v6 \
   -t dbserver1.inventory.customers | jq .
 ```

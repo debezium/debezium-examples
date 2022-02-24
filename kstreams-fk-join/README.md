@@ -63,7 +63,7 @@ Examine the joined events using _kafkacat_:
 ```console
 $ docker run --tty --rm \
     --network kstreams-fk-join-network \
-    debezium/tooling:1.2 \
+    quay.io/debezium/tooling:1.2 \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -t customers-with-addresses | jq .
 ```
@@ -75,7 +75,7 @@ Getting a session in the Postgres DB of the "order" service:
 ```console
 $ docker run --tty --rm -i \
         --network kstreams-fk-join-network \
-        debezium/tooling:1.2 \
+        quay.io/debezium/tooling:1.2 \
         bash -c 'pgcli postgresql://postgres:postgres@postgres:5432/postgres'
 ```
 
