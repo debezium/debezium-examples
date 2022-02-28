@@ -34,6 +34,8 @@ services:
     image: debezium/connect-jdbc-es:${DEBEZIUM_VERSION}
     build:
       context: debezium-jdbc-es
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
