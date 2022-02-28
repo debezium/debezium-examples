@@ -1,4 +1,5 @@
-FROM debezium/connect:1.0
+ARG DEBEZIUM_VERSION
+FROM debezium/connect:${DEBEZIUM_VERSION}
 ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc \
     KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 

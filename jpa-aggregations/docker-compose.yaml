@@ -18,6 +18,8 @@ services:
     image: debezium/jpa-aggregation-example-db:${DEBEZIUM_VERSION}
     build:
       context: example-db
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}  
     ports:
      - 3306:3306
     environment:
@@ -37,6 +39,8 @@ services:
     image: debezium/connect-json-smt-es:${DEBEZIUM_VERSION}
     build:
       context: json-smt-es
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
