@@ -15,8 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-	<version.debezium>1.8.1.Final</version.debezium>
-	<version.debezium.tag>1.8</version.debezium.tag>
+        <version.debezium>1.8.1.Final</version.debezium>
+        <version.debezium.tag>1.8</version.debezium.tag>
         <version.hibernate>5.4.24.Final</version.hibernate>
         <version.infinispan>11.0.6.Final</version.infinispan>
     </properties>
