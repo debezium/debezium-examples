@@ -1,0 +1,20 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: debezium-connector-mysql
+  labels:
+    strimzi.io/cluster: debezium-connect-cluster
+spec:
+  class: io.debezium.connector.mysql.MySqlConnector
+  tasksMax: 1
+  config:
+    tasks.max: 1
+    database.hostname: mysql
+    database.port: 3306
+    database.user: ${secrets:debezium-example/debezium-secret:username}
+    database.password: ${secrets:debezium-example/debezium-secret:password}
+    database.server.id: 184054
+    database.server.name: mysql
+    database.include.list: inventory
+    database.history.kafka.bootstrap.servers: debezium-cluster-kafka-bootstrap:9092
+    database.history.kafka.topic: schema-changes.inventory
