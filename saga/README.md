@@ -177,7 +177,7 @@ $ mvn compile quarkus:dev -f customer-service/pom.xml
 Listing all topics:
 
 ```console
-$ docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
+$ docker-compose exec kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
 ```
 
 Register connector for logging the saga state:

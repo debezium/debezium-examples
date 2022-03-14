@@ -67,5 +67,5 @@ The configuration used for the hiking-connector and its accompanying jdbc-sink a
 
 ## Misc.
 
-- docker-compose exec kafka /kafka/bin/kafka-topics.sh --list --zookeeper zookeeper:2181
+- docker-compose exec kafka /kafka/bin/kafka-topics.sh --list --bootstrap-server kafka:9092
 - docker-compose exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'

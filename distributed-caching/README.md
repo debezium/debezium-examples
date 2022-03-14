@@ -168,7 +168,7 @@ Alternatively, you can access pgAdmin on http://localhost:5050.
 List all Kafka topics:
 
 ```console
-$ docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
+$ docker-compose exec kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
 ```
 
 Get the status of the CDC connector:

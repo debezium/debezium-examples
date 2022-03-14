@@ -44,4 +44,4 @@ http "http://localhost:9200/orders/_search?pretty"
 
 # Misc.
 
-docker-compose  -f docker-compose-mysql exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
+docker-compose  -f docker-compose-mysql exec kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
