@@ -108,5 +108,5 @@ You can then establish a remote debugging session from your IDE on localhost:500
 Listing all topics:
 
 ```shell
-docker-compose exec kafka /kafka/bin/kafka-topics.sh --zookeeper zookeeper:2181 --list
+docker-compose exec kafka /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
 ```
