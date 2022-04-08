@@ -26,7 +26,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
@@ -196,7 +196,7 @@ docker run --rm --tty \
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
@@ -220,7 +220,7 @@ docker-compose -f docker-compose-postgres.yaml down
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-mongodb.yaml up
 
 # Initialize MongoDB replica set and insert some test data
@@ -255,7 +255,7 @@ and set up with the configuration, users and grants described in the Debezium [V
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-oracle.yaml up --build
 
 # Insert test data
@@ -325,7 +325,7 @@ docker-compose -f docker-compose-oracle.yaml down
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-sqlserver.yaml up
 
 # Initialize database and insert test data
@@ -352,7 +352,7 @@ docker-compose -f docker-compose-sqlserver.yaml down
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 
 docker-compose -f docker-compose-db2.yaml up --build
 
@@ -378,7 +378,7 @@ docker-compose -f docker-compose-db2.yaml down
 
 ```shell 
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 
 docker-compose -f docker-compose-cassandra.yaml up --build
 
@@ -406,7 +406,7 @@ docker-compose -f docker-compose-cassandra.yaml down
 
 ```shell 
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 
 docker-compose -f docker-compose-vitess.yaml up --build
 
@@ -467,7 +467,7 @@ The configuration is done at both worker and connector level.
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-mysql-ext-secrets.yml up
 
 # Start MySQL connector
@@ -486,7 +486,7 @@ Since Apache Kafka 2.8 and Debezium 1.7, there is **experimental** support for r
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml up
 
 # Start Postgres connector
