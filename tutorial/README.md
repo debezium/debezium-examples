@@ -253,9 +253,6 @@ This assumes Oracle is running on localhost
 (or is reachable there, e.g. by means of running it within a VM or Docker container with appropriate port configurations)
 and set up with the configuration, users and grants described in the Debezium [Vagrant set-up](https://github.com/debezium/oracle-vagrant-box).
 
-Also you must download the [Oracle instant client for Linux](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html)
-and put it under the directory _debezium-with-oracle-jdbc/oracle_instantclient_.
-
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
 export DEBEZIUM_VERSION=1.8
