@@ -291,36 +291,6 @@ docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
 docker-compose -f docker-compose-oracle.yaml down
 ```
 
-### XStreams
-
-Instead of LogMiner, the connector can use the XStreams API, which requires a license for the Golden Gate product
-(which itself is not required be installed, though).
-The connector option `database.connection.adapter` must be set to `xstream` to do so.
-
-Adjust the host name of the database server and the name of the XStream outbound server in `register-oracle-xstreams.json` as per your environment.
-Then register the Debezium Oracle connector:
-
-```shell
-# Start Oracle connector
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-oracle-xstreams.json
-
-# Create a test change record
-echo "INSERT INTO customers VALUES (NULL, 'John', 'Doe', 'john.doe@example.com');" | docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
-
-# Consume messages from a Debezium topic
-docker-compose -f docker-compose-oracle.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server kafka:9092 \
-    --from-beginning \
-    --property print.key=true \
-    --topic server1.DEBEZIUM.CUSTOMERS
-
-# Modify other records in the database via Oracle client
-docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
-
-# Shut down the cluster
-docker-compose -f docker-compose-oracle.yaml down
-```
-
 ## Using SQL Server
 
 ```shell
