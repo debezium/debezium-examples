@@ -11,7 +11,4 @@ ENV MAVEN_DEP_DESTINATION=$KAFKA_HOME/libs \
 
 RUN docker-maven-download central "$ORACLE_JDBC_REPO" "$ORACLE_JDBC_GROUP" "$ORACLE_JDBC_VERSION" "$ORACLE_JDBC_MD5"
 
-USER root
-RUN microdnf -y install libaio && microdnf clean all
-
 USER kafka
