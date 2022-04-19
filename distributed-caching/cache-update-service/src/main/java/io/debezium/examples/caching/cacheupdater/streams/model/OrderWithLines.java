@@ -24,6 +24,8 @@ public class OrderWithLines {
 //    public ZonedDateTime orderDate;
     public long orderDate;
 
+    public int version;
+
     public List<OrderLine> lines = new ArrayList<>();
 
     public OrderWithLines addOrderLine(OrderLineAndPurchaseOrder lineAndPurchaseOrder) {
@@ -32,6 +34,7 @@ public class OrderWithLines {
         id = lineAndPurchaseOrder.purchaseOrder.id;
         customerId = lineAndPurchaseOrder.purchaseOrder.customerId;
         orderDate = lineAndPurchaseOrder.purchaseOrder.orderDate / 1_000;
+        version = lineAndPurchaseOrder.purchaseOrder.version;
         lines.add(lineAndPurchaseOrder.orderLine);
 
         return this;
@@ -54,8 +57,8 @@ public class OrderWithLines {
 
     @Override
     public String toString() {
-        return "OrderWithLines [id=" + id + ", customerId=" + customerId + ", orderDate=" + orderDate + ", lines="
-                + lines + "]";
+        return "OrderWithLines [id=" + id + ", customerId=" + customerId + ", orderDate=" + orderDate + ", version="
+                + version + ", lines=" + lines + "]";
     }
 
     @Override
@@ -66,11 +69,11 @@ public class OrderWithLines {
             return false;
         OrderWithLines that = (OrderWithLines) o;
         return customerId == that.customerId && Objects.equals(id, that.id) && Objects.equals(orderDate, that.orderDate)
-              && Objects.equals(lines, that.lines);
+              && Objects.equals(version, that.version) && Objects.equals(lines, that.lines);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, customerId, orderDate, lines);
+        return Objects.hash(id, customerId, orderDate, version, lines);
     }
 }

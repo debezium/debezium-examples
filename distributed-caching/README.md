@@ -126,7 +126,7 @@ Otherwise, the consuming application (_cache-update-service_) will not be able t
 Start all components besides the two services:
 
 ```console
-$ docker-compose up --scale order-service=0 --scale cache-update-service=0
+$ docker-compose up --scale order-service-nyc=0 --scale order-service-lon=0 --scale cache-update-service=0
 ```
 
 Then start the two services in dev mode:

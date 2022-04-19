@@ -5,18 +5,22 @@
  */
 package io.debezium.examples.caching.order.service;
 
-import io.debezium.examples.caching.commons.EntityNotFoundException;
-import io.debezium.examples.caching.model.OrderLineStatus;
-import io.debezium.examples.caching.model.PurchaseOrder;
-import io.quarkus.infinispan.client.Remote;
-import org.infinispan.client.hotrod.RemoteCache;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import java.util.Optional;
+
+import org.infinispan.client.hotrod.RemoteCache;
+
+import io.debezium.examples.caching.commons.EntityNotFoundException;
+import io.debezium.examples.caching.model.OrderLineStatus;
+import io.debezium.examples.caching.model.PurchaseOrder;
+import io.quarkus.infinispan.client.Remote;
 
 /**
  * An application-scoped bean that facilitates {@link PurchaseOrder} business functionality.
@@ -49,18 +53,25 @@ public class OrderService {
      * Update the a {@link PurchaseOrder} line's status.
      *
      * @param orderId the purchase order id
+     * @param version the old version of the order when it was loaded
      * @param orderLineId the purchase order line id
      * @param newStatus the new order line status
      * @return the updated purchase order
      */
     @Transactional
-    public PurchaseOrder updateOrderLine(long orderId, long orderLineId, OrderLineStatus newStatus) {
+    public PurchaseOrder updateOrderLine(long orderId, int version, long orderLineId, OrderLineStatus newStatus) {
         PurchaseOrder order = entityManager.find(PurchaseOrder.class, orderId);
+
         if (order == null) {
             throw new EntityNotFoundException("Order with id " + orderId + " could not be found");
         }
 
+        if (order.getVersion() != version) {
+            throw new OptimisticLockException("Order with id " + orderId + " is stale");
+        }
+
         order.updateOrderLine(orderLineId, newStatus);
+        entityManager.lock(order, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
         return order;
     }

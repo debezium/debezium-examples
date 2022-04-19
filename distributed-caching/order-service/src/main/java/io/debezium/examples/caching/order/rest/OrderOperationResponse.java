@@ -19,12 +19,14 @@ public class OrderOperationResponse {
     private final long id;
     private final long customerId;
     private final LocalDateTime orderDate;
+    private final int version;
     private final List<OrderLineDto> lineItems;
 
-    public OrderOperationResponse(long id, long customerId, LocalDateTime orderDate, List<OrderLineDto> lineItems) {
+    public OrderOperationResponse(long id, long customerId, LocalDateTime orderDate, int version, List<OrderLineDto> lineItems) {
         this.id = id;
         this.customerId = customerId;
         this.orderDate = orderDate;
+        this.version = version;
         this.lineItems = lineItems;
     }
 
@@ -34,7 +36,7 @@ public class OrderOperationResponse {
                 .map(l -> new OrderLineDto(l.getId(), l.getItem(), l.getQuantity(), l.getTotalPrice(), l.getStatus()))
                 .collect(Collectors.toList());
 
-        return new OrderOperationResponse(order.getId(), order.getCustomerId(), order.getOrderDate(), lines);
+        return new OrderOperationResponse(order.getId(), order.getCustomerId(), order.getOrderDate(), order.getVersion(), lines);
     }
 
     public long getId() {
@@ -47,6 +49,10 @@ public class OrderOperationResponse {
 
     public LocalDateTime getOrderDate() {
         return orderDate;
+    }
+
+    public int getVersion() {
+        return version;
     }
 
     public List<OrderLineDto> getLineItems() {

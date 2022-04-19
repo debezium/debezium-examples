@@ -76,7 +76,8 @@ public class KafkaEventConsumer {
                 Long orderId = jsonNode.get("id").asLong();
                 LocalDateTime orderDate = Instant.ofEpochMilli(jsonNode.get("order_date").asLong()).atZone(ZoneId.systemDefault()).toLocalDateTime();
                 Long customerId = jsonNode.get("customer_id").asLong();
-                PurchaseOrder protoPurchaseOrder = new PurchaseOrder(orderId, customerId, orderDate,
+                int version = jsonNode.get("version").asInt();
+                PurchaseOrder protoPurchaseOrder = new PurchaseOrder(orderId, customerId, orderDate, version,
                       new ArrayList<>());
 
                 JsonNode lines = jsonNode.withArray("lines");

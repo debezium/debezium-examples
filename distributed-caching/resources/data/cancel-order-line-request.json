@@ -1,3 +1,4 @@
 {
-    "newStatus" : "CANCELLED"
+    "newStatus" : "CANCELLED",
+    "version" : 0
 }

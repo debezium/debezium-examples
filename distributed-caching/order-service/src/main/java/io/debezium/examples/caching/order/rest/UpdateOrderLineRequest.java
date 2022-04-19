@@ -12,7 +12,16 @@ import io.debezium.examples.caching.model.OrderLineStatus;
  */
 public class UpdateOrderLineRequest {
 
+    private int version;
     private OrderLineStatus newStatus;
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
 
     public OrderLineStatus getNewStatus() {
         return newStatus;
