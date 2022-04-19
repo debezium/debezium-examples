@@ -5,10 +5,10 @@
  */
 package io.debezium.examples.caching.model;
 
-import org.infinispan.protostream.annotations.ProtoFactory;
-import org.infinispan.protostream.annotations.ProtoField;
-
-import io.debezium.examples.caching.commons.EntityNotFoundException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,10 +18,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Version;
+
+import org.infinispan.protostream.annotations.ProtoFactory;
+import org.infinispan.protostream.annotations.ProtoField;
+
+import io.debezium.examples.caching.commons.EntityNotFoundException;
 
 /**
  * An entity mapping that represents a purchase order.
@@ -40,6 +42,9 @@ public class PurchaseOrder {
     @Column(name="order_date")
     private LocalDateTime orderDate;
 
+    @Version
+    private int version;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "purchaseOrder")
     private List<OrderLine> lineItems;
 
@@ -47,10 +52,11 @@ public class PurchaseOrder {
     }
 
     @ProtoFactory
-    public PurchaseOrder(Long id, Long customerId, LocalDateTime orderDate, List<OrderLine> lineItems) {
+    public PurchaseOrder(Long id, Long customerId, LocalDateTime orderDate, int version, List<OrderLine> lineItems) {
         this.id = id;
         this.customerId = customerId;
         this.orderDate = orderDate;
+        this.version = version;
         this.lineItems = lineItems;
     }
 
@@ -88,7 +94,16 @@ public class PurchaseOrder {
         this.orderDate = orderDate;
     }
 
-    @ProtoField(number = 4, collectionImplementation = ArrayList.class)
+    @ProtoField(number = 4, defaultValue = "0")
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
+    @ProtoField(number = 5, collectionImplementation = ArrayList.class)
     public List<OrderLine> getLineItems() {
         return lineItems;
     }
@@ -111,5 +126,11 @@ public class PurchaseOrder {
 
     public BigDecimal getTotalValue() {
         return lineItems.stream().map(OrderLine::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseOrder [id=" + id + ", customerId=" + customerId + ", orderDate=" + orderDate + ", version="
+                + version + ", lineItems=" + lineItems + "]";
     }
 }

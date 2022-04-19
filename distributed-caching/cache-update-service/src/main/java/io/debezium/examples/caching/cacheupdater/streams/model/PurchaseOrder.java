@@ -19,4 +19,6 @@ public class PurchaseOrder {
      */
     @JsonProperty("order_date")
     public long orderDate;
+
+    public int version;
 }

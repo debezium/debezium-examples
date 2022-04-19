@@ -5,10 +5,6 @@
  */
 package io.debezium.examples.caching.order.rest;
 
-import io.debezium.examples.caching.model.PurchaseOrder;
-import io.debezium.examples.caching.order.service.OrderService;
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
-
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +14,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.jboss.resteasy.annotations.jaxrs.PathParam;
+
+import io.debezium.examples.caching.model.PurchaseOrder;
+import io.debezium.examples.caching.order.service.OrderService;
 
 /**
  * A resource endpoint implementation for {@link PurchaseOrder} objects.
@@ -47,7 +48,7 @@ public class OrderResource {
     @PUT
     @Path("/{orderId}/lines/{orderLineId}")
     public OrderOperationResponse updateOrderLine(@PathParam("orderId") long orderId, @PathParam("orderLineId") long orderLineId, UpdateOrderLineRequest request) {
-        PurchaseOrder updated = orderService.updateOrderLine(orderId, orderLineId, request.getNewStatus());
+        PurchaseOrder updated = orderService.updateOrderLine(orderId, request.getVersion(), orderLineId, request.getNewStatus());
         return OrderOperationResponse.from(updated);
     }
 }
