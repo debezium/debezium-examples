@@ -40,7 +40,7 @@ This executes all configurations set forth by the `docker-compose.yaml` file.
 
 ## Configure the Debezium connector
 
-Register the connector that to stream outbox changes from the order service: 
+Register the connector that to stream changes from the order service:
 
 ```console
 $ http PUT http://localhost:8083/connectors/order-connector/config < register-postgres.json
@@ -121,7 +121,7 @@ Using the console, check the data available in every cluster.
 
 When working on the Quarkus services, it's better to use the dev mode locally instead of rebuilding the container images all the time.
 In order to do so, in the _docker-compose.yml_ file, set the `ADVERTISED_HOST_NAME` variable of the `kafka` service to the IP of your host machine.
-Otherwise, the consuming application (_cache-update-service_) will not be able to connect Kafka.
+Otherwise, the consuming application (_cache-update-service_) will not be able to connect to Kafka.
 
 Start all components besides the two services:
 
