@@ -136,6 +136,8 @@ services:
     build:
       context: cache-update-service
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    ports:
+     - "8082:8082"
     links:
      - kafka
     environment:

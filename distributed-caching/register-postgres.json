@@ -1,4 +1,6 @@
 {
+  "name" : "order-connector",
+  "config" : {
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "tasks.max": "1",
     "database.hostname": "order-db",
@@ -11,4 +13,5 @@
     "schema.include.list": "inventory",
     "table.include.list": ".*purchaseorder,.*orderline",
     "poll.interval.ms": "100"
+  }
 }

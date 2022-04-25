@@ -67,6 +67,10 @@
       <artifactId>quarkus-kafka-streams</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.debezium</groupId>
       <artifactId>debezium-core</artifactId>
       <version>1.8.1.Final</version>
