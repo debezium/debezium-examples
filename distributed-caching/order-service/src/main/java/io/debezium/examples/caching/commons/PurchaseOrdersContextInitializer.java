@@ -5,7 +5,7 @@
  */
 package io.debezium.examples.caching.commons;
 
-import org.infinispan.protostream.SerializationContextInitializer;
+import org.infinispan.protostream.GeneratedSchema;
 import org.infinispan.protostream.annotations.AutoProtoSchemaBuilder;
 
 import io.debezium.examples.caching.model.OrderLine;
@@ -19,5 +19,5 @@ import io.debezium.examples.caching.model.PurchaseOrder;
             PurchaseOrder.class,
             BigDecimalAdapter.class,
             LocalDateTimeAdapter.class})
-interface PurchaseOrdersContextInitializer extends SerializationContextInitializer {
+interface PurchaseOrdersContextInitializer extends GeneratedSchema {
 }

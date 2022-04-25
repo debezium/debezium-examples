@@ -22,7 +22,7 @@ public class LocalDateTimeAdapter {
       return Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDateTime();
    }
 
-   @ProtoField(number = 1, type = Type.FIXED64, defaultValue = "0")
+   @ProtoField(number = 1, type = Type.FIXED64)
    Long millis(LocalDateTime localDateTime) {
       return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
    }

@@ -43,7 +43,7 @@ public class PurchaseOrder {
     private LocalDateTime orderDate;
 
     @Version
-    private int version;
+    private Integer version;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "purchaseOrder")
     private List<OrderLine> lineItems;
@@ -52,7 +52,7 @@ public class PurchaseOrder {
     }
 
     @ProtoFactory
-    public PurchaseOrder(Long id, Long customerId, LocalDateTime orderDate, int version, List<OrderLine> lineItems) {
+    public PurchaseOrder(Long id, Long customerId, LocalDateTime orderDate, Integer version, List<OrderLine> lineItems) {
         this.id = id;
         this.customerId = customerId;
         this.orderDate = orderDate;
@@ -94,12 +94,12 @@ public class PurchaseOrder {
         this.orderDate = orderDate;
     }
 
-    @ProtoField(number = 4, defaultValue = "0")
-    public int getVersion() {
+    @ProtoField(number = 4)
+    public Integer getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(Integer version) {
         this.version = version;
     }
 

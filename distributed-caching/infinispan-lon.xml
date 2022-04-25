@@ -1,10 +1,10 @@
 <infinispan
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="urn:infinispan:config:11.0 https://infinispan.org/schemas/infinispan-config-11.0.xsd
-                            urn:infinispan:server:11.0 https://infinispan.org/schemas/infinispan-server-11.0.xsd
-                            urn:org:jgroups http://www.jgroups.org/schema/jgroups-4.0.xsd"
-        xmlns="urn:infinispan:config:11.0"
-        xmlns:server="urn:infinispan:server:11.0">
+        xsi:schemaLocation="urn:infinispan:config:13.0 https://infinispan.org/schemas/infinispan-config-13.0.xsd
+                            urn:infinispan:server:13.0 https://infinispan.org/schemas/infinispan-server-13.0.xsd
+                            urn:org:jgroups http://www.jgroups.org/schema/jgroups-4.2.xsd"
+        xmlns="urn:infinispan:config:13.0"
+        xmlns:server="urn:infinispan:server:13.0">
 
    <jgroups>
       <stack name="bridge">
@@ -135,7 +135,7 @@
       </distributed-cache>
    </cache-container>
 
-   <server xmlns="urn:infinispan:server:11.0">
+   <server xmlns="urn:infinispan:server:13.0">
       <interfaces>
          <interface name="public">
             <inet-address value="${infinispan.bind.address:127.0.0.1}"/>
@@ -147,9 +147,6 @@
          <socket-binding name="memcached" port="11221"/>
       </socket-bindings>
 
-      <endpoints socket-binding="default">
-         <hotrod-connector name="hotrod"/>
-         <rest-connector name="rest"/>
-      </endpoints>
+      <endpoints socket-binding="default"/>
    </server>
 </infinispan>
