@@ -61,7 +61,7 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses 
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
      - JAVA_DEBUG_PORT=0.0.0.0:5005
@@ -157,7 +157,7 @@ services:
         ./deployments/run-java.sh -Dquarkus.infinispan-client.server-list=ispn-cen-1:11222
       "
   infinispan-server-lon-1:
-    image: infinispan/server:11.0
+    image: quay.io/infinispan/server:13.0
     ports:
       - "11222:11222"
     container_name: ispn-lon-1
@@ -165,9 +165,9 @@ services:
       - my-network
     volumes:
       - ${PWD}:/user-config
-    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-lon.xml -Djgroups.cluster.mcast_addr=228.6.7.10 -Drelay.site=LON
+    command: -b SITE_LOCAL -c /user-config/infinispan-lon.xml -Djgroups.cluster.mcast_addr=228.6.7.10 -Drelay.site=LON
   infinispan-server-nyc-1:
-    image: infinispan/server:11.0
+    image:  quay.io/infinispan/server:13.0
     ports:
       - "31222:11222"
     container_name: ispn-nyc-1
@@ -175,9 +175,9 @@ services:
       - my-network
     volumes:
       - ${PWD}:/user-config
-    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-nyc.xml -Djgroups.cluster.mcast_addr=228.6.7.15 -Drelay.site=NYC
+    command: -b SITE_LOCAL -c /user-config/infinispan-nyc.xml -Djgroups.cluster.mcast_addr=228.6.7.15 -Drelay.site=NYC
   infinispan-server-cen-1:
-    image: infinispan/server:11.0
+    image:  quay.io/infinispan/server:13.0
     ports:
       - "41222:11222"
     container_name: ispn-cen-1
@@ -185,7 +185,7 @@ services:
       - my-network
     volumes:
       - ${PWD}:/user-config
-    command: /opt/infinispan/bin/server.sh -b SITE_LOCAL -c /user-config/infinispan-cen.xml -Djgroups.cluster.mcast_addr=228.6.7.20 -Drelay.site=CEN
+    command: -b SITE_LOCAL -c /user-config/infinispan-cen.xml -Djgroups.cluster.mcast_addr=228.6.7.20 -Drelay.site=CEN
 networks:
   my-network:
     name: distributed-caching-network
