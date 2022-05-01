@@ -2,7 +2,7 @@ FROM quay.io/debezium/connect:1.8
 ENV KAFKA_CONNECT_MONGODB_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-mongodb
 
 USER root
-RUN yum -y install git maven && yum clean all
+RUN microdnf -y install git maven && microdnf clean all
 
 USER kafka
 
