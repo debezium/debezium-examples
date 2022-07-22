@@ -45,7 +45,7 @@ gcloud pubsub topics create tutorial.inventory.customers
 Export environment variable:
 
 ```shell
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 ```
 
 Start the containers:
