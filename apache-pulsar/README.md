@@ -18,19 +18,19 @@ which comes with [support for Debezium's connectors](https://pulsar.apache.org/d
 * Start up a single Pulsar node via Docker:
 
 ```
-docker run -it -p 6650:6650 -p 8080:8080 --rm --name pulsar apachepulsar/pulsar:2.9.1 bin/pulsar standalone
+docker run -it -p 6650:6650 -p 8080:8080 --rm --name pulsar apachepulsar/pulsar:2.9.2 bin/pulsar standalone
 ```
 
 * Start up Postgres via Docker, with the example database used in the Debezium tutorial:
 
 ```
-docker run -it --rm --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres quay.io/debezium/example-postgres:1.8
+docker run -it --rm --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres quay.io/debezium/example-postgres:1.9
 ```
 
 * Launch psql to run some SQL queries:
 
 ```
-docker run -it --rm -e PGOPTIONS="--search_path=inventory" -e PGPASSWORD=postgres --link postgres:postgres quay.io/debezium/example-postgres:1.8 psql -h postgres -U postgres
+docker run -it --rm -e PGOPTIONS="--search_path=inventory" -e PGPASSWORD=postgres --link postgres:postgres quay.io/debezium/example-postgres:1.9 psql -h postgres -U postgres
 ```
 
 ## Building the Source Code and Running Debezium Embedded
