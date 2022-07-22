@@ -23,7 +23,7 @@ $ mvn clean verify
 Setup the necessary environment variables:
 
 ```console
-$ export DEBEZIUM_VERSION=1.8
+$ export DEBEZIUM_VERSION=1.9
 ```
 
 The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
