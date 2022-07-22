@@ -16,13 +16,13 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
-        <mvn.compiler.version>3.5.1</mvn.compiler.version>
-        <mvn.dependency.version>3.0.2</mvn.dependency.version>
-        <version.surefire>2.22.0</version.surefire>
+        <mvn.compiler.version>3.8.1</mvn.compiler.version>
+        <mvn.dependency.version>3.1.1</mvn.dependency.version>
+        <version.surefire>3.0.0-M6</version.surefire>
 
-        <apache.kafka.version>2.0.0</apache.kafka.version>
-        <version.quarkus>1.1.1.Final</version.quarkus>
-        <version.debezium>1.8.1.Final</version.debezium>
+        <apache.kafka.version>3.2.0</apache.kafka.version>
+        <version.quarkus>2.7.2.Final</version.quarkus>
+        <version.debezium>1.9.5.Final</version.debezium>
     </properties>
 
     <dependencyManagement>
