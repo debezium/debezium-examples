@@ -11,7 +11,7 @@
   <properties>
     <version.vertx>3.5.1</version.vertx>
     <version.plugin.vertx>1.0.9</version.plugin.vertx>
-    <version.slf4j>1.7.25</version.slf4j>
+    <version.slf4j>1.7.36</version.slf4j>
 
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
