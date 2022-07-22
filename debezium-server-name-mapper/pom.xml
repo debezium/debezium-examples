@@ -10,10 +10,10 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <version.debezium>1.8.1.Final</version.debezium>
-        <version.debezium.tag>1.7</version.debezium.tag>
-        <version.quarkus>2.0.0.Final</version.quarkus>
-        <version.jandex>1.1.0</version.jandex>
+        <version.debezium>1.9.5.Final</version.debezium>
+        <version.debezium.tag>1.9</version.debezium.tag>
+        <version.quarkus>2.7.2.Final</version.quarkus>
+        <version.jandex>1.2.3</version.jandex>
     </properties>
 
     <dependencyManagement>
