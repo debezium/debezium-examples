@@ -28,4 +28,4 @@ spec:
         artifacts:
           - type: tgz
             url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/1.8.1.Final/debezium-connector-mysql-1.8.1.Final-plugin.tar.gz
-            sha512sum: dff3e1f973ab203490d19337fac65e7545fbd70e3f22555e6ca74b3c734160140cbef5905b9f138f8b56616e0af5a41a8b2b7f09497d9cc62f64863017bdc088
+            sha512sum: b723594308955337352f6e30b5a4a12a956c9b16834d9f78981e51df4ab5d78b30be4c5bda2fbfd024176cbb72db5d213ff1b72be4d0bf660171502d11950d19
