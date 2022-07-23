@@ -15,10 +15,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <version.debezium>1.8.1.Final</version.debezium>
-        <version.debezium.tag>1.8</version.debezium.tag>
+        <version.debezium>1.9.5.Final</version.debezium>
+        <version.debezium.tag>1.9</version.debezium.tag>
         <version.hibernate>5.4.24.Final</version.hibernate>
         <version.infinispan>11.0.6.Final</version.infinispan>
+        <mvn.war.version>3.3.2</mvn.war.version>
     </properties>
 
     <dependencyManagement>
@@ -87,6 +88,14 @@
             </testResource>
         </testResources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${mvn.war.version}</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
