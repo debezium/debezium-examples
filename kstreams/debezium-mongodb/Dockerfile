@@ -1,4 +1,4 @@
-FROM quay.io/debezium/connect:1.8
+FROM quay.io/debezium/connect:1.9
 ENV KAFKA_CONNECT_MONGODB_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-mongodb
 
 USER root
