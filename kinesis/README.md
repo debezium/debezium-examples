@@ -23,7 +23,7 @@ We recommend you remove all resources created for this example afterwards to avo
 We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](https://debezium.io/docs/tutorial/):
 
 ```
-docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw quay.io/debezium/example-mysql:1.8
+docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw quay.io/debezium/example-mysql:1.9
 ```
 
 ### Preparing the CLI environment
