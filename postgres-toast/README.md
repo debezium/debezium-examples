@@ -23,7 +23,7 @@ Be sure to work with the latest Debezium and Postgres container images for the f
 ```console
 mvn clean install -f toast-value-store/pom.xml
 
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose up --build
 ```
 
