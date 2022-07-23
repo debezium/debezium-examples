@@ -2,7 +2,7 @@
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=1.9
 docker-compose up --build
 
 # Initialize MongoDB replica set and insert some test data
