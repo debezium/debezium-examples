@@ -23,8 +23,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
@@ -33,6 +33,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
+import org.testcontainers.utility.DockerImageName;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -48,17 +49,17 @@ public class DebeziumContainerTest {
     private static KafkaContainer kafkaContainer = new KafkaContainer()
             .withNetwork(network);
 
-    public static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("debezium/postgres:11")
+    public static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DockerImageName.parse("debezium/postgres:11").asCompatibleSubstituteFor("postgres"))
             .withNetwork(network)
             .withNetworkAliases("postgres");
 
-    public static DebeziumContainer debeziumContainer = new DebeziumContainer(System.getProperty("debeziumVersion"))
+    public static DebeziumContainer debeziumContainer = new DebeziumContainer("debezium/connect:" + System.getProperty("debeziumVersion"))
             .withNetwork(network)
             .withKafka(kafkaContainer)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .dependsOn(kafkaContainer);
 
-    @BeforeClass
+    @BeforeAll
     public static void startContainers() {
         Startables.deepStart(Stream.of(
                 kafkaContainer, postgresContainer, debeziumContainer)).join();

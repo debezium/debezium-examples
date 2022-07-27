@@ -8,6 +8,8 @@
   <artifactId>debezium-testcontainers-test</artifactId>
   <version>1.0-SNAPSHOT</version>
   <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.testRelease>17</maven.compiler.testRelease>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.debezium>1.9.5.Final</version.debezium>
