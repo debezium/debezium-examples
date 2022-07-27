@@ -105,9 +105,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M6</version>
         <configuration>
-          <systemPropertyVariables>
-            <debeziumVersion>${version.debezium}</debeziumVersion>
-          </systemPropertyVariables>
           <argLine>--enable-preview</argLine>
         </configuration>
       </plugin>

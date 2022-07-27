@@ -53,7 +53,7 @@ public class DebeziumContainerTest {
             .withNetwork(network)
             .withNetworkAliases("postgres");
 
-    public static DebeziumContainer debeziumContainer = new DebeziumContainer("debezium/connect:" + System.getProperty("debeziumVersion"))
+    public static DebeziumContainer debeziumContainer = DebeziumContainer.latestStable()
             .withNetwork(network)
             .withKafka(kafkaContainer)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
