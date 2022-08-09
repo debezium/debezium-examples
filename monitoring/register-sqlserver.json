@@ -10,6 +10,7 @@
         "database.password" : "Password!",
         "database.dbname" : "testDB",
         "database.history.kafka.bootstrap.servers" : "kafka:9092",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "database.history.kafka.topic": "schema-changes.inventory",
+        "database.encrypt": "false"
     }
 }
