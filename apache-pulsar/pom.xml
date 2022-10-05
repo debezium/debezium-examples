@@ -14,7 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <version.debezium>1.9.5.Final</version.debezium>
-        <pulsar.version>2.9.2</pulsar.version>
+        <pulsar.version>2.9.3</pulsar.version>
 
     </properties>
 
