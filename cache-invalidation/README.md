@@ -12,7 +12,7 @@ it must be purged from the 2nd-level cache in order to correctly calculate the p
 
 To run the app, follow these steps:
 
-    export DEBEZIUM_VERSION=1.9
+    export DEBEZIUM_VERSION=2.0
     mvn clean package
     docker-compose up --build
 
