@@ -10,7 +10,7 @@ which comes with [support for Debezium's connectors](https://pulsar.apache.org/d
 
 ## Prerequisites
 
-* Java 8 development environment
+* Java 11 development environment
 * Docker installation
 
 ## Starting Apache Pulsar and Postgres
@@ -24,27 +24,27 @@ docker run -it -p 6650:6650 -p 8080:8080 --rm --name pulsar apachepulsar/pulsar:
 * Start up Postgres via Docker, with the example database used in the Debezium tutorial:
 
 ```
-docker run -it --rm --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres quay.io/debezium/example-postgres:1.9
+docker run -it --rm --name postgres -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres quay.io/debezium/example-postgres:2.0
 ```
 
 * Launch psql to run some SQL queries:
 
 ```
-docker run -it --rm -e PGOPTIONS="--search_path=inventory" -e PGPASSWORD=postgres --link postgres:postgres quay.io/debezium/example-postgres:1.9 psql -h postgres -U postgres
+docker run -it --rm -e PGOPTIONS="--search_path=inventory" -e PGPASSWORD=postgres --link postgres:postgres quay.io/debezium/example-postgres:2.0 psql -h postgres -U postgres
 ```
 
 ## Building the Source Code and Running Debezium Embedded
 
 ```
-mvn clean install
+mvn clean package
 java -jar target/apache-pulsar-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 To configure Debezium parameters refer to `config.properties`.
-All the config.properties keys can be overridden using environment variables.
+All the `config.properties` keys can be overridden using environment variables.
 For example, in order to set `database.password=password` set this environment variable: `DATABASE_PASSWORD=password`.
 
-Each table will be published to its own topic, named like so: _persistent://public/default/<server>.<schema>.<table>_.
+Each table will be published to its own topic, named like so: _persistent://public/default/\<server\>.\<schema\>.\<table\>_.
 
 ## Testing
 
