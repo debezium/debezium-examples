@@ -59,7 +59,6 @@ public class SendTransactionEventWIHandler implements WorkItemHandler {
 
     @Override
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-
     }
 
     @Override
