@@ -8,11 +8,11 @@
         "database.user": "debezium",
         "database.password": "dbz",
         "database.server.id": "184054",
-        "database.server.name": "dbserver1",
+        "topic.prefix": "dbserver1",
         "database.include.list": "inventory",
         "table.include.list": ".*aggregates",
-        "database.history.kafka.bootstrap.servers": "kafka:9092",
-        "database.history.kafka.topic": "schema-changes.inventory",
+        "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory",
         "transforms" : "expandjson",
         "transforms.expandjson.type": "io.debezium.aggregation.smt.ExpandJsonSmt"
     }
