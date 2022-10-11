@@ -9,8 +9,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
 
         <database.hostname>localhost</database.hostname>
         <database.port>5432</database.port>
@@ -25,9 +25,9 @@
 
         <mysql.init.timeout>30000</mysql.init.timeout>
 
-        <version.camel>3.0.1</version.camel>
-        <version.debezium>1.9.5.Final</version.debezium>
-        <version.debezium.tag>1.9</version.debezium.tag>
+        <version.camel>3.19.0</version.camel>
+        <version.debezium>2.3.0.Final</version.debezium>
+        <version.debezium.tag>2.3</version.debezium.tag>
         <version.postgresql.driver>42.5.1</version.postgresql.driver>
         <version.org.slf4j>1.7.36</version.org.slf4j>
         <version.quarkus>2.7.2.Final</version.quarkus>

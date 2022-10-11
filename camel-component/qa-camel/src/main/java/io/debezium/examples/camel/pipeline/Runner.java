@@ -11,7 +11,7 @@ public class Runner {
     private static final Main MAIN = new Main();
 
     public static void main(String[] args) throws Exception {
-        MAIN.addRouteBuilder(QaDatabaseUserNotifier.class);
+        MAIN.configure().addRoutesBuilder(QaDatabaseUserNotifier.class);
         MAIN.run();
     }
 }
