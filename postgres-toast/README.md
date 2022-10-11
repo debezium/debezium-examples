@@ -14,7 +14,7 @@ This demo shows two ways for handling such marker values:
 * keeping track of the latest value of a TOAST column by means of a stateful Kafka Streams application and putting this value back into change events containing the marker value
 
 Further strategies could be to produce dynamic updates in sink datastores (ignoring the column from update statements if the value is the marker value) or adding the affected column to the source table's replica identity,
-either by using replica identity `full`  or an index-based replica idenity.
+either by using replica identity `full`  or an index-based replica identity.
 
 ## Building the Demo
 
@@ -23,7 +23,7 @@ Be sure to work with the latest Debezium and Postgres container images for the f
 ```console
 mvn clean install -f toast-value-store/pom.xml
 
-export DEBEZIUM_VERSION=1.9
+export DEBEZIUM_VERSION=2.0
 docker-compose up --build
 ```
 
