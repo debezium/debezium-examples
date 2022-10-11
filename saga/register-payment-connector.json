@@ -6,7 +6,7 @@
     "database.user": "paymentuser",
     "database.password": "paymentpw",
     "database.dbname" : "paymentdb",
-    "database.server.name": "dbserver2",
+    "topic.prefix": "dbserver2",
     "schema.include.list": "payment",
     "table.include.list" : "payment.outboxevent",
     "tombstones.on.delete" : "false",

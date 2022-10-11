@@ -11,14 +11,14 @@
   <properties>
     <surefire-plugin.version>3.0.0-M6</surefire-plugin.version>
     <maven.compiler.target>11</maven.compiler.target>
-    <quarkus.platform.version>2.7.2.Final</quarkus.platform.version>
-    <version.debezium-quarkus>1.9.5.Final</version.debezium-quarkus>
+    <quarkus.platform.version>2.11.0.Final</quarkus.platform.version>
+    <version.debezium-quarkus>2.0.0.CR1</version.debezium-quarkus>
     <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.parameters>true</maven.compiler.parameters>
-    <quarkus-plugin.version>2.7.2.Final</quarkus-plugin.version>
+    <quarkus-plugin.version>2.11.0.Final</quarkus-plugin.version>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
   </properties>
