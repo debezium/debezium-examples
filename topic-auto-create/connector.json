@@ -6,7 +6,7 @@
     "database.user": "postgres",
     "database.password": "postgres",
     "database.dbname" : "postgres",
-    "database.server.name": "dbserver1",
+    "topic.prefix": "dbserver1",
     "schema.include.list": "inventory",
     "topic.creation.default.replication.factor": 1,
     "topic.creation.default.partitions": 5,
