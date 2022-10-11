@@ -1,4 +1,5 @@
 {
+    "name": "inventory-connector",
     "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
     "tasks.max": "1",
     "database.hostname": "source-db",
@@ -6,5 +7,5 @@
     "database.user": "postgresusersource",
     "database.password": "postgrespw",
     "database.dbname" : "sourcedb",
-    "database.server.name": "dbserver1"
+    "topic.prefix": "dbserver1"
 }
