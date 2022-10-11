@@ -100,7 +100,7 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                 + "&databaseUser={{database.user}}"
                 + "&databasePassword={{database.password}}"
                 + "&databaseDbname=postgres"
-                + "&databaseServerName=qa"
+                + "&topicPrefix=qa"
                 + "&schemaWhitelist={{database.schema}}"
                 + "&tableWhitelist={{database.schema}}.question,{{database.schema}}.answer"
                 + "&offsetStorage=org.apache.kafka.connect.storage.MemoryOffsetBackingStore")

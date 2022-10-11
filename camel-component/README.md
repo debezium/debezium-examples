@@ -26,7 +26,7 @@ Build the application and the pipeline and start PostgreSQL instance and MailHog
 
 ```
 # Terminal One
-$ mvn clean install
+$ mvn clean package
 ```
 
 Start the deloyment (you need a Twitter developer account)
