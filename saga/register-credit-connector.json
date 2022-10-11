@@ -6,7 +6,7 @@
     "database.user": "customeruser",
     "database.password": "customerpw",
     "database.dbname" : "customerdb",
-    "database.server.name": "dbserver3",
+    "topic.prefix": "dbserver3",
     "schema.include.list": "customer",
     "table.include.list" : "customer.outboxevent",
     "tombstones.on.delete" : "false",
