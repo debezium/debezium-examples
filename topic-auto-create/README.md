@@ -16,7 +16,7 @@ To spin up some example infrastructure like Kafka, Debezium and a Postgres datab
 have to execute from this example directory (`./topic-auto-create` directory):
 
 ```bash
-$ DEBEZIUM_VERSION=1.9 docker-compose up -d
+$ DEBEZIUM_VERSION=2.0 docker-compose up -d
 
   Creating network "topic-auto-create_default" with the default driver
   Creating topic-auto-create_zookeeper_1 ... done
@@ -48,7 +48,7 @@ compression format that's chosen by the producer with `compression.type": "produ
         "database.user": "postgres",
         "database.password": "postgres",
         "database.dbname" : "postgres",
-        "database.server.name": "dbserver1",
+        "topic.prefix": "dbserver1",
         "schema.include.list": "inventory",
 
         "topic.creation.default.replication.factor": 1,
@@ -84,7 +84,7 @@ $ curl -X PUT -H "Accept: application/json" -H "Content-Type: application/json" 
       "database.hostname" : "postgres",
       "database.password" : "postgres",
       "database.port" : "5432",
-      "database.server.name" : "dbserver1",
+      "topic.prefix" : "dbserver1",
       "database.user" : "postgres",
       "name" : "inventory-connector",
       "schema.include.list" : "inventory",
