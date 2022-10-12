@@ -25,16 +25,3 @@ services:
       - kafka
     volumes:
       - /var/lib/cassandra
-  connect:
-    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
-    ports:
-      - 8083:8083
-    links:
-      - kafka
-      - cassandra
-    environment:
-      - BOOTSTRAP_SERVERS=kafka:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=my_connect_configs
-      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-      - STATUS_STORAGE_TOPIC=my_connect_statuses

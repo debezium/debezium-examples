@@ -7,7 +7,7 @@
         "database.port": "15991",
         "database.user": "vitess",
         "database.password": "vitess_password",
-        "database.server.name": "dbserver1",
+        "topic.prefix": "dbserver1",
         "vitess.keyspace": "inventory",
         "vitess.vtctld.host": "vitess",
         "vitess.vtctld.port": "15999",
