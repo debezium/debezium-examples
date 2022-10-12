@@ -15,7 +15,7 @@ In addition, the data view in Infinispan is denormalized (materialized join betw
 Prepare the Java components by first performing a Maven build.
 
 ```console
-$ mvn clean verify
+$ mvn clean package
 ```
 
 ## Environment
@@ -23,7 +23,7 @@ $ mvn clean verify
 Setup the necessary environment variables:
 
 ```console
-$ export DEBEZIUM_VERSION=1.9
+$ export DEBEZIUM_VERSION=2.0
 ```
 
 The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
