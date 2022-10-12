@@ -13,7 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>2.10.3.Final</quarkus.platform.version>
+    <quarkus.platform.version>2.11.1.Final</quarkus.platform.version>
     <version.surefire>2.22.0</version.surefire>
   </properties>
 
