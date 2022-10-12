@@ -76,6 +76,7 @@ services:
     image: debezium-examples/cloudevents-avro-extractor:${DEBEZIUM_VERSION}
     build:
       context: avro-data-extractor
+      dockerfile: src/main/docker/Dockerfile.jvm
     ports:
       - 8079:8079
     links:
