@@ -27,14 +27,14 @@ This application is built with [Quarkus](https://quarkus.io/).
 Build data generator application and aggregator application:
 
 ```shell
-mvn clean install -f event-source/pom.xml
-mvn clean install -f aggregator/pom.xml
+mvn clean package -f event-source/pom.xml
+mvn clean package -f aggregator/pom.xml
 ```
 
 Start Kafka, Kafka Connect, MySQL (or Postgres), event source and aggregator:
 
 ```shell
-export DEBEZIUM_VERSION=1.9
+export DEBEZIUM_VERSION=2.0
 
 # For MySQL
 docker-compose -f docker-compose-mysql.yaml up --build

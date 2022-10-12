@@ -9,7 +9,7 @@
         "database.dbname": "postgres",
         "database.user": "postgres",
         "database.password": "debezium",
-        "database.server.name": "dbserver1",
+        "topic.prefix": "dbserver1",
         "plugin.name": "pgoutput",
         "slot.name": "debezium",
         "publication.name": "dbz_publication",
