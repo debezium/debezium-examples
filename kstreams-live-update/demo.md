@@ -1,7 +1,7 @@
 # Prepare
 
-mvn clean install -f event-source/pom.xml
-mvn clean install -f aggregator/pom.xml
+mvn clean package -f event-source/pom.xml
+mvn clean package -f aggregator/pom.xml
 docker-compose -f docker-compose-mysql up --build
 
 # Console
