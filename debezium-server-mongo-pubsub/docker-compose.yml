@@ -1,6 +1,14 @@
 version: "3.4"
 
 services:
+  mongodb:
+    image: quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    environment:
+      - MONGODB_USER=debezium
+      - MONGODB_PASSWORD=dbz
   debezium-server:
     image: quay.io/debezium/server:${DEBEZIUM_VERSION}
     container_name: debezium-server
