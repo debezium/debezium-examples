@@ -16,7 +16,7 @@ We are using Docker Compose to deploy the following components:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=1.9
+export DEBEZIUM_VERSION=2.0
 docker compose up --build -d
 
 # Initialize MongoDB replica set and insert some test data
