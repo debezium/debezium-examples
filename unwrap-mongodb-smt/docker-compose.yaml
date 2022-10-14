@@ -33,6 +33,8 @@ services:
     image: debezium/connect-jdbc:${DEBEZIUM_VERSION}
     build:
       context: debezium-jdbc
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     links:
