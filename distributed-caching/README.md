@@ -48,6 +48,12 @@ $ http PUT http://localhost:8083/connectors/order-connector/config < register-po
 HTTP/1.1 201 Created
 ```
 
+Or, using kcctl:
+
+```console
+$ kcctl apply -f register-postgres.json
+```
+
 ## Call the various REST-based APIs
 
 Place a "create order" request with the order service:
@@ -59,7 +65,7 @@ $ http POST http://localhost:8080/orders < resources/data/create-order-request.j
 Cancel one of the two order lines:
 
 ```console
-$ http PUT http://localhost:8080/orders/1/lines/2 < resources/data/cancel-order-line-request.json
+$ http PUT http://localhost:8080/orders/1/lines/2 newStatus=CANCELLED version=0
 ```
 
 ## Review the Outcome
