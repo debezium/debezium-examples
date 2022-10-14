@@ -66,7 +66,7 @@ How to run:
 ```shell
 # Start the application
 export DEBEZIUM_VERSION=1.9
-docker compose -f docker-compose-jdbc.yaml up
+docker compose -f docker-compose-jdbc.yaml up --build
 
 # Start PostgreSQL connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @jdbc-sink.json
@@ -220,7 +220,7 @@ How to run:
 # Start the application
 
 export DEBEZIUM_VERSION=1.9
-docker compose -f docker-compose-es.yaml up
+docker compose -f docker-compose-es.yaml up --build
 
 # Start Elasticsearch connector
 
@@ -512,7 +512,7 @@ How to run:
 ```shell
 # Start the application
 export DEBEZIUM_VERSION=1.9
-docker compose up
+docker compose up --build
 
 # Start Elasticsearch connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @es-sink.json
