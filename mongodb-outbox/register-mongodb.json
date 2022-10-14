@@ -3,8 +3,8 @@
     "config": {
         "connector.class" : "io.debezium.connector.mongodb.MongoDbConnector",
         "tasks.max" : "1",
+        "topic.prefix" : "dbserver1",
         "mongodb.hosts" : "rs0/mongodb:27017",
-        "mongodb.name" : "dbserver1",
         "mongodb.user" : "debezium",
         "mongodb.password" : "dbz",
         "database.include.list" : "inventory",
