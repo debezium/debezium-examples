@@ -10,9 +10,9 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <version.debezium>1.9.5.Final</version.debezium>
-        <version.debezium.tag>1.9</version.debezium.tag>
-        <version.quarkus>2.7.2.Final</version.quarkus>
+        <version.debezium>2.0.0.Final</version.debezium>
+        <version.debezium.tag>2.0</version.debezium.tag>
+        <version.quarkus>2.11.0.Final</version.quarkus>
         <version.jandex>1.2.3</version.jandex>
     </properties>
 
@@ -38,6 +38,11 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>3.3.1</version>
+            </dependency>
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-server-pulsar</artifactId>
