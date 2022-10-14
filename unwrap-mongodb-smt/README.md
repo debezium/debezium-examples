@@ -17,10 +17,10 @@ We are using Docker Compose to deploy the following components:
 ```shell
 # Start the application
 export DEBEZIUM_VERSION=1.9
-docker-compose up --build -d
+docker compose up --build -d
 
 # Initialize MongoDB replica set and insert some test data
-docker-compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
+docker compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
 
 # Current host
 # if using docker-machine:
@@ -40,7 +40,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 Check contents of the MongoDB database:
 
 ```shell
-docker-compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory --eval "db.customers.find()"'
+docker compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory --eval "db.customers.find()"'
 
 { "_id" : NumberLong(1001), "first_name" : "Sally", "last_name" : "Thomas", "email" : "sally.thomas@acme.com" }
 { "_id" : NumberLong(1002), "first_name" : "George", "last_name" : "Bailey", "email" : "gbailey@foobar.com" }
@@ -51,7 +51,7 @@ docker-compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD
 Verify that the PostgreSQL database has the same content:
 
 ```shell
-docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
+docker compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
  last_name |  id  | first_name |         email
 -----------+------+------------+-----------------------
  Thomas    | 1001 | Sally      | sally.thomas@acme.com
@@ -66,7 +66,7 @@ docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "se
 Insert a new record into MongoDB:
 
 ```shell
-docker-compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
+docker compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
 
 MongoDB server version: 3.4.10
 rs0:PRIMARY>
@@ -83,7 +83,7 @@ db.customers.insert([
 Verify that PostgreSQL contains the new record:
 
 ```shell
-docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
+docker compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
 
  last_name |  id  | first_name |         email
 -----------+------+------------+-----------------------
@@ -97,7 +97,7 @@ Hopper        | 1005 | Bob       | bob@example.com
 Update a record in MongoDB:
 
 ```shell
-docker-compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
+docker compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
 
 MongoDB server version: 3.4.10
 rs0:PRIMARY>
@@ -117,7 +117,7 @@ db.customers.update(
 Verify that record in PostgreSQL is updated:
 
 ```shell
-docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
+docker compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
 
  last_name |  id  | first_name |         email
 -----------+------+------------+-----------------------
@@ -127,7 +127,7 @@ docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "se
 ```
 
 ```shell
-docker-compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
+docker compose exec mongodb bash -c 'mongo -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory'
 
 MongoDB server version: 3.4.10
 rs0:PRIMARY>
@@ -141,7 +141,7 @@ db.customers.remove(
 Verify that record in PostgreSQL is deleted:
 
 ```shell
-docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
+docker compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB -c "select * from customers"'
 
  last_name |  id  | first_name |         email
 -----------+------+------------+-----------------------
@@ -154,5 +154,5 @@ There should be no record of `Billy Bob Hopper`.
 End application:
 
 ```shell
-docker-compose down
+docker compose down
 ```
