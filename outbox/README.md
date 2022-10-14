@@ -32,11 +32,13 @@ Setup the necessary environment variables
 
 ```console
 $ export DEBEZIUM_VERSION=2.0
+$ export DEBEZIUM_CONNECTOR_VERSION=2.0.0.Final
 $ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
 
-The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
+The `DEBEZIUM_VERSION` specifies which version of Debezium images should be used.
+The `DEBEZIUM_CONNECTOR_VERSION` specifies which version of Debezium connector artifacts should be used.
 The `QUARKUS_BUILD` specifies whether docker-compose will build containers using Quarkus in JVM or Native modes.
 The default is `jvm` for JVM mode but `native` can also be specified to build Quarkus native containers.
   
