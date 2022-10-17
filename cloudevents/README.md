@@ -51,7 +51,7 @@ Examine its contents like so:
 docker run --rm --tty \
   --network cloudevents-network \
   quay.io/debezium/tooling:1.2 \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8081 \
+  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8080 \
   -t customers2 | jq .
 ```
 
@@ -65,7 +65,7 @@ curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" 
 docker run --rm --tty \
   --network cloudevents-network \
   quay.io/debezium/tooling:1.2 \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8081 \
+  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8080 \
   -t dbserver3.inventory.customers | jq .
 ```
 
