@@ -14,12 +14,16 @@ public class CloudEvent {
     public String iodebeziumconnector;
     public String iodebeziumname;
     public String iodebeziumtsms;
-    public boolean iodebeziumsnapshot;
+    public String iodebeziumsnapshot;
     public String iodebeziumdb;
+    public String iodebeziumsequence;
     public String iodebeziumschema;
     public String iodebeziumtable;
     public String iodebeziumtxId;
+    public String iodebeziumtxid;
     public String iodebeziumlsn;
     public String iodebeziumxmin;
+    public String iodebeziumtxtotalorder;
+    public String iodebeziumtxdatacollectionorder;
     public byte[] data;
 }

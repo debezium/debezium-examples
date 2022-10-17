@@ -48,7 +48,7 @@ services:
     networks:
      - my-network
   schema-registry:
-    image: apicurio/apicurio-registry-mem:2.2.5.Final
+    image: apicurio/apicurio-registry-mem:2.3.1.Final
     ports:
      - 8080:8080
     networks:
