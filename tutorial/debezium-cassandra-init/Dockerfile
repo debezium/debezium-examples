@@ -4,7 +4,7 @@ RUN apt-get update && \
     apt-get install -y curl sudo  && \
     sudo apt install -y openjdk-11-jdk
 
-ENV DEBEZIUM_VERSION=2.0.0.CR1 \
+ENV DEBEZIUM_VERSION=2.0.0.Final \
     MAVEN_CENTRAL="https://repo1.maven.org/maven2" \
     CASSANDRA_YAML=/opt/cassandra/conf \
     DEBEZIUM_HOME=/debezium

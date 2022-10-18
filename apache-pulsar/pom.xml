@@ -13,7 +13,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <version.debezium>2.0.0.CR1</version.debezium>
+        <version.debezium>2.0.0.Final</version.debezium>
 	<version.slf4j>1.7.36</version.slf4j>
         <pulsar.version>2.9.3</pulsar.version>
     </properties>
