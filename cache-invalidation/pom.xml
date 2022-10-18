@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <version.debezium>2.0.0.CR1</version.debezium>
+        <version.debezium>2.0.0.Final</version.debezium>
         <version.debezium.tag>2.0</version.debezium.tag>
         <version.hibernate>5.4.24.Final</version.hibernate>
         <version.infinispan>11.0.6.Final</version.infinispan>

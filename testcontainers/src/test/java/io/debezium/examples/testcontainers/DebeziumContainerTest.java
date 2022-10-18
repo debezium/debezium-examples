@@ -85,7 +85,7 @@ public class DebeziumContainerTest {
 
             // host, database, user etc. are obtained from the container
             ConnectorConfiguration config = ConnectorConfiguration.forJdbcContainer(postgresContainer)
-                    .with("database.server.name", "dbserver1");
+                    .with("topic.prefix", "dbserver1");
 
             debeziumContainer.registerConnector("my-connector", config);
 
