@@ -1,7 +1,7 @@
 # Debezium KStreams Example
 
 This demo shows how to join two CDC event streams created by Debezium into a single topic and
-sink the aggregated change events into MongoDB, using the [Kafka Connect MongoDB sink connector(https://github.com/hpgrahsl/kafka-connect-mongodb).
+sink the aggregated change events into MongoDB, using the [Kafka Connect MongoDB sink connector](https://github.com/hpgrahsl/kafka-connect-mongodb).
 
 ## Preparations
 
