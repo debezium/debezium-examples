@@ -28,7 +28,7 @@
         <version.camel>3.0.1</version.camel>
         <version.debezium>1.9.5.Final</version.debezium>
         <version.debezium.tag>1.9</version.debezium.tag>
-        <version.postgresql.driver>42.4.1</version.postgresql.driver>
+        <version.postgresql.driver>42.4.3</version.postgresql.driver>
         <version.org.slf4j>1.7.36</version.org.slf4j>
         <version.quarkus>2.7.2.Final</version.quarkus>
         <version.jackson>2.13.2</version.jackson>
