@@ -8,7 +8,7 @@
     "database.user": "postgresuser",
     "database.password": "postgrespw",
     "database.dbname" : "orderdb",
-    "database.server.name": "dbserver1",
+    "topic.prefix": "dbserver1",
     "decimal.handling.mode" : "string",
     "schema.include.list": "inventory",
     "table.include.list": ".*purchaseorder,.*orderline",
