@@ -9,7 +9,6 @@ services:
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
      - 9093:9093
     links:
      - zookeeper
