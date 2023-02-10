@@ -8,14 +8,14 @@ This example uses a Docker Compose file to set up and deploy Debezium together w
 
 We need following components to collect and present Debezium metrics:
 
- * Debezium instance with [JXM Exporter](https://github.com/prometheus/jmx_exporter) Java agent installed and configured (see [Docker image](debezium-jmx-exporter))
+ * Debezium instance with [JMX Exporter](https://github.com/prometheus/jmx_exporter) Java agent installed and configured (see [Docker image](debezium-jmx-exporter))
  * Prometheus instance to collect and store exported metrics (see [Docker image](debezium-prometheus))
  * Grafana instance presenting the metrics (see [Docker image](debezium-grafana))
 
 ## Execution
 
 ```
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=2.0
 docker-compose up --build
 
 # Initialize database and insert test data

@@ -19,15 +19,10 @@ The deployment consists of the following components
 
 Start the components and register Debezium to stream changes from the database
 ```
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=2.0
 docker-compose up --build
 curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
 ```
-
-Please notice that `gtid.new.channel.position` is set to `earliest`.
-This ensures that Debezium will receive all events that were created on the backup server during failover.
-The other value is `latest`.
-In this case, Debezium will receive only events that were created after the failover.
 
 Create a couple of changes and verify that the GTID is enabled and the transaction ids are associated with change messages.
 Every record (not those created in the snapshot) will have a `gtid` field in the `source` part of change message.

@@ -6,7 +6,7 @@
     "database.user": "orderuser",
     "database.password": "orderpw",
     "database.dbname" : "orderdb",
-    "database.server.name": "dbserver4",
+    "topic.prefix": "dbserver4",
     "schema.include.list": "purchaseorder",
     "table.include.list" : "purchaseorder.sagastate",
     "tombstones.on.delete" : "false",

@@ -51,6 +51,7 @@ services:
     image: debezium-examples/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
     build:
       context: event-source
+      dockerfile: src/main/docker/Dockerfile.jvm
     links:
      - mysql
     environment:
@@ -63,6 +64,7 @@ services:
     image: debezium-examples/kstreams-live-update-aggregator:${DEBEZIUM_VERSION}
     build:
       context: aggregator
+      dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8079:8079
     links:

@@ -13,7 +13,7 @@ The Debezium UI is only available with Debezium version 1.5 and above.
 Launch all the required components for the topology as defined in [tutorial example](../tutorial)
 
 ```shell
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=2.0
 docker-compose up -d
 
 Creating db-mysql  ... done
@@ -36,17 +36,18 @@ You can create Postgres, Mongo DB, MySQL & SQL Server (coming soon) connectors u
 
 For this demo, see the connection properties you can use for each connector type as illustrated below:
 ### MySQL
-**Namespace**: inventory  
+**Topic Prefix**: inventory
+**Cluster ID**: 12345
 **Hostname**: db-mysql  
 **User**: debezium  
 **Password**: dbz  
 **Kafka broker addresses**: kafka:9092  
-**Database history topic name**: dbhistory.inventory  
+**Database schema history topic name**: dbhistory.inventory
 
 ![MySQL Connnector](connMySQL.png)
 
 ### PostgreSQL
-**Namespace**: fulfillment  
+**Topix prefix**: fulfillment
 **Hostname**: db-pg  
 **User**: postgres  
 **Password**: postgres  
@@ -55,10 +56,10 @@ For this demo, see the connection properties you can use for each connector type
 ![PostgreSQL Connector](connPostgres.png)
 
 ### MongoDB
+**Topic prefix**: inventory_mongo
 **Hosts**: db-mongo:27017  
 **User**: admin  
-**Password**: admin  
-**Namespace**: inventory  
+**Password**: admin
 
 ![MongoDB Connector](connMongo.png)
 

@@ -1,0 +1,26 @@
+name: Build [kinesis]
+
+on:
+  push:
+    paths:
+      - 'kinesis/**'
+      - '.github/workflows/kinesis-workflow.yml'
+  pull_request:
+    paths:
+      - 'kinesis/**'
+      - '.github/workflows/kinesis-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('apache-pulsar/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [kinesis] example
+        run: cd kinesis && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

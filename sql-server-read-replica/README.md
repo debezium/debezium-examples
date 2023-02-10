@@ -36,7 +36,7 @@ This demo automatically deploys the topology of services to stream from SQL Serv
 
 ```shell
 # Start the topology with two SQL Servers
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=2.0
 docker-compose up
 
 # Initialize database and insert test data
@@ -67,7 +67,7 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --bootstrap-server kafka:9092 \
     --from-beginning \
     --property print.key=true \
-    --topic server1.dbo.customers
+    --topic server1.testDB.dbo.customers
 
 # Modify records in the primary database via SQL Server client (do not forget to add `GO` command to execute the statement)
 docker-compose exec primary bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -d testDB'

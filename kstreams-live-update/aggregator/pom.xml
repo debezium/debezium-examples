@@ -10,18 +10,18 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
-        <mvn.compiler.version>3.5.1</mvn.compiler.version>
-        <mvn.dependency.version>3.0.2</mvn.dependency.version>
-        <version.surefire>2.22.0</version.surefire>
+        <mvn.compiler.version>3.8.1</mvn.compiler.version>
+        <mvn.dependency.version>3.1.1</mvn.dependency.version>
+        <version.surefire>3.0.0-M6</version.surefire>
 
-        <version.quarkus>1.3.0.Final</version.quarkus>
-        <version.debezium>1.8.1.Final</version.debezium>
+        <version.quarkus>2.11.0.Final</version.quarkus>
+        <version.debezium>2.0.0.Final</version.debezium>
     </properties>
 
     <dependencyManagement>
@@ -75,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-undertow-websockets</artifactId>
+            <artifactId>quarkus-websockets</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>

@@ -45,23 +45,23 @@ gcloud pubsub topics create tutorial.inventory.customers
 Export environment variable:
 
 ```shell
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=2.0
 ```
 
 Start the containers:
 
 ```shell
-docker-compose up -d --build
+docker compose up -d
 ```
 
-Once everything has started up, test the setup by inserting, updating or deleting some records in the customers table. The logs will appear in Google Cloud Pub/Sub in a few seconds. Xou can get a shell to Postgres by running the following:
+Once everything has started up, test the setup by inserting, updating or deleting some records in the customers table. The logs will appear in Google Cloud Pub/Sub in a few seconds. You can get a shell to Postgres by running the following:
 
 ```shell
-docker-compose exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
+docker compose exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
 ```
 
 Once you're done, stop all the containers:
 
 ```shell
-docker-compose down
+docker compose down
 ```

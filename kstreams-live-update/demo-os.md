@@ -66,11 +66,11 @@ cat <<'EOF' > register-mysql-source.json
         "database.user": "debezium",
         "database.password": "dbz",
         "database.server.id": "184055",
-        "database.server.name": "dbserver1",
+        "topic.prefix": "dbserver1",
         "decimal.handling.mode" : "string",
         "table.include.list": "inventory.orders,inventory.categories",
-        "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "schema.history.internal.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory"
     }
 }
 EOF
@@ -209,11 +209,11 @@ oc exec -c kafka -i my-cluster-kafka-0 -- curl -s -w "\n" -X POST \
         "database.user": "debezium",
         "database.password": "dbz",
         "database.server.id": "184055",
-        "database.server.name": "dbserver1",
+        "topic.prefix": "dbserver1",
         "decimal.handling.mode" : "string",
         "table.include.list": "inventory.orders,inventory.categories",
-        "database.history.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "schema.history.internal.kafka.bootstrap.servers": "my-cluster-kafka-bootstrap:9092",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory"
     }
 }
 EOF

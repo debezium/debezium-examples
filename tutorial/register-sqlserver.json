@@ -3,13 +3,14 @@
     "config": {
         "connector.class" : "io.debezium.connector.sqlserver.SqlServerConnector",
         "tasks.max" : "1",
-        "database.server.name" : "server1",
+        "topic.prefix" : "server1",
         "database.hostname" : "sqlserver",
         "database.port" : "1433",
         "database.user" : "sa",
         "database.password" : "Password!",
-        "database.dbname" : "testDB",
-        "database.history.kafka.bootstrap.servers" : "kafka:9092",
-        "database.history.kafka.topic": "schema-changes.inventory"
+        "database.names" : "testDB",
+        "schema.history.internal.kafka.bootstrap.servers" : "kafka:9092",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory",
+        "database.encrypt": "false"
     }
 }

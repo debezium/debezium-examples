@@ -31,12 +31,14 @@ The `native` profile can be omitted if native image artifacts aren't required.
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.8
+$ export DEBEZIUM_VERSION=2.0
+$ export DEBEZIUM_CONNECTOR_VERSION=2.0.0.Final
 $ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
 
-The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
+The `DEBEZIUM_VERSION` specifies which version of Debezium images should be used.
+The `DEBEZIUM_CONNECTOR_VERSION` specifies which version of Debezium connector artifacts should be used.
 The `QUARKUS_BUILD` specifies whether docker-compose will build containers using Quarkus in JVM or Native modes.
 The default is `jvm` for JVM mode but `native` can also be specified to build Quarkus native containers.
   
@@ -45,7 +47,7 @@ The default is `jvm` for JVM mode but `native` can also be specified to build Qu
 Start all components:
 
 ```console
-$ docker-compose up --build
+$ docker compose up --build
 ```
 
 This executes all configurations set forth by the `docker-compose.yaml` file.
@@ -83,7 +85,7 @@ Examine the events produced by the service using _kafkacat_:
 ```console
 $ docker run --tty --rm \
     --network outbox_default \
-    quay.io/debezium/tooling:1.2 \
+    quay.io/debezium/tooling \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
     -t Order.events | jq .
@@ -92,7 +94,7 @@ $ docker run --tty --rm \
 Examine that the receiving service process the events:
 
 ```console
-$ docker-compose logs shipment-service
+$ docker compose logs shipment-service
 ```
 
 (Look for "Processing '{OrderCreated|OrderLineUpdated}' event" messages in the logs)
@@ -104,7 +106,7 @@ Getting a session in the Postgres DB of the "order" service:
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
-        quay.io/debezium/tooling:1.2 \
+        quay.io/debezium/tooling \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@order-db:5432/orderdb'
 ```
 
@@ -125,7 +127,7 @@ Getting a session in the Postgres DB of the "shipment" service:
 ```console
 $ docker run --tty --rm -i \
         --network outbox_default \
-        quay.io/debezium/tooling:1.2 \
+        quay.io/debezium/tooling \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@shipment-db:5432/shipmentdb'
 ```
 
@@ -148,7 +150,7 @@ Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace
 Start all components:
 
 ```console
-$ docker-compose up --build --scale order-service=0
+$ docker compose up --build --scale order-service=0
 ```
 
 ```console

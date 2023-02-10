@@ -28,7 +28,7 @@ public class AggregatorStarted implements HealthCheck {
     @Override
     public HealthCheckResponse call() {
         return HealthCheckResponse.named("aggregator")
-                .state(streams.state().isRunning())
+                .status(streams.state().equals(KafkaStreams.State.RUNNING))
                 .build();
     }
 }

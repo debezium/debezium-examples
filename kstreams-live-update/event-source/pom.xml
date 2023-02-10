@@ -8,14 +8,14 @@
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <mvn.compiler.version>3.8.0</mvn.compiler.version>
-        <mvn.dependency.version>3.0.2</mvn.dependency.version>
+        <mvn.compiler.version>3.8.1</mvn.compiler.version>
+        <mvn.dependency.version>3.1.1</mvn.dependency.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <version.junit>4.12</version.junit>
+        <java.version>11</java.version>
+        <version.junit>4.13.1</version.junit>
         <version.org.hibernate>5.4.24.Final</version.org.hibernate>
-        <version.org.slf4j>1.7.25</version.org.slf4j>
+        <version.org.slf4j>1.7.36</version.org.slf4j>
     </properties>
 
     <dependencies>
@@ -27,12 +27,12 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.16</version>
+            <version>8.0.28</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.3.3</version>
+            <version>42.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

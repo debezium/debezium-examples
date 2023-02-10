@@ -1,7 +1,7 @@
-FROM quay.io/debezium/connect:1.8
+FROM quay.io/debezium/connect:2.0
 ENV KAFKA_CONNECT_JDBC_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-jdbc
 
-ARG POSTGRES_VERSION=42.2.8
+ARG POSTGRES_VERSION=42.4.1
 ARG KAFKA_JDBC_VERSION=5.3.1
 
 # Deploy PostgreSQL JDBC Driver

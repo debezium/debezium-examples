@@ -73,9 +73,10 @@ public class DatabaseChangeEventListener {
                 .with("database.port", 5432)
                 .with("database.user", "postgresuser")
                 .with("database.password", "postgrespw")
-                .with("database.server.name", "dbserver1")
+                .with("topic.prefix", "dbserver1")
                 .with("database.dbname", "inventory")
-                .with("database.include.list", "public")
+                .with("table.include.list", "public.item")
+                .with("plugin.name", "pgoutput")
                 .with(PostgresConnectorConfig.SNAPSHOT_MODE, SnapshotMode.NEVER)
                 .build();
 

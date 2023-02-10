@@ -22,7 +22,7 @@ $ mvn clean verify
 ```
 
 ```console
-$ export DEBEZIUM_VERSION=1.8
+$ export DEBEZIUM_VERSION=2.0
 $ docker-compose up --build
 ```
 
@@ -47,7 +47,7 @@ As an example, here is the connector for capturing outbox events from the order 
     "database.user": "orderuser",
     "database.password": "orderpw",
     "database.dbname" : "orderdb",
-    "database.server.name": "dbserver1",
+    "topic.prefix": "dbserver1",
     
     /* only capture changes from the outboxevent table */
     "schema.include.list": "purchaseorder",

@@ -7,12 +7,12 @@ This demo explains how to deploy [Debezium Server](https://debezium.io/documenta
 **In the terminal:**
 
 ```shell
-export DEBEZIUM_VERSION=1.8
+export DEBEZIUM_VERSION=2.0
 ```
 
 **In GCP:**
 
-To run this demo you need a GCP service account with the role `pubsub.publisher`. 
+To run this demo you need a GCP service account with the role `pubsub.publisher`.
 
 Create a Pub/Sub topic with the name `tutorial.inventory.customers`.
 
@@ -20,9 +20,9 @@ Now, download the credential JSON file for the service account.
 
 **In this folder:**
 
-Edit the `conf/application.properties` file, and replace `project-id` with your project id. 
+Edit the `conf/application.properties` file, and replace `project-id` with your project id.
 
-Open the `dbz-server-compose.yml` file and replace `/your/path/to/service-account.json` with the path to the credential json file you've downloaded in the previous step.
+Open the `docker-compose.yml` file and replace `/your/path/to/service-account.json` with the path to the credential json file you've downloaded in the previous step.
 
 ## How to run
 
@@ -30,15 +30,15 @@ From the terminal start the MongoDB container:
 
 ```shell
 # Initialize MongoDB
-docker-compose -f mongo-compose.yml up -d --build
+docker compose up -d mongodb
 
 
 # Initialize MongoDB replica set and insert some test data
-docker-compose -f mongo-compose.yml  exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
+docker compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
 
 
 # Initialize Debezium Server
-docker-compose -f dbz-server-compose.yml up -d --build
+docker compose up -d debezium-server
 ```
 
 With all initialized, test the setup inserting, updating or deleting some records in the customers collection. The logs will appear in Google Cloud Pub/Sub in a few seconds.

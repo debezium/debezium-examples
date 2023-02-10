@@ -8,12 +8,12 @@
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <mvn.compiler.version>3.5.1</mvn.compiler.version>
-        <mvn.dependency.version>3.0.2</mvn.dependency.version>
+        <mvn.compiler.version>3.8.1</mvn.compiler.version>
+        <mvn.dependency.version>3.1.1</mvn.dependency.version>
         <apache.kafka.version>1.0.0</apache.kafka.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
     </properties>
 
     <dependencies>

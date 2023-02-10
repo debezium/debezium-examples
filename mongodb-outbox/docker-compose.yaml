@@ -1,4 +1,5 @@
-version: '2.1'
+version: '3'
+
 services:
   jaeger:
     image: jaegertracing/all-in-one:1
@@ -33,6 +34,9 @@ services:
     image: debezium/strimzi-connect
     build:
       context: debezium-strimzi
+      args:
+        DEBEZIUM_CONNECTOR_VERSION: "${DEBEZIUM_CONNECTOR_VERSION:-2.0.0.Final}"
+        STRIMZI_VERSION: "${STRIMZI_VERSION:-latest-kafka-3.3.1}"
     ports:
       - 8083:8083
     links:

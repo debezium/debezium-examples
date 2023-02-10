@@ -19,7 +19,7 @@ Amongst other things, this allows building a native binary of each service, resu
 Prepare the Java components by first performing a Maven build.
 
 ```console
-$ mvn clean verify -f aggregator/pom.xml
+$ mvn clean package -f aggregator/pom.xml
 ```
 
 ## Environment
@@ -27,7 +27,7 @@ $ mvn clean verify -f aggregator/pom.xml
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=1.8
+$ export DEBEZIUM_VERSION=2.0
 $ export QUARKUS_BUILD=jvm
 ```
 

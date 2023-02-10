@@ -10,20 +10,18 @@ The configuration option is configured either via `application.properties` confi
 
 As an example, when setting `mapper.prefix` to the value `superprefix`, then a message intended to be delivered to the topic `server.schema.table` would be routed to topic `superprefix.server.schema.table`.
 
-
 ## Topology
 
 This demo uses Apache Pulsar as the sink and the standard Debezium example PostgreSQL database.
 Both Apache Pulsar and the source database are deployed via Docker Compose file.
-
 
 ## How to run
 
 From terminal start the source database and the sink system:
 
 ```
-$ export DEBEZIUM_VERSION=1.8
-$ docker-compose up
+$ export DEBEZIUM_VERSION=2.0
+$ docker compose up
 ```
 
 In another terminal build the custom naming policy class and the runner JAR to start the application:
@@ -41,7 +39,7 @@ $ java -jar target/quarkus-app/quarkus-run.jar
 In another terminal check the created topics:
 
 ```
-docker-compose exec pulsar bin/pulsar-admin broker-stats topics -i
+docker compose exec pulsar bin/pulsar-admin broker-stats topics -i
 ```
 
 The resulting topic list should contain for example a topic named

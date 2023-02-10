@@ -9,12 +9,13 @@
     <packaging>war</packaging>
 
     <properties>
-        <mvn.compiler.version>3.5.1</mvn.compiler.version>
-        <mvn.dependency.version>3.0.2</mvn.dependency.version>
-        <apache.kafka.version>2.5.0</apache.kafka.version>
+        <mvn.compiler.version>3.8.1</mvn.compiler.version>
+        <mvn.dependency.version>3.1.1</mvn.dependency.version>
+        <mvn.war.version>3.3.2</mvn.war.version>
+        <apache.kafka.version>3.2.0</apache.kafka.version>
         <version.thorntail>2.5.0.Final</version.thorntail>
-        <version.org.slf4j>1.7.25</version.org.slf4j>
-        <version.com.fasterxml.jackson>2.9.8</version.com.fasterxml.jackson>
+        <version.org.slf4j>1.7.36</version.org.slf4j>
+        <version.com.fasterxml.jackson>2.13.2</version.com.fasterxml.jackson>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
@@ -142,6 +143,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${mvn.war.version}</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

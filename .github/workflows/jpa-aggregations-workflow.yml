@@ -1,0 +1,28 @@
+name: Build [jpa-aggregations]
+
+on:
+  push:
+    paths:
+      - 'jpa-aggregations/**'
+      - '.github/workflows/jpa-aggregations-workflow.yml'
+  pull_request:
+    paths:
+      - 'jpa-aggregations/**'
+      - '.github/workflows/jpa-aggregations-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('apache-pulsar/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [jpa-aggregations | jpa-test] example
+        run: cd jpa-aggregations && mvn clean install -f jpa-test/pom.xml -DskipTests -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [jpa-aggregations | json-smt-es] example
+        run: cd jpa-aggregations && mvn clean install -f json-smt-es/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
