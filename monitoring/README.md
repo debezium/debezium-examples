@@ -19,7 +19,7 @@ export DEBEZIUM_VERSION=2.0
 docker-compose up --build
 
 # Initialize database and insert test data
-cat inventory.sql | docker exec -i monitoring_sqlserver_1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
+cat inventory.sql | docker exec -i monitoring-sqlserver-1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
 
 # Start SQL Server connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-sqlserver.json
