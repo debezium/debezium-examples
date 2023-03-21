@@ -72,6 +72,7 @@ services:
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - ENABLE_DEBEZIUM_KC_REST_EXTENSION=true
       - ENABLE_DEBEZIUM_SCRIPTING=true
       - CONNECT_REST_EXTENSION_CLASSES=io.debezium.kcrestextension.DebeziumConnectRestExtension
     networks:
