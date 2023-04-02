@@ -4,7 +4,7 @@ This demo accompanies the blog post [Querying Debezium Change Data Events With K
 
 ```shell
 # Start the Kafka, Kafka Connect, KSQL server and CLI etc.
-export DEBEZIUM_VERSION=2.0
+export DEBEZIUM_VERSION=2.1
 docker-compose up
 
 # Start Debezium MySQL connector
