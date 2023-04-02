@@ -31,8 +31,8 @@ The `native` profile can be omitted if native image artifacts aren't required.
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=2.0
-$ export DEBEZIUM_CONNECTOR_VERSION=2.0.0.Final
+$ export DEBEZIUM_VERSION=2.1
+$ export DEBEZIUM_CONNECTOR_VERSION=2.1.3.Final
 $ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
