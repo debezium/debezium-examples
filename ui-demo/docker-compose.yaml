@@ -39,7 +39,7 @@ services:
       - ui-network
   db-mongo:
     container_name: db-mongo
-    image: mongo:3.6
+    image: mongo:5.0
     command: ["mongod", "--replSet", "rs0", "--auth"]
     ports:
       - "37017:27017"
@@ -52,7 +52,7 @@ services:
     networks:
       - ui-network
   mongo-initializer:
-    image: mongo:3.6
+    image: mongo:5.0
     networks:
       - ui-network
     depends_on:
