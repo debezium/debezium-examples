@@ -1,4 +1,4 @@
-FROM quay.io/strimzi/kafka:0.30.0-kafka-3.1.0
+FROM quay.io/strimzi/kafka:latest-kafka-3.4.0
 ENV KAFKA_CONNECT_PLUGIN_PATH=/tmp/connect-plugins
 
 RUN mkdir $KAFKA_CONNECT_PLUGIN_PATH &&\
