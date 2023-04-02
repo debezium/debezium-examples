@@ -1,4 +1,4 @@
-FROM quay.io/debezium/connect:2.0
+FROM quay.io/debezium/connect:2.1
 ENV KAFKA_CONNECT_ES_DIR=$KAFKA_CONNECT_PLUGINS_DIR/kafka-connect-elasticsearch
 
 ARG KAFKA_ELASTICSEARCH_VERSION=5.3.2
