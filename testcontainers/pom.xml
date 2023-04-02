@@ -19,7 +19,7 @@
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
-        <version>1.16.1</version>
+        <version>1.17.6</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -103,7 +103,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M6</version>
+        <version>3.0.0-M9</version>
         <configuration>
           <argLine>--enable-preview</argLine>
         </configuration>
