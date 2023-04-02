@@ -18,7 +18,7 @@ which comes with [support for Debezium's connectors](https://pulsar.apache.org/d
 * Start up a single Pulsar node via Docker:
 
 ```
-docker run -it -p 6650:6650 -p 8080:8080 --rm --name pulsar apachepulsar/pulsar:2.9.2 bin/pulsar standalone
+docker run -it -p 6650:6650 -p 8080:8080 --rm --name pulsar apachepulsar/pulsar:2.11.0 bin/pulsar standalone
 ```
 
 * Start up Postgres via Docker, with the example database used in the Debezium tutorial:
