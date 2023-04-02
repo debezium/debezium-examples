@@ -1,5 +1,5 @@
 # 1. Prepare JDK
-FROM fedora:29 as jdk
+FROM fedora:37 as jdk
 
 RUN mkdir /tmp/jdk \
      && cd /tmp/jdk \
@@ -16,7 +16,7 @@ RUN /tmp/jdk/jdk-11.0.1/bin/jlink \
     --output /opt/jre-minimal
 
 # 2. Build
-FROM maven:3.5-jdk-8-alpine as build
+FROM maven:3.8.6-openjdk-11 as build
 
 COPY pom.xml /tmp/poc-ddd-aggregates/
 
