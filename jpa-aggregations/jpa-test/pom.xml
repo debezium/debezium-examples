@@ -14,7 +14,7 @@
 		<version.org.slf4j>1.7.36</version.org.slf4j>
 		<version.jackson>2.13.2</version.jackson>
 		<version.jackson.databind>2.13.2.2</version.jackson.databind>
-		<version.kafka>3.3.1</version.kafka>
+		<version.kafka>3.4.0</version.kafka>
 	</properties>
 
 	<dependencies>
