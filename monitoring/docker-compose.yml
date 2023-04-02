@@ -15,7 +15,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2017-latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     ports:
      - 1433:1433
     environment:
@@ -48,7 +48,7 @@ services:
     build:
       context: debezium-prometheus
       args:
-        PROMETHEUS_VERSION: v2.26.0
+        PROMETHEUS_VERSION: v2.43.0
     ports:
      - 9090:9090
     links:
@@ -57,7 +57,7 @@ services:
     build:
       context: debezium-grafana
       args:
-        GRAFANA_VERSION: 7.5.5
+        GRAFANA_VERSION: 9.4.7
     ports:
      - 3000:3000
     links:
