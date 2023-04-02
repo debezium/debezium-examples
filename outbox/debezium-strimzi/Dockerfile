@@ -1,4 +1,4 @@
-ARG STRIMZI_VERSION=latest-kafka-3.3.1
+ARG STRIMZI_VERSION=latest-kafka-3.4.0
 FROM quay.io/strimzi/kafka:${STRIMZI_VERSION}
 
 ARG DEBEZIUM_CONNECTOR_VERSION=2.1.3.Final
