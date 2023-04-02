@@ -27,7 +27,7 @@ $ mvn clean package -f aggregator/pom.xml
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=2.0
+$ export DEBEZIUM_VERSION=2.1
 $ export QUARKUS_BUILD=jvm
 ```
 
