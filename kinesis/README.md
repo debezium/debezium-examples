@@ -23,7 +23,7 @@ We recommend you remove all resources created for this example afterwards to avo
 We will start a pre-populated MySQL database that is the same as used by the Debezium [tutorial](https://debezium.io/docs/tutorial/):
 
 ```
-docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw quay.io/debezium/example-mysql:2.0
+docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw quay.io/debezium/example-mysql:2.1
 ```
 
 ### Preparing the CLI environment
@@ -75,7 +75,7 @@ This will return a sequence of JSON messages like this:
     "email": "sally.thomas@acme.com"
   },
   "source": {
-    "version": "2.0.0.Final",
+    "version": "2.1.3.Final",
     "name": "kinesis",
     "server_id": 0,
     "ts_sec": 0,
@@ -100,7 +100,7 @@ This will return a sequence of JSON messages like this:
     "email": "gbailey@foobar.com"
   },
   "source": {
-    "version": "2.0.0.Final",
+    "version": "2.1.3.Final",
     "name": "kinesis",
     "server_id": 0,
     "ts_sec": 0,
