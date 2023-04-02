@@ -27,7 +27,7 @@ mvn clean install -f aggregator/pom.xml
 Start Kafka, Kafka Connect, MySQL, event source and aggregator:
 
 ```shell
-export DEBEZIUM_VERSION=1.9
+export DEBEZIUM_VERSION=2.1
 docker-compose up --build
 ```
 
