@@ -22,7 +22,7 @@ services:
      - MONGODB_USER=debezium
      - MONGODB_PASSWORD=dbz
   postgres:
-    image: quay.io/debezium/postgres:9.6
+    image: quay.io/debezium/postgres:11
     ports:
      - "5432:5432"
     environment:
