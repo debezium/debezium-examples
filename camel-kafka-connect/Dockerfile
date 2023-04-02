@@ -1,4 +1,4 @@
-FROM quay.io/debezium/connect:2.0
+FROM quay.io/debezium/connect:2.1
 
 ARG CAMEL_KAFKA_CONNECT_VERSION=0.1.0
 
