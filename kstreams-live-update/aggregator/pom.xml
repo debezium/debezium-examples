@@ -18,9 +18,9 @@
 
         <mvn.compiler.version>3.8.1</mvn.compiler.version>
         <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <version.surefire>3.0.0-M6</version.surefire>
+        <version.surefire>3.0.0-M9</version.surefire>
 
-        <version.quarkus>2.11.0.Final</version.quarkus>
+        <version.quarkus>2.16.5.Final</version.quarkus>
         <version.debezium>2.1.3.Final</version.debezium>
     </properties>
 
