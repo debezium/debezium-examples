@@ -1,7 +1,7 @@
 FROM jboss/wildfly:25.0.0.Final
 
 ADD resources/wildfly/customization /opt/jboss/wildfly/customization/
-RUN mkdir /tmp/pg-driver && cd /tmp/pg-driver && curl -sO https://jdbc.postgresql.org/download/postgresql-42.3.3.jar
+RUN mkdir /tmp/pg-driver && cd /tmp/pg-driver && curl -sO https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
 
 RUN mkdir /tmp/infinispan-modules && \
     cd /tmp/infinispan-modules && \
