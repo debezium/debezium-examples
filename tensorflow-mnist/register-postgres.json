@@ -1,0 +1,19 @@
+{
+    "name": "mnist-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname" : "postgres",
+        "topic.prefix": "tf",
+        "table.include.list": "public.mnist_.*",
+	"key.converter": "org.apache.kafka.connect.storage.StringConverter",
+	"value.converter": "org.apache.kafka.connect.storage.StringConverter",
+	"transforms": "unwrap, mnist",
+	"transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+	"transforms.mnist.type": "io.debezium.transforms.MnistToCsv"
+    }
+}
