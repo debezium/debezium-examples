@@ -20,7 +20,7 @@ If you already download the samples and to re-generate SQL files, run only
 $ ./mnist2sql.py --download
 ```
 
-The sata samples as well as SQL files are located in `postgres` directory.
+The data samples as well as SQL files are located in `postgres` directory.
 
 == Building SMT
 
@@ -51,7 +51,7 @@ $ docker-compose up --build
 ```
 
 It will build custom images for Kafka connect, Postgres and Tensorflow.
-Custom Kafka Connect contains SMT build in preparations step above, Postgres loads training data from traning SQL file and TensorFlow image contains additional TensorFlow dependencies.
+Custom Kafka Connect contains SMT build in preparations step above, Postgres loads training data from training SQL file and TensorFlow image contains additional TensorFlow dependencies.
 Besides these containers Kafka and ZooKeeper containers are started.
 
 == Configure the Debezium connector
