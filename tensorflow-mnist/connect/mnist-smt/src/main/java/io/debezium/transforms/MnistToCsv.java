@@ -13,7 +13,7 @@ public class MnistToCsv<R extends ConnectRecord<R>> implements Transformation<R>
     private static final String LABEL_CONFIG = "label_column";
     private static final String PIXEL_CONFIG = "pixels_column";
     private static final String LABEL_COLUMN_DEFAULT = "label";
-    private static final String PIZELS_COLUMN_DEFAULT = "pixels";
+    private static final String PIXELS_COLUMN_DEFAULT = "pixels";
 
     private String labelFieldName;
     private String pixlesFieldName;
