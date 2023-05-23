@@ -16,22 +16,34 @@ public class CommandLineInterface {
     }
 
     public void run() {
-        if (args.length != 3) {
-            System.err.println("Invalid arguments. Usage: <inputFile> <outputFile> <newValue>");
-            return;
+        if (args.length < 3 || args.length > 4) {
+            System.err.println("Invalid arguments. Usage: <inputFile> <outputFile> <newValue> [optional: <newValue>]");
+            System.exit(1);
         }
 
         File inputFile = new File(args[0]);
         File outputFile = new File(args[1]);
-        String newValue = args[2];
+        String newKey = args[2];
+        String newValue = (args.length == 4) ? args[3] : null;
 
         Map<ByteBuffer, ByteBuffer> originalData = offsetFileController.readOffsetFile(inputFile);
         Map<byte[], byte[]> rawData = new HashMap<>();
 
-        ByteBuffer valueBuffer = ByteBuffer.wrap(newValue.getBytes(StandardCharsets.US_ASCII));
+        ByteBuffer keyBuffer = ByteBuffer.wrap(newKey.getBytes(StandardCharsets.US_ASCII));
+        ByteBuffer valueBuffer = (newValue != null) ? ByteBuffer.wrap(newValue.getBytes(StandardCharsets.US_ASCII)) : null;
 
         for (Map.Entry<ByteBuffer, ByteBuffer> entry : originalData.entrySet()) {
-            rawData.put(entry.getKey().array(), valueBuffer.array());
+            if (newValue != null) {
+                if (entry.getKey().equals(keyBuffer)) {
+                    // update value
+                    rawData.put(entry.getKey().array(), valueBuffer.array());
+                } else {
+                    // insert new entry
+                    rawData.put(keyBuffer.array(), valueBuffer.array());
+                }
+            } else {
+                originalData.remove(keyBuffer);
+            }
         }
 
         offsetFileController.writeOffsetFile(outputFile, rawData);

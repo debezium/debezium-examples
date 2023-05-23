@@ -7,6 +7,7 @@ Offset Editor is a Java application that allows users to read, edit, and save fi
 ## Prerequisites
 
 - Java Development Kit (JDK) 11 or higher
+- Java JFX 16 or higher
 
 ## Building the Project
 
@@ -37,7 +38,11 @@ This will open the Offset Editor window. Follow the steps below to edit and save
 You can run the application using the command-line interface by executing the following command:
 
 ```bash
-java -jar target/OffsetEditor-1.0-SNAPSHOT-jar-with-dependencies.jar <inputFile> <outputFile> <newValue>
+java -jar target/OffsetEditor-1.0-SNAPSHOT-jar-with-dependencies.jar <inputFile> <outputFile> <newKey> <newValue>
 ```
+The required parameters are:
 
-Replace `<inputFile>` with the path to the input file, `<outputFile>` with the path to the output file, and `<newValue>` with the new value to be set.
+- `inputFile`: Path to the input file 
+- `outputFile`: Path to the output file
+- `newKey`: Key to be edited
+- `newValue`: New value for the key (optional)
