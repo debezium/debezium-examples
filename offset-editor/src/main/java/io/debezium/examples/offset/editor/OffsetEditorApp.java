@@ -54,9 +54,9 @@ public class OffsetEditorApp extends Application {
 
     private FileChooser createFileChooser() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select offset.dat File");
+        fileChooser.setTitle("Select offset file");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Offset File", "*.dat"));
+                new FileChooser.ExtensionFilter("Offset File", "*"));
         return fileChooser;
     }
 
@@ -183,14 +183,14 @@ public class OffsetEditorApp extends Application {
         File outputFile = fileChooser.showSaveDialog(tableView.getScene().getWindow());
 
         if (outputFile != null) {
-            Map<byte[], byte[]> raw = new HashMap<>();
+            Map<byte[], byte[]> rawData = new HashMap<>();
             for (Pair pair : data) {
                 byte[] keyArray = pair.getKey().getBytes(StandardCharsets.US_ASCII);
                 byte[] valueArray = pair.getValue().getBytes(StandardCharsets.US_ASCII);
-                raw.put(keyArray, valueArray);
+                rawData.put(keyArray, valueArray);
             }
 
-            offsetFileController.writeOffsetFile(outputFile, raw);
+            offsetFileController.writeOffsetFile(outputFile, rawData);
         }
     }
 

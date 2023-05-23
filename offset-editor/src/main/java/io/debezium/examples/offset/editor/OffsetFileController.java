@@ -15,7 +15,7 @@ public class OffsetFileController {
              ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
             Object obj = objectIn.readObject();
             if (!(obj instanceof HashMap)) {
-                throw new ConnectException("Expected HashMap but found " + obj.getClass());
+                throw new IllegalStateException("Expected HashMap but found " + obj.getClass());
             }
             Map<byte[], byte[]> raw = (Map<byte[], byte[]>) obj;
             for (Map.Entry<byte[], byte[]> mapEntry : raw.entrySet()) {
@@ -23,8 +23,8 @@ public class OffsetFileController {
                 ByteBuffer value = (mapEntry.getValue() != null) ? ByteBuffer.wrap(mapEntry.getValue()) : null;
                 originalData.put(key, value);
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return originalData;
@@ -33,9 +33,9 @@ public class OffsetFileController {
     public void writeOffsetFile(File outputFile, Map<byte[], byte[]> rawData) {
         try (FileOutputStream fileOut = new FileOutputStream(outputFile);
              ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
-            objectOut.writeObject(rawData);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+                objectOut.writeObject(rawData);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
