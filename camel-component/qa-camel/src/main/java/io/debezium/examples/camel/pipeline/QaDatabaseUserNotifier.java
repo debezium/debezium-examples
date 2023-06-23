@@ -62,6 +62,8 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
 
         final AggregateStore store = new AggregateStore();
 
+        getContext().getTypeConverterRegistry().addTypeConverters(new Converters());
+
         from(ROUTE_MAIL_QUESTION_CREATE)
             .routeId(QaDatabaseUserNotifier.class.getName() + ".QuestionNotifier")
             .setHeader("To").simple("${body.email}")
@@ -101,8 +103,8 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                 + "&databasePassword={{database.password}}"
                 + "&databaseDbname=postgres"
                 + "&topicPrefix=qa"
-                + "&schemaWhitelist={{database.schema}}"
-                + "&tableWhitelist={{database.schema}}.question,{{database.schema}}.answer"
+                + "&schemaIncludeList={{database.schema}}"
+                + "&tableIncludeList={{database.schema}}.question,{{database.schema}}.answer"
                 + "&offsetStorage=org.apache.kafka.connect.storage.MemoryOffsetBackingStore")
                 .routeId(QaDatabaseUserNotifier.class.getName() + ".DatabaseReader")
                 .log(LoggingLevel.DEBUG, "Incoming message ${body} with headers ${headers}")
