@@ -12,7 +12,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <database.hostname>localhost</database.hostname>
+        <database.hostname>qa-db</database.hostname>
         <database.port>5432</database.port>
         <database.user>postgres</database.user>
         <database.password>postgres</database.password>
