@@ -109,6 +109,27 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.43.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>run-java-sh</artifactId>
+                        <version>1.3.8</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>copy-run-java-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
