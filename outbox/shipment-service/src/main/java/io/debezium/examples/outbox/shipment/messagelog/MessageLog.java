@@ -8,32 +8,50 @@ package io.debezium.examples.outbox.shipment.messagelog;
 import java.time.Instant;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import javax.transaction.Transactional.TxType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
+import jakarta.inject.Inject;
 
-import org.eclipse.microprofile.opentracing.Traced;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-@Traced
 public class MessageLog {
     private static final Logger LOG = LoggerFactory.getLogger(MessageLog.class);
+
+    @Inject
+    Tracer tracer;
+
+    @Inject
+    Span span;
 
     @PersistenceContext
     EntityManager entityManager;
 
     @Transactional(value=TxType.MANDATORY)
     public void processed(UUID eventId) {
-        entityManager.persist(new ConsumedMessage(eventId, Instant.now()));
+        span = tracer.spanBuilder("processed").startSpan();
+        try (final Scope scope = span.makeCurrent()){
+            entityManager.persist(new ConsumedMessage(eventId, Instant.now()));
+        } finally {
+            span.end();
+        }
     }
 
     @Transactional(value=TxType.MANDATORY)
     public boolean alreadyProcessed(UUID eventId) {
         LOG.debug("Looking for event with id {} in message log", eventId);
-        return entityManager.find(ConsumedMessage.class, eventId) != null;
+        span = tracer.spanBuilder("alreadyProcessed").startSpan();
+        try (final Scope scope = span.makeCurrent()){
+            return entityManager.find(ConsumedMessage.class, eventId) != null;
+        } finally {
+            span.end();
+        }
     }
 }

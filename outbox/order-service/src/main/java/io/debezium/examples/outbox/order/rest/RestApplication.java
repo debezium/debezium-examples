@@ -5,8 +5,8 @@
  */
 package io.debezium.examples.outbox.order.rest;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 /**
  * Defines the application path for the Order Service rest application.

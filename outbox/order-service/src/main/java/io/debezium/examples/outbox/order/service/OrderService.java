@@ -5,12 +5,12 @@
  */
 package io.debezium.examples.outbox.order.service;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import io.debezium.examples.outbox.order.event.InvoiceCreatedEvent;
 import io.debezium.examples.outbox.order.event.OrderCreatedEvent;

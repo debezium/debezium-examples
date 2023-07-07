@@ -11,8 +11,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.common.header.Header;
 import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
@@ -20,9 +20,9 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.opentracing.Scope;
-import io.opentracing.Tracer;
-import io.opentracing.contrib.kafka.TracingKafkaUtils;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.Span;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped
@@ -36,18 +36,21 @@ public class KafkaEventConsumer {
     @Inject
     Tracer tracer;
 
+    @Inject
+    Span span;
+
     @Incoming("orders")
     @Acknowledgment(Acknowledgment.Strategy.MANUAL)
     public CompletionStage<Void> onMessage(KafkaRecord<String, String> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
-                final Tracer.SpanBuilder spanBuilder = tracer.buildSpan("orders")
-                        .asChildOf(TracingKafkaUtils.extractSpanContext(message.getHeaders(), tracer));
-                try (final Scope span = tracer.scopeManager().activate(spanBuilder.start())) {
+                span = tracer.spanBuilder("onMessage").startSpan();
+                try (final Scope scope = span.makeCurrent()){
                     LOG.debug("Kafka message with key = {} arrived", message.getKey());
-    
+                    span.addEvent("Kafka message with key = "+message.getKey()+" arrived");
+
                     String eventId = getHeaderAsString(message, "id");
                     String eventType = getHeaderAsString(message, "eventType");
-    
+
                     orderEventHandler.onOrderEvent(
                             UUID.fromString(eventId),
                             eventType,
@@ -57,10 +60,15 @@ public class KafkaEventConsumer {
                     );
 
                     message.ack();
+                    span.addEvent("ack");
                 }
                 catch (Exception e) {
                     LOG.error("Error while preparing shipment");
+                    span.addEvent("Error while preparing shipment");
                     throw e;
+                }
+                finally {
+                    span.end();
                 }
         });
     }

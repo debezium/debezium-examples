@@ -12,10 +12,9 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium-quarkus>2.1.3.Final</version.debezium-quarkus>
-    <version.quarkus>2.16.5.Final</version.quarkus>
+    <version.debezium-quarkus>2.4.0-SNAPSHOT</version.debezium-quarkus>
+    <version.quarkus>3.0.0.Final</version.quarkus>
     <version.surefire>3.0.0-M9</version.surefire>
-    <version.kafka.opentracing>0.33.0</version.kafka.opentracing>
   </properties>
 
   <dependencyManagement>
