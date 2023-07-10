@@ -1,0 +1,15 @@
+[
+  {
+    "httpRequest" : {
+      "method" : "GET",
+      "path" : "/api/signal",
+      "queryStringParameters" : {
+        "code" : ["10969"]
+      }
+    },
+    "httpResponse" : {
+      "body": "{\"id\":\"924e3ff8-2245-43ca-ba77-2af9af02fa07\",\"type\":\"log\",\"data\":{\"message\": \"Signal message received from http endpoint.\"}}",
+      "statusCode": 200
+    }
+  }
+]
