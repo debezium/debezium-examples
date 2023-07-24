@@ -88,17 +88,13 @@ services:
         config.storage.replication.factor=1
         status.storage.topic=connect-status
         status.storage.replication.factor=1
-        consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
-        producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
-      - OTEL_JAVAAGENT_ENABLED=true
-      - OTEL_INSTRUMENTATION_OPENTELEMETRY_API_ENABLED=true;
+        producer.interceptor.classes=io.debezium.tracing.DebeziumTracingProducerInterceptor
       - OTEL_SERVICE_NAME=kafka-connect
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=none
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
       - OTEL_TRACES_SAMPLER=always_on
-      - OTEL_INSTRUMENTATION_KAFKA_ENABLED="false"
-    #     - STRIMZI_TRACING=opentelemetry
+      - STRIMZI_TRACING=opentelemetry
     command: /opt/kafka/kafka_connect_run.sh
   order-service:
     image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}
