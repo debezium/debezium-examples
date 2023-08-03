@@ -17,4 +17,4 @@ COPY "debezium-interceptor-2.4.0-SNAPSHOT.jar" $KAFKA_CONNECT_LIBS
 
 RUN mkdir $KAFKA_CONNECT_PLUGIN_PATH &&\
     cd $KAFKA_CONNECT_PLUGIN_PATH &&\
-    tar xzvf /debezium-connector-postgres-2.4.0-SNAPSHOT-plugin.tar.gz \
+    tar xzvf /debezium-connector-postgres-2.4.0-SNAPSHOT-plugin.tar.gz
