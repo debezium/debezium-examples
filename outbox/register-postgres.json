@@ -13,6 +13,5 @@
     "transforms" : "outbox",
     "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
     "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
-    "transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
-    "producer.override.interceptor.classes" : "io.debezium.tracing.DebeziumTracingProducerInterceptor"
+    "transforms.outbox.table.fields.additional.placement" : "type:header:eventType"
 }
