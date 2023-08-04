@@ -26,7 +26,7 @@
         <mysql.init.timeout>30000</mysql.init.timeout>
 
         <version.camel>4.0.0-RC2</version.camel>
-        <version.debezium>2.3.0.Final</version.debezium>
+        <version.debezium>2.3.2.Final</version.debezium>
         <version.debezium.tag>2.3</version.debezium.tag>
         <version.postgresql.driver>42.6.0</version.postgresql.driver>
         <version.org.slf4j>1.7.36</version.org.slf4j>
