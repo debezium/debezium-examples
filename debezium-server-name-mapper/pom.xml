@@ -13,8 +13,8 @@
         <version.debezium>2.3.2.Final</version.debezium>
         <version.debezium.tag>2.3</version.debezium.tag>
         <version.quarkus>3.2.3.Final</version.quarkus>
-        <version.jandex>1.2.3</version.jandex>
         <version.kafka>3.5.0</version.kafka>
+        <version.jandex.plugin>3.1.2</version.jandex.plugin>
     </properties>
 
     <dependencyManagement>
@@ -70,9 +70,9 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.jboss.jandex</groupId>
+                <groupId>io.smallrye</groupId>
                 <artifactId>jandex-maven-plugin</artifactId>
-                <version>${version.jandex}</version>
+                <version>${version.jandex.plugin}</version>
                 <executions>
                     <execution>
                         <id>make-index</id>
