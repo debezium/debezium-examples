@@ -12,7 +12,7 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium-quarkus>2.4.0-SNAPSHOT</version.debezium-quarkus>
+    <version.debezium-quarkus>2.4.0.Alpha2</version.debezium-quarkus>
     <version.quarkus>3.0.0.Final</version.quarkus>
     <version.surefire>3.0.0-M9</version.surefire>
   </properties>
