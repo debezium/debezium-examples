@@ -1,0 +1,304 @@
+= Iris classification using streaming k-means
+
+== Introduction
+
+This demo shows how to use Debezium for streaming data from the database to an https://en.wikipedia.org/wiki/Online_machine_learning[online machine learning] model.
+Online machine learning model is trained/updated as the new training data arrives and thus can provide better or more up-to-date predictions immediately and without the need to re-train the model.
+
+As an example is use well known https://en.wikipedia.org/wiki/Iris_flower_data_set[Iris flower data set], commonly used in ML tutorials.
+The goal is to determine the specie of the iris based on couple of measurements of iris flower, namely  sepal length, sepal width, petal length and petal width.
+We use streaming variant of https://en.wikipedia.org/wiki/K-means_clustering[k-means] cluster model for the iris classification.
+The demo is implemented in two popular data processing frameworks,  https://flink.apache.org/[Apache Flink] and https://spark.apache.org/[Apache Spark].
+Both of them also provides machine learning library and implementation of streaming k-means model is available in both of them.
+
+The main goal of this demo is to show complete pipeline, how to stream data from the database immediately once it arrives into the online ML model.
+We don't aim for the most accurate model, but rather show the whole pipeline with simple and easy to understand example.
+Therefore we have chosen well known dataset and online algorithm available in Flink/Spark ML library.
+
+== Preparing the data
+
+You can download Iris data set elsewhere from the Internet and it's also available pre-processed e.g. in https://scikit-learn.org[scikit-learn] toolkit.
+We would need to divide the original data sample into three sub-samples - two for training and one testing.
+The first training data sample will be used for initial training.
+This data sample is intentionally very small to get not very good predictions when we run the model for the first time.
+After we load second training dataset into the database, we would expect the accuracy of the model would increase.
+
+You can use the following Python script for generating all three SQL files.
+
+```
+$ ./iris2sql.py
+```
+
+The files are located in `postgres` directory of this demo.
+`train1.sql` will be loaded automatically into Postgres database upon its start.
+`test.sql` and `train2.sql` needs to be loaded manually into the database later on.
+
+== Classification with Apache Flink
+
+=== Building Flink application
+
+First we need to build our Flink application:
+
+```
+$ mvn clean package -f iris-flink/pom.xml
+```
+
+The resulting jar file with the application and all its dependencies will be included into our custom image of Apache Flink.
+It's named `debezium/iris-flink` and it's build by Docker compose upon its start if the image doesn't exists.
+Therefore, anytime you change the application, you need to not only re-compile it, but also delete old container image, which contains obsolete jar file and let the Docker to build the new one.
+
+=== Start the demo
+
+Now you can start all the required components of the demo:
+
+```
+$ docker compose -f docker-compose-flink.yaml up
+```
+
+
+Once all the components run, you can register Postgres Debezium connector to start streaming the training data from Postgres database into Kafka:
+
+```
+$ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-flink.json
+```
+
+We have initial training data in the database, thus upon registration of Debezium connector corresponding topic for the training data will be created in the Kafka.
+As the Flink integration with Kafka requires the topics from which Flink streams will be created to exist, we need to create our test topic first, as we haven't push any test data into the database yet:
+
+```
+$ docker compose -f docker-compose-flink.yaml exec kafka /kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1  --topic flink.public.iris_test
+```
+
+Now we can submit our application into Flink:
+
+```
+$ docker compose -f docker-compose-flink.yaml exec jobmanager bin/flink run debezium-flink-0.1.jar
+```
+
+You can check the application status (also it's graph and other things) in the Flink UI, which is available on http://localhost:8081/.
+
+== Evaluating the model
+
+We will interact with the model by inserting new records into the Postgres database.
+First we will export `postgres` user password:
+
+```
+$ export PGPASSWORD=postgres
+```
+
+Now we can insert our test data sample into the database:
+
+```
+$ psql -h localhost -U postgres -f postgres/iris_test.sql
+```
+
+To see the prediction of our model, read `iris_predictions` Kafka topic:
+
+```
+$ docker compose -f docker-compose-flink.yaml exec kafka /kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --from-beginning --topic iris_predictions
+```
+
+You can see something like this:
+
+```
+[5.4, 3.7, 1.5, 0.2] is classified as 0
+[4.8, 3.4, 1.6, 0.2] is classified as 0
+[7.6, 3.0, 6.6, 2.1] is classified as 2
+[6.4, 2.8, 5.6, 2.2] is classified as 2
+[6.0, 2.7, 5.1, 1.6] is classified as 2
+[5.4, 3.0, 4.5, 1.5] is classified as 2
+[6.7, 3.1, 4.7, 1.5] is classified as 2
+[5.5, 2.4, 3.8, 1.1] is classified as 2
+[6.1, 2.8, 4.7, 1.2] is classified as 2
+[4.3, 3.0, 1.1, 0.1] is classified as 0
+[5.8, 2.7, 3.9, 1.2] is classified as 2
+```
+
+The correct answer are 
+
+```
+[5.4, 3.7, 1.5, 0.2] is 0
+[4.8, 3.4, 1.6, 0.2] is 0
+[7.6, 3.0, 6.6, 2.1] is 2
+[6.4, 2.8, 5.6, 2.2] is 2
+[6.0, 2.7, 5.1, 1.6] is 1
+[5.4, 3.0, 4.5, 1.5] is 1
+[6.7, 3.1, 4.7, 1.5] is 1
+[5.5, 2.4, 3.8, 1.1] is 1
+[6.1, 2.8, 4.7, 1.2] is 1
+[4.3, 3.0, 1.1, 0.1] is 0
+[5.8, 2.7, 3.9, 1.2] is 1
+```
+
+so we have only 5 data points of of 11 correctly classified.
+This is not very good, but this is expected, as our initial training sample was very small.
+
+Let's see how the things change when we supply more training data into the model:
+
+```
+$ psql -h localhost -U postgres -f postgres/iris_train2.sql
+```
+
+To see the updated predictions, we insert the same test data sample again into the database:
+
+```
+$ psql -h localhost -U postgres -f postgres/iris_test.sql
+```
+
+Now we get
+
+```
+[5.4, 3.7, 1.5, 0.2] is classified as 0
+[4.8, 3.4, 1.6, 0.2] is classified as 0
+[7.6, 3.0, 6.6, 2.1] is classified as 2
+[6.4, 2.8, 5.6, 2.2] is classified as 2
+[6.0, 2.7, 5.1, 1.6] is classified as 2
+[5.4, 3.0, 4.5, 1.5] is classified as 2
+[6.7, 3.1, 4.7, 1.5] is classified as 2
+[5.5, 2.4, 3.8, 1.1] is classified as 1
+[6.1, 2.8, 4.7, 1.2] is classified as 2
+[4.3, 3.0, 1.1, 0.1] is classified as 0
+[5.8, 2.7, 3.9, 1.2] is classified as 1
+```
+
+which is better as we have now also all three categories present and have correctly classified 7 out of 11 data points.
+
+As the data sample is pretty small, we can re-use second data sample for further model training:
+
+```
+$ psql -h localhost -U postgres -f postgres/iris_train2.sql
+$ psql -h localhost -U postgres -f postgres/iris_test.sql
+```
+
+resulting into
+
+```
+[5.4, 3.7, 1.5, 0.2] is classified as 0
+[4.8, 3.4, 1.6, 0.2] is classified as 0
+[7.6, 3.0, 6.6, 2.1] is classified as 2
+[6.4, 2.8, 5.6, 2.2] is classified as 2
+[6.0, 2.7, 5.1, 1.6] is classified as 2
+[5.4, 3.0, 4.5, 1.5] is classified as 1
+[6.7, 3.1, 4.7, 1.5] is classified as 2
+[5.5, 2.4, 3.8, 1.1] is classified as 1
+[6.1, 2.8, 4.7, 1.2] is classified as 1
+[4.3, 3.0, 1.1, 0.1] is classified as 0
+[5.8, 2.7, 3.9, 1.2] is classified as 1
+```
+
+So we end up with 9 data point correctly classified out of 11 data points.
+This is still not an excellent result, but as mentioned at the beginning, we don't aim for the best results.
+The main motivation here is to show the whole pipeline and demonstrate that the model improves the predictions as the new data are available in the database, without any model re-training and re-deployment.
+
+=== Cleanup
+
+To stop the containers, run
+
+```
+$ docker compose -f docker-compose-flink.yaml down
+```
+
+== Classification with Apache Spark
+
+=== Building Spark application
+
+Similarly to the Flink example, we need to build the Spark application first:
+
+```
+$ mvn clean package -f iris-spark/pom.xml
+```
+
+
+=== Start the demo
+
+To run the demo, launch Docker compose for Spark:
+
+```
+$ docker compose -f docker-compose-spark.yaml up
+```
+
+and once all the components run, register Debezium connector for Postgres database:
+
+```
+$ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres-spark.json
+```
+
+The all what needs to be done.
+Spark integration with Kafka doesn't require the corresponding Kafka topics to exist in advance, so our Spark application can be started directly from Docker compose.
+
+== Evaluating the model
+
+Model evaluation can be done in the similar way as for Flink, by inserting test sample and the second training sample into the database.
+There are two type of data streams in Spark, older https://spark.apache.org/docs/latest/streaming-programming-guide.html[DStreams] and more modern https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html[structured streaming].
+Spark ML library which contains streaming k-means model works only with older DStreams.
+However, writing the streams back to Kafka seems to be possible only with Structured streaming and there doesn't seem to be any easy way how to do it for the DStreams.
+Therefore predictions are printed only in the console and we need to check Spark logs to see them:
+
+```
+$ docker compose -f docker-compose-spark.yaml logs spark |grep "\([0-9]\.[0-9],[0-9]\)"
+```
+
+The predictions contains also the correct label for given data point, so you can immediately see if the prediction is correct or not.
+Initial predictions look like this:
+
+```
+spark_1      | (0.0,1)
+spark_1      | (0.0,1)
+spark_1      | (2.0,2)
+spark_1      | (2.0,2)
+spark_1      | (1.0,1)
+spark_1      | (1.0,1)
+spark_1      | (1.0,2)
+spark_1      | (1.0,1)
+spark_1      | (1.0,1)
+spark_1      | (0.0,1)
+spark_1      | (1.0,1)
+```
+
+The first float number of the tuple is the label and the second integer number in the tuple is Spark model prediction.
+
+Predictions after the loading second traning sample into the database is
+
+```
+spark_1      | (0.0,1)
+spark_1      | (0.0,1)
+spark_1      | (2.0,2)
+spark_1      | (2.0,2)
+spark_1      | (1.0,0)
+spark_1      | (1.0,0)
+spark_1      | (1.0,2)
+spark_1      | (1.0,1)
+spark_1      | (1.0,0)
+spark_1      | (0.0,1)
+spark_1      | (1.0,1)
+```
+
+and if we pass the second training data sample once again, we get
+
+```
+spark_1      | (0.0,1)
+spark_1      | (0.0,1)
+spark_1      | (2.0,2)
+spark_1      | (2.0,2)
+spark_1      | (1.0,0)
+spark_1      | (1.0,0)
+spark_1      | (1.0,0)
+spark_1      | (1.0,0)
+spark_1      | (1.0,0)
+spark_1      | (0.0,1)
+spark_1      | (1.0,0)
+```
+
+The tricky part is that the predictions here are the number of the clusters to which given data point is assigned.
+However, the numbering order of the clusters in the Spark doesn't have to be the same as the numbering order of the labels in the original dataset.
+So in this particular example label 0 corresponds to Spark cluster number 1 and vice versa.
+Label 2 corresponds for Spark cluster number 2.
+So in the final round Spark model classified all test data points correctly.
+
+=== Clenaup
+
+To stop the containers, run
+
+```
+$ docker compose -f docker-compose-spark.yaml down
+```

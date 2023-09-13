@@ -1,0 +1,20 @@
+{
+    "name": "iris-connector-flink",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname" : "postgres",
+        "topic.prefix": "flink",
+        "table.include.list": "public.iris_.*",
+	"key.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"value.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"key.converter.schemas.enable": "true",
+	"value.converter.schemas.enable": "true",
+	"transforms": "unwrap",
+	"transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState"
+    }
+}
