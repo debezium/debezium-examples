@@ -1,0 +1,20 @@
+{
+    "name": "iris-connector-spark",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname" : "postgres",
+        "topic.prefix": "spark",
+        "table.include.list": "public.iris_.*",
+	"key.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"value.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"key.converter.schemas.enable": "false",
+	"value.converter.schemas.enable": "false",
+	"transforms": "unwrap",
+	"transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState"
+    }
+}

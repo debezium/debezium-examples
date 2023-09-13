@@ -1,0 +1,62 @@
+version: '2.2'
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:2.4
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    image: quay.io/debezium/kafka:2.4
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+  connect:
+    image: quay.io/debezium/connect:2.4
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - postgres
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+  postgres:
+    image: debezium/postgres-iris
+    build:
+      context: ./postgres
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  jobmanager:
+    image: debezium/iris-flink
+    build:
+      context: ./iris-flink
+    command: jobmanager
+    ports:
+      - 8081:8081
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+    links:
+     - kafka
+  taskmanager:
+    image: debezium/iris-flink
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2 
