@@ -3,7 +3,7 @@
 The purpose of this demo is to show a complete machine learning pipeline including loading and streaming data from the database. 
 The demo classifies handwritten digits from http://yann.lecun.com/exdb/mnist/[MNIST data sample] using simple neural-network model build and run with https://www.tensorflow.org/[TensorFlow].
 The training data sample as well as test sample is stored in Postgres database.
-It accompanies http://TBD[this] post on the Debezium blog.
+It accompanies https://debezium.io/blog/2023/05/02/tensorflow-mnist-classification/[this] post on the Debezium blog.
 
 == Preparing the data
 
