@@ -25,16 +25,16 @@
 
         <mysql.init.timeout>30000</mysql.init.timeout>
 
-        <version.camel>4.0.0-M3</version.camel>
-        <version.debezium>2.3.0.Final</version.debezium>
+        <version.camel>4.0.0-RC2</version.camel>
+        <version.debezium>2.3.2.Final</version.debezium>
         <version.debezium.tag>2.3</version.debezium.tag>
-        <version.postgresql.driver>42.5.1</version.postgresql.driver>
+        <version.postgresql.driver>42.6.0</version.postgresql.driver>
         <version.org.slf4j>1.7.36</version.org.slf4j>
-        <version.quarkus>3.0.0.Final</version.quarkus>
-        <version.jackson>2.13.4</version.jackson>
-        <version.kafka>3.4.0</version.kafka>
-        <version.plugin.docker>0.31.0</version.plugin.docker>
-        <version.plugin.shade>3.2.1</version.plugin.shade>
+        <version.quarkus>3.2.3.Final</version.quarkus>
+        <version.jackson>2.13.5</version.jackson>
+        <version.kafka>3.5.0</version.kafka>
+        <version.plugin.docker>0.40.2</version.plugin.docker>
+        <version.plugin.shade>3.5.0</version.plugin.shade>
     </properties>
 
     <modules>

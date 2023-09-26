@@ -5,7 +5,7 @@
  */
 package io.debezium.example.server.mapper;
 
-import javax.enterprise.context.Dependent;
+import jakarta.enterprise.context.Dependent;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
