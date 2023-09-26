@@ -1,0 +1,38 @@
+version: '3.9'
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    container_name: postgres
+    ports:
+     - "5432:5432"
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  mongodb:
+    image: quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGODB_USER=debezium
+      - MONGODB_PASSWORD=dbz
+  debezium-server-postgres:
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    container_name: debezium-server
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials/service-account.json
+    ports:
+      - "8080:8080"
+    volumes:
+      - /your/path/to/service-account.json:/tmp/credentials/service-account.json
+      - ./config-postgres:/debezium/conf
+  debezium-server-mongodb:
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    container_name: debezium-server
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials/service-account.json
+    ports:
+      - "8080:8080"
+    volumes:
+      - /your/path/to/service-account.json:/tmp/credentials/service-account.json
+      - ./config-mongodb:/debezium/conf
