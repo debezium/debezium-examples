@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   postgres:
-    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:2.4.0.CR1 #${DEBEZIUM_VERSION}
     container_name: postgres
     ports:
      - 5432:5432
@@ -9,12 +9,19 @@ services:
      - POSTGRES_USER=postgres
      - POSTGRES_PASSWORD=postgres
   debezium-server:
-    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    image: debezium-server:local
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     container_name: debezium-server
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/credentials/service-account.json
+      OTEL_ENABLED: "true"
+      ENABLE_OTEL: "true"
+      # OTEL_JAVAAGENT_ENABLED: "true"
+      CLASSPATH: /debezium/lib/opentelemetry-api-1.30.0.jar:/debezium/lib/opentelemetry-context-1.30.0.jar:/debezium/lib/opentelemetry-extension-trace-propagators-1.30.0.jar:/debezium/lib/opentelemetry-instrumentation-api-1.30.0.jar:/debezium/lib/opentelemetry-instrumentation-api-semconv-1.30.0-alpha.jar:/debezium/lib/opentelemetry-javaagent.jar:/debezium/lib/opentelemetry-sdk-1.30.0.jar:/debezium/lib/opentelemetry-sdk-trace-1.30.0.jar:/debezium/lib/opentelemetry-semconv-1.30.0-alpha.jar:/debezium/lib/quarkus-opentelemetry-3.4.1.jar
     ports:
       - "8080:8080"
     volumes:
-      - /your/path/to/service-account.json:/tmp/credentials/service-account.json
+      - /Users/chris/.config/gcloud/application_default_credentials.json:/tmp/credentials/service-account.json
       - ./conf:/debezium/conf

@@ -1,0 +1,4 @@
+java oracle-graalvm-20.0.2
+maven 3.9.4
+httpie-go 0.7.0
+gradle 8.3
