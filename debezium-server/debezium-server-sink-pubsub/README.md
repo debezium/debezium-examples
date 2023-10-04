@@ -91,17 +91,18 @@ Start the database container:
 docker compose up -d mongodb
 ```
 
+Initialize MongoDB replica set and insert some test data
+
+```shell
+docker compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
+```
+
 Start Debezium Server:
 
 ```shell
 docker compose up -d debezium-server-mongodb
 ```
 
-Test the setup by making changes to the customers table. The logs will appear in Google Cloud Pub/Sub shortly. You can access MongoDB with this command:
-
-```shell
-docker compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
-```
 
 ### MySQL Debezium Connector
 
