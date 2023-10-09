@@ -1,0 +1,22 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "timescaledb",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "postgres",
+        "plugin.name": "pgoutput",
+        "topic.prefix": "dbserver1",
+        "schema.include.list": "_timescaledb_internal",
+        "transforms": "timescaledb",
+        "transforms.timescaledb.type": "io.debezium.connector.postgresql.transforms.timescaledb.TimescaleDb",
+        "transforms.timescaledb.database.hostname": "timescaledb",
+        "transforms.timescaledb.database.port": "5432",
+        "transforms.timescaledb.database.user": "postgres",
+        "transforms.timescaledb.database.password": "postgres",
+        "transforms.timescaledb.database.dbname": "postgres"
+    }
+}

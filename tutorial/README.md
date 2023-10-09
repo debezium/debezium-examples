@@ -18,6 +18,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using Db2](#using-db2)
   * [Using Cassandra](#using-cassandra)
   * [Using Vitess](#using-vitess)
+  * [Using TimescaleDB](#using-timescaledb)
   * [Using externalized secrets](#using-externalized-secrets)
   * [Running without ZooKeeper](#running-without-zookeeper)
   * [Debugging](#debugging)
@@ -428,6 +429,33 @@ kill -9 <vtgate_process_id>
 
 # Find and kill all the processes of the -80 shard
 for pid in $(ps -ef | awk '/00000002/ {print $2}'); do kill -9 $pid; done
+```
+
+## Using TimescaleDB
+
+```shell
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=2.4
+docker-compose -f docker-compose-timescaledb.yaml up --build
+
+# Start Postgres connector TimescaleDB transformation
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-timescaledb.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-timescaledb.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --property print.headers=true \
+    --topic timescaledb.public.conditions
+
+# Modify records in the database via Postgres client
+docker-compose -f docker-compose-timescaledb.yaml exec timescaledb env PGOPTIONS="--search_path=public" bash -c 'psql -U $POSTGRES_USER postgres'
+
+INSERT INTO conditions VALUES (now(), 'Prague', 30, 50);
+
+# Shut down the cluster
+docker-compose -f docker-compose-timescaledb.yaml down
 ```
 
 ## Using externalized secrets
