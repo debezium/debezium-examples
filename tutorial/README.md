@@ -19,6 +19,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using Cassandra](#using-cassandra)
   * [Using Vitess](#using-vitess)
   * [Using TimescaleDB](#using-timescaledb)
+  * [Using Informix](#using-informix)
   * [Using externalized secrets](#using-externalized-secrets)
   * [Running without ZooKeeper](#running-without-zookeeper)
   * [Debugging](#debugging)
@@ -456,6 +457,33 @@ INSERT INTO conditions VALUES (now(), 'Prague', 30, 50);
 
 # Shut down the cluster
 docker-compose -f docker-compose-timescaledb.yaml down
+```
+
+## Using Informix
+
+```shell
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=2.5
+
+docker-compose -f docker-compose-ifx.yaml up --build
+
+# Start Informix connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-ifx.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-ifx.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic ifxserver.informix.customers
+
+# Modify records in the database via DB2 client
+docker-compose -f docker-compose-ifx.yaml exec ifxserver bash -c 'dbaccess informix -'
+
+INSERT INTO informix.customers(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');
+
+# Shut down the cluster
+docker-compose -f docker-compose-ifx.yaml down
 ```
 
 ## Using externalized secrets

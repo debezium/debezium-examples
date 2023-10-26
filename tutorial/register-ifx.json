@@ -1,0 +1,16 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class" : "io.debezium.connector.informix.InformixConnector",
+        "tasks.max" : "1",
+        "topic.prefix" : "ifxserver",
+        "database.hostname" : "ifxserver",
+        "database.port" : "9088",
+        "database.user" : "informix",
+        "database.password" : "in4mix",
+        "database.dbname" : "informix",
+        "database.cdcschema": "informix",
+        "schema.history.internal.kafka.bootstrap.servers" : "kafka:9092",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory"
+    }
+}
