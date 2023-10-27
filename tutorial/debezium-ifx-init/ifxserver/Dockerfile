@@ -5,6 +5,7 @@ LABEL maintainer="Debezium Community"
 ADD --chown=informix:informix --chmod=775 informix_post_init.sh /opt/ibm/config
 ADD --chown=informix:informix --chmod=775 inventory.sql /opt/ibm/informix/etc
 
+ENV DBDATE Y4MD-
 ENV TYPE oltp
 ENV SIZE medium
 ENV LICENSE accept
