@@ -477,8 +477,8 @@ docker-compose -f docker-compose-ifx.yaml exec kafka /kafka/bin/kafka-console-co
     --property print.key=true \
     --topic ifxserver.informix.customers
 
-# Modify records in the database via DB2 client
-docker-compose -f docker-compose-ifx.yaml exec ifxserver bash -c 'dbaccess informix -'
+# Modify records in the database via dbaccess client
+docker-compose -f docker-compose-ifx.yaml exec ifxserver bash -cl 'dbaccess sysuser -'
 
 INSERT INTO informix.customers(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');
 
