@@ -1,10 +1,10 @@
+DATABASE sysuser;
 
 -- Create and populate our products using a single insert with many rows
 CREATE TABLE informix.products (
-  id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY
-      (START WITH 101, INCREMENT BY 1) PRIMARY KEY,
+  id SERIAL(101) NOT NULL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  description VARCHAR(512),
+  description LVARCHAR(512),
   weight FLOAT
 );
 INSERT INTO informix.products(name,description,weight)
@@ -42,8 +42,7 @@ INSERT INTO informix.products_on_hand VALUES (108,2);
 INSERT INTO informix.products_on_hand VALUES (109,5);
 
 CREATE TABLE informix.customers (
-  id INTEGER  NOT NULL GENERATED ALWAYS AS IDENTITY
-      (START WITH 1001, INCREMENT BY 1) PRIMARY KEY,
+  id SERIAL(1001) NOT NULL PRIMARY KEY,
   first_name VARCHAR(255) NOT NULL,
   last_name VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE
@@ -58,8 +57,7 @@ INSERT INTO informix.customers(first_name,last_name,email)
   VALUES ('Anne','Kretchmar','annek@noanswer.org');
 
 CREATE TABLE informix.orders (
-  id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY
-      (START WITH 10001, INCREMENT BY 1) PRIMARY KEY,
+  id SERIAL(10001) NOT NULL PRIMARY KEY,
   order_date DATE NOT NULL,
   purchaser INTEGER NOT NULL,
   quantity INTEGER NOT NULL,

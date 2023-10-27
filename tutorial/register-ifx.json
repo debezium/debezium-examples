@@ -8,8 +8,7 @@
         "database.port" : "9088",
         "database.user" : "informix",
         "database.password" : "in4mix",
-        "database.dbname" : "informix",
-        "database.cdcschema": "informix",
+        "database.dbname" : "sysuser",
         "schema.history.internal.kafka.bootstrap.servers" : "kafka:9092",
         "schema.history.internal.kafka.topic": "schema-changes.inventory"
     }
