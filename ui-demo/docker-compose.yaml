@@ -60,7 +60,7 @@ services:
     command: bash -c 'sleep 20 && mongo -u admin -p admin --authenticationDatabase admin db-mongo:27017/inventory --eval "rs.initiate();"'
   connect:
     container_name: connect
-    image: quay.io/debezium/connect:nightly
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
       - "8083:8083"
     depends_on:
