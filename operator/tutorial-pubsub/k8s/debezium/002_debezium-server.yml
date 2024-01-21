@@ -1,0 +1,42 @@
+apiVersion: debezium.io/v1alpha1
+kind: DebeziumServer
+metadata:
+  name: my-debezium
+spec:
+  quarkus:
+    config:
+      log.console.json: false
+      kubernetes-config.enabled: true
+      kubernetes-config.secrets: postgresql-credentials,pubsub-credentials
+  runtime:
+    volumes:
+      - name: pubsub
+        secret: 
+          secretName: pubsub-credentials
+          items:
+            - key: PUBSUB_CREDENTIALS
+              path: service-account.json
+    templates:
+      container:
+        env: 
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /debezium/external-configuration/pubsub/service-account.json
+  sink:
+    type: pubsub
+    config:
+      project.id: ${PUBSUB_PROJECT_ID}
+  source:
+    class: io.debezium.connector.postgresql.PostgresConnector
+    config:
+      tasks.max:
+      offset.storage.file.filename: /debezium/data/offsets.dat
+      database.history: io.debezium.relational.history.FileDatabaseHistory
+      database.hostname: postgresql
+      database.port: 5432
+      database.user: ${POSTGRES_USER}
+      database.password: ${POSTGRES_PASSWORD}
+      database.dbname: ${POSTGRES_DB}
+      topic.prefix: demo
+      table.include.list: inventory.customers
+      tombstones.on.delete: false
+
