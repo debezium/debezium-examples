@@ -9,4 +9,4 @@ spec:
   source: operatorhubio-catalog
   sourceNamespace: olm
   channel: debezium-2.5.x
-  startingCSV: debezium-operator.v2.5.0
+  startingCSV: debezium-operator.v2.5.3-final
