@@ -9,11 +9,15 @@ services:
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-      - 9092:9092
+      - 9093:9093
     links:
       - zookeeper
     environment:
       - ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_LISTENERS=CLIENT://:9092,EXTERNAL://:9093
+      - KAFKA_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT
   vitess:
     image: quay.io/debezium/example-vitess:${DEBEZIUM_VERSION}
     build:
