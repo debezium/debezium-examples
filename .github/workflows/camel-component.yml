@@ -5,10 +5,12 @@ on:
     paths:
       - 'camel-component/**'
       - '.github/workflows/camel-component-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'camel-component/**'
       - '.github/workflows/camel-component-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

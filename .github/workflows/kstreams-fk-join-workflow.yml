@@ -5,10 +5,12 @@ on:
     paths:
       - 'kstreams-fk-join/**'
       - '.github/workflows/kstreams-fk-join-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'kstreams-fk-join/**'
       - '.github/workflows/kstreams-fk-join-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

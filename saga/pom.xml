@@ -2,39 +2,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.debezium.examples</groupId>
+    <artifactId>debezium-examples-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../debezium-examples-parent/pom.xml</relativePath>
+  </parent>
+
   <groupId>io.debezium.examples.saga</groupId>
   <artifactId>saga-aggregator</artifactId>
   <name>Debezium Saga Demo - Build Aggregator</name>
-  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <properties>
-    <surefire-plugin.version>3.0.0-M9</surefire-plugin.version>
-    <maven.compiler.target>11</maven.compiler.target>
-    <quarkus.platform.version>2.16.5.Final</quarkus.platform.version>
-    <version.debezium-quarkus>2.1.3.Final</version.debezium-quarkus>
-    <maven.compiler.source>11</maven.compiler.source>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.parameters>true</maven.compiler.parameters>
-    <quarkus-plugin.version>2.16.5.Final</quarkus-plugin.version>
-    <compiler-plugin.version>3.8.1</compiler-plugin.version>
-    <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-  </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>${quarkus.platform.group-id}</groupId>
-        <artifactId>${quarkus.platform.artifact-id}</artifactId>
-        <version>${quarkus.platform.version}</version>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${version.quarkus}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>io.debezium</groupId>
         <artifactId>debezium-quarkus-outbox</artifactId>
-        <version>${version.debezium-quarkus}</version>
+        <version>${version.debezium.outbox}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

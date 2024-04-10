@@ -5,10 +5,12 @@ on:
     paths:
       - 'cloudevents/**'
       - '.github/workflows/cloudevents-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'cloudevents/**'
       - '.github/workflows/cloudevents-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

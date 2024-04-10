@@ -5,10 +5,12 @@ on:
     paths:
       - 'auditlog/**'
       - '.github/workflows/auditlog-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'auditlog/**'
       - '.github/workflows/auditlog-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

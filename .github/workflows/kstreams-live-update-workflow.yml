@@ -5,10 +5,12 @@ on:
     paths:
       - 'kstreams-live-update/**'
       - '.github/workflows/kstreams-live-update-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'kstreams-live-update/**'
       - '.github/workflows/kstreams-live-update-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

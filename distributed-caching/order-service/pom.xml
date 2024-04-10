@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.debezium.examples.distributedcaching</groupId>
     <artifactId>distributed-caching-aggregator</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -48,9 +48,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>${quarkus.platform.group-id}</groupId>
+        <groupId>io.quarkus.platform</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus.platform.version}</version>
+        <version>${version.quarkus}</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -64,7 +64,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.surefire}</version>
         <configuration>
           <systemProperties>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -101,7 +100,6 @@
           </plugin>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${version.surefire}</version>
             <executions>
               <execution>
                 <goals>

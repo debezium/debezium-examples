@@ -3,21 +3,18 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.debezium.examples</groupId>
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../debezium-examples-parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>graphql-aggregator</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <mvn.war.version>3.3.2</mvn.war.version>
-        <apache.kafka.version>3.2.0</apache.kafka.version>
-        <version.thorntail>2.5.0.Final</version.thorntail>
-        <version.org.slf4j>1.7.36</version.org.slf4j>
-        <version.com.fasterxml.jackson>2.13.2</version.com.fasterxml.jackson>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
@@ -61,62 +58,62 @@
         <dependency>
             <groupId>org.aerogear.kafka</groupId>
             <artifactId>kafka-cdi-extension</artifactId>
-            <version>0.1.0</version>
+            <version>${version.kafka.cdi.extension}</version>
         </dependency>
 
         <!-- Java EE 7 dependency -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <version>${version.javaee}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.12</artifactId>
-            <version>${apache.kafka.version}</version>
+            <artifactId>kafka_${version.scala}</artifactId>
+            <version>${version.kafka}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
-            <version>${apache.kafka.version}</version>
+            <version>${version.kafka}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${apache.kafka.version}</version>
+            <version>${version.kafka}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${version.com.fasterxml.jackson}</version>
+            <version>${version.jackson}</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${version.org.slf4j}</version>
+            <version>${version.slf4j}</version>
         </dependency>
 
         <!-- GraphQL -->
         <dependency>
             <groupId>com.graphql-java-kickstart</groupId>
             <artifactId>graphql-java-tools</artifactId>
-            <version>5.3.1</version>
+            <version>${version.graphql.tools}</version>
         </dependency>
         <dependency>
             <groupId>com.graphql-java-kickstart</groupId>
             <artifactId>graphql-java-servlet</artifactId>
-            <version>6.1.4</version>
+            <version>${version.graphql.servlet}</version>
         </dependency>
         <dependency>
             <groupId>io.reactivex.rxjava2</groupId>
             <artifactId>rxjava</artifactId>
-            <version>2.1.16</version>
+            <version>${version.rxjava}</version>
         </dependency>
 
         <!-- Without explicitly adding guava here WildFly fails to deploy the 
@@ -124,7 +121,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.0.0-jre</version>
+            <version>${version.guava}</version>
         </dependency>
     </dependencies>
 
@@ -135,7 +132,6 @@
                 <groupId>io.thorntail</groupId>
                 <artifactId>thorntail-maven-plugin</artifactId>
                 <version>${version.thorntail}</version>
-
                 <executions>
                     <execution>
                         <goals>
@@ -147,7 +143,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>${mvn.war.version}</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
@@ -155,7 +150,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${mvn.compiler.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -164,7 +158,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${mvn.dependency.version}</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>

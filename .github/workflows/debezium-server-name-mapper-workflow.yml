@@ -5,10 +5,12 @@ on:
     paths:
       - 'debezium-server-name-mapper/**'
       - '.github/workflows/debezium-server-name-mapper-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'debezium-server-name-mapper/**'
       - '.github/workflows/debezium-server-name-mapper-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

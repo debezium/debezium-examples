@@ -5,10 +5,12 @@ on:
     paths:
       - 'cache-invalidation/**'
       - '.github/workflows/cache-invalidation-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'cache-invalidation/**'
       - '.github/workflows/cache-invalidation-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

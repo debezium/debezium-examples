@@ -4,27 +4,29 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.debezium.examples</groupId>
+    <artifactId>debezium-examples-parent</artifactId>
+    <relativePath>../debezium-examples-parent/pom.xml</relativePath>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+
   <groupId>io.debezium.demos.testcontainers</groupId>
   <artifactId>debezium-testcontainers-test</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <properties>
-    <maven.compiler.release>17</maven.compiler.release>
-    <maven.compiler.testRelease>17</maven.compiler.testRelease>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.debezium>2.1.3.Final</version.debezium>
-  </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers-bom</artifactId>
-        <version>1.17.6</version>
+        <version>${version.testcontainers}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>io.debezium</groupId>
@@ -45,43 +47,43 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.2</version>
+      <version>${version.driver.postgres}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.36</version>
+      <version>${version.slf4j}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.17</version>
+      <version>${version.log4j}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
-      <version>2.6.3</version>
+      <version>${version.kafka.clients}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.jayway.jsonpath</groupId>
       <artifactId>json-path</artifactId>
-      <version>2.9.0</version>
+      <version>${version.json.path}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
-      <version>1.4</version>
+      <version>${version.fest.assert}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.7.1</version>
+      <version>${version.jackson.databind}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -90,24 +92,22 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
           <executions>
-        <execution>
-          <id>default-testCompile</id>
-          <configuration>
-            <release>17</release>
-          </configuration>
-        </execution>
-      </executions>
+            <execution>
+              <id>default-testCompile</id>
+              <configuration>
+                <release>17</release>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M9</version>
-        <configuration>
-          <argLine>--enable-preview</argLine>
-        </configuration>
-      </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <argLine>--enable-preview</argLine>
+          </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>

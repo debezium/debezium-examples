@@ -5,11 +5,12 @@ on:
     paths:
       - 'saga/**'
       - '.github/workflows/saga-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'saga/**'
       - '.github/workflows/saga-workflow.yml'
-
+      - 'debezium-examples-parent/pom.xml'
 jobs:
   build:
     runs-on: ubuntu-latest

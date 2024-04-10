@@ -1,15 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>io.debezium.examples</groupId>
+
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../debezium-examples-parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>kinesis</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-
         <database.hostname>localhost</database.hostname>
         <database.port>3306</database.port>
         <database.user>debezium</database.user>
@@ -20,11 +23,6 @@
         <kinesis.region>eu-central-1</kinesis.region>
 
         <mysql.init.timeout>30000</mysql.init.timeout>
-
-        <version.debezium>2.1.3.Final</version.debezium>
-        <version.kinesis.client>1.14.8</version.kinesis.client>
-        <version.jackson>2.13.2</version.jackson>
-        <version.plugin.docker>0.31.0</version.plugin.docker>
     </properties>
 
     <dependencyManagement>
@@ -32,12 +30,12 @@
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-embedded</artifactId>
-                <version>${version.debezium}</version>
+                <version>${version.debezium21}</version>
             </dependency>
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-connector-mysql</artifactId>
-                <version>${version.debezium}</version>
+                <version>${version.debezium21}</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
@@ -67,20 +65,6 @@
             </dependency>
     </dependencies>
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>1.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>${version.plugin.docker}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

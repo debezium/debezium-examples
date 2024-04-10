@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.debezium.examples.outbox</groupId>
     <artifactId>outbox-aggregator</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -19,7 +19,7 @@
       <plugin>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${version.quarkus}</version>
+        <version>${version.quarkus.latest}</version>
         <executions>
           <execution>
             <goals>
@@ -32,7 +32,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.surefire}</version>
         <configuration>
           <systemProperties>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -88,7 +87,6 @@
         <plugins>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${version.surefire}</version>
             <executions>
               <execution>
                 <goals>

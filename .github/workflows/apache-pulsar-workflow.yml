@@ -5,10 +5,12 @@ on:
     paths:
       - 'apache-pulsar/**'
       - '.github/workflows/apache-pulsar-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'apache-pulsar/**'
       - '.github/workflows/apache-pulsar-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

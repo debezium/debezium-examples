@@ -5,10 +5,12 @@ on:
     paths:
       - 'camel-kafka-connect/**'
       - '.github/workflows/camel-kafka-connect-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'camel-kafka-connect/**'
       - '.github/workflows/camel-kafka-connect-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

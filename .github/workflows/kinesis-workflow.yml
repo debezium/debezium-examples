@@ -5,10 +5,12 @@ on:
     paths:
       - 'kinesis/**'
       - '.github/workflows/kinesis-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'kinesis/**'
       - '.github/workflows/kinesis-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

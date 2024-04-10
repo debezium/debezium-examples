@@ -5,10 +5,12 @@ on:
     paths:
       - 'distributed-caching/**'
       - '.github/workflows/distributed-caching-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'distributed-caching/**'
       - '.github/workflows/distributed-caching-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

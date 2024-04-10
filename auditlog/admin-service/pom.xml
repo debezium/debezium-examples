@@ -2,23 +2,27 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>io.debezium.examples</groupId>
+    <artifactId>debezium-examples-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../debezium-examples-parent/pom.xml</relativePath>
+  </parent>
+
   <groupId>io.debezium.demos.auditing</groupId>
   <artifactId>auditing-admin-service</artifactId>
   <version>1.0-SNAPSHOT</version>
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <quarkus.version>1.4.2.Final</quarkus.version>
-    <surefire-plugin.version>2.22.0</surefire-plugin.version>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-universe-bom</artifactId>
-        <version>${quarkus.version}</version>
+        <version>${version.quarkus1}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -39,7 +43,7 @@
       <plugin>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus.version}</version>
+        <version>${version.quarkus1}</version>
         <executions>
           <execution>
             <goals>
@@ -50,7 +54,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire-plugin.version}</version>
         <configuration>
           <systemProperties>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -72,7 +75,7 @@
           <plugin>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-maven-plugin</artifactId>
-            <version>${quarkus.version}</version>
+            <version>${version.quarkus1}</version>
             <executions>
               <execution>
                 <goals>
@@ -86,7 +89,6 @@
           </plugin>
           <plugin>
             <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${surefire-plugin.version}</version>
             <executions>
               <execution>
                 <goals>

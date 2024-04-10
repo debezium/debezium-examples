@@ -5,10 +5,12 @@ on:
     paths:
       - 'graphql/**'
       - '.github/workflows/graphql-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'graphql/**'
       - '.github/workflows/graphql-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

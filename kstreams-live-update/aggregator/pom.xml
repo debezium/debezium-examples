@@ -4,24 +4,19 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.debezium.examples</groupId>
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../debezium-examples-parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>kstreams-live-update-aggregator</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
-
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <version.surefire>3.0.0-M9</version.surefire>
-
-        <version.quarkus>2.16.5.Final</version.quarkus>
-        <version.debezium>2.1.3.Final</version.debezium>
     </properties>
 
     <dependencyManagement>
@@ -36,7 +31,7 @@
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-core</artifactId>
-                <version>${version.debezium}</version>
+                <version>${version.debezium21}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -46,7 +41,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.surefire}</version>
                 <configuration>
                     <systemProperties>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>

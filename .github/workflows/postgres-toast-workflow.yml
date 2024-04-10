@@ -5,10 +5,12 @@ on:
     paths:
       - 'postgres-toast/**'
       - '.github/workflows/postgres-toast-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'postgres-toast/**'
       - '.github/workflows/postgres-toast-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:

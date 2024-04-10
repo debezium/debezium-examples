@@ -1,14 +1,14 @@
-name: Build [outbox]
+name: Build [offset editor]
 
 on:
   push:
     paths:
-      - 'outbox/**'
+      - 'offset-editor/**'
       - '.github/workflows/outbox-workflow.yml'
       - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
-      - 'outbox/**'
+      - 'offset-editor/**'
       - '.github/workflows/outbox-workflow.yml'
       - 'debezium-examples-parent/pom.xml'
 
@@ -21,8 +21,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('outbox/**/pom.xml') }}
+          key: ${{ runner.os }}-maven-${{ hashFiles('offset-editor/**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Check changes in [outbox] example
-        run: cd outbox && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [offset-editor] example
+        run: cd offset-editor && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

@@ -4,17 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.debezium.examples</groupId>
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../debezium-examples-parent/pom.xml</relativePath>
+    </parent>
+
     <artifactId>http-signaling-notification</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.debezium>2.3.0.Final</version.debezium>
-        <compiler-plugin.version>3.8.1</compiler-plugin.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -29,7 +27,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>

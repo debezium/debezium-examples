@@ -5,10 +5,12 @@ on:
     paths:
       - 'jpa-aggregations/**'
       - '.github/workflows/jpa-aggregations-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'jpa-aggregations/**'
       - '.github/workflows/jpa-aggregations-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:
