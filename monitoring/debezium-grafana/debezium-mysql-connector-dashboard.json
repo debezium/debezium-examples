@@ -89,7 +89,7 @@
       "type": "row"
     },
     {
-      "content": "\n# Debezium MySQL Connector Metrics\n\nThe Debezium MySQL connector has three metric types in addition to the built-in support for JMX metrics that Zookeeper, Kafka, and Kafka Connect have.\n\n* snapshot metrics\n\n* binlog metrics\n\n* schema history metrics\n\nFor more detailed informarion about the metrics please visit the Debezium documentation page\n\n[Click here to visit](https://debezium.io/documentation/reference/1.0/assemblies/cdc-mysql-connector/as_deploy-the-mysql-connector.html#mysql-connector-binlog-metrics)\n\n\n\n",
+      "content": "\n# Debezium MySQL Connector Metrics\n\nThe Debezium MySQL connector has three metric types in addition to the built-in support for JMX metrics that Zookeeper, Kafka, and Kafka Connect have.\n\n* snapshot metrics\n\n* binlog metrics\n\n* schema history metrics\n\nFor more detailed informarion about the metrics please visit the Debezium documentation page\n\n[Click here to visit](https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-monitoring)\n\n\n\n",
       "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 8,
@@ -170,7 +170,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_Connected{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_Connected{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -258,7 +258,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_BinlogPosition{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_BinlogPosition{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -341,7 +341,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_IsGtidModeEnabled{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_IsGtidModeEnabled{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -429,7 +429,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfCommittedTransactions{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfCommittedTransactions{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -512,7 +512,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfRolledBackTransactions{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfRolledBackTransactions{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -595,7 +595,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfNotWellFormedTransactions{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\r",
+          "expr": "debezium_metrics_NumberOfNotWellFormedTransactions{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\r",
           "refId": "A"
         }
       ],
@@ -678,7 +678,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_TotalNumberOfEventsSeen{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_TotalNumberOfEventsSeen{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -740,7 +740,7 @@
       "pluginVersion": "6.5.2",
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfSkippedEvents{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfSkippedEvents{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -813,7 +813,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfEventsFiltered{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfEventsFiltered{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -834,9 +834,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_SecondsSinceLastEvent{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_SecondsSinceLastEvent{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-purple",
-        "debezium_metrics_SecondsSinceLastEvent{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
+        "debezium_metrics_SecondsSinceLastEvent{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_SecondsSinceLastEvent{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-purple",
+        "debezium_metrics_SecondsSinceLastEvent{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
       },
       "bars": true,
       "dashLength": 10,
@@ -880,7 +880,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_SecondsSinceLastEvent{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_SecondsSinceLastEvent{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -989,7 +989,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_QueueTotalCapacity{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_QueueTotalCapacity{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -1073,7 +1073,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_QueueRemainingCapacity{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_QueueRemainingCapacity{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -1094,9 +1094,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_SecondsBehindMaster{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
-        "debezium_metrics_SecondsBehindMaster{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_SecondsBehindMaster{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue"
+        "debezium_metrics_SecondsBehindMaster{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
+        "debezium_metrics_SecondsBehindMaster{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_SecondsBehindMaster{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue"
       },
       "bars": false,
       "cacheTimeout": null,
@@ -1140,7 +1140,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_SecondsBehindMaster{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_SecondsBehindMaster{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "refId": "A"
         }
       ],
@@ -1187,9 +1187,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_MilliSecondsBehindSource{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_MilliSecondsBehindSource{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
-        "debezium_metrics_MilliSecondsBehindSource{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
+        "debezium_metrics_MilliSecondsBehindSource{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_MilliSecondsBehindSource{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
+        "debezium_metrics_MilliSecondsBehindSource{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
       },
       "bars": true,
       "dashLength": 10,
@@ -1230,7 +1230,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_MilliSecondsBehindSource{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_MilliSecondsBehindSource{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -1277,9 +1277,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_NumberOfDisconnects{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-orange",
-        "debezium_metrics_NumberOfDisconnects{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
-        "debezium_metrics_NumberOfDisconnects{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
+        "debezium_metrics_NumberOfDisconnects{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-orange",
+        "debezium_metrics_NumberOfDisconnects{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
+        "debezium_metrics_NumberOfDisconnects{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
       },
       "bars": true,
       "dashLength": 10,
@@ -1320,7 +1320,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfDisconnects{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfDisconnects{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -1367,9 +1367,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_NumberOfLargeTransactions{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_NumberOfLargeTransactions{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_NumberOfLargeTransactions{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-blue"
+        "debezium_metrics_NumberOfLargeTransactions{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_NumberOfLargeTransactions{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_NumberOfLargeTransactions{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-blue"
       },
       "bars": false,
       "dashLength": 10,
@@ -1410,7 +1410,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfLargeTransactions{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfLargeTransactions{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -1534,7 +1534,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_TotalTableCount{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_TotalTableCount{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "refId": "A"
         }
       ],
@@ -1608,7 +1608,7 @@
       "pluginVersion": "6.5.2",
       "targets": [
         {
-          "expr": "debezium_metrics_RemainingTableCount{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_RemainingTableCount{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "refId": "A"
         }
       ],
@@ -1681,7 +1681,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_HoldingGlobalLock{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_HoldingGlobalLock{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "refId": "A"
         }
       ],
@@ -1770,7 +1770,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_SnapshotRunning{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_SnapshotRunning{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "refId": "A"
         }
       ],
@@ -1858,7 +1858,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_SnapshotAborted{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_SnapshotAborted{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -1946,7 +1946,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_SnapshotCompleted{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_SnapshotCompleted{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "refId": "A"
         }
       ],
@@ -2015,7 +2015,7 @@
       "pluginVersion": "6.5.2",
       "targets": [
         {
-          "expr": "debezium_metrics_SnapshotDurationInSeconds{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_SnapshotDurationInSeconds{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2026,9 +2026,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_NumberOfEventsFiltered{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
-        "debezium_metrics_NumberOfEventsFiltered{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple",
-        "debezium_metrics_NumberOfEventsFiltered{context=\"snapshot\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-blue"
+        "debezium_metrics_NumberOfEventsFiltered{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
+        "debezium_metrics_NumberOfEventsFiltered{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple",
+        "debezium_metrics_NumberOfEventsFiltered{context=\"snapshot\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-blue"
       },
       "bars": false,
       "dashLength": 10,
@@ -2069,7 +2069,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfEventsFiltered{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_NumberOfEventsFiltered{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2178,7 +2178,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_MilliSecondsSinceLastEvent{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\r",
+          "expr": "debezium_metrics_MilliSecondsSinceLastEvent{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\r",
           "refId": "A"
         }
       ],
@@ -2261,7 +2261,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_QueueTotalCapacity{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_QueueTotalCapacity{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2323,7 +2323,7 @@
       "pluginVersion": "6.5.2",
       "targets": [
         {
-          "expr": "debezium_metrics_QueueRemainingCapacity{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_QueueRemainingCapacity{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2334,9 +2334,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_NumberOfErroneousEvents{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-orange",
-        "debezium_metrics_NumberOfErroneousEvents{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
-        "debezium_metrics_NumberOfErroneousEvents{context=\"snapshot\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-purple"
+        "debezium_metrics_NumberOfErroneousEvents{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-orange",
+        "debezium_metrics_NumberOfErroneousEvents{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-blue",
+        "debezium_metrics_NumberOfErroneousEvents{context=\"snapshot\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-purple"
       },
       "bars": false,
       "dashLength": 10,
@@ -2377,7 +2377,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_NumberOfErroneousEvents{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\r",
+          "expr": "debezium_metrics_NumberOfErroneousEvents{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\r",
           "refId": "A"
         }
       ],
@@ -2424,9 +2424,9 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_TotalNumberOfEventsSeen{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_TotalNumberOfEventsSeen{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
-        "debezium_metrics_TotalNumberOfEventsSeen{context=\"snapshot\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-blue"
+        "debezium_metrics_TotalNumberOfEventsSeen{context=\"binlog\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_TotalNumberOfEventsSeen{context=\"binlog\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "semi-dark-purple",
+        "debezium_metrics_TotalNumberOfEventsSeen{context=\"snapshot\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "semi-dark-blue"
       },
       "bars": false,
       "dashLength": 10,
@@ -2467,7 +2467,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_TotalNumberOfEventsSeen{context=\"$context\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_TotalNumberOfEventsSeen{context=\"$context\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2609,7 +2609,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_RecoveryStartTime{context=\"schema-history\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}",
+          "expr": "debezium_metrics_RecoveryStartTime{context=\"schema-history\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}",
           "format": "time_series",
           "instant": false,
           "legendFormat": "",
@@ -2695,7 +2695,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_MilliSecondsSinceLastAppliedChange{context=\"schema-history\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_MilliSecondsSinceLastAppliedChange{context=\"schema-history\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2778,7 +2778,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "debezium_metrics_MilliSecondsSinceLastRecoveredChange{context=\"schema-history\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_MilliSecondsSinceLastRecoveredChange{context=\"schema-history\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2799,8 +2799,8 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_ChangesRecovered{context=\"schema-history\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-blue",
-        "debezium_metrics_ChangesRecovered{context=\"schema-history\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
+        "debezium_metrics_ChangesRecovered{context=\"schema-history\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-blue",
+        "debezium_metrics_ChangesRecovered{context=\"schema-history\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-purple"
       },
       "bars": false,
       "dashLength": 10,
@@ -2841,7 +2841,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_ChangesRecovered{context=\"schema-history\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_ChangesRecovered{context=\"schema-history\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
@@ -2888,8 +2888,8 @@
     },
     {
       "aliasColors": {
-        "debezium_metrics_ChangesApplied{context=\"schema-history\",instance=\"192.168.11.182:7071\",job=\"debezium\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-purple",
-        "debezium_metrics_ChangesApplied{context=\"schema-history\",instance=\"192.168.13.124:7071\",job=\"debezium\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-blue"
+        "debezium_metrics_ChangesApplied{context=\"schema-history\",instance=\"192.168.11.182:7071\",job=\"prometheus\",name=\"snapshot-prod-aurora-cluster-cluster\",plugin=\"mysql\"}": "dark-purple",
+        "debezium_metrics_ChangesApplied{context=\"schema-history\",instance=\"192.168.13.124:7071\",job=\"prometheus\",name=\"prod-aurora-cluster\",plugin=\"mysql\"}": "dark-blue"
       },
       "bars": false,
       "dashLength": 10,
@@ -2930,7 +2930,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "debezium_metrics_ChangesApplied{context=\"schema-history\",instance=\"$instance\",job=\"debezium\",name=\"$name\",plugin=\"$plugin\"}\t\r",
+          "expr": "debezium_metrics_ChangesApplied{context=\"schema-history\",instance=\"$instance\",job=\"prometheus\",name=\"$name\",plugin=\"$plugin\"}\t\r",
           "refId": "A"
         }
       ],
