@@ -1,0 +1,37 @@
+services:
+  mysql:
+    image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+
+  redis:
+    image: bitnami/redis:7.0
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=myredispw
+
+  pubsub:
+    image: google/cloud-sdk:486.0.0-emulators
+    command: gcloud beta emulators pubsub start --project debezium-tutorial-local --host-port 0.0.0.0:8085
+    ports:
+      - 8085:8085
+
+  debezium-server-mysql:
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    ports:
+      - 8080:8080
+    volumes:
+      - ./config-mysql:/debezium/conf
+
+  pubsub_tools:
+    build: .
+    environment:
+      - PUBSUB_PROJECT_ID=debezium-tutorial-local
+      - PUBSUB_EMULATOR_HOST=pubsub:8085
+    depends_on:
+      - pubsub
