@@ -1,0 +1,85 @@
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+  postgres:
+    container_name: postgres
+    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  order-service:
+    container_name: order-service
+    build:
+      context: order-service
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+      - 8080:8080
+    environment:
+      - APP_VERSION=1.0
+    links:
+      - postgres
+  connect:
+    build:
+      context: debezium-jmx-exporter
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+        JMX_AGENT_VERSION: 0.15.0
+    ports:
+     - 8083:8083
+     - 1976:1976
+    links:
+     - kafka
+     - postgres
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+     - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
+     - JMXHOST=localhost
+     - JMXPORT=1976
+  prometheus:
+    build:
+      context: debezium-prometheus
+      args:
+        PROMETHEUS_VERSION: v2.43.0
+    ports:
+     - 9090:9090
+    links:
+     - connect
+     - order-service
+  grafana:
+    build:
+      context: debezium-grafana
+      args:
+        GRAFANA_VERSION: 9.4.7
+    ports:
+     - 3000:3000
+    links:
+     - prometheus
+     - smtp-service
+    environment:
+     - DS_PROMETHEUS=prometheus
+  smtp-service:
+    image: gessnerfl/fake-smtp-server:2.2.1
+    hostname: "fake-smtp-server"
+    restart: always
+    ports:
+      - 8025:8025      #expose smtp port
+      - 8085:8080      #expose web ui
+      - 8086:8081      #expose management api
