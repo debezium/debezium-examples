@@ -8,14 +8,18 @@ CELL=zone1 ./scripts/etcd-up.sh
 # start vtctld
 CELL=zone1 ./scripts/vtctld-up.sh
 
+vtctldclient CreateKeyspace --durability-policy=semi_sync customer || fail "Failed to create and configure customer keyspace"
+vtctldclient CreateKeyspace --durability-policy=semi_sync inventory || fail "Failed to create and configure inventory keyspace"
+
 # start vttablets for unsharded keyspace customer
 for i in 100 101 102; do
 	CELL=zone1 TABLET_UID=$i ./scripts/mysqlctl-up.sh
 	CELL=zone1 KEYSPACE=customer TABLET_UID=$i ./scripts/vttablet-up.sh
 done
 
-# set one of the replicas to master
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json InitShardMaster -force customer/0 zone1-100
+# start vtorc, which handles electing shard primaries (no need for InitShardPrimary manual step)
+source ./scripts/vtorc-up.sh
+
 
 # start vttablets for sharded keyspace inventory
 for i in 200 201 202; do
@@ -23,21 +27,18 @@ for i in 200 201 202; do
 	SHARD=-80 CELL=zone1 KEYSPACE=inventory TABLET_UID=$i ./scripts/vttablet-up.sh
 done
 
-
 for i in 300 301 302; do
 	CELL=zone1 TABLET_UID=$i ./scripts/mysqlctl-up.sh
 	SHARD=80- CELL=zone1 KEYSPACE=inventory TABLET_UID=$i ./scripts/vttablet-up.sh
 done
 
-# set one of the replicas to master
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json InitShardMaster -force inventory/-80 zone1-200
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json InitShardMaster -force inventory/80- zone1-300
+
 
 # create seq table and unsharded table in the unsharded keyspace, sharded tables in sharded keyspace
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json ApplySchema -sql-file create_tables_unsharded_customer.sql customer
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json ApplyVSchema -vschema_file vschema_tables_unsharded_customer.json customer
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json ApplySchema -sql-file create_tables_sharded_inventory.sql inventory
-vtctlclient -grpc_auth_static_client_creds grpc_static_client_auth.json ApplyVSchema -vschema_file vschema_tables_sharded_inventory.json inventory
+vtctlclient ApplySchema -- --sql-file create_tables_unsharded_customer.sql customer
+vtctlclient ApplyVSchema -- --vschema_file vschema_tables_unsharded_customer.json customer
+vtctlclient ApplySchema -- --sql-file create_tables_sharded_inventory.sql inventory
+vtctlclient ApplyVSchema -- --vschema_file vschema_tables_sharded_inventory.json inventory
 
 # start vtgate
 CELL=zone1 ./scripts/vtgate-up.sh
