@@ -20,27 +20,29 @@ if [[ "${uid: -1}" -gt 1 ]]; then
 fi
 
 echo "Starting vttablet for $alias..."
+
 # shellcheck disable=SC2086
 vttablet \
  $TOPOLOGY_FLAGS \
- -log_dir $VTDATAROOT/tmp \
- -log_queries_to_file $VTDATAROOT/tmp/$tablet_logfile \
- -tablet-path $alias \
- -tablet_hostname "$tablet_hostname" \
- -init_keyspace $keyspace \
- -init_shard $shard \
- -init_tablet_type $tablet_type \
- -health_check_interval 5s \
- -enable_semi_sync \
- -enable_replication_reporter \
- -backup_storage_implementation file \
- -file_backup_storage_root $VTDATAROOT/backups \
- -restore_from_backup \
- -port $port \
- -grpc_port $grpc_port \
- -service_map 'grpc-queryservice,grpc-tabletmanager,grpc-updatestream' \
- -pid_file $VTDATAROOT/$tablet_dir/vttablet.pid \
- -vtctld_addr http://$hostname:$vtctld_web_port/ \
+ --log_dir $VTDATAROOT/tmp \
+ --log_queries_to_file $VTDATAROOT/tmp/$tablet_logfile \
+ --tablet-path $alias \
+ --tablet_hostname "$tablet_hostname" \
+ --init_keyspace $keyspace \
+ --init_shard $shard \
+ --init_tablet_type $tablet_type \
+ --health_check_interval 5s \
+ --backup_storage_implementation file \
+ --watch_replication_stream \
+ --file_backup_storage_root $VTDATAROOT/backups \
+ --restore_from_backup \
+ --port $port \
+ --grpc_port $grpc_port \
+ --service_map 'grpc-queryservice,grpc-tabletmanager,grpc-updatestream' \
+ --pid_file $VTDATAROOT/$tablet_dir/vttablet.pid \
+ --heartbeat_enable \
+ --heartbeat_interval=250ms \
+ --heartbeat_on_demand_duration=5s \
  > $VTDATAROOT/$tablet_dir/vttablet.out 2>&1 &
 
 # Block waiting for the tablet to be listening
@@ -53,3 +55,5 @@ done
 
 # check one last time
 curl -I "http://$hostname:$port/debug/status" || fail "tablet could not be started!"
+
+echo -e "vttablet for $alias is running!"

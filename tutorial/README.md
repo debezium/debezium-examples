@@ -378,7 +378,7 @@ docker-compose -f docker-compose-cassandra.yaml down
 
 ```shell 
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
+export DEBEZIUM_VERSION=2.7
 
 docker-compose -f docker-compose-vitess.yaml up --build
 
