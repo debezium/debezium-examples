@@ -34,7 +34,7 @@ services:
       - "8080:8080"
     volumes:
       - /your/path/to/service-account.json:/tmp/credentials/service-account.json
-      - ./config-postgres:/debezium/conf
+      - ./config-postgres:/debezium/config
   debezium-server-mongodb:
     image: quay.io/debezium/server:${DEBEZIUM_VERSION}
     container_name: debezium-server-mongodb
@@ -44,7 +44,7 @@ services:
       - "8080:8080"
     volumes:
       - /your/path/to/service-account.json:/tmp/credentials/service-account.json
-      - ./config-mongodb:/debezium/conf
+      - ./config-mongodb:/debezium/config
   debezium-server-mysql:
     image: quay.io/debezium/server:${DEBEZIUM_VERSION}
     container_name: debezium-server-mysql
@@ -54,4 +54,4 @@ services:
       - "8080:8080"
     volumes:
       - /your/path/to/service-account.json:/tmp/credentials/service-account.json
-      - ./config-mysql:/debezium/conf
+      - ./config-mysql:/debezium/config
