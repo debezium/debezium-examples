@@ -26,7 +26,8 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./config-mysql:/debezium/conf
+      # prior to Debezium 3.0 the container path should be /debezium/conf
+      - ./config-mysql:/debezium/config
 
   pubsub_tools:
     build: .
