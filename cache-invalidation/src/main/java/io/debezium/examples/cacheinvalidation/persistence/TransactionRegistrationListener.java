@@ -8,7 +8,7 @@ package io.debezium.examples.cacheinvalidation.persistence;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDI;
 
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
@@ -22,8 +22,6 @@ import org.hibernate.event.spi.FlushEventListener;
  * @author Gunnar Morling
  */
 class TransactionRegistrationListener implements FlushEventListener {
-
-    private static final long serialVersionUID = 1L;
 
     private final ConcurrentMap<Session, Boolean> sessionsWithBeforeTransactionCompletion;
 
@@ -43,7 +41,7 @@ class TransactionRegistrationListener implements FlushEventListener {
 
         event.getSession().getActionQueue().registerProcess( session -> {
             Number txId = (Number) event.getSession().createNativeQuery("SELECT txid_current()")
-                    .setFlushMode(FlushMode.MANUAL)
+                    .setHibernateFlushMode(FlushMode.MANUAL)
                     .getSingleResult();
 
             getKnownTransactions().register(txId.longValue());
@@ -52,7 +50,7 @@ class TransactionRegistrationListener implements FlushEventListener {
         } );
     }
 
-    private  KnownTransactions getKnownTransactions() {
+    private KnownTransactions getKnownTransactions() {
         KnownTransactions value = knownTransactions;
 
         if (value == null) {

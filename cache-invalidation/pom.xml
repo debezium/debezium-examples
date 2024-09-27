@@ -6,31 +6,57 @@
     <groupId>io.debezium.examples</groupId>
     <artifactId>cache-invalidation</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>cache-invalidation</name>
 
     <properties>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <compiler-plugin.version>3.13.0</compiler-plugin.version>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <version.debezium>2.1.3.Final</version.debezium>
-        <version.debezium.tag>2.1</version.debezium.tag>
-        <version.hibernate>5.4.24.Final</version.hibernate>
-        <version.infinispan>11.0.6.Final</version.infinispan>
-        <mvn.war.version>3.3.2</mvn.war.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.version>3.15.1</quarkus.platform.version>
+        <skipITs>true</skipITs>
+        <surefire-plugin.version>3.3.1</surefire-plugin.version>
+        <infinispan.version>15.0.8.Final</infinispan.version>
+        <version.debezium>2.7.3.Final</version.debezium>
     </properties>
 
     <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
     </dependencyManagement>
+
 
     <dependencies>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
-            <scope>provided</scope>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-jackson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-arc</artifactId>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
@@ -43,62 +69,70 @@
             <version>${version.debezium}</version>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${version.hibernate}</version>
-            <scope>provided</scope>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
         </dependency>
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>${version.infinispan}</version>
+            <version>15.0.8.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>3.2.0</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>3.1.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>cache-invalidation</finalName>
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${mvn.war.version}</version>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>generate-code</goal>
+                            <goal>generate-code-tests</goal>
+                            <goal>native-image-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
                 <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -107,57 +141,64 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <systemPropertyVariables>
+                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
+                <version>0.43.4</version>
                 <configuration>
+                    <watchInterval>500</watchInterval>
+                    <logDate>default</logDate>
+                    <verbose>true</verbose>
                     <images>
                         <image>
-                            <alias>db</alias>
-                            <name>quay.io/debezium/example-postgres:${version.debezium.tag}</name>
+                            <!-- A Docker image using the Postgres Server with the DBZ decoderbufs plugin -->
+                            <name>debezium/postgres-server-test-database</name>
                             <run>
                                 <env>
                                     <POSTGRES_USER>postgresuser</POSTGRES_USER>
                                     <POSTGRES_PASSWORD>postgrespw</POSTGRES_PASSWORD>
                                     <POSTGRES_DB>inventory</POSTGRES_DB>
+                                    <POSTGRES_INITDB_ARGS>-E UTF8</POSTGRES_INITDB_ARGS>
+                                    <LANG>en_US.utf8</LANG>
                                 </env>
-                                <wait>
-                                    <log>database system is ready to accept connections</log>
-                                </wait>
                                 <ports>
                                     <port>5432:5432</port>
                                 </ports>
-                                <hostname>postgres</hostname>
-                            </run>
-                        </image>
-                        <image>
-                            <name>debezium-examples/cache-invalidation</name>
-                            <alias>order-manager</alias>
-                            <build>
-                                <dockerFileDir>${project.basedir}</dockerFileDir>
-                            </build>
-                            <run>
-                                <links>
-                                    <link>db</link>
-                                </links>
-                                <ports>
-                                    <port>8080:8080</port>
-                                    <port>8787:8787</port>
-                                    <port>9990:9990</port>
-                                </ports>
+                                <log>
+                                    <prefix>postgres</prefix>
+                                    <enabled>true</enabled>
+                                    <color>green</color>
+                                </log>
                                 <wait>
                                     <time>30000</time>
-                                    <log>WildFly Full .* \(WildFly Core .*\) started</log>
+                                    <log>(?s)PostgreSQL init process complete.*database system is ready to accept connections</log>
                                 </wait>
                             </run>
+                            <build>
+                                <from>quay.io/debezium/example-postgres:latest</from>
+                                <runCmds>
+                                    <run>ln -fs /usr/share/zoneinfo/US/Samoa /etc/localtime &amp;&amp; echo timezone=US/Samoa &gt;&gt; /usr/share/postgresql/postgresql.conf.sample</run>
+                                </runCmds>
+                            </build>
+                            <external>
+                                <type>properties</type>
+                                <mode>override</mode>
+                            </external>
                         </image>
                     </images>
                 </configuration>
                 <executions>
                     <execution>
                         <id>start</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>build</goal>
                             <goal>start</goal>
@@ -173,30 +214,6 @@
                 </executions>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.27.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.0.0-M1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.wildfly.plugins</groupId>
-                    <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>2.0.0.Final</version>
-                    <configuration>
-                        <hostname>localhost</hostname>
-                        <username>admin</username>
-                        <password>secret</password>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
+
 </project>

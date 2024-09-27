@@ -26,11 +26,11 @@ public class TransactionRegistrationIntegrator implements Integrator {
 
     @Override
     public void integrate(Metadata metadata, SessionFactoryImplementor sessionFactory,
-            SessionFactoryServiceRegistry serviceRegistry) {
+                          SessionFactoryServiceRegistry serviceRegistry) {
         LOG.info("TransactionRegistrationIntegrator#integrate()");
 
         serviceRegistry.getService(EventListenerRegistry.class)
-            .appendListeners(EventType.FLUSH, new TransactionRegistrationListener());
+                .appendListeners(EventType.FLUSH, new TransactionRegistrationListener());
     }
 
     @Override

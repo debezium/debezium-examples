@@ -2,12 +2,13 @@ package io.debezium.examples.cacheinvalidation.persistence;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +29,11 @@ public class KnownTransactions {
         cacheManager.defineConfiguration(
                 "tx-id-cache",
                 new ConfigurationBuilder()
-                    .simpleCache(true)
-                    .expiration()
+                        .simpleCache(true)
+                        .expiration()
                         .lifespan(60, TimeUnit.SECONDS)
-                    .build()
-                );
+                        .build()
+        );
 
         applicationTransactions = cacheManager.getCache("tx-id-cache");
     }
