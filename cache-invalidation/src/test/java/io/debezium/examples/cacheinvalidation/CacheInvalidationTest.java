@@ -18,14 +18,27 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import io.quarkus.test.junit.QuarkusTest;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import io.restassured.http.ContentType;
 
-public class CacheInvalidationIT {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-    @Before
+@QuarkusTest
+public class CacheInvalidationTest {
+
+    @ConfigProperty(name = "quarkus.datasource.jdbc.url")
+    String jdbcUrl;
+
+    @ConfigProperty(name = "quarkus.datasource.username")
+    String jdbcUserName;
+
+    @ConfigProperty(name = "quarkus.datasource.password")
+    String jdbcPassword;
+
+    @BeforeEach
     public void prepareItem() {
         updateItem(10003, "North by Northwest", 14.99F);
     }
@@ -42,7 +55,7 @@ public class CacheInvalidationIT {
         // cache should be invalidated
         await().atMost(5, TimeUnit.SECONDS)
             .until(() -> {
-                return !get("/cache-invalidation/rest/cache/item/10003").as(boolean.class);
+                return !get("/rest/cache/item/10003").as(boolean.class);
             });
 
         // and the item reloaded from the DB
@@ -61,7 +74,7 @@ public class CacheInvalidationIT {
         Thread.sleep(3000);
 
         // cache should not be invalidated
-        assertTrue(get("/cache-invalidation/rest/cache/item/10003").as(boolean.class));
+        assertTrue(get("/rest/cache/item/10003").as(boolean.class));
     }
 
     private void placeOrder(long itemId, int quantity, float expectedTotalPrice) {
@@ -75,7 +88,7 @@ public class CacheInvalidationIT {
                 "}"
             )
         .when()
-            .post("/cache-invalidation/rest/orders")
+            .post("/rest/orders")
         .then()
             .body("totalPrice", equalTo(expectedTotalPrice));
     }
@@ -90,17 +103,16 @@ public class CacheInvalidationIT {
                 "}"
             )
         .when()
-            .put("/cache-invalidation/rest/items/{id}", itemId)
+            .put("/rest/items/{id}", itemId)
         .then()
             .statusCode(200);
     }
 
     private Connection getDbConnection() throws SQLException {
-        String url = "jdbc:postgresql://localhost/inventory";
-        Properties props = new Properties();
-        props.setProperty("user","postgresuser");
-        props.setProperty("password","postgrespw");
+        final Properties props = new Properties();
+        props.setProperty("user", jdbcUserName);
+        props.setProperty("password", jdbcPassword);
 
-        return DriverManager.getConnection(url, props);
+        return DriverManager.getConnection(jdbcUrl, props);
     }
 }

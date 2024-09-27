@@ -5,32 +5,35 @@
  */
 package io.debezium.examples.cacheinvalidation.persistence;
 
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.enterprise.concurrent.ManagedExecutorService;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.Initialized;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Initialized;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 
+import jakarta.persistence.PersistenceUnit;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
-import org.apache.kafka.connect.storage.MemoryOffsetBackingStore;
+import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.ConfigValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.debezium.config.Configuration;
-import io.debezium.connector.postgresql.PostgresConnector;
-import io.debezium.connector.postgresql.PostgresConnectorConfig;
-import io.debezium.connector.postgresql.PostgresConnectorConfig.SnapshotMode;
 import io.debezium.data.Envelope.Operation;
-import io.debezium.embedded.EmbeddedEngine;
+import io.debezium.embedded.Connect;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.engine.RecordChangeEvent;
+import io.debezium.engine.format.ChangeEventFormat;
 import io.debezium.examples.cacheinvalidation.model.Item;
 
 /**
@@ -44,10 +47,8 @@ import io.debezium.examples.cacheinvalidation.model.Item;
 @ApplicationScoped
 public class DatabaseChangeEventListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger( DatabaseChangeEventListener.class );
-
-    @Resource
-    private ManagedExecutorService executorService;
+    private static final String CONFIG_PREFIX = "quarkus.debezium-cdc.";
+    private static final Logger LOG = LoggerFactory.getLogger(DatabaseChangeEventListener.class);
 
     @PersistenceUnit
     private EntityManagerFactory emf;
@@ -55,43 +56,52 @@ public class DatabaseChangeEventListener {
     @PersistenceContext
     private EntityManager em;
 
-    private EmbeddedEngine engine;
-
     @Inject
     private KnownTransactions knownTransactions;
 
+    private DebeziumEngine<?> engine;
+    private ExecutorService executorService;
+
+    @Priority(2)
     public void startEmbeddedEngine(@Observes @Initialized(ApplicationScoped.class) Object init) {
         LOG.info("Launching Debezium embedded engine");
 
-        Configuration config = Configuration.empty()
-                .withSystemProperties(Function.identity()).edit()
-                .with(EmbeddedEngine.CONNECTOR_CLASS, PostgresConnector.class)
-                .with(EmbeddedEngine.ENGINE_NAME, "cache-invalidation-engine")
-                .with(EmbeddedEngine.OFFSET_STORAGE, MemoryOffsetBackingStore.class)
-                .with("name", "cache-invalidation-connector")
-                .with("database.hostname", "postgres")
-                .with("database.port", 5432)
-                .with("database.user", "postgresuser")
-                .with("database.password", "postgrespw")
-                .with("topic.prefix", "dbserver1")
-                .with("database.dbname", "inventory")
-                .with("table.include.list", "public.item")
-                .with("plugin.name", "pgoutput")
-                .with(PostgresConnectorConfig.SNAPSHOT_MODE, SnapshotMode.NEVER)
+        final Properties properties = new Properties();
+        for (String propertyName : ConfigProvider.getConfig().getPropertyNames()) {
+            if (propertyName.startsWith(CONFIG_PREFIX)) {
+                final String key = propertyName.replace(CONFIG_PREFIX, "");
+                final ConfigValue value = ConfigProvider.getConfig().getConfigValue(propertyName);
+                properties.put(key, value.getRawValue());
+                LOG.info("\t{}: {}", key, value.getRawValue());
+            }
+        }
+
+        final Configuration config = Configuration.empty()
+                .withSystemProperties(Function.identity())
+                .edit()
+                .with(Configuration.from(properties))
                 .build();
 
-        this.engine = EmbeddedEngine.create()
-                .using(config)
-                .notifying(this::handleDbChangeEvent)
+        this.engine = DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
+                .using(config.asProperties())
+                .notifying((list, recordCommitter) -> {
+                    for (RecordChangeEvent<SourceRecord> record : list) {
+                        handleDbChangeEvent(record.record());
+                        recordCommitter.markProcessed(record);
+                    }
+                    recordCommitter.markBatchFinished();
+                })
                 .build();
 
+        executorService = Executors.newFixedThreadPool(1);
         executorService.execute(engine);
     }
 
     @PreDestroy
-    public void shutdownEngine() {
+    public void shutdownEngine() throws Exception {
         LOG.info("Stopping Debezium embedded engine");
-        engine.stop();
+        engine.close();
+        executorService.shutdown();
     }
 
     private void handleDbChangeEvent(SourceRecord record) {
