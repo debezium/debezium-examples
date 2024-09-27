@@ -4,29 +4,27 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../debezium-examples-parent/pom.xml</relativePath>
+    </parent>
+
     <groupId>org.example</groupId>
     <artifactId>offset-editor</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
-        <maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
-        <javafx.version>16</javafx.version>
-        <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>${javafx.version}</version>
+            <version>${version.javafx}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>${javafx.version}</version>
+            <version>${version.javafx}</version>
         </dependency>
     </dependencies>
 
@@ -35,7 +33,6 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>${javafx.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>default-cli</id>
@@ -49,7 +46,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>${maven.assembly.plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -73,7 +69,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven.shade.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>

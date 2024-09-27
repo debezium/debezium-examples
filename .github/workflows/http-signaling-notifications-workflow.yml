@@ -1,0 +1,34 @@
+name: Build [http signaling notification]
+
+on:
+  push:
+    paths:
+      - 'http-signaling-notification/**'
+      - '.github/workflows/outbox-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
+  pull_request:
+    paths:
+      - 'http-signaling-notification/**'
+      - '.github/workflows/outbox-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-java
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('http-signaling-notification/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [http-signaling-notification] example
+        run: >
+          cd http-signaling-notification && 
+          mvn clean install -B 
+          -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn 
+          -Dmaven.wagon.http.pool=false 
+          -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

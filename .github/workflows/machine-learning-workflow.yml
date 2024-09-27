@@ -1,0 +1,48 @@
+name: Build [machine learning]
+
+on:
+  push:
+    paths:
+      - 'machine-learning/**'
+      - '.github/workflows/outbox-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
+  pull_request:
+    paths:
+      - 'machine-learning/**'
+      - '.github/workflows/outbox-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-java
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('machine-learning/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [machine-learning] example (Iris-Flink)
+        run: >
+          cd machine-learning/flink-spark-iris/iris-flink && 
+          mvn clean install -B 
+          -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn 
+          -Dmaven.wagon.http.pool=false 
+          -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [machine-learning] example (Iris-Spark)
+        run: >
+          cd machine-learning/flink-spark-iris/iris-spark && 
+          mvn clean install -B 
+          -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn 
+          -Dmaven.wagon.http.pool=false 
+          -Dmaven.wagon.httpconnectionManager.ttlSeconds=120          
+      - name: Check changes in [machine-learning] example (Tensorflow)
+        run: >
+          cd machine-learning/tensorflow-mnist/connect/mnist-smt && 
+          mvn clean install -B 
+          -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn 
+          -Dmaven.wagon.http.pool=false 
+          -Dmaven.wagon.httpconnectionManager.ttlSeconds=120

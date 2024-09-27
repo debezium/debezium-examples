@@ -5,16 +5,19 @@ on:
     paths:
       - 'kstreams/**'
       - '.github/workflows/kstreams-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
   pull_request:
     paths:
       - 'kstreams/**'
       - '.github/workflows/kstreams-workflow.yml'
+      - 'debezium-examples-parent/pom.xml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: ./.github/actions/setup-java
       - name: Cache local Maven repository
         uses: actions/cache@v2
         with:
