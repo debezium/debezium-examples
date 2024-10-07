@@ -7,13 +7,13 @@ package io.debezium.examples.cloudevents.dataextractor;
 
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import org.apache.avro.generic.GenericRecord;
+import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -24,10 +24,15 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.confluent.kafka.serializers.AbstractKafkaAvroSerDeConfig;
-import io.confluent.kafka.streams.serdes.avro.GenericAvroSerde;
+import io.apicurio.registry.client.CompatibleClient;
+import io.apicurio.registry.client.RegistryService;
+import io.apicurio.registry.utils.serde.AvroKafkaDeserializer;
+import io.apicurio.registry.utils.serde.AvroKafkaSerializer;
+
 import io.debezium.examples.cloudevents.dataextractor.model.CloudEvent;
 import io.debezium.serde.DebeziumSerdes;
+
+
 /**
  * Starts up the KStreams pipeline once the source topics have been created.
  *
@@ -73,9 +78,10 @@ public class StreamsPipelineManager {
             .mapValues(ce -> ce.data)
             .to(jsonAvroExtractedTopic, Produced.with(longKeySerde, Serdes.ByteArray()));
 
-        Serde<GenericRecord> genericAvroSerde = new GenericAvroSerde();
-        Map<String, String> config = Collections.singletonMap(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
-        genericAvroSerde.configure(config, false);
+
+        RegistryService service = CompatibleClient.createCompatible(schemaRegistryUrl);
+        Deserializer<GenericRecord> deserializer = new AvroKafkaDeserializer(service);
+        Serde<GenericRecord> genericAvroSerde = Serdes.serdeFrom(new AvroKafkaSerializer<>(service), deserializer);
 
         builder.stream(avroAvroCustomersTopic, Consumed.with(longKeySerde, genericAvroSerde))
             .mapValues(ce -> ((ByteBuffer) ce.get("data")).array())
