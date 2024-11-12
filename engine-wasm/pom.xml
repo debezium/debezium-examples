@@ -43,11 +43,6 @@
                 <version>${version.chicory}</version>
             </dependency>
             <dependency>
-                <groupId>com.dylibso.chicory</groupId>
-                <artifactId>wasi</artifactId>
-                <version>${version.chicory}</version>
-            </dependency>
-            <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-connector-mysql</artifactId>
                 <version>${version.debezium}</version>
@@ -71,10 +66,6 @@
         <dependency>
             <groupId>com.dylibso.chicory</groupId>
             <artifactId>runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.dylibso.chicory</groupId>
-            <artifactId>wasi</artifactId>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
