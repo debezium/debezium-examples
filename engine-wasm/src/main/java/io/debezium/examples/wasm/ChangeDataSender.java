@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 
+import com.dylibso.chicory.runtime.ImportMemory;
+import com.dylibso.chicory.runtime.ImportValue;
+import com.dylibso.chicory.runtime.ImportValues;
+import com.dylibso.chicory.wasm.types.MemoryLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dylibso.chicory.log.SystemLogger;
 import com.dylibso.chicory.runtime.ExportFunction;
 import com.dylibso.chicory.runtime.Instance;
 import com.dylibso.chicory.runtime.Memory;
-import com.dylibso.chicory.runtime.Store;
-import com.dylibso.chicory.wasi.WasiOptions;
-import com.dylibso.chicory.wasi.WasiPreview1;
 import com.dylibso.chicory.wasm.Parser;
 
 import io.debezium.DebeziumException;
@@ -34,7 +34,6 @@ public class ChangeDataSender implements Runnable {
     private final Properties config;
     private final DebeziumEngine<ChangeEvent<String, String>> engine;
 
-    private final WasiPreview1 wasi;
     private final ExportFunction processFunction;
     private final ExportFunction allocFunction;
     private final ExportFunction deallocFunction;
@@ -61,21 +60,18 @@ public class ChangeDataSender implements Runnable {
             .notifying(this::sendRecord)
             .build();
 
-        var logger = new SystemLogger();
-        // let's just use the default options for now
-        var options = WasiOptions.builder().withStdout(System.out).withStderr(System.err).withStdin(System.in).build();
-        // create our instance of wasip1
-        wasi = new WasiPreview1(logger, options);
-        // create the module and connect the host functions
-        var store = new Store().addFunction(wasi.toHostFunctions());
-
+        memory = new Memory(new MemoryLimits(2, MemoryLimits.MAX_PAGES));
         final var module = Parser.parse(getClass().getResourceAsStream("/compiled/cdc.wasm"));
-        Instance instance = null;
-        instance = store.instantiate("cdc", module);
+        Instance instance = Instance.builder(module)
+                .withImportValues(
+                        ImportValues.builder()
+                                .addMemory(new ImportMemory("env", "memory", memory))
+                                .build()
+                )
+                .build();
         processFunction = instance.export("change");
         allocFunction = instance.export("malloc");
         deallocFunction = instance.export("free");
-        memory = instance.memory();
     }
 
     @Override
@@ -87,7 +83,6 @@ public class ChangeDataSender implements Runnable {
             try {
                 engine.close();
                 LOGGER.info("Engine terminated");
-                cleanUp();
                 LOGGER.info("WASI closed");
                 executor.shutdown();
             }
@@ -97,10 +92,6 @@ public class ChangeDataSender implements Runnable {
         }));
 
         executor.execute(engine);
-    }
-
-    private void cleanUp() {
-        wasi.close();
     }
 
     private void sendRecord(ChangeEvent<String, String> record) {
