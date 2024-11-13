@@ -83,7 +83,6 @@ public class ChangeDataSender implements Runnable {
             try {
                 engine.close();
                 LOGGER.info("Engine terminated");
-                LOGGER.info("WASI closed");
                 executor.shutdown();
             }
             catch (IOException e) {
