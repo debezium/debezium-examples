@@ -6,12 +6,14 @@
     "database.user": "postgres",
     "database.password": "postgres",
     "database.dbname" : "postgres",
-    "database.server.name": "dbserver2",
+    "topic.prefix": "dbserver2",
     "slot.name":"dbserver2",
     "schema.include.list": "inventory",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
     "key.converter.schemas.enable": "false",
     "value.converter": "io.debezium.converters.CloudEventsConverter",
     "value.converter.data.serializer.type" : "avro",
-    "value.converter.avro.schema.registry.url": "http://schema-registry:8081"
+    "value.converter.avro.apicurio.registry.url": "http://schema-registry:8080/apis/registry/v2",
+    "value.converter.avro.apicurio.registry.auto-register": "true",
+    "value.converter.avro.apicurio.registry.find-latest": "true"
 }
