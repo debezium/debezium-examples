@@ -50,11 +50,6 @@ services:
      - 8080:8080
     links:
      - vegetables-db
-    environment:
-     - QUARKUS_DATASOURCE_URL=jdbc:postgresql://vegetables-db:5432/vegetablesdb?currentSchema=inventory
-      #depends_on:
-      # vegetable-db:
-      #    condition: service_healthy
 
   log-enricher:
     image: debezium-examples/auditing-log-enricher:${DEBEZIUM_VERSION}
