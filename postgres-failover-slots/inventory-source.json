@@ -1,0 +1,13 @@
+{
+    "connector.class" : "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max" : "1",
+    "database.hostname" : "pgbouncer",
+    "database.port" : "5432",
+    "database.user" : "user",
+    "database.password" : "top-secret",
+    "database.dbname" : "inventorydb",
+    "topic.prefix" : "dbserver1",
+    "schema.include.list" : "inventory",
+    "plugin.name" : "pgoutput",
+    "slot.failover" : "true"
+}
