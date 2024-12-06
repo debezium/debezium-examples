@@ -7,7 +7,6 @@
         "connection.url": "jdbc:postgresql://postgres:5432/inventory",
 	"connection.username": "postgresuser",
         "connection.password": "postgrespw",
-	"topics": "customers",
 	"insert.mode": "upsert",
         "delete.enabled": "true",
         "primary.key.mode": "record_key",
