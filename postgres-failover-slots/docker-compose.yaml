@@ -1,0 +1,109 @@
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    environment:
+      - DB_HOST=postgres_primary
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=top-secret
+      - ADMIN_USERS=postgres,admin
+      - AUTH_TYPE=scram-sha-256
+    ports:
+      - 15432:5432
+    networks:
+     - my-network
+
+  # Postgres cluster set-up inspired by https://github.com/eremeykin/pg-primary-replica
+  postgres_primary:
+    image: postgres:17-alpine
+    user: postgres
+    restart: always
+    healthcheck:
+      test: 'pg_isready -U user --dbname=inventorydb'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_DB: inventorydb
+      POSTGRES_PASSWORD: top-secret
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256\nhost replication all 0.0.0.0/0 md5"
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    command: |
+      postgres 
+      -c wal_level=logical 
+      -c hot_standby=on 
+      -c max_wal_senders=10 
+      -c max_replication_slots=10
+      -c synchronized_standby_slots=replication_slot
+    volumes:
+      - ./00_init.sql:/docker-entrypoint-initdb.d/00_init.sql
+    networks:
+     - my-network
+
+  postgres_replica:
+    image: postgres:17-alpine
+    user: postgres
+    restart: always
+    healthcheck:
+      test: 'pg_isready -U user --dbname=inventorydb'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - 5433:5432
+    environment:
+      PGUSER: replicator
+      PGPASSWORD: zufsob-kuvtum-bImxa6
+    command: |
+      bash -c "
+      until pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgres_primary --port=5432
+      do
+      echo 'Waiting for primary to connect...'
+      sleep 1s
+      done
+      echo 'Backup done, starting replica...'
+      chmod 0700 /var/lib/postgresql/data
+      postgres -c wal_level=logical -c hot_standby=on -c hot_standby_feedback=1 -c sync_replication_slots=on
+      "
+    depends_on:
+      - postgres_primary
+    networks:
+     - my-network
+
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+     - 9093:9093
+    environment:
+     - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+     - BROKER_ID=1
+     - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+    networks:
+     - my-network
+
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - pgbouncer
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+# For testing newer connector versions, unpack the connector archive into this
+# directory and uncomment the lines below
+#    volumes:
+#     - ./debezium-connector-postgres:/kafka/connect/debezium-connector-postgres
+    networks:
+     - my-network
+networks:
+  my-network:
+    name: failover-network
