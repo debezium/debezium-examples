@@ -64,7 +64,7 @@ Note that we're using the network mode as "host", because the certificates only 
 ## Steps
 1. Start the topology (postgresql, kafka, and debezium connector) as defined in https://debezium.io/documentation/reference/stable/tutorial.html:
 ```shell
-export DEBEZIUM_VERSION=2.1
+export DEBEZIUM_VERSION=3.0
 docker-compose -f docker-compose.yaml up
 ```
 
