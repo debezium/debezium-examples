@@ -1,0 +1,26 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "localhost",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname" : "postgres",
+        "topic.prefix": "dbserver1",
+        "schema.include.list": "inventory",
+        "schema.history.internal.producer.security.protocol": "SSL",
+        "schema.history.internal.producer.ssl.keystore.location": "/opt/config/ssl/kafka-ssl-keystore.p12",
+        "schema.history.internal.producer.ssl.keystore.password":" top-secret",
+        "schema.history.internal.producer.ssl.truststore.location": "/opt/config/ssl/kafka-ssl-truststore.p12",
+        "schema.history.internal.producer.ssl.truststore.password": "top-secret",
+        "schema.history.internal.producer.ssl.key.password": "top-secret",
+        "schema.history.internal.consumer.security.protocol": "SSL",
+        "schema.history.internal.consumer.ssl.keystore.location": "/opt/config/ssl/kafka-ssl-keystore.p12",
+        "schema.history.internal.consumer.ssl.keystore.password": "top-secret",
+        "schema.history.internal.consumer.ssl.truststore.location": "/opt/config/ssl/kafka-ssl-truststore.p12",
+        "schema.history.internal.consumer.ssl.truststore.password": "top-secret",
+        "schema.history.internal.consumer.ssl.key.password": "top-secret"
+    }
+}
