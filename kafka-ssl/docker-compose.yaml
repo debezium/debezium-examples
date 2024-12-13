@@ -1,0 +1,74 @@
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - "2181:2181"
+     - "2888:2888"
+     - "3888:3888"
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - "9092:9092"
+    depends_on:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=BROKER:PLAINTEXT,SSL:SSL,CONTROLLER:PLAINTEXT
+     - KAFKA_LISTENERS=BROKER://0.0.0.0:9093,SSL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9094
+     - KAFKA_ADVERTISED_LISTENERS=SSL://localhost:9092,BROKER://localhost:9093
+     - KAFKA_SSL_CLIENT_AUTH=required
+     - KAFKA_SSL_KEYSTORE_LOCATION=/opt/config/ssl/kafka-ssl-keystore.p12
+     - KAFKA_SSL_KEYSTORE_PASSWORD=top-secret
+     - KAFKA_SSL_KEYSTORE_TYPE=PKCS12
+     - KAFKA_SSL_TRUSTSTORE_LOCATION=/opt/config/ssl/kafka-ssl-truststore.p12
+     - KAFKA_SSL_TRUSTSTORE_PASSWORD=top-secret
+     - KAFKA_INTER_BROKER_LISTENER_NAME=BROKER
+    volumes:
+      - ./resources:/opt/config/ssl:z
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - "5432:5432"
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - "8083:8083"
+    environment:
+      - BOOTSTRAP_SERVERS=localhost:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - CONNECT_SECURITY_PROTOCOL=SSL
+      - CONNECT_SSL_KEYSTORE_LOCATION=/opt/config/ssl/kafka-ssl-keystore.p12
+      - CONNECT_SSL_KEYSTORE_PASSWORD=top-secret
+      - CONNECT_SSL_KEYSTORE_TYPE=PKCS12
+      - CONNECT_SSL_KEY_PASSWORD=top-secret
+      - CONNECT_SSL_TRUSTSTORE_LOCATION=/opt/config/ssl/kafka-ssl-truststore.p12
+      - CONNECT_SSL_TRUSTSTORE_PASSWORD=top-secret
+      - CONNECT_SSL_TRUSTSTORE_TYPE=PKCS12
+      - CONNECT_PRODUCER_SECURITY_PROTOCOL=SSL
+      - CONNECT_PRODUCER_SSL_KEYSTORE_LOCATION=/opt/config/ssl/kafka-ssl-keystore.p12
+      - CONNECT_PRODUCER_SSL_KEYSTORE_PASSWORD=top-secret
+      - CONNECT_PRODUCER_SSL_KEYSTORE_TYPE=PKCS12
+      - CONNECT_PRODUCER_SSL_KEY_PASSWORD=top-secret
+      - CONNECT_PRODUCER_SSL_TRUSTSTORE_LOCATION=/opt/config/ssl/kafka-ssl-truststore.p12
+      - CONNECT_PRODUCER_SSL_TRUSTSTORE_PASSWORD=top-secret
+      - CONNECT_PRODUCER_SSL_TRUSTSTORE_TYPE=PKCS12
+      - CONNECT_CONSUMER_SECURITY_PROTOCOL=SSL
+      - CONNECT_CONSUMER_SSL_KEYSTORE_LOCATION=/opt/config/ssl/kafka-ssl-keystore.p12
+      - CONNECT_CONSUMER_SSL_KEYSTORE_PASSWORD=top-secret
+      - CONNECT_CONSUMER_SSL_KEYSTORE_TYPE=PKCS12
+      - CONNECT_CONSUMER_SSL_KEY_PASSWORD=top-secret
+      - CONNECT_CONSUMER_SSL_TRUSTSTORE_LOCATION=/opt/config/ssl/kafka-ssl-truststore.p12
+      - CONNECT_CONSUMER_SSL_TRUSTSTORE_PASSWORD=top-secret
+      - CONNECT_CONSUMER_SSL_TRUSTSTORE_TYPE=PKCS12
+    network_mode: host
+    volumes:
+      - ./resources:/opt/config/ssl:z
+    depends_on:
+      - kafka
+      - postgres
