@@ -6,7 +6,7 @@
     "database.user": "postgres",
     "database.password": "postgres",
     "database.dbname" : "postgres",
-    "database.server.name": "dbserver3",
+    "topic.prefix": "dbserver3",
     "slot.name":"dbserver3",
     "schema.include.list": "inventory",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",
@@ -14,5 +14,7 @@
     "value.converter": "io.debezium.converters.CloudEventsConverter",
     "value.converter.serializer.type" : "avro",
     "value.converter.data.serializer.type" : "avro",
-    "value.converter.avro.schema.registry.url": "http://schema-registry:8081"
+    "value.converter.avro.apicurio.registry.url": "http://schema-registry:8080/apis/registry/v2",
+    "value.converter.avro.apicurio.registry.auto-register": "true",
+    "value.converter.avro.apicurio.registry.find-latest": "true"
 }
