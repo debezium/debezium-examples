@@ -22,6 +22,8 @@ services:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
+    volumes:
+      - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf
     container_name:
       mysql-master
   mysql_replica:
@@ -32,6 +34,8 @@ services:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
+    volumes:
+      - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf
     container_name:
       mysql-replica
     links:
