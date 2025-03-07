@@ -1,0 +1,9 @@
+version: '2'
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:3.0
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgresuser
+     - POSTGRES_PASSWORD=postgrespw
