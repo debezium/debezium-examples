@@ -73,13 +73,13 @@ public class DatabaseChangeEventListener {
     private void handleDbChangeEvent(SourceRecord record) {
         LOG.info("f DB change event {}", record);
 
-        if (record.topic().equals("dbserver1.public.products")) {
-            Long itemId = ((Struct) record.key()).getInt64("id");
+        if (record.topic().equals("dbserver1.inventory.products")) {
+            Integer productId = ((Struct) record.key()).getInt32("id");
             Struct payload = (Struct) record.value();
             Operation op = Operation.forCode(payload.getString("op"));
             Long txId = ((Struct) payload.get("source")).getInt64("txId");
 
-            LOG.info("received event with itemId: {} op: {} txId: {}", itemId, op, txId);
+            LOG.info("received event with productId: {} op: {} txId: {}", productId, op, txId);
         }
     }
 }
