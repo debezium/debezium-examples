@@ -51,3 +51,4 @@ For getting started please check the [tutorial example](./tutorial).
 * [SQL Server - Replication](./sql-server-read-replica): How to deploy the topology of services to stream from SQL Server read-only replica
 * [MongoDB - Streaming to PostgresSQL](./unwrap-mongodb-smt): How to capture events from a MongoDB database and stream them to a PostgresSQL database
 * [MySQL - Streaming to PostgresSQL](./unwrap-smt): How to capture events from a MySQL database and stream them to a PostgresSQL database
+* [Quarkus Native Image with Debezium](./quarkus-native): superfast CDC with Debezium and Quarkus
