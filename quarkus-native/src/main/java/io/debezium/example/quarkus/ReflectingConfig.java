@@ -72,7 +72,6 @@ import org.apache.kafka.connect.transforms.predicates.TopicNameMatches;
         JmxSignalChannel.class,
         InProcessSignalChannel.class,
         StandardActionProvider.class,
-        Predicate.class,
         TopicNameMatches.class,
         ExtractNewRecordState.class
 })
