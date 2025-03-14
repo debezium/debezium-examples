@@ -29,9 +29,12 @@ import io.debezium.schema.SchemaTopicNamingStrategy;
 import io.debezium.snapshot.lock.NoLockingSupport;
 import io.debezium.snapshot.mode.*;
 import io.debezium.snapshot.spi.SnapshotLock;
+import io.debezium.transforms.ExtractNewRecordState;
 import io.quarkus.runtime.annotations.RegisterForReflection;
-import org.apache.kafka.common.security.authenticator.SaslClientAuthenticator; // maybe should be solved in kafka repo
-import org.apache.kafka.connect.json.JsonConverter; // Check how quarkus solve it with kafka extensions
+import org.apache.kafka.common.security.authenticator.SaslClientAuthenticator;
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.transforms.predicates.Predicate;
+import org.apache.kafka.connect.transforms.predicates.TopicNameMatches;
 
 @RegisterForReflection(targets = {
         DebeziumEngine.BuilderFactory.class,
@@ -68,6 +71,9 @@ import org.apache.kafka.connect.json.JsonConverter; // Check how quarkus solve i
         FileSignalChannel.class,
         JmxSignalChannel.class,
         InProcessSignalChannel.class,
-        StandardActionProvider.class
+        StandardActionProvider.class,
+        Predicate.class,
+        TopicNameMatches.class,
+        ExtractNewRecordState.class
 })
 public class ReflectingConfig { }
