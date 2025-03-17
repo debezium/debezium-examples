@@ -301,7 +301,7 @@ export DEBEZIUM_VERSION=2.1
 docker-compose -f docker-compose-sqlserver.yaml up
 
 # Initialize database and insert test data
-cat debezium-sqlserver-init/inventory.sql | docker-compose -f docker-compose-sqlserver.yaml exec -T sqlserver bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
+cat debezium-sqlserver-init/inventory.sql | docker-compose -f docker-compose-sqlserver.yaml exec -T sqlserver bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C -N o'
 
 # Start SQL Server connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-sqlserver.json
@@ -314,7 +314,7 @@ docker-compose -f docker-compose-sqlserver.yaml exec kafka /kafka/bin/kafka-cons
     --topic server1.testDB.dbo.customers
 
 # Modify records in the database via SQL Server client (do not forget to add `GO` command to execute the statement)
-docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -d testDB'
+docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C -N o -d testDB'
 
 # Shut down the cluster
 docker-compose -f docker-compose-sqlserver.yaml down
