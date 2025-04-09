@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:3.1
+    container_name: postgres
+    ports:
+     - "5432:5432"
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./config-postgres/ai-sample-data.sql:/docker-entrypoint-initdb.d/ai-sample-data.sql
+  milvus:
+    image: milvusdb/milvus:v2.5.4
+    container_name: milvus
+    environment:
+      - ETCD_USE_EMBED=true
+      - COMMON_STORAGETYPE=local
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    command: ["milvus", "run", "standalone"]
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama:/root/.ollama
+    depends_on:
+      - milvus
+      - postgres
+  debezium-server:
+    image: debezium/server-ai:3.1
+    build:
+      context: ./image-server
+    container_name: debezium-server
+    environment:
+      - xDEBEZIUM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+    ports:
+      - "8080:8080"
+      - 5005:5005
+    volumes:
+      - ./config-server:/debezium/config
+    depends_on:
+      - milvus
+      - postgres
