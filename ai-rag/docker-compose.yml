@@ -31,15 +31,12 @@ services:
       - milvus
       - postgres
   debezium-server:
-    image: debezium/server-ai:3.1
-    build:
-      context: ./image-server
+    image: quay.io/debezium/server:3.2-ai-rag
+#   build:
+#     context: ./image-server
     container_name: debezium-server
-    environment:
-      - xDEBEZIUM_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
     ports:
       - "8080:8080"
-      - 5005:5005
     volumes:
       - ./config-server:/debezium/config
     depends_on:
