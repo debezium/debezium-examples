@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: conductor-ingress
+spec:
+  rules:
+    - host: {{ required "A valid .Values.domain.url entry required!" .Values.domain.url }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: stage
+                port:
+                  number: 3000
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: conductor
+                port:
+                  number: 8080

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app.kubernetes.io/name: stage
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: debezium-platform
+{{ include "common.labels" . | indent 4 }}
+  name: stage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: stage
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/name: stage
+    spec:
+      containers:
+        - image: {{ .Values.stage.image }}
+          name: stage
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          env:
+            - name: CONDUCTOR_URL
+              value: http://{{ .Values.domain.url }}
+      restartPolicy: Always

@@ -1,0 +1,4 @@
+CLUSTER=debezium
+NAMESPACE=debezium-platform
+DEBEZIUM_PLATFORM_DOMAIN=platform.debezium.io
+TIMEOUT=300s

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app.kubernetes.io/name: stage
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: debezium-platform
+{{ include "common.labels" . | indent 4 }}
+  name: stage
+spec:
+  ports:
+    - name: stage-port
+      port: 3000
+      targetPort: 3000
+  selector:
+    app.kubernetes.io/name: stage

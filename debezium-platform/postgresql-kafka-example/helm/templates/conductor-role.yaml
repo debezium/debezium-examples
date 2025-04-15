@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: conductor-debeziumservers-creator
+rules:
+  - apiGroups: ["debezium.io"]
+    resources: ["debeziumservers"]
+    verbs: ["patch", "create", "delete", "list"]
+  - apiGroups: [ "" ]
+    resources: [ "configmaps" ]
+    resourceNames: [ {{ include "debezium-platform.offsetConfigMapName" . | quote}} ]
+    verbs: [ "create", "update", "patch", "get" ]
+  - apiGroups: [ "apps" ]
+    resources: [ "deployments", "replicasets" ]
+    verbs: [ "get", "list"]
+  - apiGroups: [ "" ]
+    resources: [ "pods", "pods/log" ]
+    verbs: [ "get", "list" ]

@@ -1,0 +1,11 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: conductor-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: conductor-debeziumservers-creator
+subjects:
+  - kind: ServiceAccount
+    name: conductor-service-account

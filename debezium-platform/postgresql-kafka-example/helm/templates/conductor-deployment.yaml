@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+  labels:
+    app.kubernetes.io/name: conductor
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: debezium-platform
+{{ include "common.labels" . | indent 4 }}
+  name: conductor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: conductor
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+      labels:
+        app.kubernetes.io/name: conductor
+    spec:
+      serviceAccountName: conductor-service-account
+      containers:
+        - env:
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debezium-platform.secretName" . }}
+                  key: password
+            - name: QUARKUS_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "debezium-platform.secretName" . }}
+                  key: username
+            - name: CONDUCTOR_WATCHER_OFFSET_STORAGE_TYPE
+              value: io.debezium.storage.configmap.ConfigMapOffsetStore
+            - name: CONDUCTOR_WATCHER_OFFSET_STORAGE_CONFIG_CONFIGMAP_NAME
+              value: {{ include "debezium-platform.offsetConfigMapName" . }}
+            - name: QUARKUS_HTTP_CORS_ORIGINS
+              value: http://{{ .Values.domain.url }}
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: jdbc:postgresql://{{ .Values.database.host }}:5432/{{ .Values.database.name }}
+            - name: QUARKUS_KUBERNETES_CLIENT_NAMESPACE
+              value: {{ .Release.Namespace }}
+{{ include "debezium-platform.offsetConfig" . | indent 12 }}
+{{ include "debezium-platform.schemaHistoryConfig" . | indent 12 }}
+          {{- range .Values.env }}
+            - name: {{ .name }}
+              value: {{ .value }}
+          {{- end }}
+          image: {{ .Values.conductor.image }}
+          name: conductor
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always

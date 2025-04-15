@@ -1,0 +1,8 @@
+enabled: true
+image: quay.io/debezium/postgres:14-alpine
+name: postgres
+host: postgres
+auth:
+  username: user
+  password: password
+  existingSecret: ""

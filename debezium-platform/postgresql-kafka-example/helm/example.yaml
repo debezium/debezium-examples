@@ -1,0 +1,4 @@
+domain:
+  url: platform.debezium.io
+database:
+  enabled: true

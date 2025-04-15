@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app.kubernetes.io/name: conductor
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: debezium-platform
+{{ include "common.labels" . | indent 4 }}
+  name: conductor
+spec:
+  ports:
+    - name: conductor-port
+      port: 8080
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/name: conductor

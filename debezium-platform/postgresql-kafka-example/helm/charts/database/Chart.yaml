@@ -1,0 +1,4 @@
+name: database
+description: A PostgreSQL database enabled for CDC
+version: 0.0.1
+apiVersion: v2

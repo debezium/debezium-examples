@@ -1,0 +1,17 @@
+name: debezium-platform
+description: Debezium Platform
+version: 0.0.1
+apiVersion: v2
+keywords:
+  - debezium
+  - cdc
+sources:
+  - https://github.com/debezium/debezium-platform
+home: https://github.com/debezium/debezium-platform
+dependencies:
+    - name: debezium-operator
+      version: "3.0.7-final"
+      repository: "https://charts.debezium.io"
+    - name: database
+      version: 0.0.1
+      condition: database.enabled

@@ -1,0 +1,135 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+        "conductor": {
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "offset": {
+                    "properties": {
+                        "existingConfigMap": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "type": "object"
+        },
+        "database": {
+            "properties": {
+                "auth": {
+                    "properties": {
+                        "existingSecret": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "enabled": {
+                    "type": "boolean"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "domain": {
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "env": {
+            "type": "array"
+        },
+        "offset": {
+            "properties": {
+                "database": {
+                    "properties": {
+                        "auth": {
+                            "properties": {
+                                "existingSecret": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "host": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "port": {
+                            "type": "integer"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "reusePlatformDatabase": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "schemaHistory": {
+            "properties": {
+                "database": {
+                    "properties": {
+                        "auth": {
+                            "properties": {
+                                "existingSecret": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "host": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "password": {
+                            "type": "string"
+                        },
+                        "port": {
+                            "type": "integer"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "reusePlatformDatabase": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "stage": {
+            "properties": {
+                "image": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "type": "object"
+}

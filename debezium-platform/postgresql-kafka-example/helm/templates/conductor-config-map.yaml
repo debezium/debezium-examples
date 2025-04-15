@@ -1,0 +1,12 @@
+{{- if empty .Values.conductor.offset.existingConfigMap -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: conductor
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: debezium-platform
+{{ include "common.labels" . | indent 4 }}
+  name: {{ include "debezium-platform.offsetConfigMapName" . }}
+data: {}
+{{- end}}
