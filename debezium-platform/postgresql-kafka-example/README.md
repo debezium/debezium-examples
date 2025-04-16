@@ -20,18 +20,49 @@ Now that you have the required k8s environment setup, its time to fire the requi
 ./setup-infra.sh
 ```
 
+you can check the required infra is up and running
+
+```shell
+
+$ kubectl get pods
+
+NAME                                        READY   STATUS    RESTARTS   AGE
+dbz-kafka-dual-role-0                       1/1     Running   0          98s
+dbz-kafka-entity-operator-9f4d8fbc4-twq7j   1/2     Running   0          14s
+postgresql-85cc668d48-pjn58                 1/1     Running   0          4m2s
+strimzi-cluster-operator-7dc6fbcbf5-h28dl   1/1     Running   0          3m59s
+
+```
+
 Deploying Debezium-platform Operator
 ---
 We will install debezium-platfrom platform through helm 
 
 ```shell
-cd helm && 
-helm dependency build &&
-helm install debezium-platform . -f ./example.yaml &&
-cd ..
+helm repo add debezium https://charts.debezium.io &&
+helm install debezium-platform debezium/debezium-platform --version 3.1.0-beta1 --set database.enabled=true --set domain.url=platform.debezium.io
+
+```
+The domain.url is the only required property; it is used as host in the Ingress definition.
+
+```shell
+
+$ kubectl get pods
+
+NAME                                         READY   STATUS    RESTARTS       AGE
+conductor-7c48c54c5c-rmjw9                   1/1     Running   0              4m24s
+dbz-kafka-dual-role-0                        1/1     Running   0              6m7s
+dbz-kafka-entity-operator-54dd7cc446-k8cfh   2/2     Running   0              5m9s
+debezium-operator-666f7b44d9-6tf4n           1/1     Running   0              4m24s
+postgres-69c4c64ff5-2tfmw                    1/1     Running   0              4m24s
+postgresql-85cc668d48-xtlsw                  1/1     Running   0              8m12s
+stage-6c64f68df6-cfhjs                       1/1     Running   0              4m24s
+strimzi-cluster-operator-7dc6fbcbf5-wkqgz    1/1     Running   0              8m9s
+
 ```
 
-after all pods are running you should access the Debezium-platform-stage(UI) from `http://platform.debezium.io/`, now you have completed the installing and running the debezium-platform part.
+After all pods are running you should access the Debezium-platform-stage(UI) from `http://platform.debezium.io/`, now you have completed the installing and running the debezium-platform part.
+
 
 Using the debezium-platfrom-stage(UI) for seting up our data pipeline 
 ---
@@ -119,23 +150,42 @@ For this demo, see the connection properties you can use for each connector type
  ![ExtractNewRecordState](./resources/transform.png)
 
 ### Pipeline
-The use of [Operator Lifecycle Manager](https://olm.operatorframework.io/) allows you to configure the scope of namespaces watched by the operator from a single namespace to the entire cluster. The process below will install the operator into the `operators` namespace -- which is by default intended for cluster-wide operators. 
 
+Now that you have all the required resources setup, we can proceed on creating the final data pipeline. 
 
+#### Pipeline designer
+ ![Pipeline Designer](./resources/pipeline_designer.png)
 
+#### Pipeline configuration
+ ![Pipeline Configuration](./resources/pipeline_configuration.png)
+
+ 
+After creatting the pipeline in the UI you can check the k8 pods and should see the pipeline pods `test-pipeline-*`
+
+ ```shell
+$ kubectl get pods
+NAME                                         READY   STATUS    RESTARTS       AGE
+conductor-7c48c54c5c-rmjw9                   1/1     Running   0   9m51s
+dbz-kafka-dual-role-0                        1/1     Running   0              11m
+dbz-kafka-entity-operator-54dd7cc446-k8cfh   2/2     Running   0              10m
+debezium-operator-666f7b44d9-6tf4n           1/1     Running   0              9m51s
+postgres-69c4c64ff5-2tfmw                    1/1     Running   0              9m51s
+postgresql-85cc668d48-xtlsw                  1/1     Running   0              13m
+stage-6c64f68df6-cfhjs                       1/1     Running   0              9m51s
+strimzi-cluster-operator-7dc6fbcbf5-wkqgz    1/1     Running   0              13m
+test-pipeline-645bddd8df-86r4g               1/1     Running   0              116s
+ ```
 
 
 
 Verifying Change Events
 ---
-You can verify that the _Debezium Server_ instance deployed in the previous section consumed all initial data from the database with the following command:
+You can verify that the data pipeline instance `test-pipeline` deployed in the previous section consumed all initial data from the database with the following command:
 
 ```sh
-kubectl exec dbz-kafka-kafka-0 -n debezium -- /opt/kafka/bin/kafka-console-consumer.sh \
-    --bootstrap-server localhost:9092 \
-    --from-beginning \
-    --property print.key=true \
-    --topic inventory.inventory.orders
+
+kubectl exec -n debezium-platform -it dbz-kafka-dual-role-0 -- ./bin/kafka-console-consumer.sh --bootstrap-server=localhost:9092 --topic inventory.inventory.products --from-beginning --max-messages 5
+
 ```
 
 Cleanup
@@ -143,5 +193,5 @@ Cleanup
 To remove the Kubernetes environment used in this tutorial, execute the cleanup script:
 
 ```sh
-./destroy-environment.sh
+./clean-up.sh
 ```
