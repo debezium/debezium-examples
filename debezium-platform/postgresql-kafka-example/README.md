@@ -6,7 +6,7 @@ This example  will walk you through on how to use the Debezium Management Platfo
 Preparing the Environment
 ---
 As the first step we will provision a local Kubernetes cluster using [minikube](https://minikube.sigs.k8s.io/docs/) and will install an ingress controller. For this example, considering a local setup, we will use the `/etc/hosts` to resolve the domain.
-The following script, when executed, will use minikube to provision a local k8s cluster named `debezium` and will add the required ingress controllers. It will also updarte the `/etc/hosts` to add the domain url.
+The following script, when executed, will use minikube to provision a local k8s cluster named `debezium` and will add the required ingress controllers. It will also update the `/etc/hosts` to add the domain url.
 
 ```sh
 ./create-environment.sh
