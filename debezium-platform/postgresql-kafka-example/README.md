@@ -1,6 +1,6 @@
 Using Debezium-platfrom to manage and stream changes
 ===
-This example  will walk you thru on how to use the Debezium-platfrom-stage to manage and stream changes from a PostgreSQL database into Apache Kafka with Debezium Server deployed in a Kubernetes cluster.
+This example  will walk you through on how to use the Debezium Management Platform to manage and stream changes from a PostgreSQL database into Apache Kafka.
 
 
 Preparing the Environment
