@@ -45,7 +45,7 @@ helm install debezium-platform debezium/debezium-platform --version 3.1.0-final 
 ```
 
 - `domain.url` is the only required property; it is used as host in the Ingress definition. 
-- `database.enabled` property is used. This property helps to simplify deployment in testing environments by automatically deploying the PostgreSQL database that is required by the conductor service. When deploying in a production environment, do not enable automatic deployment of the PostgreSQL database. Instead, specify an existing database instance, by setting the database.name, database.host, and other properties required to connect to the database. See the following table for more information
+- `database.enabled` property is used. This property helps to simplify deployment in testing environments by automatically deploying the PostgreSQL database that is required by the conductor service. When deploying in a production environment, do not enable automatic deployment of the PostgreSQL database. Instead, specify an existing database instance, by setting the database.name, database.host, and other properties required to connect to the database. 
 
 ```shell
 
