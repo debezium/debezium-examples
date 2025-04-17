@@ -40,7 +40,7 @@ We will install debezium-platfrom platform through helm
 
 ```shell
 helm repo add debezium https://charts.debezium.io &&
-helm install debezium-platform debezium/debezium-platform --version 3.1.0-beta1 --set database.enabled=true --set domain.url=platform.debezium.io
+helm install debezium-platform debezium/debezium-platform --version 3.1.0-final --set database.enabled=true --set domain.url=platform.debezium.io
 
 ```
 The domain.url is the only required property; it is used as host in the Ingress definition.
