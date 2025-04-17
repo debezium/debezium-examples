@@ -43,7 +43,9 @@ helm repo add debezium https://charts.debezium.io &&
 helm install debezium-platform debezium/debezium-platform --version 3.1.0-final --set database.enabled=true --set domain.url=platform.debezium.io
 
 ```
-The domain.url is the only required property; it is used as host in the Ingress definition.
+
+- `domain.url` is the only required property; it is used as host in the Ingress definition. 
+- `database.enabled` property is used. This property helps to simplify deployment in testing environments by automatically deploying the PostgreSQL database that is required by the conductor service. When deploying in a production environment, do not enable automatic deployment of the PostgreSQL database. Instead, specify an existing database instance, by setting the database.name, database.host, and other properties required to connect to the database. See the following table for more information
 
 ```shell
 
@@ -160,12 +162,12 @@ Now that you have all the required resources setup, we can proceed on creating t
  ![Pipeline Configuration](./resources/pipeline_configuration.png)
 
  
-After creatting the pipeline in the UI you can check the k8 pods and should see the pipeline pods `test-pipeline-*`
+After creating the pipeline in the UI you can check the k8 pods and should see the pipeline pods `test-pipeline-*`
 
  ```shell
 $ kubectl get pods
 NAME                                         READY   STATUS    RESTARTS       AGE
-conductor-7c48c54c5c-rmjw9                   1/1     Running   0   9m51s
+conductor-7c48c54c5c-rmjw9                   1/1     Running   0              9m51s
 dbz-kafka-dual-role-0                        1/1     Running   0              11m
 dbz-kafka-entity-operator-54dd7cc446-k8cfh   2/2     Running   0              10m
 debezium-operator-666f7b44d9-6tf4n           1/1     Running   0              9m51s
