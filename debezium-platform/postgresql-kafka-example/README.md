@@ -64,7 +64,7 @@ strimzi-cluster-operator-7dc6fbcbf5-wkqgz    1/1     Running   0              8m
 After all pods are running you should access the Debezium-platform-stage(UI) from `http://platform.debezium.io/`, now you have completed the installing and running the debezium-platform part.
 
 
-Using the debezium-platfrom-stage(UI) for seting up our data pipeline 
+Using the debezium-platfrom-stage(UI) for setting up our data pipeline 
 ---
 Now once you have running platfrom-stage(UI), we will create a data pipeline and all its resources i.e source, destination and transform(as per need) thru it. You will see different side navigation option to configure them.
 
