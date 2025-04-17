@@ -34,7 +34,7 @@ strimzi-cluster-operator-7dc6fbcbf5-h28dl   1/1     Running   0          3m59s
 
 ```
 
-Deploying Debezium-platform Operator
+Deploying Debezium Management Platform
 ---
 We will install debezium-platfrom platform through helm 
 
