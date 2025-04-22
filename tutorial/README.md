@@ -172,13 +172,13 @@ The connector configuration file configures the connector but explicitly sets th
 You can access the first version of the schema for `customers` values like so:
 
 ```shell
-curl -X GET http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1
+curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
 ```
 
 Or, if you have the `jq` utility installed, you can get a formatted output like this:
 
 ```shell
-curl -X GET http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
+curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value | jq .
 ```
 
 If you alter the structure of the `customers` table in the database and trigger another change event,
