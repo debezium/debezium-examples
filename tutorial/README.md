@@ -162,6 +162,38 @@ curl -X GET http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbse
 If you alter the structure of the `customers` table in the database and trigger another change event,
 a new version of that schema will be available in the registry.
 
+#### Avro format using Apicurio Avro converter in compatibility mode
+
+Configuring Avro at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
+To do this, follow the same steps above for MySQL but instead using the _docker-compose-mysql-apicurio.yaml_ and _register-mysql-apicurio-compatibile-converter-avro.json_ configuration files.
+The Compose file configures the Connect service to use the default (de-)serializers for the Connect instance and starts one additional service, the Apicurio Registry.
+The connector configuration file configures the connector but explicitly sets the (de-)serializers for the connector to use Avro and specifies the location of the Apicurio registry.
+
+You can access the first version of the schema for `customers` values like so:
+
+```shell
+curl -X GET http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1
+```
+
+Or, if you have the `jq` utility installed, you can get a formatted output like this:
+
+```shell
+curl -X GET http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1 | jq '.schema | fromjson'
+```
+
+If you alter the structure of the `customers` table in the database and trigger another change event,
+a new version of that schema will be available in the registry.
+
+To consume the Avro messages It is possible to use `kafkacat` tool:
+
+```shell
+docker run --rm --tty \
+  --network tutorial_default \
+  quay.io/debezium/tooling:1.2 \
+  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://apicurio:8080/apis/ccompat/v6 \
+  -t dbserver1.inventory.customers | jq .
+```
+
 #### Avro format using Confluent Avro converter
 
 Configuring Avro at the Debezium Connector involves specifying the converter and schema registry as a part of the connectors configuration.
