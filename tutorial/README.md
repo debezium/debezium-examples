@@ -20,6 +20,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using Vitess](#using-vitess)
   * [Using TimescaleDB](#using-timescaledb)
   * [Using Informix](#using-informix)
+  * [Using MariaDB](#using-mariadb)
   * [Using externalized secrets](#using-externalized-secrets)
   * [Running without ZooKeeper](#running-without-zookeeper)
   * [Debugging](#debugging)
@@ -484,6 +485,27 @@ INSERT INTO informix.customers(first_name, last_name, email) VALUES ('John', 'Do
 
 # Shut down the cluster
 docker-compose -f docker-compose-ifx.yaml down
+```
+
+## Using MariaDB
+
+```shell
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=3.1
+docker-compose -f docker-compose-mariadb.yaml up
+
+# Start MariaDB connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mariadb.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-mariadb.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic dbserver1.inventory.customers
+
+# Shut down the cluster
+docker-compose -f docker-compose-mariadb.yaml down
 ```
 
 ## Using externalized secrets
