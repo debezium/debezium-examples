@@ -535,6 +535,9 @@ docker-compose -f docker-compose-mariadb.yaml exec kafka /kafka/bin/kafka-consol
     --from-beginning \
     --property print.key=true \
     --topic dbserver1.inventory.customers
+    
+# Modify records in the database via MariaDB client
+docker compose -f docker-compose-mariadb.yaml exec mariadb bash -c 'mariadb -u $MARIADB_USER -p$MARIADB_PASSWORD inventory'
 
 # Shut down the cluster
 docker-compose -f docker-compose-mariadb.yaml down
