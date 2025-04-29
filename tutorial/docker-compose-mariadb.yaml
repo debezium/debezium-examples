@@ -15,7 +15,7 @@ services:
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
   mariadb:
-    image: quay.io/debezium/example-mariadb:${DEBEZIUM_VERSION}
+    image: example-mariadb:local3.1-1
     ports:
      - 3306:3306
     environment:
