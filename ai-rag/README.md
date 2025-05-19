@@ -1,4 +1,4 @@
-# Retrieval Augmented Generation wit Debezium
+# Retrieval Augmented Generation with Debezium
 
 This demo shows how Debezium Server could be used to implement RAG in an application.
 
