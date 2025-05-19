@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   postgres:
-    image: quay.io/debezium/example-postgres:3.1
+    image: quay.io/debezium/example-postgres:3.2
     container_name: postgres
     ports:
      - "5432:5432"
@@ -31,9 +31,9 @@ services:
       - milvus
       - postgres
   debezium-server:
-    image: quay.io/debezium/server:3.2-ai-rag
-#   build:
-#     context: ./image-server
+    image: quay.io/debezium/server:3.2.0.Alpha1-ollama
+    build:
+      context: ./image-server
     container_name: debezium-server
     ports:
       - "8080:8080"
