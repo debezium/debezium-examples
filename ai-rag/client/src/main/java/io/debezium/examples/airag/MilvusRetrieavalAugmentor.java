@@ -51,12 +51,5 @@ public class MilvusRetrieavalAugmentor implements Supplier<RetrievalAugmentor> {
             Log.infof("Result of augmentation is %s", result.contents());
             return result;
         }
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public UserMessage augment(UserMessage userMessage, Metadata metadata) {
-            Log.warn("Obsolete method called");
-            return delegate.augment(userMessage, metadata);
-        }
     }
 }
