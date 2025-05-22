@@ -4,7 +4,7 @@ import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import io.quarkiverse.langchain4j.RegisterAiService;
 
-@RegisterAiService(retrievalAugmentor = MilvusRetrieavalAugmentor.class)
+@RegisterAiService(retrievalAugmentor = MilvusRetrievalAugmentor.class)
 public interface Chat {
 
     @SystemMessage("You are an expert that provides short summaries.")

@@ -2,24 +2,22 @@ package io.debezium.examples.airag;
 
 import java.util.function.Supplier;
 
-import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.AugmentationRequest;
 import dev.langchain4j.rag.AugmentationResult;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-import dev.langchain4j.rag.query.Metadata;
 import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class MilvusRetrieavalAugmentor implements Supplier<RetrievalAugmentor> {
+public class MilvusRetrievalAugmentor implements Supplier<RetrievalAugmentor> {
 
     private final RetrievalAugmentor augmentor;
 
-    MilvusRetrieavalAugmentor(MilvusEmbeddingStore store, EmbeddingModel model) {
+    MilvusRetrievalAugmentor(MilvusEmbeddingStore store, EmbeddingModel model) {
         EmbeddingStoreContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                 .embeddingModel(model)
                 .embeddingStore(store)
