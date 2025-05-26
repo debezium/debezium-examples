@@ -1,40 +1,49 @@
-version: '2'
 services:
   zookeeper:
     image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
     ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      ZOOKEEPER_CONNECT: zookeeper:2181
   mongodb:
-    image: quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
-    hostname: mongodb
+    image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: &mongodb-hostname mongodb
     ports:
-     - 27017:27017
+      - 27017:27017
     environment:
-     - MONGODB_USER=debezium
-     - MONGODB_PASSWORD=dbz
+      MONGODB_USER: debezium
+      MONGODB_PASSWORD: dbz
+    healthcheck:
+      test: bash -c 'mongosh --quiet --eval "db.adminCommand(\"ping\").ok" localhost:27017 | grep 1'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  mongodb-init:
+    image: *mongodb-image
+    environment:
+      HOSTNAME: *mongodb-hostname
+    entrypoint: /bin/bash
+    command: "/usr/local/bin/init-inventory.sh"
+    depends_on:
+      mongodb:
+        condition: service_healthy
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
-     - 8083:8083
-    links:
-     - kafka
-     - mongodb
+      - 8083:8083
     environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
 # For testing newer connector versions, unpack the connector archive into this
 # directory and uncomment the lines below
 #    volumes:

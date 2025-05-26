@@ -52,7 +52,7 @@ docker-compose -f docker-compose-mysql.yaml down
 ### Using MySQL and the Avro message format
 
 To use [Avro-style messages](https://debezium.io/documentation/reference/stable/configuration/avro.html) instead of JSON,
-Avro can be configured one of two ways, 
+Avro can be configured one of two ways,
 in the Kafka Connect worker configuration or in the connector configuration.
 Using Avro in conjunction with the schema registry allows for much more compact messages.
 
@@ -258,9 +258,6 @@ docker-compose -f docker-compose-postgres.yaml down
 export DEBEZIUM_VERSION=2.1
 docker-compose -f docker-compose-mongodb.yaml up
 
-# Initialize MongoDB replica set and insert some test data
-docker-compose -f docker-compose-mongodb.yaml exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
-
 # Start MongoDB connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb.json
 
@@ -381,7 +378,7 @@ docker-compose -f docker-compose-db2.yaml down
 
 ## Using Cassandra
 
-```shell 
+```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
 export DEBEZIUM_VERSION=2.1
 
@@ -409,7 +406,7 @@ docker-compose -f docker-compose-cassandra.yaml down
 
 ## Using Vitess
 
-```shell 
+```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
 export DEBEZIUM_VERSION=2.7
 
@@ -439,11 +436,11 @@ docker-compose -f docker-compose-vitess.yaml down
 In this example, the Vitess setup has 2 keyspaces (a.k.a. schemas in MySQL's term):
 
 - 1 unsharded keyspace: `customer`, which contains 1 table `customer`, and some technical Sequence tables used by Vitess itself.
-- 1 sharded keyspace: `inventory`, which contains 3 tables `products`, `products_on_hand` and `orders`. This sharded keyspace has 2 shards (`-80` and `80-`), the sharding key is the product id column of each of the 3 tables, this is, the `id` column in the `products` table, the `product_id` column in the `products_on_hand` table, the `product_id` column in the `orders` table. 
+- 1 sharded keyspace: `inventory`, which contains 3 tables `products`, `products_on_hand` and `orders`. This sharded keyspace has 2 shards (`-80` and `80-`), the sharding key is the product id column of each of the 3 tables, this is, the `id` column in the `products` table, the `product_id` column in the `products_on_hand` table, the `product_id` column in the `orders` table.
 
 The unsharded keyspace `customer` has only 1 shard, the sharded keyspace `inventory` has 2 shards. Each shard consists of their own MySQL cluster that has 3 MySQL processes: 1 master and 2 replicas. Vitess uses 1 instance of `vttablet` as the sidecar for each MySQL process.
 
-There are 3 other Vitess processes running in the same container: `vtgate`, `vtctld` and `etcd`. Typically, MySQL clients (e.g. JDBC) send queries to `vtgate`, who routes queries to `vttablets`, who in turn run the query in their local MySQL instance. `vtctld` is a long-running process for admin operations such as adding new keyspaces. Keyspaces' metadata (a.k.a topology) is stored in `etcd`. `vtgate` is stateless and reads the topology from `etcd` and cache it locally. 
+There are 3 other Vitess processes running in the same container: `vtgate`, `vtctld` and `etcd`. Typically, MySQL clients (e.g. JDBC) send queries to `vtgate`, who routes queries to `vttablets`, who in turn run the query in their local MySQL instance. `vtctld` is a long-running process for admin operations such as adding new keyspaces. Keyspaces' metadata (a.k.a topology) is stored in `etcd`. `vtgate` is stateless and reads the topology from `etcd` and cache it locally.
 
 In summary, the following diagram shows the Vitess container's sharding setup and all the processes running inside the Vitess container:
 
@@ -535,7 +532,7 @@ docker-compose -f docker-compose-mariadb.yaml exec kafka /kafka/bin/kafka-consol
     --from-beginning \
     --property print.key=true \
     --topic dbserver1.inventory.customers
-    
+
 # Modify records in the database via MariaDB client
 docker compose -f docker-compose-mariadb.yaml exec mariadb bash -c 'mariadb -u $MARIADB_USER -p$MARIADB_PASSWORD inventory'
 

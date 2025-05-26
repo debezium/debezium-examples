@@ -88,13 +88,7 @@ docker compose exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'ps
 Start the database container:
 
 ```shell
-docker compose up -d mongodb
-```
-
-Initialize MongoDB replica set and insert some test data
-
-```shell
-docker compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
+docker compose up -d mongodb mongodb-init
 ```
 
 Start Debezium Server:

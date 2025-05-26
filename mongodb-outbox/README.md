@@ -6,9 +6,6 @@ export DEBEZIUM_VERSION=2.1
 export DEBEZIUM_CONNECTOR_VERSION=2.1.3.Final
 docker compose up --build
 
-# Initialize MongoDB replica set and insert some test data
-docker compose exec mongodb bash -c '/usr/local/bin/init-inventory.sh'
-
 # Start MongoDB connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb.json
 
