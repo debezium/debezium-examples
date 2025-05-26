@@ -1,21 +1,36 @@
-version: '3.9'
+version: "3.9"
 services:
   postgres:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     container_name: postgres
     ports:
-     - "5432:5432"
+      - "5432:5432"
     environment:
-     - POSTGRES_USER=postgres
-     - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
   mongodb:
-    image: quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
-    container_name: mongodb
+    image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: &mongodb-hostname mongodb
     ports:
-      - "27017:27017"
+      - 27017:27017
     environment:
-      - MONGODB_USER=debezium
-      - MONGODB_PASSWORD=dbz
+      MONGODB_USER: debezium
+      MONGODB_PASSWORD: dbz
+    healthcheck:
+      test: bash -c 'mongosh --quiet --eval "db.adminCommand(\"ping\").ok" localhost:27017 | grep 1'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  mongodb-init:
+    image: *mongodb-image
+    environment:
+      HOSTNAME: *mongodb-hostname
+    entrypoint: /bin/bash
+    command: "/usr/local/bin/init-inventory.sh"
+    depends_on:
+      mongodb:
+        condition: service_healthy
   mysql:
     image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
     container_name: mysql
