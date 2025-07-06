@@ -44,38 +44,20 @@ services:
      - STATUS_STORAGE_TOPIC=my_connect_statuses
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
+     - ENABLE_APICURIO_CONVERTERS=true
     networks:
      - my-network
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.0.1
+    image: apicurio/apicurio-registry-mem:2.3.1.Final
     ports:
-      - 8181:8181
-      - 8081:8081
-    environment:
-      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=kafka:9092
-      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
-      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
-      - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS=GET,POST,PUT,OPTIONS
-      - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN=*
-    links:
-      - zookeeper
-    networks:
-      - my-network
-  schema-registry-ui:
-    image: landoop/schema-registry-ui
-    ports:
-      - 8000:8000
-    environment:
-      - SCHEMAREGISTRY_URL=http://schema-registry:8081
-      - PROXY=true
-    links:
-      - schema-registry
+     - 8080:8080
     networks:
       - my-network
   avro-extractor:
     image: debezium-examples/cloudevents-avro-extractor:${DEBEZIUM_VERSION}
     build:
       context: avro-data-extractor
+      dockerfile: src/main/docker/Dockerfile.jvm
     ports:
       - 8079:8079
     links:

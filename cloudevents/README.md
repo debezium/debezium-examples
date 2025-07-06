@@ -5,7 +5,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 ## Preparations
 
 ```shell
-export DEBEZIUM_VERSION=1.9
+export DEBEZIUM_VERSION=2.0
 mvn clean install -f avro-data-extractor/pom.xml
 docker-compose up --build
 ```
@@ -51,7 +51,7 @@ Examine its contents like so:
 docker run --rm --tty \
   --network cloudevents-network \
   quay.io/debezium/tooling:1.2 \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8081 \
+  kafkacat -b kafka:9092 -C -o beginning -q \
   -t customers2 | jq .
 ```
 
@@ -65,7 +65,7 @@ curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" 
 docker run --rm --tty \
   --network cloudevents-network \
   quay.io/debezium/tooling:1.2 \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8081 \
+  kafkacat -b kafka:9092 -C -o beginning -q \
   -t dbserver3.inventory.customers | jq .
 ```
 
@@ -76,8 +76,8 @@ The same stream processing application writes out that data to the `customers3` 
 docker run --rm --tty \
   --network cloudevents-network \
   quay.io/debezium/tooling:1.2 \
-  kafkacat -b kafka:9092 -C -o beginning -q -s value=avro -r http://schema-registry:8081 \
-  -t customers2 | jq .
+  kafkacat -b kafka:9092 -C -o beginning -q \
+  -t customers3
 ```
 
 ## CloudEvents Binary Mode
