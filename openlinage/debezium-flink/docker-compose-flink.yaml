@@ -1,0 +1,52 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:3.2.0.Final
+    ports:
+     - 9092:9092
+  connect:
+    image: debezium/connect-openlineage
+    build:
+      context: ./connect
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - postgres
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+  postgres:
+    image: quay.io/debezium/example-postgres:3.2.0.Final
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  jobmanager:
+    image: debezium/flink-job
+    build:
+      context: ./flink-job
+    command: jobmanager
+    ports:
+      - 8081:8081
+    environment:
+      OPENLINEAGE_CONFIG: /opt/flink/conf/openlineage.yml
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        execution.job-status-changed-listeners: io.openlineage.flink.listener.OpenLineageJobStatusChangedListenerFactory
+    links:
+     - kafka
+  taskmanager:
+    image: debezium/flink-job
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2 
+        execution.job-status-changed-listeners: io.openlineage.flink.listener.OpenLineageJobStatusChangedListenerFactory
