@@ -1,19 +1,23 @@
-version: '2'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+    healthcheck:
+      test: /kafka/bin/kafka-topics.sh --list --bootstrap-server kafka:9092 || exit 1
+      interval: 20s
+      timeout: 20s
+      retries: 20
+      start_period: 20s
+
   mysql:
     image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
     ports:
@@ -22,6 +26,12 @@ services:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
+    healthcheck:
+      test: mysqladmin ping -h mysql -p"$MYSQL_ROOT_PASSWORD" || exit 1
+      interval: 20s
+      timeout: 20s
+      retries: 20
+
   schema-registry:
     image: confluentinc/cp-schema-registry:7.0.1
     ports:
@@ -31,16 +41,26 @@ services:
      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=kafka:9092
      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
-    links:
-     - zookeeper
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://schema-registry:8081/subjects || exit 1
+      interval: 20s
+      timeout: 20s
+      retries: 20
+
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
-    links:
-     - kafka
-     - mysql
-     - schema-registry
+    depends_on:
+      kafka:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
@@ -53,3 +73,8 @@ services:
      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    healthcheck:
+      test: curl --fail http://connect:8083/connectors || exit 1
+      interval: 20s
+      timeout: 20s
+      retries: 20

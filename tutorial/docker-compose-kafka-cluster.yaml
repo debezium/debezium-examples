@@ -1,0 +1,72 @@
+services:
+  kafka-1:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9192:9092
+      - 9193:9093
+      - 9112:9012
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - JMXPORT=9012
+      - JMXHOST=0.0.0.0
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_LISTENERS=CONTROLLER://kafka-1:9093,PLAINTEXT://kafka-1:9092
+      - KAFKA_ADVERTISED_LISTENERS=CONTROLLER://kafka-1:9093,PLAINTEXT://kafka-1:9092
+
+  kafka-2:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9292:9092
+      - 9293:9093
+      - 9212:9012
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=2
+      - NODE_ROLE=combined
+      - JMXPORT=9012
+      - JMXHOST=0.0.0.0
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_LISTENERS=CONTROLLER://kafka-2:9093,PLAINTEXT://kafka-2:9092
+      - KAFKA_ADVERTISED_LISTENERS=CONTROLLER://kafka-2:9093,PLAINTEXT://kafka-2:9092
+
+  kafka-3:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9392:9092
+      - 9393:9093
+      - 9312:9012
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=3
+      - NODE_ROLE=combined
+      - JMXPORT=9012
+      - JMXHOST=0.0.0.0
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
+      - KAFKA_LISTENERS=CONTROLLER://kafka-3:9093,PLAINTEXT://kafka-3:9092
+      - KAFKA_ADVERTISED_LISTENERS=CONTROLLER://kafka-3:9093,PLAINTEXT://kafka-3:9092
+
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+      - postgres
+    environment:
+      - BOOTSTRAP_SERVERS=kafka-1:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses

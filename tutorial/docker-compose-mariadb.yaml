@@ -1,37 +1,36 @@
-version: '2'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
   mariadb:
     image: quay.io/debezium/example-mariadb:${DEBEZIUM_VERSION}
     ports:
-     - 3306:3306
+      - 3306:3306
     environment:
-     - MARIADB_ROOT_PASSWORD=debezium
-     - MARIADB_USER=mariadbuser
-     - MARIADB_PASSWORD=mariadbpw
+      - MARIADB_ROOT_PASSWORD=debezium
+      - MARIADB_USER=mariadbuser
+      - MARIADB_PASSWORD=mariadbpw
+
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
-     - 8083:8083
-    links:
-     - kafka
-     - mariadb
+      - 8083:8083
+    depends_on:
+      - kafka
+      - mariadb
     environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
