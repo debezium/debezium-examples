@@ -6,28 +6,24 @@ services:
       - 16686:16686
     networks:
       - my-network
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-      - 2181:2181
-      - 2888:2888
-      - 3888:3888
-    networks:
-      - my-network
+
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 9092:9092
-    links:
-      - zookeeper
+      - 9093:9093
     environment:
-      - ZOOKEEPER_CONNECT=zookeeper:2181
-    # Set to host IP address when working on the services locally
-    # - ADVERTISED_HOST_NAME=172.17.0.1
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # Set to host IP address when working on the services locally
+      # - ADVERTISED_HOST_NAME=172.17.0.1
     networks:
       - my-network
-    depends_on:
-      - zookeeper
+
   connect:
     image: debezium/strimzi-connect
     build:
@@ -37,7 +33,7 @@ services:
         STRIMZI_VERSION: "${STRIMZI_VERSION:-latest-kafka-3.4.0}"
     ports:
       - 8083:8083
-    links:
+    depends_on:
       - kafka
       - mongodb
     environment:
@@ -71,8 +67,7 @@ services:
     command: /opt/kafka/kafka_connect_run.sh
     networks:
       - my-network
-    depends_on:
-      - kafka
+
   mongodb:
     image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     hostname: &mongodb-hostname mongodb
@@ -89,6 +84,7 @@ services:
       start_period: 20s
     networks:
       - my-network
+
   mongodb-init:
     image: *mongodb-image
     environment:
@@ -100,6 +96,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+      
 networks:
   my-network:
     name: mongo-outbox-network

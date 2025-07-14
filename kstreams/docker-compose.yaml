@@ -1,19 +1,17 @@
-version: '2.1'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
   mysql:
     image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
     ports:
@@ -22,17 +20,19 @@ services:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
+
   mongodb:
     image: mongo:latest
     ports:
      - 27017:27017
+
   connect_source:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     build:
       context: debezium-mongodb
     ports:
      - 8083:8083
-    links:
+    depends_on:
      - kafka
      - mysql
     environment:
@@ -40,13 +40,14 @@ services:
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_source_connect_configs
      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
+
   connect_sink:
     image: debezium/connect-mongodb:${DEBEZIUM_VERSION}
     build:
       context: debezium-mongodb
     ports:
      - 8084:8083
-    links:
+    depends_on:
      - kafka
      - mongodb
     environment:
@@ -56,12 +57,11 @@ services:
      - OFFSET_STORAGE_TOPIC=my_sink_connect_offsets
      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+
   aggregator:
     image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
     build:
       context: poc-ddd-aggregates
-    links:
-     - kafka
     environment:
      - JAVA_MAIN_CLASS=io.debezium.examples.aggregation.StreamingAggregatesDDD
      - PARENT_TOPIC=dbserver1.inventory.customers
@@ -69,6 +69,7 @@ services:
      - BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
      - connect_source
+     - kafka
     command: >
       /bin/bash -c "
         while ! curl -f -s -X GET http://connect_source:8083/connectors/mysql-source;
