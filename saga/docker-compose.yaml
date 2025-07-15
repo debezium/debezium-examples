@@ -1,4 +1,12 @@
 services:
+  jaeger:
+    image: jaegertracing/all-in-one:1
+    ports:
+     - 6831:6831/udp
+     - 16686:16686
+    networks:
+     - my-network
+
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:

@@ -13,7 +13,7 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
 
   connect:
-    image: quay.io/debezium/connect:2.4
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     depends_on:
