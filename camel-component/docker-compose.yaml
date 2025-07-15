@@ -1,9 +1,9 @@
-version: '2.1'
 services:
   mailhog:
     image: mailhog/mailhog
     ports:
      - 8025:8025
+
   qa-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -11,6 +11,7 @@ services:
     environment:
      - POSTGRES_USER=postgres
      - POSTGRES_PASSWORD=postgres
+
   qa-app:
     image: debezium-examples/qa-app:${DEBEZIUM_VERSION}
     build:
@@ -18,13 +19,14 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8080:8080
-    links:
+    depends_on:
      - qa-db
+
   qa-camel:
     image: debezium-examples/qa-camel:${DEBEZIUM_VERSION}
     build:
       context: qa-camel
-    links:
+    depends_on:
      - qa-db
      - mailhog
     environment:

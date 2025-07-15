@@ -1,19 +1,17 @@
-version: '2'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     ports:
@@ -23,6 +21,7 @@ services:
      - MSSQL_PID=Standard
      - SA_PASSWORD=Password!
      - MSSQL_AGENT_ENABLED=true
+
   connect:
     build:
       context: debezium-jmx-exporter
@@ -32,7 +31,7 @@ services:
     ports:
      - 8083:8083
      - 1976:1976
-    links:
+    depends_on:
      - kafka
      - sqlserver
     environment:
@@ -44,6 +43,7 @@ services:
      - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
      - JMXHOST=localhost
      - JMXPORT=1976
+
   prometheus:
     build:
       context: debezium-prometheus
@@ -51,8 +51,9 @@ services:
         PROMETHEUS_VERSION: v2.43.0
     ports:
      - 9090:9090
-    links:
+    depends_on:
      - connect
+
   grafana:
     build:
       context: debezium-grafana
@@ -60,7 +61,7 @@ services:
         GRAFANA_VERSION: 9.4.7
     ports:
      - 3000:3000
-    links:
+    depends_on:
      - prometheus
     environment:
      - DS_PROMETHEUS=prometheus

@@ -1,22 +1,20 @@
-version: '2'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-     # For local development of toast-value-store
-     # - ADVERTISED_HOST_NAME=192.168.1.4
-     - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # For local development of toast-value-store
+      # - ADVERTISED_HOST_NAME=192.168.1.4
+      - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
+
   source-db:
     image: debezium-examples/toast-source-db:${DEBEZIUM_VERSION}
     build:
@@ -27,6 +25,7 @@ services:
      - POSTGRES_USER=postgresusersource
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=sourcedb
+
   sink-db:
     image: debezium-examples/toast-sink-db:${DEBEZIUM_VERSION}
     build:
@@ -37,13 +36,14 @@ services:
      - POSTGRES_USER=postgresusersink
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=sinkdb
+
   connect:
     image: debezium-examples/toast-connect:${DEBEZIUM_VERSION}
     build:
       context: debezium-jdbc
     ports:
      - 8083:8083
-    links:
+    depends_on:
      - kafka
      - source-db
      - sink-db
@@ -53,6 +53,7 @@ services:
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+
   toast-value-store:
     image: debezium-examples/toast-value-store:${DEBEZIUM_VERSION}
     build:
@@ -60,7 +61,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8080:8080
-    links:
+    depends_on:
      - kafka
     environment:
      - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092

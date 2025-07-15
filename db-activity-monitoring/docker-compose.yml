@@ -1,18 +1,17 @@
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
   postgres:
     container_name: postgres
     image: debezium/example-postgres:${DEBEZIUM_VERSION}
@@ -21,6 +20,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+
   order-service:
     container_name: order-service
     build:
@@ -30,8 +30,9 @@ services:
       - 8080:8080
     environment:
       - APP_VERSION=1.0
-    links:
+    depends_on:
       - postgres
+
   connect:
     build:
       context: debezium-jmx-exporter
@@ -41,7 +42,7 @@ services:
     ports:
      - 8083:8083
      - 1976:1976
-    links:
+    depends_on:
      - kafka
      - postgres
     environment:
@@ -53,6 +54,7 @@ services:
      - KAFKA_OPTS=-javaagent:/kafka/etc/jmx_prometheus_javaagent.jar=8080:/kafka/etc/config.yml
      - JMXHOST=localhost
      - JMXPORT=1976
+
   prometheus:
     build:
       context: debezium-prometheus
@@ -60,9 +62,10 @@ services:
         PROMETHEUS_VERSION: v2.43.0
     ports:
      - 9090:9090
-    links:
+    depends_on:
      - connect
      - order-service
+
   grafana:
     build:
       context: debezium-grafana
@@ -70,11 +73,12 @@ services:
         GRAFANA_VERSION: 9.4.7
     ports:
      - 3000:3000
-    links:
+    depends_on:
      - prometheus
      - smtp-service
     environment:
      - DS_PROMETHEUS=prometheus
+     
   smtp-service:
     image: gessnerfl/fake-smtp-server:2.2.1
     hostname: "fake-smtp-server"

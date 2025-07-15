@@ -1,21 +1,19 @@
-version: '2.1'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-     # For local debugging of Main
-     # - ADVERTISED_HOST_NAME=192.168.1.3
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # For local debugging of Main
+      # - ADVERTISED_HOST_NAME=192.168.1.3
+
   postgres:
     image: debezium-examples/kstreams-live-update-postgres:${DEBEZIUM_VERSION}
     build:
@@ -31,6 +29,7 @@ services:
      - POSTGRES_USER=postgresuser
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=inventory
+
   connect:
     image: debezium-examples/kstreams-live-update-connect-es:${DEBEZIUM_VERSION}
     build:
@@ -51,19 +50,19 @@ services:
      - KAFKA_DEBUG=true
      - DEBUG_SUSPEND_FLAG=n
      - JAVA_DEBUG_PORT=0.0.0.0:5005
+
   event-source:
     image: debezium-examples/kstreams-live-update-event-source:${DEBEZIUM_VERSION}
     build:
       context: event-source
       dockerfile: src/main/docker/Dockerfile.jvm
-    links:
-     - postgres
     environment:
      - DATABASE_SERVER=postgres 
      - JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.eventsource.Main
     depends_on:
       postgres:
         condition: service_healthy
+
   aggregator:
     image: debezium-examples/kstreams-live-update-aggregator:${DEBEZIUM_VERSION}
     build:
@@ -71,13 +70,13 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8079:8079
-    links:
-     - kafka
     environment:
      - PORT=8079
      - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
     depends_on:
      - connect
+     - kafka
+     
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
     ports:

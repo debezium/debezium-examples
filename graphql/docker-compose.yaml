@@ -1,22 +1,19 @@
-version: '2.1'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-     # For local debugging of Main
-     # - ADVERTISED_HOST_NAME=192.168.1.3
-     - ADVERTISED_HOST_NAME
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # For local debugging of Main
+      # - ADVERTISED_HOST_NAME=192.168.1.3
+
   mysql:
     image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
     build:
@@ -32,11 +29,12 @@ services:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
      - MYSQL_PASSWORD=mysqlpw
+
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
-    links:
+    depends_on:
      - kafka
      - mysql
     environment:
@@ -46,30 +44,29 @@ services:
      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+
   event-source:
     image: debezium/graphql-event-source:${DEBEZIUM_VERSION}
     build:
       context: event-source
-    links:
-     - mysql
     environment:
      - JAVA_MAIN_CLASS=io.debezium.examples.graphql.eventsource.Main
     depends_on:
       mysql:
         condition: service_healthy
+
   graphql:
     image: debezium/graphql-aggregator:${DEBEZIUM_VERSION}
     build:
       context: aggregator
     ports:
      - 8079:8079
-    links:
-     - kafka
     environment:
      - JAVA_OPTIONS=-Dswarm.http.port=8079
      - KAFKA_SERVICE_HOST=kafka
      - KAFKA_SERVICE_PORT=9092
     depends_on:
+     - kafka
      - connect
     command: >
       /bin/bash -c "

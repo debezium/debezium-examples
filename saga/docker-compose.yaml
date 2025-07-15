@@ -1,4 +1,3 @@
-version: '2.1'
 services:
   jaeger:
     image: jaegertracing/all-in-one:1
@@ -7,33 +6,31 @@ services:
      - 16686:16686
     networks:
      - my-network
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
-    networks:
-     - my-network
+
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-    # Set to host IP address when working on the services locally
-    # - ADVERTISED_HOST_NAME=172.17.0.1
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # Set to host IP address when working on the services locally
+      # - ADVERTISED_HOST_NAME=172.17.0.1
     networks:
      - my-network
+
   connect:
     image: debezium/strimzi-connect
     build:
       context: debezium-strimzi
     ports:
      - 8083:8083
-    links:
+    depends_on:
      - kafka
      - order-db
     environment:
@@ -62,6 +59,7 @@ services:
     command: /opt/kafka/kafka_connect_run.sh
     networks:
      - my-network
+
   order-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -79,6 +77,7 @@ services:
      - ./init-order.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
+
   payment-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -96,6 +95,7 @@ services:
      - ./init-payment.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
+
   customer-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -113,6 +113,7 @@ services:
      - ./init-customer.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
      - my-network
+
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
@@ -125,6 +126,7 @@ services:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
       - my-network
+
   order-service:
     image: debezium-examples/saga-order-service:${DEBEZIUM_VERSION}
     build:
@@ -149,6 +151,7 @@ services:
         condition: service_healthy
     networks:
       - my-network
+
   payment-service:
     image: debezium-examples/saga-payment-service:${DEBEZIUM_VERSION}
     build:
@@ -170,15 +173,12 @@ services:
         condition: service_healthy
     networks:
       - my-network
+
   customer-service:
     image: debezium-examples/saga-customer-service:${DEBEZIUM_VERSION}
     build:
       context: customer-service
       dockerfile: src/main/docker/Dockerfile.jvm
-    links:
-     - kafka
-     - customer-db
-     - jaeger
     environment:
      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://customer-db:5432/customerdb
      - MP_MESSAGING_INCOMING_CREDIT_BOOTSTRAP_SERVERS=kafka:9092
@@ -189,8 +189,13 @@ services:
     depends_on:
       customer-db:
         condition: service_healthy
+      kafka:
+        condition: service_started
+      jaeger:
+        condition: service_started
     networks:
       - my-network
+
 networks:
   my-network:
     name: saga-network

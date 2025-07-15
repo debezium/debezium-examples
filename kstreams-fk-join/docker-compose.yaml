@@ -1,26 +1,18 @@
-version: '3.5'
-
 services:
-
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
-    networks:
-    - my-network
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-     - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=100
-     # For local debugging of aggregator
-     # - ADVERTISED_HOST_NAME=192.168.1.2
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # For local debugging of aggregator
+      # - ADVERTISED_HOST_NAME=192.168.1.2
     networks:
     - my-network
 
@@ -40,7 +32,7 @@ services:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
       - 8083:8083
-    links:
+    depends_on:
       - kafka
       - postgres
     environment:

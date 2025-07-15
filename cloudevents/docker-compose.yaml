@@ -1,23 +1,19 @@
-version: '2.1'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
-    networks:
-     - my-network
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
     networks:
      - my-network
+
   postgres:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -27,12 +23,13 @@ services:
      - POSTGRES_PASSWORD=postgres
     networks:
      - my-network
+
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
-    links:
+    depends_on:
      - kafka
      - postgres
      - schema-registry
@@ -46,6 +43,7 @@ services:
      - DEBUG_SUSPEND_FLAG=n
     networks:
      - my-network
+
   schema-registry:
     image: confluentinc/cp-schema-registry:7.0.1
     ports:
@@ -57,10 +55,9 @@ services:
       - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
       - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_METHODS=GET,POST,PUT,OPTIONS
       - SCHEMA_REGISTRY_ACCESS_CONTROL_ALLOW_ORIGIN=*
-    links:
-      - zookeeper
     networks:
       - my-network
+
   schema-registry-ui:
     image: landoop/schema-registry-ui
     ports:
@@ -68,23 +65,25 @@ services:
     environment:
       - SCHEMAREGISTRY_URL=http://schema-registry:8081
       - PROXY=true
-    links:
+    depends_on:
       - schema-registry
     networks:
       - my-network
+
   avro-extractor:
     image: debezium-examples/cloudevents-avro-extractor:${DEBEZIUM_VERSION}
     build:
       context: avro-data-extractor
     ports:
       - 8079:8079
-    links:
+    depends_on:
       - kafka
     environment:
       - PORT=8079
       - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
     networks:
       - my-network
+      
 networks:
   my-network:
     name: cloudevents-network
