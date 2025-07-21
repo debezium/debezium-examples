@@ -36,20 +36,20 @@ This demo automatically deploys the topology of services to stream from SQL Serv
 
 ```shell
 # Start the topology with two SQL Servers
-export DEBEZIUM_VERSION=2.1
+export DEBEZIUM_VERSION=3.2
 docker-compose up
 
-# Initialize database and insert test data
-cat debezium-sqlserver-init/inventory.sql | docker exec -i sql-server-read-replica_primary_1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
+# Initialize database and insert test data 
+cat debezium-sqlserver-init/inventory.sql | docker exec -i sql-server-read-replica-primary-1 bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C'
 
 # Configure primary node and database for replication
-cat debezium-sqlserver-init/setup-primary.sql | docker exec -i sql-server-read-replica_primary_1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
+cat debezium-sqlserver-init/setup-primary.sql | docker exec -i sql-server-read-replica-primary-1 bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C'
 
 # Configure secondary node to join the cluster
-cat debezium-sqlserver-init/setup-secondary.sql | docker exec -i sql-server-read-replica_secondary_1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
+cat debezium-sqlserver-init/setup-secondary.sql | docker exec -i sql-server-read-replica-secondary-1 bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C'
 
 # Check that tables are replicated to the secondary node (read-only connection)
-docker-compose exec secondary bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -K readonly -d testDB'
+docker-compose exec secondary bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -K readonly -d testDB -C'
 1> SELECT COUNT(*) FROM customers;
 2> GO
            
@@ -70,7 +70,7 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
     --topic server1.testDB.dbo.customers
 
 # Modify records in the primary database via SQL Server client (do not forget to add `GO` command to execute the statement)
-docker-compose exec primary bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD -d testDB'
+docker-compose exec primary bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -d testDB -C'
 
 # Shut down the cluster
 docker-compose down
