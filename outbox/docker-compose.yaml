@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   jaeger:
     image: jaegertracing/all-in-one:1.47
@@ -8,20 +6,20 @@ services:
      - 16686:16686
     environment:
      - COLLECTOR_OTLP_ENABLED=true
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
+  
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
   order-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -36,6 +34,7 @@ services:
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=orderdb
      - PGPASSWORD=postgrespw
+
   shipment-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -50,6 +49,7 @@ services:
       - POSTGRES_PASSWORD=postgrespw
       - POSTGRES_DB=shipmentdb
       - PGPASSWORD=postgrespw
+
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
@@ -60,6 +60,7 @@ services:
       - ./servers.json:/pgadmin4/servers.json
     ports:
       - "${PGADMIN_PORT:-5050}:80"
+
   connect:
     image: debezium/strimzi-connect
     build:
@@ -69,7 +70,7 @@ services:
         STRIMZI_VERSION: "${STRIMZI_VERSION:-latest-kafka-3.5.1}"
     ports:
      - 8083:8083
-    links:
+    depends_on:
      - kafka
      - order-db
     environment:
@@ -96,6 +97,7 @@ services:
      - OTEL_TRACES_SAMPLER=always_on
      - STRIMZI_TRACING=opentelemetry
     command: /opt/kafka/kafka_connect_run.sh
+
   order-service:
     image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}
     build:
@@ -115,7 +117,12 @@ services:
         condition: service_healthy
       connect:
         condition: service_started
+      kafka:
+        condition: service_started
+      jaeger:
+        condition: service_started
     command: "./application -Dquarkus.datasource.jdbc.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
+  
   shipment-service:
     image: debezium-examples/outbox-shipment-service:${DEBEZIUM_VERSION}
     build:
@@ -131,4 +138,8 @@ services:
       shipment-db:
         condition: service_healthy
       connect:
+        condition: service_started
+      kafka:
+        condition: service_started
+      jaeger:
         condition: service_started

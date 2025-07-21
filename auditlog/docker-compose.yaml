@@ -1,22 +1,20 @@
-version: '2.1'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-     # For local development of auditlog-enricher
-     # - ADVERTISED_HOST_NAME=192.168.1.6
-     - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # For local development of auditlog-enricher
+      # - ADVERTISED_HOST_NAME=192.168.1.6
+      - KAFKA_GROUP_MIN_SESSION_TIMEOUT_MS=250
+
   vegetables-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -25,11 +23,12 @@ services:
      - POSTGRES_USER=postgresuser
      - POSTGRES_PASSWORD=postgrespw
      - POSTGRES_DB=vegetablesdb
+
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
-    links:
+    depends_on:
      - kafka
      - vegetables-db
     environment:
@@ -48,7 +47,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8080:8080
-    links:
+    depends_on:
      - vegetables-db
     environment:
      - QUARKUS_DATASOURCE_URL=jdbc:postgresql://vegetables-db:5432/vegetablesdb?currentSchema=inventory
@@ -63,7 +62,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8081:8080
-    links:
+    depends_on:
      - kafka
     environment:
      - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
@@ -75,7 +74,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
      - 8085:8080
-    links:
+    depends_on:
      - kafka
     environment:
      - MP_MESSAGING_INCOMING_VEGETABLES_BOOTSTRAP_SERVERS=kafka:9092

@@ -1,25 +1,21 @@
-version: '2.1'
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-     - 2181:2181
-     - 2888:2888
-     - 3888:3888
-    networks:
-     - my-network
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-     - 9092:9092
-    links:
-     - zookeeper
+      - 9092:9092
+      - 9093:9093
     environment:
-     - ZOOKEEPER_CONNECT=zookeeper:2181
-     # Set to host IP address when working on the services locally
-     # - ADVERTISED_HOST_NAME=192.168.1.12
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      # Set to host IP address when working on the services locally
+      # - ADVERTISED_HOST_NAME=192.168.1.12
     networks:
      - my-network
+
   order-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
@@ -36,6 +32,7 @@ services:
      - PGPASSWORD=postgrespw
     networks:
      - my-network
+
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4
@@ -48,12 +45,13 @@ services:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
      - my-network
+
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
      - 5005:5005
-    links:
+    depends_on:
      - kafka
      - order-db
     environment:
@@ -71,6 +69,7 @@ services:
      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
     networks:
      - my-network
+
   order-service-nyc:
     image: debezium-examples/distributed-caching-order-service:${DEBEZIUM_VERSION}
     build:
@@ -78,7 +77,7 @@ services:
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     ports:
      - 8080:8080
-    links:
+    depends:
      - kafka
      - order-db
     environment:
@@ -88,6 +87,8 @@ services:
       order-db:
         condition: service_healthy
       connect:
+        condition: service_started
+      kafka:
         condition: service_started
     networks:
      - my-network
@@ -108,9 +109,6 @@ services:
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     ports:
       - 8081:8080
-    links:
-      - kafka
-      - order-db
     environment:
       - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory
       - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-lon-1:11222
@@ -118,6 +116,8 @@ services:
       order-db:
         condition: service_healthy
       connect:
+        condition: service_started
+      kafka:
         condition: service_started
     networks:
       - my-network
@@ -138,13 +138,13 @@ services:
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
     ports:
      - "8082:8082"
-    links:
-     - kafka
     environment:
      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
      - QUARKUS_INFINISPAN_CLIENT_SERVER_LIST=ispn-cen-1:11222
     depends_on:
       connect:
+        condition: service_started
+      kafka:
         condition: service_started
     networks:
      - my-network
@@ -168,6 +168,7 @@ services:
     volumes:
       - ${PWD}:/user-config
     command: -b SITE_LOCAL -c /user-config/infinispan-lon.xml -Djgroups.cluster.mcast_addr=228.6.7.10 -Drelay.site=LON
+
   infinispan-server-nyc-1:
     image:  quay.io/infinispan/server:13.0
     ports:
@@ -178,6 +179,7 @@ services:
     volumes:
       - ${PWD}:/user-config
     command: -b SITE_LOCAL -c /user-config/infinispan-nyc.xml -Djgroups.cluster.mcast_addr=228.6.7.15 -Drelay.site=NYC
+
   infinispan-server-cen-1:
     image:  quay.io/infinispan/server:13.0
     ports:
@@ -188,6 +190,7 @@ services:
     volumes:
       - ${PWD}:/user-config
     command: -b SITE_LOCAL -c /user-config/infinispan-cen.xml -Djgroups.cluster.mcast_addr=228.6.7.20 -Drelay.site=CEN
+    
 networks:
   my-network:
     name: distributed-caching-network

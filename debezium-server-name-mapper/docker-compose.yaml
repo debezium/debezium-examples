@@ -1,4 +1,3 @@
-version: '2.1'
 services:
   db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}

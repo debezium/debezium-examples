@@ -1,18 +1,17 @@
 services:
-  zookeeper:
-    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
-    ports:
-      - 2181:2181
-      - 2888:2888
-      - 3888:3888
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 9092:9092
-    links:
-      - zookeeper
+      - 9093:9093
     environment:
-      - ZOOKEEPER_CONNECT=zookeeper:2181
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
   mongodb:
     image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     hostname: &mongodb-hostname mongodb
@@ -27,6 +26,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
   mongodb-init:
     image: *mongodb-image
     environment:
@@ -36,6 +36,7 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+
   postgres:
     image: quay.io/debezium/postgres:11
     ports:
@@ -44,6 +45,7 @@ services:
       - POSTGRES_USER=postgresuser
       - POSTGRES_PASSWORD=postgrespw
       - POSTGRES_DB=inventorydb
+
   connect:
     image: debezium/connect-jdbc:${DEBEZIUM_VERSION}
     build:
@@ -52,7 +54,7 @@ services:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
       - 8083:8083
-    links:
+    depends_on:
       - kafka
       - mongodb
       - postgres

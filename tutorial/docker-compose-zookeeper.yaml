@@ -1,16 +1,23 @@
+# Using zookeeper has been deprecated by Kafka 4.0.0 and Debezium 3.2. 
+# If you plan to use these versions or later, please consider moving to KRaft mode.
+# https://kafka.apache.org/documentation/#kraft
+
 services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper:${DEBEZIUM_VERSION}
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
-      - 9092:9092
-      - 9093:9093
+     - 9092:9092
+    depends_on:
+     - zookeeper
     environment:
-      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
-      - NODE_ID=1
-      - NODE_ROLE=combined
-      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+     - ZOOKEEPER_CONNECT=zookeeper:2181
 
   postgres:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
