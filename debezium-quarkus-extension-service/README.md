@@ -1,6 +1,6 @@
 # Quarkus Debezium Extension Quick Start
 
-This project provides a Quarkus application that demonstrates how to build and use Debezium Extensions for Quarkus
+This project provides a Quarkus application that demonstrates how to use Debezium Extensions for Quarkus
 
 This quick start is designed to help you:
 - main features of Debezium Quarkus extension
