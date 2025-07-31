@@ -5,11 +5,11 @@ This project provides a Quarkus application that demonstrates how to use Debeziu
 This quick start is designed to help you:
 - discover features of the Debezium Quarkus extension
 - use Debezium inside Quarkus
-- build a native executable Debezium
+- build a native application that uses Debezium
 
 ## Prerequisite
 
-- JDK 21+ installed with `JAVA_HOME` configured appropriately
+- JDK 21+ installed with `JAVA_HOME` configu    red appropriately
 - Apache maven 3.9.9
 - Quarkus version 3.25.0
 - Docker or Podman
