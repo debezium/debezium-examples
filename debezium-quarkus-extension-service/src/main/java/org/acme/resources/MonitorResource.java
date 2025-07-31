@@ -20,8 +20,7 @@ public class MonitorResource {
 
     @GET()
     @Path("/snapshot")
-    @Produces(MediaType.TEXT_PLAIN)
     public Response get() {
-        return Response.ok(snapshotService.getLast().toString()).build();
+        return Response.ok(snapshotService.getLast()).build();
     }
 }
