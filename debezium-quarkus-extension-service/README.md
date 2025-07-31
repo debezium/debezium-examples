@@ -3,9 +3,9 @@
 This project provides a Quarkus application that demonstrates how to use Debezium Extensions for Quarkus
 
 This quick start is designed to help you:
-- discover features of Debezium Quarkus extension
+- discover features of the Debezium Quarkus extension
 - use Debezium inside Quarkus
-- build a native Debezium
+- build a native executable Debezium
 
 ## Prerequisite
 
@@ -90,8 +90,33 @@ curl http://localhost:8080/products
 ```
 
 result:
-```text
-[Product[id=1, name=Laptop, description=High-performance ultrabook, weight=1250], Product[id=2, name=Smartphone, description=Latest model with AMOLED display, weight=180], Product[id=3, name=Coffee Mug, description=Ceramic mug with lid, weight=350], Product[id=1, name=Notebook, description=High-performance ultrabook, weight=1250]]
+```json
+[
+  {
+    "id": 1,
+    "name": "Laptop",
+    "description": "High-performance ultrabook",
+    "weight": 1250
+  },
+  {
+    "id": 2,
+    "name": "Smartphone",
+    "description": "Latest model with AMOLED display",
+    "weight": 180
+  },
+  {
+    "id": 3,
+    "name": "Coffee Mug",
+    "description": "Ceramic mug with lid",
+    "weight": 350
+  },
+  {
+    "id": 1,
+    "name": "Notebook",
+    "description": "High-performance ultrabook",
+    "weight": 1250
+  }
+]
 ```
 
 as you can see there are two products with the same id but different names. If you insert a product:
@@ -108,6 +133,37 @@ INFO  [org.acm.InventoryListener] (pool-8-thread-1) capturing product creation f
 
 and in the `http` endpoint:
 
-```bash
-[Product[id=1, name=Laptop, description=High-performance ultrabook, weight=1250], Product[id=2, name=Smartphone, description=Latest model with AMOLED display, weight=180], Product[id=3, name=Coffee Mug, description=Ceramic mug with lid, weight=350], Product[id=1, name=Notebook, description=High-performance ultrabook, weight=1250], Product[id=4, name=Sketchbook, description=A ruled paper notebook, weight=300]]
+```json
+[
+  {
+    "id": 1,
+    "name": "Laptop",
+    "description": "High-performance ultrabook",
+    "weight": 1250
+  },
+  {
+    "id": 2,
+    "name": "Smartphone",
+    "description": "Latest model with AMOLED display",
+    "weight": 180
+  },
+  {
+    "id": 3,
+    "name": "Coffee Mug",
+    "description": "Ceramic mug with lid",
+    "weight": 350
+  },
+  {
+    "id": 1,
+    "name": "Notebook",
+    "description": "High-performance ultrabook",
+    "weight": 1250
+  },
+  {
+    "id": 4,
+    "name": "Sketchbook",
+    "description": "A ruled paper notebook",
+    "weight": 300
+  }
+]
 ```

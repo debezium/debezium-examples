@@ -19,7 +19,6 @@ public class ProductResource {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
     public Response get() {
         return Response.ok(productsService.get()).build();
     }
