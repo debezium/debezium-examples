@@ -9,7 +9,7 @@ This quick start is designed to help you:
 
 ## Prerequisite
 
-- JDK 21+ installed with `JAVA_HOME` configu    red appropriately
+- JDK 21+ installed with `JAVA_HOME` configured appropriately
 - Apache maven 3.9.9
 - Quarkus version 3.25.0
 - Docker or Podman
