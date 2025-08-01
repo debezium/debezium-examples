@@ -42,11 +42,11 @@ public class InventoryListener {
 
     @Capturing(destination = "dbz.inventory.orders")
     public void orders(CapturingEvent<SourceRecord> event) {
-        logger.info("capturing orders from {} with data {}", event.destination(), event.record());
+        logger.info("capturing orders for destination {} with data {}", event.destination(), event.record());
     }
 
     @Capturing()
     public void any(CapturingEvent<SourceRecord> event) {
-        logger.info("capturing any other event from {} with data {}", event.destination(), event.record());
+        logger.info("capturing any other event for destination {} with data {}", event.destination(), event.record());
     }
 }
