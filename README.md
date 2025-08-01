@@ -52,3 +52,4 @@ For getting started please check the [tutorial example](./tutorial).
 * [MongoDB - Streaming to PostgresSQL](./unwrap-mongodb-smt): How to capture events from a MongoDB database and stream them to a PostgresSQL database
 * [MySQL - Streaming to PostgresSQL](./unwrap-smt): How to capture events from a MySQL database and stream them to a PostgresSQL database
 * [Quarkus Native Image with Debezium](./quarkus-native): superfast CDC with Debezium and Quarkus
+* [Quarkus Debezium Extension Quick Start](./debezium-quarkus-extension-service): superfast CDC with Debezium Extension for Quarkus
