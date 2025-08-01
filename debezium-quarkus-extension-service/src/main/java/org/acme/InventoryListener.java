@@ -24,17 +24,17 @@ public class InventoryListener {
     public void products(CapturingEvent<Product> product) {
         switch (product) {
             case Create<Product> event ->
-                    logger.info("capturing product creation from {} with data {}", event.destination(), event.record());
+                    logger.info("capturing product creation for destination {} with data {}", event.destination(), event.record());
             case Delete<Product> event ->
-                    logger.info("capturing product deletion from {} with data {}", event.destination(), event.record());
+                    logger.info("capturing product deletion for destination {} with data {}", event.destination(), event.record());
             case Message<Product> event ->
-                    logger.info("capturing product message from {} with data {}", event.destination(), event.record());
+                    logger.info("capturing product message for destination {} with data {}", event.destination(), event.record());
             case Read<Product> event ->
-                    logger.info("capturing product read (snapshot) from {} with data {}", event.destination(), event.record());
+                    logger.info("capturing product read (snapshot) for destination {} with data {}", event.destination(), event.record());
             case Truncate<Product> event ->
-                    logger.info("capturing product truncate from {} with data {}", event.destination(), event.record());
+                    logger.info("capturing product truncate for destination {} with data {}", event.destination(), event.record());
             case Update<Product> event ->
-                    logger.info("capturing product update from {} with data {}", event.destination(), event.record());
+                    logger.info("capturing product update for destination {} with data {}", event.destination(), event.record());
         }
 
         productsService.save(product.record());
