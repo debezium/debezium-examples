@@ -16,6 +16,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using Oracle](#using-oracle)
   * [Using SQL Server](#using-sql-server)
   * [Using Db2](#using-db2)
+  * [Using Db2 for iSeries](#using-db2-for-iseries)
   * [Using Cassandra](#using-cassandra)
   * [Using Vitess](#using-vitess)
   * [Using TimescaleDB](#using-timescaledb)
@@ -358,7 +359,7 @@ export DEBEZIUM_VERSION=2.1
 
 docker-compose -f docker-compose-db2.yaml up --build
 
-# Start DB2 connector
+# Start Db2 connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-db2.json
 
 # Consume messages from a Debezium topic
@@ -368,12 +369,47 @@ docker-compose -f docker-compose-db2.yaml exec kafka /kafka/bin/kafka-console-co
     --property print.key=true \
     --topic db2server.DB2INST1.CUSTOMERS
 
-# Modify records in the database via DB2 client
+# Modify records in the database via Db2 client
 docker-compose -f docker-compose-db2.yaml exec db2server bash -c 'su - db2inst1'
 db2 connect to TESTDB
 db2 "INSERT INTO DB2INST1.CUSTOMERS(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');"
 # Shut down the cluster
 docker-compose -f docker-compose-db2.yaml down
+```
+
+## Using Db2 for iSeries
+
+```shell
+# Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
+export DEBEZIUM_VERSION=2.6
+
+docker-compose -f docker-compose-ibmi.yaml up --build
+
+# Initialize datafiles and insert some test data
+docker-compose -f docker-compose-ibmi.yaml exec connect bash -c 'groovy/bin/groovy initdb.groovy <HOSTNAME> <DATA_LIBRARY> <USERNAME> <PASSWORD>'
+
+# Log into the database console and enable journal for the test data
+# These and the following commands expects that the captured data are stored in DBZDATA library
+STRJRNPF FILE(DBZDATA/PRODUCTS) JRN(DBZJOURNAL/DBZJRN1) OMTJRNE(*OPNCLO) IMAGES(*BOTH)
+STRJRNPF FILE(DBZDATA/PRODUCTS_ON_HAND) JRN(DBZJOURNAL/DBZJRN1) OMTJRNE(*OPNCLO) IMAGES(*BOTH)
+STRJRNPF FILE(DBZDATA/ORDERS) JRN(DBZJOURNAL/DBZJRN1) OMTJRNE(*OPNCLO) IMAGES(*BOTH)
+STRJRNPF FILE(DBZDATA/CUSTOMERS) JRN(DBZJOURNAL/DBZJRN1) OMTJRNE(*OPNCLO) IMAGES(*BOTH)
+
+# Start Db2 connector, it is necessary to replace placholders in register-ibmi.json file with real values
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-ibmi.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-ibmi.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic dbserver1.DBZDATA.CUSTOMERS
+
+# Modify records in the database via the script
+docker-compose -f docker-compose-ibmi.yaml exec connect bash -c "groovy/bin/groovy initdb.groovy <HOSTNAME> <DATA_LIBRARY> <USERNAME> <PASSWORD> \"INSERT INTO DBZDATA.CUSTOMERS(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com')\""
+
+# Shut down the cluster
+docker-compose -f docker-compose-ibmi.yaml down
 ```
 
 ## Using Cassandra
