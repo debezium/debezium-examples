@@ -22,7 +22,7 @@
 
         <apache.kafka.version>3.2.0</apache.kafka.version>
         <version.quarkus>2.7.2.Final</version.quarkus>
-        <version.debezium>1.9.5.Final</version.debezium>
+        <version.debezium>2.3.0.Final</version.debezium>
     </properties>
 
     <dependencyManagement>
