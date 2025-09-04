@@ -20,6 +20,12 @@ services:
       - "19530:19530"
       - "9091:9091"
     command: ["milvus", "run", "standalone"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9091/healthz"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
   ollama:
     image: ollama/ollama
     container_name: ollama
@@ -40,5 +46,7 @@ services:
     volumes:
       - ./config-server:/debezium/config
     depends_on:
-      - milvus
-      - postgres
+      milvus:
+        condition: service_healthy
+      postgres:
+        condition: service_started
