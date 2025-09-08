@@ -24,23 +24,8 @@ public class DocumentDatabase {
     DataSource dataSource;
 
     public void init() throws Exception {
-        final var sql = "INSERT INTO ai.documents VALUES (?, ?::json, ?)";
-
-        try (final var conn = dataSource.getConnection();
-                final var stmt = conn.prepareStatement(sql)) {
-
+        try (final var conn = dataSource.getConnection()) {
             conn.createStatement().execute("TRUNCATE TABLE ai.documents");
-
-            // Milvus langchain4j store requires presence of at least one document
-            // so we insert a dummy one that will not be touched during demo
-            // See https://github.com/langchain4j/langchain4j/issues/2834
-            stmt.setString(1, "permanent");
-            stmt.setString(2, """
-                {
-                    "id": "permanent"
-                }""");
-            stmt.setString(3, "permanent");
-            stmt.executeUpdate();
         }
     }
 

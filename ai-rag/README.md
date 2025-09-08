@@ -62,7 +62,7 @@ $ ./mvnw clean install
 
 The CLI is executed via `java -jar target/quarkus-app/quarkus-run.jar` command.
 
-Create and initialize Milvus collection used by the application
+Create Milvus collection used by the application
 
 ```
 $ java -jar target/quarkus-app/quarkus-run.jar init
@@ -72,14 +72,13 @@ $ java -jar target/quarkus-app/quarkus-run.jar init
 ...
 ```
 
-There is one (dummy) document stored in the collection
+Verify the collection in Milvus is created and empty:
 
 ```
 $ java -jar target/quarkus-app/quarkus-run.jar list-milvus
 
 ...
-2025-05-19 10:04:04,323 INFO  [io.deb.exa.air.MilvusStore] (main) Milvus list results size: 1
-2025-05-19 10:04:04,326 INFO  [io.deb.exa.air.MilvusStore] (main) Document: 
+2025-05-19 10:04:04,323 INFO  [io.deb.exa.air.MilvusStore] (main) Milvus list results size: 0
 ...
 ```
 
@@ -103,7 +102,7 @@ $ java -jar target/quarkus-app/quarkus-run.jar insert-document 2504.05309v1
 $ java -jar target/quarkus-app/quarkus-run.jar list-milvus
 
 ...
-2025-05-19 10:10:55,512 INFO  [io.deb.exa.air.MilvusStore] (main) Milvus list results size: 2
+2025-05-19 10:10:55,512 INFO  [io.deb.exa.air.MilvusStore] (main) Milvus list results size: 1
 ...
 ```
 
@@ -128,7 +127,7 @@ $ java -jar target/quarkus-app/quarkus-run.jar delete-document 2504.05309v1
 $ java -jar target/quarkus-app/quarkus-run.jar list-milvus
 
 ...
-2025-05-19 10:17:33,712 INFO  [io.deb.exa.air.MilvusStore] (main) Milvus list results size: 1
+2025-05-19 10:17:33,712 INFO  [io.deb.exa.air.MilvusStore] (main) Milvus list results size: 0
 ...
 
 $ java -jar target/quarkus-app/quarkus-run.jar query-chat Describe IterQR framework in 20 words
