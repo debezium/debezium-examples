@@ -1,0 +1,66 @@
+services:
+  postgres_primary:
+    image: debezium/postgres-primary:${DEBEZIUM_VERSION}
+    build:
+      context: ./postgres-primary
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: 'pg_isready -U postgres -d postgres'
+      interval: 1s
+      timeout: 1s
+      retries: 10
+  postgres_replica:
+    image: debezium/postgres-replica:${DEBEZIUM_VERSION}
+    build:
+      context: ./postgres-replica
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    ports:
+     - 15432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: 'pg_isready -U postgres -d postgres'
+      interval: 1s
+      timeout: 1s
+      retries: 10
+    links:
+     - postgres_primary
+    depends_on:
+      postgres_primary:
+        condition: service_healthy
+  writer:
+    image: debezium/cqrs-writer:${DEBEZIUM_VERSION}
+    build:
+      context: poll-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    ports:
+     - 8080:8080
+    environment:
+     - WRITE_DB_HOST=postgres_primary
+    links:
+     - postgres_primary
+    depends_on:
+      postgres_primary:
+        condition: service_healthy
+  reader:
+    image: debezium/cqrs-reader:${DEBEZIUM_VERSION}
+    build:
+      context: poll-results-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    ports:
+     - 8081:8081
+    environment:
+     - READER_DB_HOST=postgres_replica
+    links:
+     - postgres_replica
+    depends_on:
+      postgres_replica:
+        condition: service_healthy

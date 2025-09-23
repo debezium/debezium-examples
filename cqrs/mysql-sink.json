@@ -1,0 +1,16 @@
+{
+    "name": "mysql-sink",
+    "config": {
+        "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "connection.url": "jdbc:mysql://mysql:3306/polls",
+        "connection.username": "mysqluser",
+        "connection.password": "mysqlpw",
+        "insert.mode": "upsert",
+        "delete.enabled": "true",
+        "primary.key.mode": "record_key",
+        "schema.evolution": "basic",
+	"collection.name.format": "${source.table}",
+        "topics": "polls.public.voteentity, polls.public.optionentity, polls.public.pollentity, polls.public.pollentity_optionentity"
+    }
+}
