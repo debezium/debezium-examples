@@ -1,0 +1,69 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+     - 9092:9092
+     - 9093:9093
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+  connect:
+    image: debezium/connect-questdb:${DEBEZIUM_VERSION}
+    build:
+      context: ./connect-questdb
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - postgres
+     - questdb
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+     - 5432:5432
+    environment:
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+  questdb:
+    image: questdb/questdb:9.0.3
+    ports:
+     - 8812:8812
+     - 9000:9000
+  writer:
+    image: debezium/cqrs-writer:${DEBEZIUM_VERSION}
+    build:
+      context: poll-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    ports:
+     - 8080:8080
+    environment:
+     - WRITE_DB_HOST=postgres
+    links:
+     - postgres
+    depends_on:
+     - postgres
+  reader:
+    image: debezium/cqrs-reader:${DEBEZIUM_VERSION}
+    build:
+      context: poll-results-service
+      dockerfile: src/main/docker/Dockerfile.${QUARKUS_BUILD:-jvm}
+    ports:
+     - 8081:8081
+    environment:
+     - READER_DB_HOST=questdb
+    links:
+     - questdb
+    depends_on:
+     - questdb
