@@ -1,0 +1,16 @@
+=== Start the Demo Infrastructure
+
+Launch all services using Docker Compose:
+
+[source,bash]
+----
+docker compose -f docker-compose.yaml up
+----
+
+=== Verify Lineage events
+
+[source,bash]
+----
+docker compose -f docker-compose.yaml exec debezium-server cat logs/console-transport.log | jq '.message | fromjson'
+----
+
