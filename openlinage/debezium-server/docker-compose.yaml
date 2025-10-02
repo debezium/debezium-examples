@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:3.0
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  kafka:
+    image: quay.io/debezium/kafka:3.3.0.Final
+    ports:
+      - "9092:9092"
+  debezium-server:
+    image: debezium/debezium-server
+    build:
+      context: ./server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config:/debezium/config
+    links:
+      - kafka
+      - postgres
