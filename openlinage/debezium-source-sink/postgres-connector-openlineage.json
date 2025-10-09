@@ -1,0 +1,25 @@
+{
+  "name": "inventory-connector-postgres",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.server.id": "184054",
+    "database.dbname": "postgres",
+    "topic.prefix": "inventory",
+    "snapshot.mode": "initial",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+    "schema.history.internal.kafka.topic": "schema-changes.inventory",
+    "slot.name": "postgres",
+    "openlineage.integration.enabled": "true",
+    "openlineage.integration.config.file.path": "/kafka/openlineage.yml",
+    "openlineage.integration.job.description": "This connector does cdc for products",
+    "openlineage.integration.tags": "env=prod,team=cdc",
+    "openlineage.integration.owners": "Mario=maintainer,John Doe=Data scientist,IronMan=superero",
+    "transforms": "openlineage",
+    "transforms.openlineage.type": "io.debezium.transforms.openlineage.OpenLineage"
+  }
+}

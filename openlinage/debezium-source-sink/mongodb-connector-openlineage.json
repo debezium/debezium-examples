@@ -1,0 +1,16 @@
+{
+  "name": "mongodb-sink",
+  "config": {
+    "connector.class": "io.debezium.connector.mongodb.MongoDbSinkConnector",
+    "tasks.max": "1",
+    "mongodb.connection.string": "mongodb://admin:admin@mongodb:27017",
+    "topics": "inventory.inventory.products",
+    "sink.database": "inventory2",
+    "openlineage.integration.enabled": "true",
+    "openlineage.integration.config.file.path": "/kafka/openlineage.yml",
+    "openlineage.integration.job.description": "This connector does cdc for products",
+    "openlineage.integration.tags": "env=prod,team=cdc",
+    "openlineage.integration.owners": "Mario=maintainer,John Doe=Data scientist,IronMan=superero",
+    "openlineage.integration.dataset.kafka.bootstrap.servers": "kafka:9092"
+  }
+}
