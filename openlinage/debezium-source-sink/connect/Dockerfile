@@ -6,17 +6,18 @@ ENV DEBEZIUM_VERSION="3.3.0.Final"
 ENV ARTIFACT_ID="debezium-openlineage-core"
 ENV CLASSIFIER="-libs"
 
-RUN rm -rf /kafka/connect/debezium-connector-jdbc
-RUN rm -rf /kafka/connect/debezium-connector-cockroachdb
-RUN rm -rf /kafka/connect/debezium-connector-db2
-RUN rm -rf /kafka/connect/debezium-connector-ibmi
-RUN rm -rf /kafka/connect/debezium-connector-informix
-RUN rm -rf /kafka/connect/debezium-connector-mariadb
-RUN rm -rf /kafka/connect/debezium-connector-mysql
-RUN rm -rf /kafka/connect/debezium-connector-oracle
-RUN rm -rf /kafka/connect/debezium-connector-spanner
-RUN rm -rf /kafka/connect/debezium-connector-sqlserver
-RUN rm -rf /kafka/connect/debezium-connector-vitess
+# This is just a workaround for https://issues.apache.org/jira/browse/KAFKA-19758
+RUN rm -rf /kafka/connect/debezium-connector-jdbc && \
+    rm -rf /kafka/connect/debezium-connector-cockroachdb && \
+    rm -rf /kafka/connect/debezium-connector-db2 && \
+    rm -rf /kafka/connect/debezium-connector-ibmi && \
+    rm -rf /kafka/connect/debezium-connector-informix && \
+    rm -rf /kafka/connect/debezium-connector-mariadb && \
+    rm -rf /kafka/connect/debezium-connector-mysql && \
+    rm -rf /kafka/connect/debezium-connector-oracle && \
+    rm -rf /kafka/connect/debezium-connector-spanner && \
+    rm -rf /kafka/connect/debezium-connector-sqlserver && \
+    rm -rf /kafka/connect/debezium-connector-vitess
 
 
 # Add OpenLineage
