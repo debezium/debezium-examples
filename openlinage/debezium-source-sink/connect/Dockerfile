@@ -1,8 +1,9 @@
-FROM quay.io/debezium/connect:3.3.0.Final
+ARG DEBEZIUM_VERSION
+FROM quay.io/debezium/connect:${DEBEZIUM_VERSION}
 
 ENV MAVEN_REPO="https://repo1.maven.org/maven2"
 ENV GROUP_ID="io/debezium"
-ENV DEBEZIUM_VERSION="3.3.0.Final"
+ENV DEBEZIUM_VERSION=${DEBEZIUM_VERSION}
 ENV ARTIFACT_ID="debezium-openlineage-core"
 ENV CLASSIFIER="-libs"
 
