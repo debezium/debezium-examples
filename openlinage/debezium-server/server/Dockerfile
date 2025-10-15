@@ -1,8 +1,9 @@
-FROM quay.io/debezium/server:3.4.0.Alpha1
+ARG DEBEZIUM_VERSION
+FROM quay.io/debezium/server:${DEBEZIUM_VERSION}
 
 ENV MAVEN_REPO="https://repo1.maven.org/maven2"
 ENV GROUP_ID="io/debezium"
-ENV DEBEZIUM_VERSION="3.4.0.Alpha1"
+ENV DEBEZIUM_VERSION=${DEBEZIUM_VERSION}
 ENV ARTIFACT_ID="debezium-openlineage-core"
 ENV CLASSIFIER="-libs"
 
