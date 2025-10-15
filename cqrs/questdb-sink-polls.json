@@ -1,0 +1,15 @@
+{
+    "name": "questdb-sink-polls",
+    "config": {
+	"connector.class": "io.questdb.kafka.QuestDBSinkConnector",
+	"tasks.max": "5",
+	"topics": "polls.public.optionentity, polls.public.pollentity, polls.public.pollentity_optionentity",
+	"table": "polls",
+	"client.conf.string": "http::addr=questdb:9000;",
+	"timestamp.field.name": "ts",
+	"value.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"value.converter.schemas.enable": true,
+	"include.key": false,
+	"key.converter": "org.apache.kafka.connect.storage.StringConverter"
+    }
+}
