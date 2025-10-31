@@ -1,0 +1,18 @@
+{
+    "name": "questdb-sink",
+    "config": {
+	"connector.class": "io.questdb.kafka.QuestDBSinkConnector",
+	"tasks.max": "5",
+	"topics": "optionentity, pollentity, pollentity_optionentity, voteentity",
+	"table": "${topic}",
+	"client.conf.string": "http::addr=questdb:9000;",
+	"timestamp.field.name": "ts",
+	"include.key": false,
+	"value.converter": "org.apache.kafka.connect.json.JsonConverter",
+	"value.converter.schemas.enable": true,
+	"key.converter": "org.apache.kafka.connect.storage.StringConverter",
+	"transforms": "unwrap",
+	"transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+	"transforms.unwrap.add.fields": "table"
+    }
+}

@@ -202,21 +202,21 @@ and start QuestDB compose:
 docker compose -f docker-compose-questdb.yaml up --build
 ```
 
-For PostgreSQL we will use slightly modified configuration of Debezium source connector.
-As we are interested only in new state in the database and don't need any metadata or previous state, we will use PostgreSQL sink connector configuration which includes also link:https://debezium.io/documentation//reference/transformations/event-flattening.html[Extract new record state SMT] for flattening Debezium records:
+Start again PostgreSQL source connector:
 
 ```
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @postgres-source-unwrap.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @postgres-source.json
 ```
+
 
 For the sink side, we cannot use Debezium JDBC sink now, but fortunately  QuestDB provides link:https://questdb.com/docs/third-party-tools/kafka/[dedicated sink connector] for QuestDB.
 Even better, QuestDB sink connector understands Debezium records, so we don't have to modify the records any further.
-The only small disadvantage of this sink connector is that it sends all the records to the single table.
-This would work, but for better clarity we will deploy two sink connectors, one for ingesting tables related to polls and the second one to ingest tables related to votes:
+As we are interested only in new state in the database and don't need any metadata or previous state, we will add  link:https://debezium.io/documentation//reference/transformations/event-flattening.html[Extract new record state SMT] into the sink configuration.
+This will reduce the amount of data loaded into QuestDB, while still keeping all the metadata and previous record state in the Kafka for other possible consumers.
+QuestDB sink is started in the very same way as other connectors:
 
 ```
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @questdb-sink-polls.json
-curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @questdb-sink-votes.json
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @questdb-sink.json
 ```
 
 And again, we need to re-create the poll and votes in PostgreSQL database. 

@@ -11,6 +11,6 @@
         "primary.key.mode": "record_key",
         "schema.evolution": "basic",
 	"collection.name.format": "${source.table}",
-        "topics": "polls.public.voteentity, polls.public.optionentity, polls.public.pollentity, polls.public.pollentity_optionentity"
+        "topics": "voteentity, optionentity, pollentity, pollentity_optionentity"
     }
 }

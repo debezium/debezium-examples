@@ -9,6 +9,11 @@
         "database.password": "postgres",
         "database.dbname" : "postgres",
         "topic.prefix": "polls",
-        "table.include.list": "public.optionentity, public.pollentity, public.pollentity_optionentity, public.pollentity_voteentity, public.voteentity"
+        "table.include.list": "public.optionentity, public.pollentity, public.pollentity_optionentity, public.pollentity_voteentity, public.voteentity",
+	"transforms": "reroute",
+	"transforms.reroute.type": "io.debezium.transforms.ByLogicalTableRouter",
+	"transforms.reroute.topic.regex": "polls.public.(.*)",
+	"transforms.reroute.topic.replacement": "$1"
+
     }
 }
