@@ -30,7 +30,7 @@ public class PollEntity extends PanacheEntity {
 
     @Override
     public String toString() {
-        return String.format("Poll '{}' with options {}, current votes {}",
+        return String.format("Poll '%s' with options '%s', current votes '%s'",
                 question,
                 options.stream().map(Object::toString).collect(Collectors.joining(",")),
                 votes.stream().map(Object::toString).collect(Collectors.joining(",")));
