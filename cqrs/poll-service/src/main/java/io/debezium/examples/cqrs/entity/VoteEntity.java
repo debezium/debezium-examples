@@ -18,6 +18,6 @@ public class VoteEntity extends PanacheEntity {
 
     @Override
     public String toString() {
-        return String.format("Vote for '{}', voted on {}", votedOption, votedOn);
+        return String.format("Vote for '%s', voted on %s", votedOption, votedOn);
     }
 }

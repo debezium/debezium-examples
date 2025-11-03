@@ -38,12 +38,17 @@ public class ResultsResource {
             Query q = em.createNativeQuery(resultQuery, OptionVotesEntity.class);
             List<OptionVotesEntity> res = q.getResultList();
             for (OptionVotesEntity o : res) {
-                LOGGER.info("result: " + o.option + ", votes: " + o.votes);
+                LOGGER.info("result: {}, votes: {}", o.option, o.votes);
             }
             return res;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            if (e.getMessage().contains("table does not exist [table=votes]")) {
+                LOGGER.warn("Table 'votes' does not exist, have you already deployed source and sink connectors?");
+            }
+            else {
+                throw e;
+            }
         }
         return null;
     }

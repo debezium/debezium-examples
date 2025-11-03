@@ -10,7 +10,7 @@
         "delete.enabled": "true",
         "primary.key.mode": "record_key",
         "schema.evolution": "basic",
-	"collection.name.format": "${source.table}",
+        "collection.name.format": "${source.table}",
         "topics": "voteentity, optionentity, pollentity, pollentity_optionentity"
     }
 }
