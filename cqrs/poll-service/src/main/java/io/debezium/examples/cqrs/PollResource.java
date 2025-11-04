@@ -38,7 +38,7 @@ public class PollResource {
     public PollEntity getPoll(Long id) {
         PollEntity entity = PollEntity.findById(id);
         if (entity == null) {
-            throw new WebApplicationException("Poll with id " + id + " does not exist.", 404);
+            throw new WebApplicationException(String.format("Poll with id '%s' does not exist.", id), 404);
         }
         return entity;
     }
@@ -65,7 +65,7 @@ public class PollResource {
         if (poll.isEmpty()) {
             throw new WebApplicationException("Invalid vote request. Poll not found", 404);
         }
-        if (poll.get().options.stream().noneMatch(o -> o.id == optionId)) {
+        if (poll.get().options.stream().noneMatch(o -> o.id.equals(optionId))) {
             throw new WebApplicationException("Invalid vote request. No such option", 404);
         }
 
