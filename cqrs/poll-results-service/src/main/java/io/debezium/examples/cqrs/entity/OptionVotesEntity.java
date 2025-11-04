@@ -16,9 +16,4 @@ public class OptionVotesEntity {
 
     public OptionVotesEntity() {
     }
-
-    public OptionVotesEntity(String option, long votes) {
-        this.option = option;
-        this.votes = votes;
-    }
 }
