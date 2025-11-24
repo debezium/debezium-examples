@@ -1,12 +1,14 @@
 services:
   kafka:
-    image: quay.io/debezium/kafka:3.2.0.Final
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
      - 9092:9092
   connect:
     image: debezium/connect-openlineage
     build:
       context: ./connect
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     links:
@@ -19,7 +21,7 @@ services:
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
   postgres:
-    image: quay.io/debezium/example-postgres:3.2.0.Final
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
      - 5432:5432
     environment:
