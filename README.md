@@ -45,6 +45,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Machine Learning - K-means](./machine-learning/tensorflow-mnist): Iris classification using streaming k-means and **Apache Flink**
 * [Kinesis](./kinesis): How to stream changes from MySQL database running on a local machine to an Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream
 * [KSQL](./ksql): Querying Debezium change data events with KSQL
+* [Podman](./podman/): How to run the Debezium using Podman.
 * [Postgres - Failover slots](./postgres-failover-slots): How to use Postgres 17 failover replication slots with Debezium
 * [Postgres - Kafka signal](./postgres-kafka-signal): How to stream data into the signal topic
 * [Postgres - TOAST Column Values](./postgres-toast): Dealing With Postgres TOAST Column Values
