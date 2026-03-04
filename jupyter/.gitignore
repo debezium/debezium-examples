@@ -1,0 +1,6 @@
+*.swp
+*.swo
+*.log
+logs/
+iipynb_checkpoints/
+.Trash-*

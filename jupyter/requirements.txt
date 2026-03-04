@@ -1,0 +1,5 @@
+jupyterlab
+pandas
+pydbzengine
+psycopg2-binary
+ipywidgets
