@@ -31,3 +31,11 @@ generated-sources/
 
 oracle_instantclient/
 db2data/
+
+
+# Python
+__pycache__/
+*.dat
+logs/
+*.zone.identifier
+venv/

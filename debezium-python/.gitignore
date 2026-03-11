@@ -1,0 +1,37 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Maven generated folder
+libs/
+temp_libs/
+target/
+debezium/
+
+# Debezium offset files
+*.dat
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Windows alternate data streams
+*.Zone.Identifier
