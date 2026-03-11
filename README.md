@@ -31,6 +31,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Debezium Server - Using custom topic naming policy](./debezium-server-name-mapper): How to deploy [Debezium Server](https://debezium.io/documentation/reference/stable/operations/debezium-server.html) using a custom topic naming policy
 * [Debezium Server - Operator - Using Kafka](./operator/tutorial-postgresql-kafka): How to stream changes from a PostgreSQL database into Apache Kafka with Debezium Server deployed in a Kubernetes cluster
 * [Debezium Server - Operator - Using Kafka](./operator/tutorial-pubsub): How to stream changes from a PostgreSQL database into [Google Cloud Pub/Sub](https://cloud.google.com/pubsub/docs) with Debezium Server deployed in a Kubernetes cluster
+* [Apicurio Registry](./apicurio): How to use Debezium with Apicurio Registry for schema management, supporting Avro and JSON converters with MySQL
 * [Graphql](./graphql): How to build a GraphQL Subscription on top of Debezium Change Events
 * [HTTP Signaling and Notification](./http-signaling-notification): How to create custom signaling and notification channels for Debezium connectors
 * [Infinispan - Standalone](./infinispan-standalone): How to use a standalone **Infinispan** cluster that will be used for buffering in-progress transactions by the Debezium Oracle connector
