@@ -1,0 +1,32 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+        "tasks.max": "1",
+        "database.hostname": "mysql",
+        "database.port": "3306",
+        "database.user": "debezium",
+        "database.password": "dbz",
+        "database.server.id": "184054",
+        "topic.prefix": "dbserver1",
+        "database.include.list": "inventory",
+        "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory",
+        "key.converter": "io.apicurio.registry.utils.converter.AvroConverter",
+        "key.converter.apicurio.registry.url": "http://apicurio:8080/apis/registry/v2",
+        "key.converter.apicurio.registry.auto-register": "true",
+        "key.converter.apicurio.registry.find-latest": "true",
+        "key.converter.schemas.enable": false,
+        "key.converter.apicurio.registry.headers.enabled": false,
+        "key.converter.apicurio.registry.as-confluent": true,
+        "key.converter.apicurio.use-id": "contentId",
+        "value.converter": "io.apicurio.registry.utils.converter.AvroConverter",
+        "value.converter.apicurio.registry.url": "http://apicurio:8080/apis/registry/v2",
+        "value.converter.apicurio.registry.auto-register": "true",
+        "value.converter.apicurio.registry.find-latest": "true",
+        "value.converter.schemas.enable": false,
+        "value.converter.apicurio.registry.headers.enabled": false,
+        "value.converter.apicurio.registry.as-confluent": true,
+        "value.converter.apicurio.use-id": "contentId"
+    }
+}
