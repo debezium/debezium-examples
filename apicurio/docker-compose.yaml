@@ -8,7 +8,7 @@ services:
       - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
       - NODE_ID=1
       - NODE_ROLE=combined
-      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CONTROLLER_QUORUM_BOOTSTRAP_SERVERS=kafka:9093
       - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
 
@@ -22,7 +22,7 @@ services:
      - MYSQL_PASSWORD=mysqlpw
 
   apicurio:
-    image: apicurio/apicurio-registry-mem:2.2.5.Final
+    image: apicurio/apicurio-registry-mem:2.6.13.Final
     ports:
      - 8080:8080
 
