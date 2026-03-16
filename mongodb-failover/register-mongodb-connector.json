@@ -1,0 +1,12 @@
+{
+  "name": "inventory-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",
+    "tasks.max": "1",
+    "mongodb.connection.string": "mongodb://debezium:dbz@mongodb1:27017,mongodb2:27017,mongodb3:27017?replicaSet=rs0",
+    "topic.prefix": "dbserver1",
+    "mongodb.user": "debezium",
+    "mongodb.password": "dbz",
+    "database.include.list": "inventory"
+  }
+}

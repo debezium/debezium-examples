@@ -1,0 +1,99 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+      - 9093:9093
+    environment:
+      - CLUSTER_ID=some-cluster-id
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - controller.quorum.bootstrap.server=1@kafka:9093
+
+  mongodb1:
+    image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: mongodb1
+    ports:
+      - 27017:27017
+    environment:
+      MONGODB_USER: debezium
+      MONGODB_PASSWORD: dbz
+    healthcheck:
+      test: bash -c 'mongosh --quiet --eval "db.adminCommand(\"ping\").ok" localhost:27017 | grep 1'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  mongodb2:
+    image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: mongodb2
+    ports:
+      - 27018:27017
+    environment:
+      MONGODB_USER: debezium
+      MONGODB_PASSWORD: dbz
+    healthcheck:
+      test: bash -c 'mongosh --quiet --eval "db.adminCommand(\"ping\").ok" localhost:27017 | grep 1'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  mongodb3:
+    image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: mongodb3
+    ports:
+      - 27019:27017
+    environment:
+      MONGODB_USER: debezium
+      MONGODB_PASSWORD: dbz
+    healthcheck:
+      test: bash -c 'mongosh --quiet --eval "db.adminCommand(\"ping\").ok" localhost:27017 | grep 1'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  mongodb-init:
+    image: *mongodb-image
+    environment:
+      HOSTNAME: mongodb1
+    entrypoint: /bin/bash
+    command: "/usr/local/bin/init-inventory.sh"
+    depends_on:
+      mongodb1:
+        condition: service_healthy
+
+  mongodb-add-replicas:
+    image: *mongodb-image
+    environment:
+      HOSTNAME: mongodb1
+    command: >
+      mongosh --host mongodb1:27017 -u admin -p admin --eval "rs.add({ host: \"mongodb2:27017\"}); rs.add({ host: \"mongodb3:27017\"})"
+    depends_on:
+      mongodb1:
+        condition: service_healthy
+      mongodb2:
+        condition: service_healthy
+      mongodb3:
+        condition: service_healthy
+      mongodb-init:
+        condition: service_completed_successfully
+
+
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - mongodb1
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
