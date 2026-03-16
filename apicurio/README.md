@@ -18,7 +18,7 @@ For the Apicurio examples we will use the following deployment topology:
 
 ## Start the environment
 ```shell
-export DEBEZIUM_VERSION=2.7
+export DEBEZIUM_VERSION=3.4
 docker-compose up
 ```
 
