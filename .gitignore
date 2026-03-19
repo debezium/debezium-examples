@@ -31,3 +31,19 @@ generated-sources/
 
 oracle_instantclient/
 db2data/
+# Python virtual environment
+.venv/
+venv/
+env/
+# Python cache
+__pycache__/
+# Debezium offset files
+*.dat
+# Windows alternate data streams
+*.Zone.Identifier
+
+# Python example - Debezium JAR dependencies (downloaded via setup_jars.py)
+debezium-python/debezium/
+debezium-python/temp_libs/
+debezium-python/logs/
+debezium-python/*.log
