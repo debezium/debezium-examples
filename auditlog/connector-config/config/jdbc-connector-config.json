@@ -1,0 +1,21 @@
+{
+  "name": "jdbc-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "connection.url": "jdbc:postgresql://postgres-sink:5432/postgres",
+    "connection.username": "postgresuser",
+    "connection.password": "postgrespw",
+    "primary.key.mode": "kafka",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "true",
+    "schema.evolution": "basic",
+    "topics": "dbserver1.inventory.vegetable.enriched",
+    "use.time.zone": "UTC",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.add.fields": "op,lsn,source.ts_ms:ts_ms,txId:tx_id,audit.client_date:client_date,audit.usecase:usecase,audit.user_name:user_name",
+    "transforms.unwrap.add.fields.prefix": "",
+    "transforms.unwrap.delete.tombstone.handling.mode": "rewrite"
+  }
+}
