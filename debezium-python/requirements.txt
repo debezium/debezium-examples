@@ -1,0 +1,3 @@
+pydbzengine>=3.4.1.0
+pydantic>=2.0
+testcontainers[postgresql]>=4.0.0
