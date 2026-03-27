@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:3.4.1.Final
+    container_name: dbz_jupyter_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dbz_jupyter_lab
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PG_HOST: postgres
+      PG_PORT: "5432"
+      PG_USER: postgres
+      PG_PASSWORD: postgres
+      PG_DBNAME: postgres
+      PG_SQL_USER: postgres
+      PG_SQL_PASSWORD: postgres
+      PG_SQL_DBNAME: postgres
+      TABLE_INCLUDE_LIST: inventory.customers
+      SCHEMA_INCLUDE_LIST: inventory
+      TOPIC_PREFIX: dbserver1
+      SLOT_NAME: pydbzengine_slot
+      PLUGIN_NAME: pgoutput
+      PUBLICATION_AUTOCREATE_MODE: filtered
+      SNAPSHOT_MODE: initial
+      RUN_SAMPLE_SQL: "true"
+      SAMPLE_PK: "1001"
+      CAPTURE_SECONDS: "20"
+      EXECUTE_NOTEBOOK_ON_START: "0"
+      NOTEBOOK_PATH: /workspace/postgres_cdc_pk_change_counts.ipynb
+      EXECUTED_NOTEBOOK_PATH: /workspace/postgres_cdc_pk_change_counts.executed.ipynb
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/workspace
