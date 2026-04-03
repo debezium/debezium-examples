@@ -1,7 +1,7 @@
 package io.debezium.demos.auditing.enricher;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 /**
  * Keeps track of the position within the key/value state store that is used as
@@ -31,8 +31,7 @@ class BufferOffsets {
     static BufferOffsets fromJson(JsonObject json) {
         return new BufferOffsets(
                 json.getJsonNumber("firstValue").longValue(),
-                json.getJsonNumber("nextValue").longValue()
-        );
+                json.getJsonNumber("nextValue").longValue());
     }
 
     public JsonObject toJson() {
