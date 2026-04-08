@@ -65,8 +65,7 @@ How to run:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=2.1
-docker compose -f docker-compose-jdbc.yaml up --build
+docker compose --env-file ../.env -f docker-compose-jdbc.yaml up --build
 
 # Start PostgreSQL connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @jdbc-sink.json
@@ -169,7 +168,7 @@ End application:
 
 ```shell
 # Shut down the cluster
-docker compose -f docker-compose-jdbc.yaml down
+docker compose --env-file ../.env -f docker-compose-jdbc.yaml down
 ```
 
 ## Elasticsearch Sink
@@ -219,8 +218,7 @@ How to run:
 ```shell
 # Start the application
 
-export DEBEZIUM_VERSION=2.1
-docker compose -f docker-compose-es.yaml up --build
+docker compose --env-file ../.env -f docker-compose-es.yaml up --build
 
 # Start Elasticsearch connector
 
@@ -462,7 +460,7 @@ End the application:
 
 ```shell
 # Shut down the cluster
-docker compose -f docker-compose-es.yaml down
+docker compose --env-file ../.env -f docker-compose-es.yaml down
 ```
 
 ## Two Parallel Sinks
@@ -511,8 +509,7 @@ How to run:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=2.1
-docker compose up --build
+docker compose --env-file ../.env up --build
 
 # Start Elasticsearch connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @es-sink.json
@@ -530,5 +527,5 @@ End the application:
 
 ```shell
 # Shut down the cluster
-docker compose down
+docker compose --env-file ../.env down
 ```

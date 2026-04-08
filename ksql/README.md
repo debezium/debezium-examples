@@ -4,8 +4,7 @@ This demo accompanies the blog post [Querying Debezium Change Data Events With K
 
 ```shell
 # Start the Kafka, Kafka Connect, KSQL server and CLI etc.
-export DEBEZIUM_VERSION=2.1
-docker-compose up
+docker-compose --env-file ../.env up
 
 # Start Debezium MySQL connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json

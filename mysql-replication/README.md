@@ -12,8 +12,7 @@ The deployment consists of the following components
 ## Demonstration
 1. Start the components and register Debezium to stream changes from the database
 ```
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
 ```
 
@@ -37,7 +36,7 @@ curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" h
 
 5. Restart the master server
 ```
-docker-compose up mysql_master
+docker-compose --env-file ../.env up mysql_master
 ```
 6. Verify records inserted to master stream to debezium
 
@@ -53,7 +52,7 @@ curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" h
 ```
 8. Stop the demo
 ```
-docker-compose down
+docker-compose --env-file ../.env down
 ```
 
 ### Notes:

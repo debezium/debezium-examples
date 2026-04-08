@@ -13,8 +13,7 @@ The Debezium `connect` image is enriched with the required JAR files for that pu
 Start the components and register Debezium to stream changes from the database:
 
 ```
-$ export DEBEZIUM_VERSION=2.1
-$ docker-compose up --build
+$ docker-compose --env-file ../.env up --build
 $ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
 ```
 
@@ -89,5 +88,5 @@ Even a complex multiline log message is thus formatted as a single event.
 Stop the demo:
 
 ```
-$ docker-compose down
+$ docker-compose --env-file ../.env down
 ```

@@ -22,8 +22,7 @@ The deployment consists of the following components
 
 Start the components and register Debezium to stream changes from the database
 ```
-export DEBEZIUM_VERSION=3.4
-docker-compose -f docker-compose-mongodb-replicas.yaml up
+docker-compose --env-file ../.env -f docker-compose-mongodb-replicas.yaml up
 
 #start mongodb connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb-connector.json
@@ -55,5 +54,5 @@ db.customers.insertOne([{ _id : NumberLong("1006"), first_name : 'Clark', last_n
 
 Stop the demo
 ```
-docker-compose -f docker-compose-mongodb-replicas.yaml down
+docker-compose --env-file ../.env -f docker-compose-mongodb-replicas.yaml down
 ``` 

@@ -25,8 +25,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-mysql.yaml up
+docker-compose --env-file ../.env -f docker-compose-mysql.yaml up
 
 # Start MySQL connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
@@ -42,7 +41,7 @@ docker-compose -f docker-compose-mysql.yaml exec kafka /kafka/bin/kafka-console-
 docker-compose -f docker-compose-mysql.yaml exec mysql bash -c 'mysql -u $MYSQL_USER -p$MYSQL_PASSWORD inventory'
 
 # Shut down the cluster
-docker-compose -f docker-compose-mysql.yaml down
+docker-compose --env-file ../.env -f docker-compose-mysql.yaml down
 ```
 
 ### Using MySQL and the Avro message format
@@ -99,8 +98,7 @@ See the [apicurio](../apicurio/README.md) example for full details on all suppor
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-postgres.yaml up
+docker-compose --env-file ../.env -f docker-compose-postgres.yaml up
 
 # Start Postgres connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
@@ -116,15 +114,14 @@ docker-compose -f docker-compose-postgres.yaml exec kafka /kafka/bin/kafka-conso
 docker-compose -f docker-compose-postgres.yaml exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
 
 # Shut down the cluster
-docker-compose -f docker-compose-postgres.yaml down
+docker-compose --env-file ../.env -f docker-compose-postgres.yaml down
 ```
 
 ## Using MongoDB
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-mongodb.yaml up
+docker-compose --env-file ../.env -f docker-compose-mongodb.yaml up
 
 # Start MongoDB connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb.json
@@ -144,7 +141,7 @@ db.customers.insert([
 ]);
 
 # Shut down the cluster
-docker-compose -f docker-compose-mongodb.yaml down
+docker-compose --env-file ../.env -f docker-compose-mongodb.yaml down
 ```
 
 ## Using Oracle
@@ -155,8 +152,7 @@ and set up with the configuration, users and grants described in the Debezium [V
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-oracle.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-oracle.yaml up --build
 
 # Insert test data
 cat debezium-with-oracle-jdbc/init/inventory.sql | docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
@@ -188,15 +184,14 @@ docker-compose -f docker-compose-oracle.yaml exec kafka /kafka/bin/kafka-console
 docker exec -i dbz_oracle sqlplus debezium/dbz@//localhost:1521/ORCLPDB1
 
 # Shut down the cluster
-docker-compose -f docker-compose-oracle.yaml down
+docker-compose --env-file ../.env -f docker-compose-oracle.yaml down
 ```
 
 ## Using SQL Server
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-sqlserver.yaml up
+docker-compose --env-file ../.env -f docker-compose-sqlserver.yaml up
 
 # Initialize database and insert test data
 cat debezium-sqlserver-init/inventory.sql | docker-compose -f docker-compose-sqlserver.yaml exec -T sqlserver bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C -N o'
@@ -215,16 +210,14 @@ docker-compose -f docker-compose-sqlserver.yaml exec kafka /kafka/bin/kafka-cons
 docker-compose -f docker-compose-sqlserver.yaml exec sqlserver bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C -N o -d testDB'
 
 # Shut down the cluster
-docker-compose -f docker-compose-sqlserver.yaml down
+docker-compose --env-file ../.env -f docker-compose-sqlserver.yaml down
 ```
 
 ## Using Db2
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-
-docker-compose -f docker-compose-db2.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-db2.yaml up --build
 
 # Start DB2 connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-db2.json
@@ -241,16 +234,14 @@ docker-compose -f docker-compose-db2.yaml exec db2server bash -c 'su - db2inst1'
 db2 connect to TESTDB
 db2 "INSERT INTO DB2INST1.CUSTOMERS(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');"
 # Shut down the cluster
-docker-compose -f docker-compose-db2.yaml down
+docker-compose --env-file ../.env -f docker-compose-db2.yaml down
 ```
 
 ## Using Cassandra
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-
-docker-compose -f docker-compose-cassandra.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-cassandra.yaml up --build
 
 # Consume messages from a Debezium topic
 docker-compose -f docker-compose-cassandra.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
@@ -269,16 +260,14 @@ UPDATE customers set first_name = 'Barry' where id = 5;
 DELETE FROM customers WHERE id = 5;
 
 # Shut down the cluster
-docker-compose -f docker-compose-cassandra.yaml down
+docker-compose --env-file ../.env -f docker-compose-cassandra.yaml down
 ```
 
 ## Using Vitess
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.7
-
-docker-compose -f docker-compose-vitess.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-vitess.yaml up --build
 
 # Start Vitess connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-vitess.json
@@ -298,7 +287,7 @@ UPDATE products SET description = 'Video' WHERE id = 1000;
 DELETE FROM products WHERE id = 1000;
 
 # Shut down the cluster
-docker-compose -f docker-compose-vitess.yaml down
+docker-compose --env-file ../.env -f docker-compose-vitess.yaml down
 ```
 
 In this example, the Vitess setup has 2 keyspaces (a.k.a. schemas in MySQL's term):
@@ -334,8 +323,7 @@ for pid in $(ps -ef | awk '/00000002/ {print $2}'); do kill -9 $pid; done
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.4
-docker-compose -f docker-compose-timescaledb.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-timescaledb.yaml up --build
 
 # Start Postgres connector TimescaleDB transformation
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-timescaledb.json
@@ -354,16 +342,14 @@ docker-compose -f docker-compose-timescaledb.yaml exec timescaledb env PGOPTIONS
 INSERT INTO conditions VALUES (now(), 'Prague', 30, 50);
 
 # Shut down the cluster
-docker-compose -f docker-compose-timescaledb.yaml down
+docker-compose --env-file ../.env -f docker-compose-timescaledb.yaml down
 ```
 
 ## Using Informix
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.5
-
-docker-compose -f docker-compose-ifx.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-ifx.yaml up --build
 
 # Start Informix connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-ifx.json
@@ -381,15 +367,14 @@ docker-compose -f docker-compose-ifx.yaml exec ifxserver bash -cl 'dbaccess sysu
 INSERT INTO informix.customers(first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');
 
 # Shut down the cluster
-docker-compose -f docker-compose-ifx.yaml down
+docker-compose --env-file ../.env -f docker-compose-ifx.yaml down
 ```
 
 ## Using MariaDB
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=3.1
-docker-compose -f docker-compose-mariadb.yaml up
+docker-compose --env-file ../.env -f docker-compose-mariadb.yaml up
 
 # Start MariaDB connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mariadb.json
@@ -405,7 +390,7 @@ docker-compose -f docker-compose-mariadb.yaml exec kafka /kafka/bin/kafka-consol
 docker compose -f docker-compose-mariadb.yaml exec mariadb bash -c 'mariadb -u $MARIADB_USER -p$MARIADB_PASSWORD inventory'
 
 # Shut down the cluster
-docker-compose -f docker-compose-mariadb.yaml down
+docker-compose --env-file ../.env -f docker-compose-mariadb.yaml down
 ```
 
 ## Using externalized secrets
@@ -415,8 +400,7 @@ The configuration is done at both worker and connector level.
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-mysql-ext-secrets.yaml up
+docker-compose --env-file ../.env -f docker-compose-mysql-ext-secrets.yaml up
 
 # Start MySQL connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql-ext-secrets.json
@@ -425,7 +409,7 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 curl -s http://localhost:8083/connectors/inventory-connector/config | jq .
 
 # Shut down the cluster
-docker-compose -f docker-compose-mysql-ext-secrets.yml down
+docker-compose --env-file ../.env -f docker-compose-mysql-ext-secrets.yml down
 ```
 
 ## Running without ZooKeeper
@@ -434,8 +418,7 @@ Since Apache Kafka 2.8 and Debezium 1.7, there is **experimental** support for r
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
-docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml up
+docker-compose --env-file ../.env -f docker-compose-zookeeperless-kafka-combined.yaml up
 
 # Start Postgres connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-postgres.json
@@ -451,7 +434,7 @@ docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml exec kafka-1 
 docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'psql -U $POSTGRES_USER postgres'
 
 # Shut down the cluster
-docker-compose -f docker-compose-zookeeperless-kafka-combined.yaml down
+docker-compose --env-file ../.env -f docker-compose-zookeeperless-kafka-combined.yaml down
 ```
 
 Running in KRaft mode is not recommended for production as of Apache Kafka 2.8/3.0.

@@ -27,8 +27,7 @@ mvn clean install -f aggregator/pom.xml
 Start Kafka, Kafka Connect, MySQL, event source and aggregator:
 
 ```shell
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 ```
 
 Once you see the message "Waiting for source connector to be deployed" in the logs,
@@ -144,7 +143,7 @@ java -jar ws-client/target/ws-client-jar-with-dependencies.jar ws://localhost:80
 # Shut down the cluster
 
 ```shell
-docker-compose down
+docker-compose --env-file ../.env down
 ```
 
 # Locally testing the aggregator
@@ -154,7 +153,7 @@ docker-compose down
 2. Run all services except the aggregator service:
 
 ```shell
-docker-compose up --build connect event-source
+docker-compose --env-file ../.env up --build connect event-source
 ```
 
 (or run all services as described and then `docker-compose down aggregator`)

@@ -34,13 +34,11 @@ mvn clean package -f aggregator/pom.xml
 Start Kafka, Kafka Connect, MySQL (or Postgres), event source and aggregator:
 
 ```shell
-export DEBEZIUM_VERSION=2.1
-
 # For MySQL
-docker-compose -f docker-compose-mysql.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-mysql.yaml up --build
 
 # For Postgres
-docker-compose -f docker-compose-postgres.yaml up --build
+docker-compose --env-file ../.env -f docker-compose-postgres.yaml up --build
 ```
 
 Once you see the message "Waiting for topics to be created" in the logs,
@@ -80,10 +78,10 @@ docker-compose -f docker-compose-mysql.yaml exec kafka /kafka/bin/kafka-console-
 
 ```shell
 # For MySQL
-docker-compose -f docker-compose-mysql.yaml down --build
+docker-compose --env-file ../.env -f docker-compose-mysql.yaml down --build
 
 # For Postgres
-docker-compose -f docker-compose-postgres.yaml down --build
+docker-compose --env-file ../.env -f docker-compose-postgres.yaml down --build
 ```
 
 ## Locally testing the aggregator
@@ -93,7 +91,7 @@ using the Quarkus dev mode is the recommended approach.
 For that
 
 * add `- ADVERTISED_HOST_NAME=<YOUR HOST IP>` to the `environment` section of the "kafka" service in the Docker Compose file.
-* run the Docker Compose set-up without the _aggregator_ service, e.g.: `docker-compose -f docker-compose-mysql.yaml up --scale aggregator=0`
+* run the Docker Compose set-up without the _aggregator_ service, e.g.: `docker-compose --env-file ../.env -f docker-compose-mysql.yaml up --scale aggregator=0`
 * run the *aggregator* app in dev mode, specifying your IP as advertised host: `mvn compile quarkus:dev -Dkafka.bootstrap.servers=192.168.1.8:9092 -Dquarkus.http.port=8079`
 
 Any code changes will immediately picked up after reloading the application in the web browser.

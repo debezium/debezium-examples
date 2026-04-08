@@ -10,22 +10,12 @@ Prepare the Java components by first performing a Maven build.
 $ mvn clean install
 ```
 
-## Environment
-
-Setup the necessary environment variables
-
-```console
-$ export DEBEZIUM_VERSION=2.3
-```
-
-The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used, which should 2.3 or later.
-
 ## Run the services
 
 Start all components:
 
 ```console
-$ docker-compose up -d
+$ docker-compose --env-file ../.env up -d
 ```
 
 This executes all configurations set forth by the `docker-compose.yaml` file.
@@ -63,5 +53,5 @@ Using the `binId` from the notification event, you can see the notification even
 Stop all components:
 
 ```console
-$ docker-compose down
+$ docker-compose --env-file ../.env down
 ```

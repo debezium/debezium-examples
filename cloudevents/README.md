@@ -5,9 +5,8 @@ This demo automatically deploys the topology of services as defined in the [Debe
 ## Preparations
 
 ```shell
-export DEBEZIUM_VERSION=1.9
 mvn clean install -f avro-data-extractor/pom.xml
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 ```
 
 ## CloudEvents Structured Mode with JSON for envelope and data
@@ -87,7 +86,7 @@ tbd.
 ## Clean-up
 
 ```shell
-docker-compose down
+docker-compose --env-file ../.env down
 ```
 
 ## Debugging

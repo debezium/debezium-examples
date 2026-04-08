@@ -37,8 +37,7 @@ Note that we're using the network mode as "host", because the certificates only 
 ## Steps
 1. Start the topology (database, kafka, and debezium connector) as defined in https://debezium.io/documentation/reference/stable/tutorial.html:
 ```shell
-export DEBEZIUM_VERSION=3.0
-docker compose -f docker-compose.yaml up
+docker compose --env-file ../.env -f docker-compose.yaml up
 ```
 
 2. Configure the debezium connector to use the postgres as source:
@@ -102,5 +101,5 @@ We should see the message:
 ```
 
 # Shut down the cluster
-docker compose -f docker-compose.yaml down
+docker compose --env-file ../.env -f docker-compose.yaml down
 ```

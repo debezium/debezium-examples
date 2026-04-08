@@ -27,11 +27,9 @@ $ mvn clean package -f aggregator/pom.xml
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=2.1
 $ export QUARKUS_BUILD=jvm
 ```
 
-The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
 The `QUARKUS_BUILD` specifies whether docker-compose will build containers using Quarkus in JVM or Native modes.
 The default is `jvm` for JVM mode but `native` can also be specified to build Quarkus native containers.
 Please refer to the Quarkus documentation for details around building native binaries.
@@ -41,7 +39,7 @@ Please refer to the Quarkus documentation for details around building native bin
 Start all components:
 
 ```console
-$ docker-compose up --build
+$ docker-compose --env-file ../.env up --build
 ```
 
 This executes all configurations set forth by the `docker-compose.yaml` file.

@@ -46,13 +46,7 @@ Before getting started, ensure you have the following prerequisites:
 gcloud pubsub topics create tutorial.inventory.customers
 ```
 
-3. Export environment variable:
-
-```shell
-export DEBEZIUM_VERSION=2.3
-```
-
-4. Edit the Debezium configurations:
+3. Edit the Debezium configurations:
 
 - For PostgresSQL, Edit the `config-postgres/application.properties` file, and replace `project-id` with your GCP project id
 - For MongoDB, Edit the `config-mongodb/application.properties` file, and replace `project-id` with your GCP project id
@@ -66,13 +60,13 @@ export DEBEZIUM_VERSION=2.3
 Start the database container:
 
 ```shell
-docker compose up -d postgres
+docker compose --env-file ../../.env up -d postgres
 ```
 
 Start the Debezium Server:
 
 ```shell
-docker compose up -d debezium-server-postgres
+docker compose --env-file ../../.env up -d debezium-server-postgres
 ```
 
 Test the setup by making changes to the customers table. The logs will appear in Google Cloud Pub/Sub shortly. You can access Postgres with this command:
@@ -88,13 +82,13 @@ docker compose exec postgres env PGOPTIONS="--search_path=inventory" bash -c 'ps
 Start the database container:
 
 ```shell
-docker compose up -d mongodb mongodb-init
+docker compose --env-file ../../.env up -d mongodb mongodb-init
 ```
 
 Start Debezium Server:
 
 ```shell
-docker compose up -d debezium-server-mongodb
+docker compose --env-file ../../.env up -d debezium-server-mongodb
 ```
 
 
@@ -104,13 +98,13 @@ docker compose up -d debezium-server-mongodb
 Start the database container:
 
 ```shell
-docker compose up -d mysql
+docker compose --env-file ../../.env up -d mysql
 ```
 
 Start Debezium Server:
 
 ```shell
-docker compose up -d debezium-server-mysql
+docker compose --env-file ../../.env up -d debezium-server-mysql
 ```
 
 Test the setup by making changes to the customers table. The logs will appear in Google Cloud Pub/Sub shortly. You can access MySQL with this command:

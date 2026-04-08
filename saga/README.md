@@ -22,8 +22,7 @@ $ mvn clean verify
 ```
 
 ```console
-$ export DEBEZIUM_VERSION=2.1
-$ docker-compose up --build
+$ docker-compose --env-file ../.env up --build
 ```
 
 Register the connectors for the different services:
@@ -157,7 +156,7 @@ Start the payment service again (`docker-compose start payment-service`) and obs
 Set the ADVERTISED_HOST_NAME env variable of the _kafka_ service in _docker-compose.yml_ to the address of your host machine.
 
 ```console
-$ docker-compose up --build --scale order-service=0 --scale payment-service=0 --scale customer-service=0
+$ docker-compose --env-file ../.env up --build --scale order-service=0 --scale payment-service=0 --scale customer-service=0
 ```
 
 ```console

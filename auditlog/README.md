@@ -22,8 +22,7 @@ $ mvn clean package
 ```
 
 ```console
-$ export DEBEZIUM_VERSION=1.8
-$ docker-compose up --build
+$ docker-compose --env-file ../.env up --build
 ```
 
 ## Deploy the Debezium Postgres Connector
@@ -147,7 +146,7 @@ This would then fix the missing event in the transaction context data topic and 
 ## Stopping All Services
 
 ```console
-$ docker-compose down
+$ docker-compose --env-file ../.env down
 ```
 
 ## Running the Quarkus Applications Locally
@@ -156,7 +155,7 @@ Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to th
 Start all services except the `vegetables-service` and the `log-enricher`:
 
 ```console
-$ docker-compose up --scale vegetables-service=0 --scale log-enricher=0
+$ docker-compose --env-file ../.env up --scale vegetables-service=0 --scale log-enricher=0
 ```
 
 Then start the three services via the Quarkus dev mode:

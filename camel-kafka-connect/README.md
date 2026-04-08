@@ -25,9 +25,8 @@ The example consists of multiple components:
 Build the CoAP server and start the example by running:
 
 ```
-$ export DEBEZIUM_VERSION=2.1
 $ mvn clean package
-$ docker-compose up --build
+$ docker-compose --env-file ../.env up --build
 ```
 
 Deploy the Camel Kafka Connector:
@@ -55,5 +54,5 @@ End the application:
 
 ```
 # Shut down the cluster
-docker-compose down
+docker-compose --env-file ../.env down
 ```

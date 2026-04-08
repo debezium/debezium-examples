@@ -15,8 +15,7 @@ We need following components to collect and present Debezium metrics:
 ## Execution
 
 ```
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 
 # Initialize database and insert test data
 cat inventory.sql | docker exec -i monitoring_sqlserver_1 bash -c '/opt/mssql-tools/bin/sqlcmd -U sa -P $SA_PASSWORD'
@@ -42,7 +41,7 @@ When you will modify and create new data in the database, the streaming metrics 
 When completed, shut down the cluster with this command:
 
 ```
-docker-compose down
+docker-compose --env-file ../.env down
 ```
 
 ## More Dashboards

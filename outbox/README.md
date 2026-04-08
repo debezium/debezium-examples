@@ -31,14 +31,10 @@ The `native` profile can be omitted if native image artifacts aren't required.
 Setup the necessary environment variables
 
 ```console
-$ export DEBEZIUM_VERSION=2.4
-$ export DEBEZIUM_CONNECTOR_VERSION=2.4.0.Alpha2
 $ # optionally, enable the native build
 $ export QUARKUS_BUILD=native
 ```
 
-The `DEBEZIUM_VERSION` specifies which version of Debezium images should be used.
-The `DEBEZIUM_CONNECTOR_VERSION` specifies which version of Debezium connector artifacts should be used.
 The `QUARKUS_BUILD` specifies whether docker-compose will build containers using Quarkus in JVM or Native modes.
 The default is `jvm` for JVM mode but `native` can also be specified to build Quarkus native containers.
   
@@ -47,7 +43,7 @@ The default is `jvm` for JVM mode but `native` can also be specified to build Qu
 Start all components:
 
 ```console
-$ docker compose up --build
+$ docker compose --env-file ../.env up --build
 ```
 
 This executes all configurations set forth by the `docker-compose.yaml` file.
@@ -150,7 +146,7 @@ Go to the [local Jaeger UI](http://localhost:16686/) and when you select a trace
 Start all components:
 
 ```console
-$ docker compose up --build --scale order-service=0
+$ docker compose --env-file ../.env up --build --scale order-service=0
 ```
 
 ```console

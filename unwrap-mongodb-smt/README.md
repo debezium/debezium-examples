@@ -16,8 +16,7 @@ We are using Docker Compose to deploy the following components:
 
 ```shell
 # Start the application
-export DEBEZIUM_VERSION=2.1
-docker compose up --build -d
+docker compose --env-file ../.env up --build -d
 
 # Current host
 # if using docker-machine:
@@ -151,5 +150,5 @@ There should be no record of `Billy Bob Hopper`.
 End application:
 
 ```shell
-docker compose down
+docker compose --env-file ../.env down
 ```

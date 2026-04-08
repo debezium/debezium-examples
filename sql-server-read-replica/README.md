@@ -36,8 +36,7 @@ This demo automatically deploys the topology of services to stream from SQL Serv
 
 ```shell
 # Start the topology with two SQL Servers
-export DEBEZIUM_VERSION=3.2
-docker-compose up
+docker-compose --env-file ../.env up
 
 # Initialize database and insert test data 
 cat debezium-sqlserver-init/inventory.sql | docker exec -i sql-server-read-replica-primary-1 bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -C'
@@ -73,7 +72,7 @@ docker-compose exec kafka /kafka/bin/kafka-console-consumer.sh \
 docker-compose exec primary bash -c '/opt/mssql-tools18/bin/sqlcmd -U sa -P $SA_PASSWORD -d testDB -C'
 
 # Shut down the cluster
-docker-compose down
+docker-compose --env-file ../.env down
 ```
 
 

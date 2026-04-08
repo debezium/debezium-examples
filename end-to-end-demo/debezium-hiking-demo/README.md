@@ -8,6 +8,8 @@ To run the app, follow these steps:
     mvn clean package
     docker build --no-cache -t debezium-examples/hike-manager:latest -f Dockerfile .
 
+    # Load DEBEZIUM_VERSION from root .env
+    export $(grep DEBEZIUM_VERSION ../../.env)
     docker run -it --rm --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=debezium -e MYSQL_USER=mysqluser -e MYSQL_PASSWORD=mysqlpw quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
 
     docker run -it --rm -p 8080:8080 --link mysql debezium-examples/hike-manager:latest

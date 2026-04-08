@@ -11,8 +11,7 @@ connecting through the proxy allows Debezium to automatically fail over from pre
 Start all the components:
 
 ```shell
-export DEBEZIUM_VERSION=3.0
-docker compose up
+docker compose --env-file ../.env up
 ```
 
 Get a DB session on the Postgres read replica:
@@ -81,7 +80,7 @@ services:
 ```
 
 ```shell
-docker compose up -d
+docker compose --env-file ../.env up -d
 ```
 
 The connector will establish the connection again,
@@ -95,5 +94,5 @@ update inventory.customers set first_name = 'Rudy', last_name = 'Replica' where 
 Shut down the cluster:
 
 ```shell 
-docker compose down
+docker compose --env-file ../.env down
 ```

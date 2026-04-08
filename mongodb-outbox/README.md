@@ -2,9 +2,8 @@
 
 ```shell
 # Start the topology as defined in https://debezium.io/documentation/reference/stable/tutorial.html
-export DEBEZIUM_VERSION=2.1
 export DEBEZIUM_CONNECTOR_VERSION=2.1.3.Final
-docker compose up --build
+docker compose --env-file ../.env up --build
 
 # Start MongoDB connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb.json
@@ -28,5 +27,5 @@ docker run --tty --rm \
     -t Order.events
 
 # Shut down the cluster
-docker compose down
+docker compose --env-file ../.env down
 ```

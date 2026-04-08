@@ -18,8 +18,7 @@ For the Apicurio examples we will use the following deployment topology:
 
 ## Start the environment
 ```shell
-export DEBEZIUM_VERSION=3.4
-docker-compose up
+docker-compose --env-file ../.env up
 ```
 
 This starts Kafka (KRaft mode), MySQL with the sample `inventory` database, Apicurio Registry on port 8080, and Debezium Connect with Apicurio converters enabled.
@@ -132,10 +131,10 @@ docker run --rm --tty \
 
 ## Stop the environment
 ```shell
-docker-compose down
+docker-compose --env-file ../.env down
 ```
 
 To also remove volumes:
 ```shell
-docker-compose down -v
+docker-compose --env-file ../.env down -v
 ```

@@ -12,8 +12,7 @@ Now lets set up this demo by specifying the Debezium version we wish to use.
 Once that variable is set, lets start the services using `docker-compose`.
 
 ```shell
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 ```
 
 Insert the test data into the Oracle database.

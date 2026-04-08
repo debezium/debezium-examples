@@ -31,8 +31,7 @@ order-service/mvnw package -f order-service/pom.xml
 then we can just run our compose file to start everything is needed. 
 
 ```shell
-export DEBEZIUM_VERSION=3.0.0.Final
-docker-compose up -d --build
+docker-compose --env-file ../.env up -d --build
 ```
 
 When all service are up and running we can register our connector

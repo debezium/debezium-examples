@@ -7,8 +7,7 @@ sink the aggregated change events into MongoDB, using the [Kafka Connect MongoDB
 
 ```shell
 # Start Kafka, Kafka Connect, a MySQL and a MongoDB database and the aggregator
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 
 # Start MySQL connector
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @mysql-source.json
@@ -50,5 +49,5 @@ The corresponding aggregate should be updated inMongoDB.
 # Shut down the cluster
 
 ```shell
-docker-compose down
+docker-compose --env-file ../.env down
 ```

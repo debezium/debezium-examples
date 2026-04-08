@@ -20,8 +20,7 @@ Both Apache Pulsar and the source database are deployed via Docker Compose file.
 From terminal start the source database and the sink system:
 
 ```
-$ export DEBEZIUM_VERSION=2.5
-$ docker compose up
+$ docker compose --env-file ../.env up
 ```
 
 In another terminal build the custom naming policy class and the runner JAR to start the application:

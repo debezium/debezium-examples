@@ -16,7 +16,7 @@ To spin up some example infrastructure like Kafka, Debezium and a Postgres datab
 have to execute from this example directory (`./topic-auto-create` directory):
 
 ```bash
-$ DEBEZIUM_VERSION=2.1 docker-compose up -d
+$ docker-compose --env-file ../.env up -d
 
   Creating network "topic-auto-create_default" with the default driver
   Creating topic-auto-create_zookeeper_1 ... done
@@ -130,5 +130,5 @@ Topic: dbserver1.inventory.products     PartitionCount: 10      ReplicationFacto
 Exit from the docker container back to the example dir then destroy and remove the containers with: 
 
 ```bash
-docker-compose down
+docker-compose --env-file ../.env down
 ```

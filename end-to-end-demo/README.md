@@ -11,10 +11,6 @@ It does these things:
 
 ---
 
-## Setup Environment
-
-- export DEBEZIUM_VERSION=1.9
-
 ## Build maven artifacts used by the Docker builds
 
 - mvn clean package -f debezium-hiking-demo/pom.xml
@@ -23,11 +19,11 @@ It does these things:
 ## Prepare Kafka etc.
 
 - docker ps -a
-- docker-compose up --scale thorntail=0 --scale hiking-manager=0
+- docker-compose --env-file ../.env up --scale thorntail=0 --scale hiking-manager=0
 
 ## Prepare WildFly
 
-- docker-compose up --build -d hiking-manager
+- docker-compose --env-file ../.env up --build -d hiking-manager
 - Go to http://localhost:8080/hikr-1.0-SNAPSHOT/hikes.html
 
 ## Register source connector (Avro)
@@ -52,7 +48,7 @@ The configuration used for the hiking-connector and its accompanying jdbc-sink a
 
 - docker stop end-to-end-demo_connect_1
 - Change some data
-- docker-compose up -d connect
+- docker-compose --env-file ../.env up -d connect
 - Show PG again as it catches up
 
 ## Register source connector (JSON)
@@ -62,7 +58,7 @@ The configuration used for the hiking-connector and its accompanying jdbc-sink a
 
 ## Start Thorntail app
 
-- docker-compose up -d --build
+- docker-compose --env-file ../.env up -d --build
 - Open in other browser: http://localhost:8079/
 
 ## Misc.

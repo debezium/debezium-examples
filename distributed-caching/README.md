@@ -18,22 +18,12 @@ Prepare the Java components by first performing a Maven build.
 $ mvn clean package
 ```
 
-## Environment
-
-Setup the necessary environment variables:
-
-```console
-$ export DEBEZIUM_VERSION=2.1
-```
-
-The `DEBEZIUM_VERSION` specifies which version of Debezium artifacts should be used.
-  
 ## Start the demo  
 
 Start all components:
 
 ```console
-$ docker-compose up --build
+$ docker-compose --env-file ../.env up --build
 ```
 
 This executes all configurations set forth by the `docker-compose.yaml` file.
@@ -132,7 +122,7 @@ Otherwise, the consuming application (_cache-update-service_) will not be able t
 Start all components besides the two services:
 
 ```console
-$ docker-compose up --scale order-service-nyc=0 --scale order-service-lon=0 --scale cache-update-service=0
+$ docker-compose --env-file ../.env up --scale order-service-nyc=0 --scale order-service-lon=0 --scale cache-update-service=0
 ```
 
 Then start the two services in dev mode:

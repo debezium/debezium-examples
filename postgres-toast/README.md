@@ -23,8 +23,7 @@ Be sure to work with the latest Debezium and Postgres container images for the f
 ```console
 mvn clean install -f toast-value-store/pom.xml
 
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 ```
 
 Then register an instance of the Debezium Postgres connector and an instance of the JDBC sink connector:
@@ -118,7 +117,7 @@ Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to th
 Start all services except the `toast-value-store`:
 
 ```console
-$ docker-compose up --scale toast-value-store=0
+$ docker-compose --env-file ../.env up --scale toast-value-store=0
 ```
 
 Then start the `toast-value-store` service via the Quarkus dev mode:
@@ -130,5 +129,5 @@ mvn compile quarkus:dev -f toast-value-store/pom.xml
 ## Clean Up
 
 ```console
-docker-compose down
+docker-compose --env-file ../.env down
 ```

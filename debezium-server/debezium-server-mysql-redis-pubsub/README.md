@@ -32,17 +32,9 @@ Before getting started, ensure you have the following prerequisites:
 - `README.md` is an essential guide for this example.
 
 ## How to run
-1. Setup environment variables
+1. Start all dependencies services
 ```bash
-export DEBEZIUM_VERSION=2.7
-
-# Or create .env for docker compose
-echo 'DEBEZIUM_VERSION=2.7' > .env
-```
-
-2. Start all dependencies services
-```bash
-docker compose up -d mysql redis pubsub
+docker compose --env-file ../../.env up -d mysql redis pubsub
 ```
 
 - `mysql`: accessible via port `3306`
@@ -79,7 +71,7 @@ export PUBSUB_PROJECT_ID=debezium-tutorial-local
 
 5. Start Debezium Server:
 ```bash
-docker compose up -d debezium-server-mysql
+docker compose --env-file ../../.env up -d debezium-server-mysql
 ```
 
 6. Test the setup by making changes to the customers table.

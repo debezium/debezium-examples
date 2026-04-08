@@ -15,8 +15,7 @@ How to run:
 cd json-smt-es && mvn clean install && cd ../
 
 # Start the DB, Kafka Connect, Elasticsearch etc.
-export DEBEZIUM_VERSION=2.1
-docker-compose up --build
+docker-compose --env-file ../.env up --build
 
 # Register MySQL connector to capture changes from the "aggregates" table
 curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @source.json
@@ -47,5 +46,5 @@ End the application:
 
 ```shell
 # Shut down the cluster
-docker-compose down
+docker-compose --env-file ../.env down
 ```
