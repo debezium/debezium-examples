@@ -4,9 +4,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
 import org.apache.kafka.streams.processor.ProcessorContext;
@@ -16,6 +13,9 @@ import org.apache.kafka.streams.state.TimestampedKeyValueStore;
 import org.apache.kafka.streams.state.ValueAndTimestamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 /**
  * Enriches change events with transaction-scoped metadata. If no metadata for
@@ -39,7 +39,8 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     public void init(ProcessorContext context) {
         this.context = context;
         streamBuffer = (KeyValueStore<Long, JsonObject>) context.getStateStore(TopologyProducer.STREAM_BUFFER_NAME);
-        txMetaDataStore = (TimestampedKeyValueStore<JsonObject, JsonObject>) context.getStateStore(TopologyProducer.STORE_NAME);
+        txMetaDataStore = (TimestampedKeyValueStore<JsonObject, JsonObject>) context
+                .getStateStore(TopologyProducer.STORE_NAME);
 
         context.schedule(Duration.ofSeconds(1), PunctuationType.WALL_CLOCK_TIME, ts -> enrichAndEmitBufferedEvents());
     }
@@ -79,12 +80,13 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
 
         boolean enrichedAllBuffered = true;
 
-        for(long i = sequence.getFirstValue(); i < sequence.getNextValue(); i++) {
+        for (long i = sequence.getFirstValue(); i < sequence.getNextValue(); i++) {
             JsonObject buffered = streamBuffer.get(i);
 
             LOG.info("Processing buffered change event for key {}", buffered.getJsonObject("key"));
 
-            KeyValue<JsonObject, JsonObject> enriched = enrichWithTxMetaData(buffered.getJsonObject("key"), buffered.getJsonObject("changeEvent"));
+            KeyValue<JsonObject, JsonObject> enriched = enrichWithTxMetaData(buffered.getJsonObject("key"),
+                    buffered.getJsonObject("changeEvent"));
             if (enriched == null) {
                 enrichedAllBuffered = false;
                 break;
@@ -117,8 +119,7 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
 
         streamBuffer.putAll(Arrays.asList(
                 KeyValue.pair(sequence.getNextValueAndIncrement(), wrapper),
-                KeyValue.pair(BUFFER_OFFSETS_KEY, sequence.toJson())
-        ));
+                KeyValue.pair(BUFFER_OFFSETS_KEY, sequence.toJson())));
     }
 
     /**
@@ -145,9 +146,8 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
             return KeyValue.pair(
                     key,
                     Json.createObjectBuilder(changeEvent)
-                        .add("audit", txMetaData)
-                        .build()
-            );
+                            .add("audit", txMetaData)
+                            .build());
         }
 
         LOG.warn("No metadata found for transaction {}", txId);
@@ -158,8 +158,7 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
         JsonObject bufferOffsets = streamBuffer.get(BUFFER_OFFSETS_KEY);
         if (bufferOffsets == null) {
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(BufferOffsets.fromJson(bufferOffsets));
         }
     }

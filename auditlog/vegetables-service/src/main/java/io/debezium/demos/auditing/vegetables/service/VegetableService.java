@@ -1,10 +1,9 @@
 package io.debezium.demos.auditing.vegetables.service;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-
 import io.debezium.demos.auditing.vegetables.model.Vegetable;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 @ApplicationScoped
 public class VegetableService {

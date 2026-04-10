@@ -1,54 +1,44 @@
 package io.debezium.demos.auditing.admin.service;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
+import org.kie.api.KieServices;
+import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.kie.kogito.rules.KieRuntimeBuilder;
 
 import io.debezium.demos.auditing.admin.TransactionEvent;
 import io.debezium.demos.auditing.admin.VegetableEvent;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class AdminService {
 
-    @Inject
-    KieRuntimeBuilder kruntimeBuilder;
-    
-    private KieSession workinMemory;
-    
+    private KieContainer kContainer;
+
     @PostConstruct
     public void setup() {
-        
-        this.workinMemory = kruntimeBuilder.newKieSession();
-    }
-    
-    @PreDestroy
-    public void cleanup() {
-        this.workinMemory.dispose();
-    }
-    
-    public TransactionEvent processTransaction(TransactionEvent event) {
-        if (event == null) {
-            throw new RuntimeException("Missing transaction event");
-        }
-        
-        workinMemory.insert(event);
-        
-        workinMemory.fireAllRules();
-        return event;
+        KieServices kieServices = KieServices.Factory.get();
+        this.kContainer = kieServices.getKieClasspathContainer();
     }
 
-    public VegetableEvent processVegetable(VegetableEvent event) {
-        if (event == null) {
-            throw new RuntimeException("Missing transaction event");
+    public void processEvents(TransactionEvent tx, VegetableEvent veg) {
+        if (tx == null || veg == null) {
+            throw new IllegalArgumentException("Both TransactionEvent and VegetableEvent are required");
         }
-        
-        workinMemory.insert(event);
-        
-        workinMemory.fireAllRules();
-        return event;
+
+        KieSession session = null;
+
+        try {
+            session = kContainer.newKieSession();
+
+            session.insert(tx);
+            session.insert(veg);
+
+            session.fireAllRules();
+
+        } finally {
+            if (session != null) {
+                session.dispose();
+            }
+        }
     }
 }

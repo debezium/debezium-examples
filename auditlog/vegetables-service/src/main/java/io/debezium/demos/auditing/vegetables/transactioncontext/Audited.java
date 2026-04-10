@@ -7,12 +7,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import javax.enterprise.util.Nonbinding;
-import javax.interceptor.InterceptorBinding;
+import jakarta.enterprise.util.Nonbinding;
+import jakarta.interceptor.InterceptorBinding;
 
 @InterceptorBinding
-@Target({METHOD, TYPE})
+@Target({ METHOD, TYPE })
 @Retention(RUNTIME)
 public @interface Audited {
-    @Nonbinding String useCase();
+    @Nonbinding
+    String useCase();
 }

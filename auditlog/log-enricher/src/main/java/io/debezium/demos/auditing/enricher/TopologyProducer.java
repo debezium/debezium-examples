@@ -1,9 +1,5 @@
 package io.debezium.demos.auditing.enricher;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.json.JsonObject;
-
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
@@ -12,6 +8,10 @@ import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.StoreBuilder;
 import org.apache.kafka.streams.state.Stores;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.json.JsonObject;
 
 @ApplicationScoped
 public class TopologyProducer {
@@ -32,15 +32,13 @@ public class TopologyProducer {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        StoreBuilder<KeyValueStore<Long, JsonObject>> streamBufferStateStore =
-                Stores
-                    .keyValueStoreBuilder(
+        StoreBuilder<KeyValueStore<Long, JsonObject>> streamBufferStateStore = Stores
+                .keyValueStoreBuilder(
                         Stores.persistentKeyValueStore(STREAM_BUFFER_NAME),
                         new Serdes.LongSerde(),
-                        new JsonObjectSerde()
-                    )
-                    .withCachingDisabled();
-            builder.addStateStore(streamBufferStateStore);
+                        new JsonObjectSerde())
+                .withCachingDisabled();
+        builder.addStateStore(streamBufferStateStore);
 
         builder.globalTable(txContextDataTopic, Materialized.as(STORE_NAME));
 
@@ -50,7 +48,8 @@ public class TopologyProducer {
                 .filter((id, changeEvent) -> changeEvent != null)
                 // exclude snapshot events
                 .filter((id, changeEvent) -> !changeEvent.getString("op").equals("r"))
-                // enrich change events with transaction metadata via the statestore of the TX topic
+                // enrich change events with transaction metadata via the statestore of the TX
+                // topic
                 .transform(() -> new ChangeEventEnricher(), STREAM_BUFFER_NAME)
                 .to(vegetablesEnrichedTopic);
 

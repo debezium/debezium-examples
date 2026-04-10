@@ -1,10 +1,10 @@
 package io.debezium.demos.auditing.vegetables.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 
 @Entity
 public class Vegetable {
@@ -14,11 +14,7 @@ public class Vegetable {
     private String description;
 
     @Id
-    @SequenceGenerator(
-            name = "vegetablesSequence",
-            sequenceName = "vegetables_id_seq",
-            allocationSize = 10,
-            initialValue = 10)
+    @SequenceGenerator(name = "vegetablesSequence", sequenceName = "vegetables_id_seq", allocationSize = 10, initialValue = 10)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "vegetablesSequence")
     public Long getId() {
         return id;
