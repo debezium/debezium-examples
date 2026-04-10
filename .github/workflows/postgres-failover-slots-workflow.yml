@@ -1,0 +1,27 @@
+name: Build [postgres-failover-slots]
+
+on:
+  push:
+    paths:
+      - 'postgres-failover-slots/**'
+      - '.github/workflows/postgres-failover-slots-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'postgres-failover-slots/**'
+      - '.github/workflows/postgres-failover-slots-workflow.yml'
+      - 'scripts/run-example-test.py'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+      - name: Run postgres-failover-slots test
+        run: python scripts/run-example-test.py postgres-failover-slots

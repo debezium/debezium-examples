@@ -1,0 +1,91 @@
+name: postgres-failover-slots
+description: Tests Debezium PostgreSQL connector with failover slots across a primary-to-replica promotion
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Configure replica with primary connection credentials
+    type: docker_compose_exec
+    service: postgres_replica
+    command: "psql -U user -d inventorydb -c \"ALTER SYSTEM SET primary_conninfo = 'user=replicator password=''zufsob-kuvtum-bImxa6'' host=postgres_primary port=5432 dbname=inventorydb';\" -c \"SELECT pg_reload_conf();\""
+
+  - name: Register Debezium PostgreSQL connector
+    type: http_put
+    url: http://localhost:8083/connectors/inventory-source/config
+    body_file: inventory-source.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-source/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Make change on primary database
+    type: docker_compose_exec
+    service: postgres_primary
+    command: "psql -U user -d inventorydb -c \"UPDATE inventory.customers SET first_name = 'Sarah' WHERE id = 1001;\""
+
+  - name: Verify change from primary appears in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 30
+    expected_content: Sarah
+
+  - name: Simulate failure - stop primary database
+    type: docker_compose_stop
+    service: postgres_primary
+
+  - name: Simulate failure - stop pgbouncer
+    type: docker_compose_stop
+    service: pgbouncer
+
+  - name: Promote replica to new primary
+    type: docker_compose_exec
+    service: postgres_replica
+    command: "psql -U user -d inventorydb -c \"SELECT pg_promote();\""
+
+  - name: Wait for promotion to complete
+    type: wait
+    seconds: 5
+
+  - name: Override DB_HOST to point pgbouncer at new primary
+    type: env_override
+    vars:
+      DB_HOST: postgres_replica
+
+  - name: Restart pgbouncer pointing at new primary
+    type: docker_compose_up
+    services: [pgbouncer]
+    detach: true
+
+  - name: Wait for pgbouncer to become available
+    type: wait
+    seconds: 5
+
+  - name: Make change on new primary (promoted replica)
+    type: docker_compose_exec
+    service: postgres_replica
+    command: "psql -U user -d inventorydb -c \"UPDATE inventory.customers SET first_name = 'Rudy', last_name = 'Replica' WHERE id = 1001;\""
+
+  - name: Verify post-failover change appears in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_content: Rudy

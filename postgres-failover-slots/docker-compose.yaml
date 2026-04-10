@@ -2,7 +2,7 @@ services:
   pgbouncer:
     image: edoburu/pgbouncer:latest
     environment:
-      - DB_HOST=postgres_primary
+      - DB_HOST=${DB_HOST:-postgres_primary}
       - DB_PORT=5432
       - DB_USER=user
       - DB_PASSWORD=top-secret
