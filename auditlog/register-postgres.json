@@ -6,6 +6,6 @@
     "database.user": "postgresuser",
     "database.password": "postgrespw",
     "database.dbname" : "vegetablesdb",
-    "database.server.name": "dbserver1",
+    "topic.prefix": "dbserver1",
     "table.include.list": "inventory.vegetable,inventory.transaction_context_data"
 }
