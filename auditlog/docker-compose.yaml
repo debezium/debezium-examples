@@ -18,27 +18,32 @@ services:
   vegetables-db:
     image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
-     - 5432:5432
+      - 5432:5432
     environment:
-     - POSTGRES_USER=postgresuser
-     - POSTGRES_PASSWORD=postgrespw
-     - POSTGRES_DB=vegetablesdb
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=vegetablesdb
 
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
-     - 8083:8083
+      - 8083:8083
     depends_on:
-     - kafka
-     - vegetables-db
+      - kafka
+      - vegetables-db
     environment:
-     - BOOTSTRAP_SERVERS=kafka:9092
-     - GROUP_ID=1
-     - CONFIG_STORAGE_TOPIC=my_source_connect_configs
-     - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
-     - STATUS_STORAGE_TOPIC=my_source_connect_statuses
-     - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
-     - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_source_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_source_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+      - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+      # We set the {CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE} to true to ensure our JSON Schema is generated when we first pass messages to Kafka topics
+      - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=true
+    volumes:
+      - ./connector-config/plugins/camel-jdbc-kafka-connector/:/kafka/connect/camel-jdbc-kafka-connector/
+      - ./connector-config/plugins/vegetable-smt/:/kafka/connect/vegetable-smt/
+      - ./connector-config/plugins/debezium-connector-jdbc/:/kafka/connect/debezium-connector-jdbc/
 
   vegetables-service:
     image: debezium-examples/auditing-vegetables-service:${DEBEZIUM_VERSION}
@@ -46,14 +51,14 @@ services:
       context: vegetables-service
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
-     - 8080:8080
+      - 8080:8080
     depends_on:
-     - vegetables-db
+      - vegetables-db
     environment:
-     - QUARKUS_DATASOURCE_URL=jdbc:postgresql://vegetables-db:5432/vegetablesdb?currentSchema=inventory
-      #depends_on:
-      # vegetable-db:
-      #    condition: service_healthy
+      - QUARKUS_DATASOURCE_URL=jdbc:postgresql://vegetables-db:5432/vegetablesdb?currentSchema=inventory
+        #depends_on:
+        # vegetable-db:
+        #    condition: service_healthy
 
   log-enricher:
     image: debezium-examples/auditing-log-enricher:${DEBEZIUM_VERSION}
@@ -61,11 +66,11 @@ services:
       context: log-enricher
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
-     - 8081:8080
+      - 8081:8080
     depends_on:
-     - kafka
+      - kafka
     environment:
-     - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
+      - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
 
   admin-service:
     image: debezium-examples/auditing-admin-service:${DEBEZIUM_VERSION}
@@ -73,10 +78,24 @@ services:
       context: admin-service
       dockerfile: src/main/docker/Dockerfile.jvm
     ports:
-     - 8085:8080
+      - 8085:8080
     depends_on:
-     - kafka
+      - kafka
     environment:
-     - MP_MESSAGING_INCOMING_VEGETABLES_BOOTSTRAP_SERVERS=kafka:9092
-     - MP_MESSAGING_INCOMING_TRANSACTIONS_BOOTSTRAP_SERVERS=kafka:9092
-     - MP_MESSAGING_OUTGOING_MISSINGTRANSACTIONS_BOOTSTRAP_SERVERS=kafka:9092
+      - MP_MESSAGING_INCOMING_VEGETABLES_BOOTSTRAP_SERVERS=kafka:9092
+      - MP_MESSAGING_INCOMING_TRANSACTIONS_BOOTSTRAP_SERVERS=kafka:9092
+      - MP_MESSAGING_OUTGOING_MISSINGTRANSACTIONS_BOOTSTRAP_SERVERS=kafka:9092
+
+  # Lightweight postgres acting as the destination for the audit log enriched events
+  postgres-sink:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=postgres
+
+  # debezium-tooling:
+  #   image: quay.io/debezium/tooling:1.2
+  #   platform: linux/amd64

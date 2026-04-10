@@ -32,15 +32,13 @@ public class TopologyProducer {
     public Topology buildTopology() {
         StreamsBuilder builder = new StreamsBuilder();
 
-        StoreBuilder<KeyValueStore<Long, JsonObject>> streamBufferStateStore =
-                Stores
-                    .keyValueStoreBuilder(
+        StoreBuilder<KeyValueStore<Long, JsonObject>> streamBufferStateStore = Stores
+                .keyValueStoreBuilder(
                         Stores.persistentKeyValueStore(STREAM_BUFFER_NAME),
                         new Serdes.LongSerde(),
-                        new JsonObjectSerde()
-                    )
-                    .withCachingDisabled();
-            builder.addStateStore(streamBufferStateStore);
+                        new JsonObjectSerde())
+                .withCachingDisabled();
+        builder.addStateStore(streamBufferStateStore);
 
         builder.globalTable(txContextDataTopic, Materialized.as(STORE_NAME));
 
@@ -49,8 +47,9 @@ public class TopologyProducer {
                 // seems more reasonable than compaction
                 .filter((id, changeEvent) -> changeEvent != null)
                 // exclude snapshot events
-                .filter((id, changeEvent) -> !changeEvent.getString("op").equals("r"))
-                // enrich change events with transaction metadata via the statestore of the TX topic
+                .filter((id, changeEvent) -> !changeEvent.getJsonObject("payload").getString("op").equals("r"))
+                // enrich change events with transaction metadata via the statestore of the TX
+                // topic
                 .transform(() -> new ChangeEventEnricher(), STREAM_BUFFER_NAME)
                 .to(vegetablesEnrichedTopic);
 

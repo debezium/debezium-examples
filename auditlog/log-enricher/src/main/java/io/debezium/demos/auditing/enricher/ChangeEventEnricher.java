@@ -5,7 +5,10 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonValue;
 
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
@@ -39,7 +42,8 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     public void init(ProcessorContext context) {
         this.context = context;
         streamBuffer = (KeyValueStore<Long, JsonObject>) context.getStateStore(TopologyProducer.STREAM_BUFFER_NAME);
-        txMetaDataStore = (TimestampedKeyValueStore<JsonObject, JsonObject>) context.getStateStore(TopologyProducer.STORE_NAME);
+        txMetaDataStore = (TimestampedKeyValueStore<JsonObject, JsonObject>) context
+                .getStateStore(TopologyProducer.STORE_NAME);
 
         context.schedule(Duration.ofSeconds(1), PunctuationType.WALL_CLOCK_TIME, ts -> enrichAndEmitBufferedEvents());
     }
@@ -79,12 +83,13 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
 
         boolean enrichedAllBuffered = true;
 
-        for(long i = sequence.getFirstValue(); i < sequence.getNextValue(); i++) {
+        for (long i = sequence.getFirstValue(); i < sequence.getNextValue(); i++) {
             JsonObject buffered = streamBuffer.get(i);
 
             LOG.info("Processing buffered change event for key {}", buffered.getJsonObject("key"));
 
-            KeyValue<JsonObject, JsonObject> enriched = enrichWithTxMetaData(buffered.getJsonObject("key"), buffered.getJsonObject("changeEvent"));
+            KeyValue<JsonObject, JsonObject> enriched = enrichWithTxMetaData(buffered.getJsonObject("key"),
+                    buffered.getJsonObject("changeEvent"));
             if (enriched == null) {
                 enrichedAllBuffered = false;
                 break;
@@ -103,6 +108,46 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     }
 
     /**
+     * Adds the audit schema to the original schema.
+     * Because Kafka Streams are schema-agnostic
+     * we have to manually add the audit field to the schema
+     * 
+     * @param originalSchema
+     * @return {@link JsonObject} the original schema with the audit field added
+     */
+    private JsonObject createEnrichedSchema(JsonObject originalSchema) {
+        // 1. Get the existing fields array
+        JsonArray fields = originalSchema.getJsonArray("fields");
+
+        // 2. Create the new 'audit' field definition
+        JsonObject auditFieldSchema = Json.createObjectBuilder()
+                .add("type", "struct")
+                .add("field", "audit")
+                .add("optional", true)
+                .add("fields", Json.createArrayBuilder()
+                        .add(Json.createObjectBuilder().add("type", "int64").add("optional", true).add("field",
+                                "client_date"))
+                        .add(Json.createObjectBuilder().add("type", "string").add("optional", true).add("field",
+                                "usecase"))
+                        .add(Json.createObjectBuilder().add("type", "string").add("optional", true).add("field",
+                                "user_name"))
+                        .build())
+                .build();
+
+        // Rebuild the fields array including the new audit field
+        JsonArrayBuilder newFields = Json.createArrayBuilder();
+        for (JsonValue field : fields) {
+            newFields.add(field);
+        }
+        newFields.add(auditFieldSchema);
+
+        // Return the new root schema
+        return Json.createObjectBuilder(originalSchema)
+                .add("fields", newFields.build())
+                .build();
+    }
+
+    /**
      * Adds the given change event to the stream-side buffer.
      */
     private void bufferChangeEvent(JsonObject key, JsonObject changeEvent) {
@@ -117,8 +162,7 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
 
         streamBuffer.putAll(Arrays.asList(
                 KeyValue.pair(sequence.getNextValueAndIncrement(), wrapper),
-                KeyValue.pair(BUFFER_OFFSETS_KEY, sequence.toJson())
-        ));
+                KeyValue.pair(BUFFER_OFFSETS_KEY, sequence.toJson())));
     }
 
     /**
@@ -130,7 +174,9 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
      */
     private KeyValue<JsonObject, JsonObject> enrichWithTxMetaData(JsonObject key, JsonObject changeEvent) {
         JsonObject txId = Json.createObjectBuilder()
-                .add("transaction_id", changeEvent.get("source").asJsonObject().getJsonNumber("txId").longValue())
+                .add("transaction_id",
+                        changeEvent.get("payload").asJsonObject().get("source").asJsonObject().getJsonNumber("txId")
+                                .longValue())
                 .build();
 
         ValueAndTimestamp<JsonObject> metaData = txMetaDataStore.get(txId);
@@ -138,16 +184,26 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
         if (metaData != null) {
             LOG.info("Enriched change event for key {}", key);
 
-            JsonObject txMetaData = Json.createObjectBuilder(metaData.value().get("after").asJsonObject())
+            JsonObject txMetaData = Json
+                    .createObjectBuilder(metaData.value().get("payload").asJsonObject().get("after").asJsonObject())
                     .remove("transaction_id")
                     .build();
+            // Rebuild the payload to include the new "audit" field
+            JsonObject updatedPayload = Json.createObjectBuilder(changeEvent.getJsonObject("payload"))
+                    .add("audit", txMetaData)
+                    .build();
+
+            // Rebuild the top-level event with the updated payload
+            JsonObject enrichedEvent = Json.createObjectBuilder()
+                    .add("payload", updatedPayload)
+                    .add("schema", createEnrichedSchema(changeEvent.getJsonObject("schema")))
+                    .build();
+
+            LOG.info("Enriched change event for key {}", key);
 
             return KeyValue.pair(
                     key,
-                    Json.createObjectBuilder(changeEvent)
-                        .add("audit", txMetaData)
-                        .build()
-            );
+                    enrichedEvent);
         }
 
         LOG.warn("No metadata found for transaction {}", txId);
@@ -158,8 +214,7 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
         JsonObject bufferOffsets = streamBuffer.get(BUFFER_OFFSETS_KEY);
         if (bufferOffsets == null) {
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(BufferOffsets.fromJson(bufferOffsets));
         }
     }
