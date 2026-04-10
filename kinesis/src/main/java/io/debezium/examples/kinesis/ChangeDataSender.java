@@ -1,11 +1,18 @@
 package io.debezium.examples.kinesis;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.Clock;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import io.debezium.embedded.Connect;
+import io.debezium.embedded.async.AsyncEmbeddedEngine;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.engine.RecordChangeEvent;
+import io.debezium.engine.format.ChangeEventFormat;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
@@ -22,9 +29,7 @@ import com.amazonaws.services.kinesis.model.PutRecordRequest;
 
 import io.debezium.config.Configuration;
 import io.debezium.connector.mysql.MySqlConnectorConfig;
-import io.debezium.embedded.EmbeddedEngine;
 import io.debezium.relational.history.MemorySchemaHistory;
-import io.debezium.util.Clock;
 
 /**
  * Demo for using the Debezium Embedded API to send change events to Amazon Kinesis.
@@ -39,17 +44,17 @@ public class ChangeDataSender implements Runnable {
     private final Configuration config;
     private final JsonConverter valueConverter;
     private final AmazonKinesis kinesisClient;
-    private EmbeddedEngine engine;
+    private DebeziumEngine engine;
 
     public ChangeDataSender() {
         config = Configuration.empty().withSystemProperties(Function.identity()).edit()
-                .with(EmbeddedEngine.CONNECTOR_CLASS, "io.debezium.connector.mysql.MySqlConnector")
-                .with(EmbeddedEngine.ENGINE_NAME, APP_NAME)
+                .with(AsyncEmbeddedEngine.CONNECTOR_CLASS, "io.debezium.connector.mysql.MySqlConnector")
+                .with(AsyncEmbeddedEngine.ENGINE_NAME, APP_NAME)
                 .with(MySqlConnectorConfig.TOPIC_PREFIX,APP_NAME)
                 .with(MySqlConnectorConfig.SERVER_ID, 8192)
 
                 // for demo purposes let's store offsets and history only in memory
-                .with(EmbeddedEngine.OFFSET_STORAGE, "org.apache.kafka.connect.storage.MemoryOffsetBackingStore")
+                .with(AsyncEmbeddedEngine.OFFSET_STORAGE, "org.apache.kafka.connect.storage.MemoryOffsetBackingStore")
                 .with(MySqlConnectorConfig.SCHEMA_HISTORY, MemorySchemaHistory.class.getName())
 
                 // Send JSON without schema
@@ -71,10 +76,10 @@ public class ChangeDataSender implements Runnable {
 
     @Override
     public void run() {
-        engine = EmbeddedEngine.create()
-                .using(config)
+        engine = DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
+                .using(config.asProperties())
                 .using(this.getClass().getClassLoader())
-                .using(Clock.SYSTEM)
+                .using(Clock.systemUTC())
                 .notifying(this::sendRecord)
                 .build();
 
@@ -83,7 +88,13 @@ public class ChangeDataSender implements Runnable {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Requesting embedded engine to shut down");
-            engine.stop();
+            try {
+                engine.close();
+            }
+            catch (IOException e) {
+                LOGGER.error("Error terminating embedded engine", e);
+                throw new RuntimeException(e);
+            }
         }));
 
         // the submitted task keeps running, only no more new ones can be added
@@ -111,44 +122,44 @@ public class ChangeDataSender implements Runnable {
         kinesisClient.shutdown();
     }
 
-    private void sendRecord(SourceRecord record) {
+    private void sendRecord(RecordChangeEvent<SourceRecord> record) {
         // We are interested only in data events not schema change events
-        if (record.topic().equals(APP_NAME)) {
+        if (record.record().topic().equals(APP_NAME)) {
             return;
         }
 
         Schema schema = null;
 
-        if ( null == record.keySchema() ) {
+        if ( null == record.record().keySchema() ) {
             LOGGER.error("The keySchema is missing. Something is wrong.");
             return;
         }
 
         // For deletes, the value node is null
-        if ( null != record.valueSchema() ) {
+        if ( null != record.record().valueSchema() ) {
             schema = SchemaBuilder.struct()
-                    .field("key", record.keySchema())
-                    .field("value", record.valueSchema())
+                    .field("key", record.record().keySchema())
+                    .field("value", record.record().valueSchema())
                     .build();
         }
         else {
             schema = SchemaBuilder.struct()
-                    .field("key", record.keySchema())
+                    .field("key", record.record().keySchema())
                     .build();
         }
 
         Struct message = new Struct(schema);
-        message.put("key", record.key());
+        message.put("key", record.record().key());
 
-        if ( null != record.value() )
-            message.put("value", record.value());
+        if ( null != record.record().value() )
+            message.put("value", record.record().value());
 
-        String partitionKey = String.valueOf(record.key() != null ? record.key().hashCode() : -1);
+        String partitionKey = String.valueOf(record.record().key() != null ? record.record().key().hashCode() : -1);
         final byte[] payload = valueConverter.fromConnectData("dummy", schema, message);
 
         PutRecordRequest putRecord = new PutRecordRequest();
 
-        putRecord.setStreamName(streamNameMapper(record.topic()));
+        putRecord.setStreamName(streamNameMapper(record.record().topic()));
         putRecord.setPartitionKey(partitionKey);
         putRecord.setData(ByteBuffer.wrap(payload));
 

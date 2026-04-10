@@ -20,8 +20,6 @@
         <quarkus.platform.version>3.25.0</quarkus.platform.version>
         <skipITs>true</skipITs>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
-        <!-- Override: intentionally pinned to a development snapshot -->
-        <version.debezium>3.3.0-SNAPSHOT</version.debezium>
     </properties>
 
     <dependencyManagement>

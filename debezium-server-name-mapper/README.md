@@ -38,7 +38,7 @@ $ java -jar target/quarkus-app/quarkus-run.jar
 In another terminal check the created topics:
 
 ```
-docker compose exec pulsar bin/pulsar-admin broker-stats topics -i
+docker compose --env-file ../.env exec pulsar bin/pulsar-admin broker-stats topics -i
 ```
 
 The resulting topic list should contain for example a topic named

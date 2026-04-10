@@ -57,19 +57,19 @@ Doing so, observe the contents of the `dbserver1.inventory.vegetable`, `dbserver
 ```console
 $ docker run -it --rm \
     --network auditlog_default \
-    quay.io/debezium/tooling:1.2 \
+    quay.io/debezium/tooling:2.0 \
     /bin/bash -c "kafkacat -b kafka:9092 \
     -C -o beginning -q -u -t dbserver1.inventory.vegetable | jq ."
 
 $ docker run -it --rm \
     --network auditlog_default \
-    quay.io/debezium/tooling:1.2 \
+    quay.io/debezium/tooling:2.0 \
     /bin/bash -c "kafkacat -b kafka:9092 \
     -C -o beginning -q -u -t dbserver1.inventory.transaction_context_data | jq ."
 
 $ docker run -it --rm \
     --network auditlog_default \
-    quay.io/debezium/tooling:1.2 \
+    quay.io/debezium/tooling:2.0 \
     /bin/bash -c "kafkacat -b kafka:9092 \
     -C -o beginning -q -u -t dbserver1.inventory.vegetable.enriched | jq ."
 ```
@@ -104,7 +104,7 @@ create a task for administrator to provide the missing data.
 ```console
 $ docker run --tty --rm -i \
         --network auditlog_default \
-        quay.io/debezium/tooling:1.2 \
+        quay.io/debezium/tooling:2.0 \
         bash -c 'pgcli postgresql://postgresuser:postgrespw@vegetables-db:5432/vegetablesdb'
 ```
 

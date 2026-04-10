@@ -8,7 +8,7 @@ Please refer to the [Debezium documentation](https://debezium.io/documentation/r
 
 ## Prerequisites
 
-* Java 11 development environment
+* Java 21 development environment
 * Local [Docker](https://www.docker.com/) installation
 
 ## Running the Example

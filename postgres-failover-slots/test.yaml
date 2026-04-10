@@ -79,6 +79,29 @@ steps:
     type: wait
     seconds: 5
 
+  - name: Wait for connector task to reconnect after failover
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-source/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+
+  - name: Wait for connector to fully establish streaming connection
+    type: wait
+    seconds: 10
+
+  - name: Verify connector is streaming - make test change
+    type: docker_compose_exec
+    service: postgres_replica
+    command: "psql -U user -d inventorydb -c \"UPDATE inventory.customers SET email = 'test@failover.com' WHERE id = 1001;\""
+
+  - name: Verify connector is streaming - check test change appears in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 30
+    expected_content: test@failover.com
+
   - name: Make change on new primary (promoted replica)
     type: docker_compose_exec
     service: postgres_replica

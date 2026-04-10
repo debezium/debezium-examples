@@ -5,16 +5,12 @@
  */
 package io.debezium.examples.apache.pulsar;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
+import io.debezium.config.Configuration;
+import io.debezium.embedded.Connect;
+import io.debezium.engine.DebeziumEngine;
+import io.debezium.engine.RecordChangeEvent;
+import io.debezium.engine.format.ChangeEventFormat;
+import io.debezium.examples.apache.pulsar.config.PropertyLoader;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.pulsar.client.api.MessageId;
@@ -25,10 +21,16 @@ import org.apache.pulsar.client.api.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.debezium.config.Configuration;
-import io.debezium.embedded.EmbeddedEngine;
-import io.debezium.examples.apache.pulsar.config.PropertyLoader;
-import io.debezium.util.Clock;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.time.Clock;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class PulsarProducer implements Runnable {
 
@@ -81,10 +83,10 @@ public class PulsarProducer implements Runnable {
 
     @Override
     public void run() {
-        final EmbeddedEngine engine = EmbeddedEngine.create()
-                .using(config)
+        final DebeziumEngine engine = DebeziumEngine.create(ChangeEventFormat.of(Connect.class))
+                .using(config.asProperties())
                 .using(this.getClass().getClassLoader())
-                .using(Clock.SYSTEM)
+                .using(Clock.systemUTC())
                 .notifying(this::sendRecord)
                 .build();
 
@@ -102,7 +104,13 @@ public class PulsarProducer implements Runnable {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             logger.info("Requesting embedded engine to shut down");
-            engine.stop();
+            try {
+                engine.close();
+            }
+            catch (IOException e) {
+                logger.error("Error terminating debezium engine", e);
+                throw new RuntimeException(e);
+            }
         }));
 
         // the submitted task keeps running, only no more new ones can be added
@@ -115,18 +123,19 @@ public class PulsarProducer implements Runnable {
         logger.info("Engine terminated");
     }
 
+
     /**
      * For every record this method will be invoked.
      */
-    private void sendRecord(SourceRecord record) {
-        final byte[] payload = valueConverter.fromConnectData("dummy", record.valueSchema(), record.value());
-        final byte[] key = keyConverter.fromConnectData("dummy", record.keySchema(), record.key());
-        logger.debug("Publishing Topic --> {}", record.topic());
+    private void sendRecord(RecordChangeEvent<SourceRecord> record) {
+        final byte[] payload = valueConverter.fromConnectData("dummy", record.record().valueSchema(), record.record().value());
+        final byte[] key = keyConverter.fromConnectData("dummy", record.record().keySchema(), record.record().key());
+        logger.debug("Publishing Topic --> {}", record.record().topic());
         logger.debug("Key --> {}", new String(key));
         logger.debug("Payload --> {}", new String(payload));
         Producer<String> producer;
 
-        producer = getProducer(record.topic());
+        producer = getProducer(record.record().topic());
 
         while (true) {
 

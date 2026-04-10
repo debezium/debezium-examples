@@ -106,12 +106,12 @@
         <dependency>
             <groupId>com.graphql-java-kickstart</groupId>
             <artifactId>graphql-java-tools</artifactId>
-            <version>5.3.1</version>
+            <version>5.6.1</version>
         </dependency>
         <dependency>
             <groupId>com.graphql-java-kickstart</groupId>
             <artifactId>graphql-java-servlet</artifactId>
-            <version>6.1.4</version>
+            <version>6.2.0</version>
         </dependency>
         <dependency>
             <groupId>io.reactivex.rxjava2</groupId>
@@ -185,14 +185,9 @@
     </build>
 
     <repositories>
-
         <repository>
             <id>confluent</id>
             <url>https://packages.confluent.io/maven/</url>
-        </repository>
-        <repository>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
         </repository>
     </repositories>
 

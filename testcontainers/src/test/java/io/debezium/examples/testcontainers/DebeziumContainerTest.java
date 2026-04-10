@@ -5,6 +5,7 @@
  */
 package io.debezium.examples.testcontainers;
 
+import static java.lang.String.format;
 import static org.fest.assertions.Assertions.assertThat;
 
 import java.sql.Connection;
@@ -33,9 +34,9 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
-import org.testcontainers.utility.DockerImageName;
 
 import com.jayway.jsonpath.JsonPath;
+import org.testcontainers.utility.DockerImageName;
 
 import io.debezium.testing.testcontainers.ConnectorConfiguration;
 import io.debezium.testing.testcontainers.DebeziumContainer;
@@ -44,10 +45,13 @@ public class DebeziumContainerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebeziumContainerTest.class);
 
+    private static final int KAFKA_INTERNAL_PORT = 9092;
+
     private static Network network = Network.newNetwork();
 
     private static KafkaContainer kafkaContainer = new KafkaContainer()
-            .withNetwork(network);
+            .withNetwork(network)
+            .withNetworkAliases("kafka");
 
     public static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DockerImageName.parse("debezium/postgres:11").asCompatibleSubstituteFor("postgres"))
             .withNetwork(network)
@@ -55,14 +59,19 @@ public class DebeziumContainerTest {
 
     public static DebeziumContainer debeziumContainer = DebeziumContainer.latestStable()
             .withNetwork(network)
-            .withKafka(kafkaContainer)
             .withLogConsumer(new Slf4jLogConsumer(LOGGER))
             .dependsOn(kafkaContainer);
 
     @BeforeAll
     public static void startContainers() {
-        Startables.deepStart(Stream.of(
-                kafkaContainer, postgresContainer, debeziumContainer)).join();
+        Startables.deepStart(Stream.of(kafkaContainer, postgresContainer)).join();
+
+        // Use the network alias and internal port for Kafka broker communication
+        String internalBootstrapServers = format("%s:%d",
+            kafkaContainer.getNetworkAliases().get(0),
+            KAFKA_INTERNAL_PORT);
+        debeziumContainer.withKafka(kafkaContainer.getNetwork(), internalBootstrapServers);
+        debeziumContainer.start();
     }
 
     @Test

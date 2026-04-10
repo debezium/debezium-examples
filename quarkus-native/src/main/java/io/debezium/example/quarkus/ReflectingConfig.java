@@ -11,8 +11,6 @@ import io.debezium.connector.postgresql.PostgresSourceInfoStructMaker;
 import io.debezium.connector.postgresql.snapshot.lock.NoSnapshotLock;
 import io.debezium.connector.postgresql.snapshot.lock.SharedSnapshotLock;
 import io.debezium.connector.postgresql.snapshot.query.SelectAllSnapshotQuery;
-import io.debezium.embedded.ConvertingEngineBuilderFactory;
-import io.debezium.embedded.async.ConvertingAsyncEngineBuilderFactory;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.spi.OffsetCommitPolicy;
 import io.debezium.pipeline.notification.channels.LogNotificationChannel;
@@ -27,19 +25,22 @@ import io.debezium.pipeline.signal.channels.process.InProcessSignalChannel;
 import io.debezium.pipeline.txmetadata.DefaultTransactionMetadataFactory;
 import io.debezium.schema.SchemaTopicNamingStrategy;
 import io.debezium.snapshot.lock.NoLockingSupport;
-import io.debezium.snapshot.mode.*;
+import io.debezium.snapshot.mode.AlwaysSnapshotter;
+import io.debezium.snapshot.mode.InitialOnlySnapshotter;
+import io.debezium.snapshot.mode.InitialSnapshotter;
+import io.debezium.snapshot.mode.NeverSnapshotter;
+import io.debezium.snapshot.mode.NoDataSnapshotter;
+import io.debezium.snapshot.mode.RecoverySnapshotter;
+import io.debezium.snapshot.mode.WhenNeededSnapshotter;
 import io.debezium.snapshot.spi.SnapshotLock;
 import io.debezium.transforms.ExtractNewRecordState;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import org.apache.kafka.common.security.authenticator.SaslClientAuthenticator;
 import org.apache.kafka.connect.json.JsonConverter;
-import org.apache.kafka.connect.transforms.predicates.Predicate;
 import org.apache.kafka.connect.transforms.predicates.TopicNameMatches;
 
 @RegisterForReflection(targets = {
         DebeziumEngine.BuilderFactory.class,
-        ConvertingEngineBuilderFactory.class,
-        ConvertingAsyncEngineBuilderFactory.class,
         SaslClientAuthenticator.class,
         JsonConverter.class,
         PostgresConnector.class,
@@ -63,9 +64,6 @@ import org.apache.kafka.connect.transforms.predicates.TopicNameMatches;
         RecoverySnapshotter.class,
         WhenNeededSnapshotter.class,
         NeverSnapshotter.class,
-        SchemaOnlySnapshotter.class,
-        SchemaOnlyRecoverySnapshotter.class,
-        ConfigurationBasedSnapshotter.class,
         SourceSignalChannel.class,
         KafkaSignalChannel.class,
         FileSignalChannel.class,

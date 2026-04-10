@@ -123,13 +123,18 @@ def step_http_wait(step, config):
     while True:
         try:
             resp = requests.get(url, timeout=10)
-            if resp.status_code < 500:
+            # Only accept 2xx status codes as success
+            if 200 <= resp.status_code < 300:
                 if json_path and expected_value:
                     data = resp.json()
                     # resolve simple dot-separated path
                     actual = data
                     for key in json_path.split("."):
-                        actual = actual[key]
+                        # supports array indexing like "tasks.0.state"
+                        if key.isdigit():
+                            actual = actual[int(key)]
+                        else:
+                            actual = actual[key]
                     if str(actual) == str(expected_value):
                         print(f"  -> {json_path}={actual} (OK)")
                         return
@@ -137,6 +142,8 @@ def step_http_wait(step, config):
                 else:
                     print(f"  -> {resp.status_code} (OK)")
                     return
+            else:
+                print(f"  -> not ready (HTTP {resp.status_code})")
         except Exception as e:
             print(f"  -> not ready ({e})")
 
