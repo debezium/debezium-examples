@@ -15,6 +15,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Cache Invalidation](./cache-invalidation): How Debezium can be used to invalidate items in the JPA 2nd level cache after external data changes
 * [Camel - pipelines](./camel-component): Building an Apache Camel pipeline that captures **Postgres** database changes
 * [Camel - Kafka Connect](./camel-kafka-connect): How to use the Camel Kafka Connect component with Debezium
+* [CSV Connector](./debezium-connector-csv): Example CDC connector implementation based on CSV files, demonstrating snapshot/streaming handover, offset management, and schema evolution
 * [Cloud Events](./cloudevents): How to use cloud events defined in Json with Debezium
 * [Database Activity Monitoring](./db-activity-monitoring): How to use Debezium for comprehensive database activity logging and analysis
 * [Debezium - End-to-end demo](./end-to-end-demo): End-to-end demo using MySQL as database and Kafka Connect
