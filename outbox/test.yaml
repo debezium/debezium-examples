@@ -1,0 +1,90 @@
+name: outbox
+description: Tests Debezium PostgreSQL connector with the outbox pattern
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Build all images
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register Debezium PostgreSQL outbox connector
+    type: http_put
+    url: http://localhost:8083/connectors/outbox-connector/config
+    body_file: register-postgres.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/outbox-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for snapshot to finish
+    type: wait
+    seconds: 15
+
+  - name: Wait for order-service to be ready
+    type: http_wait
+    url: http://localhost:8080/orders
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_status: [405]
+
+  - name: Create a new order
+    type: http_post
+    url: http://localhost:8080/orders
+    body_file: resources/data/create-order-request.json
+    headers:
+      Content-Type: application/json
+    expected_status: [200, 201, 204]
+    capture_json:
+      order_id: id
+      line_id: lineItems.1.id
+
+  - name: Cancel an order line
+    type: http_put
+    url: http://localhost:8080/orders/${order_id}/lines/${line_id}
+    body_file: resources/data/cancel-order-line-request.json
+    headers:
+      Content-Type: application/json
+    expected_status: [200, 201, 204]
+
+  - name: Verify OrderCreated event appears in Kafka
+    type: kafka_consume
+    topic: Order.events
+    timeout_seconds: 60
+    expected_content: "Debezium in Action"
+
+  - name: Verify shipment-service processed OrderCreated event
+    type: wait_for_log
+    service: shipment-service
+    timeout_seconds: 30
+    expected_content: "Processing 'OrderCreated' event"
+
+  - name: Verify OrderLineUpdated event appears in Kafka
+    type: kafka_consume
+    topic: Order.events
+    timeout_seconds: 30
+    expected_content: "CANCELLED"
+
+  - name: Verify shipment-service processed OrderLineUpdated event
+    type: wait_for_log
+    service: shipment-service
+    timeout_seconds: 30
+    expected_content: "Processing 'OrderLineUpdated' event"

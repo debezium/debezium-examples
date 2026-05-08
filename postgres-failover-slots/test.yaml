@@ -88,14 +88,14 @@ steps:
     url: http://localhost:8083/connectors/inventory-source
     expected_status: [200, 204, 404]
 
+  - name: Wait for connector cleanup
+    type: wait
+    seconds: 10
+
   - name: Drop stale replication slot on promoted replica
     type: docker_compose_exec
     service: postgres_replica
     command: "psql -U user -d inventorydb -c \"SELECT pg_drop_replication_slot(slot_name) FROM pg_replication_slots WHERE slot_name = 'debezium';\""
-
-  - name: Wait for connector cleanup
-    type: wait
-    seconds: 5
 
   - name: Re-register connector on new primary
     type: http_put

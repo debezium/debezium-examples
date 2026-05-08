@@ -5,16 +5,25 @@ on:
     paths:
       - 'outbox/**'
       - '.github/workflows/outbox-workflow.yml'
+      - 'scripts/run-example-test.py'
   pull_request:
     paths:
       - 'outbox/**'
       - '.github/workflows/outbox-workflow.yml'
+      - 'scripts/run-example-test.py'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
       - name: Cache local Maven repository
         uses: actions/cache@v4
         with:
@@ -24,3 +33,14 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Check changes in [outbox] example
         run: cd outbox && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run outbox test
+        run: python scripts/run-example-test.py outbox
