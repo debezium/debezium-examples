@@ -276,6 +276,8 @@ def step_kafka_consume(step, config):
     topic = step["topic"]
     timeout_seconds = step.get("timeout_seconds", 30)
     expected_content = step.get("expected_content")
+    if expected_content is not None and not isinstance(expected_content, str):
+        expected_content = str(expected_content)
     timeout_ms = timeout_seconds * 1000
     service = step.get("service", "kafka")
 
@@ -314,6 +316,38 @@ def step_wait(step, config):
     time.sleep(seconds)
 
 
+def step_wait_for_log(step, config):
+    service = substitute_vars(step["service"])
+    expected_content = step.get("expected_content")
+    if not expected_content or not isinstance(expected_content, str):
+        raise RuntimeError(f"Step 'wait_for_log' requires 'expected_content' to be a non-empty string, but got {type(expected_content).__name__}")
+    
+    timeout_seconds = step.get("timeout_seconds", 30)
+    interval = step.get("interval_seconds", 5)
+
+    deadline = time.time() + timeout_seconds
+    # Use --tail to keep log inspection efficient as suggested by Copilot
+    cmd = compose_cmd(config, "logs", "--tail", "200", service)
+    print(f"  Waiting for '{expected_content}' in {service} logs (timeout={timeout_seconds}s)")
+
+    while True:
+        # run directly to avoid spamming the console
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True, env=os.environ)
+        output = result.stdout + result.stderr
+        
+        if expected_content in output:
+            print(f"  -> Found '{expected_content}' in logs (OK)")
+            return
+            
+        if time.time() >= deadline:
+            raise RuntimeError(
+                f"Expected '{expected_content}' not found in logs of service '{service}' within {timeout_seconds}s.\n"
+                f"Logs (last 200 lines):\n{output}"
+            )
+        
+        time.sleep(interval)
+
+
 STEP_HANDLERS = {
     "docker_compose_up": step_docker_compose_up,
     "docker_compose_down": step_docker_compose_down,
@@ -327,6 +361,7 @@ STEP_HANDLERS = {
     "kafka_consume": step_kafka_consume,
     "env_override": step_env_override,
     "wait": step_wait,
+    "wait_for_log": step_wait_for_log,
 }
 
 
