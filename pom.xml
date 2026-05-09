@@ -13,7 +13,8 @@
     <!--
         This is the root parent POM for all Debezium examples.
         It provides a single source of truth for the Debezium version used across
-        all Maven-based examples in this repository.
+        all Maven-based examples in this repository, and imports the Debezium BOM
+        so child modules can declare Debezium dependencies without versions.
 
         NOTE: This POM intentionally declares NO <modules> — each example remains
         independently buildable (cd example && mvn clean install).
@@ -27,9 +28,50 @@
         <!-- Single source of truth for the Debezium version -->
         <version.debezium>3.5.0.Final</version.debezium>
 
+        <!-- Standardized Java version for all examples -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+
+        <!-- Other dependency versions -->
+        <version.slf4j>1.7.36</version.slf4j>
+        <version.postgresql.driver>42.7.2</version.postgresql.driver>
+        <version.quarkus>3.20.3</version.quarkus>
+        <version.jackson>2.13.4</version.jackson>
+        <version.kafka>3.9.0</version.kafka>
+
         <!-- Common encoding defaults -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${version.kafka}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-streams</artifactId>
+                <version>${version.kafka}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.debezium</groupId>
+                <artifactId>debezium-bom</artifactId>
+                <version>${version.debezium}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.quarkus</groupId>
+                <artifactId>quarkus-bom</artifactId>
+                <version>${version.quarkus}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.debezium.examples</groupId>
+    <artifactId>debezium-examples-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
   <groupId>com.example</groupId>
   <artifactId>debezium-thorntail-demo</artifactId>
   <name>Thorntail Example</name>
@@ -7,11 +13,17 @@
   <packaging>war</packaging>
 
   <properties>
-    <version.thorntail>2.3.0.Final</version.thorntail>
+    <!--
+        Thorntail 2.3.0.Final (last release; product EOL'd in 2020) cannot
+        read class files compiled at Java 9+ ("Unsupported class file major
+        version 62" against Java 21 bytecode). Override the parent's Java
+        21 target locally and pin this module to Java 1.8.
+    -->
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.release>8</maven.compiler.release>
+    <version.thorntail>2.3.0.Final</version.thorntail>
     <failOnMissingWebXml>false</failOnMissingWebXml>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencyManagement>
