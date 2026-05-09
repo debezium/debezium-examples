@@ -9,9 +9,9 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.common.serialization.Serde;

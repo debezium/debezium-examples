@@ -11,42 +11,11 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <groupId>io.debezium.examples</groupId>
     <artifactId>cloudevents-data-extractor</artifactId>
-    <version>0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
-
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
         <version.surefire>3.0.0-M6</version.surefire>
-
-        <apache.kafka.version>3.2.0</apache.kafka.version>
-        <version.quarkus>2.7.2.Final</version.quarkus>
+        <version.confluent>7.9.0</version.confluent>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-bom</artifactId>
-                <version>${version.quarkus}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-core</artifactId>
-                <version>${version.debezium}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <finalName>aggregator</finalName>
@@ -79,31 +48,27 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-health</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-undertow-websockets</artifactId>
+            <version>${version.quarkus}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-kafka-streams</artifactId>
+            <version>${version.quarkus}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-confluent-registry-avro</artifactId>
+            <version>${version.quarkus}</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-core</artifactId>
+            <version>${version.debezium}</version>
         </dependency>
         <dependency>
             <groupId>io.confluent</groupId>
             <artifactId>kafka-streams-avro-serde</artifactId>
-            <version>5.3.2</version>
+            <version>${version.confluent}</version>
         </dependency>
     </dependencies>
     <profiles>

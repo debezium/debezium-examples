@@ -10,18 +10,10 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
-    <groupId>io.debezium.examples</groupId>
     <artifactId>apache-pulsar</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-	    <version.slf4j>1.7.36</version.slf4j>
-        <pulsar.version>2.11.0</pulsar.version>
+        <version.pulsar>2.11.0</version.pulsar>
     </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -54,28 +46,26 @@
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-embedded</artifactId>
-            <version>${version.debezium}</version>
         </dependency>
 
         <dependency>
             <groupId>io.debezium</groupId>
             <artifactId>debezium-connector-postgres</artifactId>
-            <version>${version.debezium}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.pulsar</groupId>
             <artifactId>pulsar-client</artifactId>
-            <version>${pulsar.version}</version>
+            <version>${version.pulsar}</version>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${version.slf4j}</version>
         </dependency>
-	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-simple</artifactId>
-	    <version>${version.slf4j}</version>
-	</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${version.slf4j}</version>
+        </dependency>
     </dependencies>
 </project>

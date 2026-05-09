@@ -14,42 +14,52 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
+            <version>${version.camel}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-main</artifactId>
+            <version>${version.camel}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-debezium-postgres</artifactId>
+            <version>${version.camel}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-ognl</artifactId>
+            <version>${version.camel}</version>
         </dependency> 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-infinispan</artifactId>
+            <version>${version.camel}</version>
         </dependency> 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-mail</artifactId>
+            <version>${version.camel}</version>
         </dependency> 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-twitter</artifactId>
+            <version>${version.camel}</version>
         </dependency> 
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jackson</artifactId>
+            <version>${version.camel}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
+            <version>${version.postgresql.driver}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+            <version>${version.slf4j}</version>
         </dependency>
     </dependencies>
 

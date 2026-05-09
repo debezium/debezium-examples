@@ -15,10 +15,6 @@
     <name>Parent for Q&amp;A Camel Debezium example</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-
         <database.hostname>qa-db</database.hostname>
         <database.port>5432</database.port>
         <database.user>postgres</database.user>
@@ -33,12 +29,6 @@
         <mysql.init.timeout>30000</mysql.init.timeout>
 
         <version.camel>4.0.0-M3</version.camel>
-        <version.debezium.tag>2.3</version.debezium.tag>
-        <version.postgresql.driver>42.7.2</version.postgresql.driver>
-        <version.org.slf4j>1.7.36</version.org.slf4j>
-        <version.quarkus>3.0.0.Final</version.quarkus>
-        <version.jackson>2.13.4</version.jackson>
-        <version.kafka>3.4.0</version.kafka>
         <version.plugin.docker>0.31.0</version.plugin.docker>
         <version.plugin.shade>3.2.1</version.plugin.shade>
     </properties>
@@ -64,39 +54,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <!-- Use required Debezium version -->
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-connector-postgres</artifactId>
-                <version>${version.debezium}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-embedded</artifactId>
-                <version>${version.debezium}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.debezium</groupId>
-                <artifactId>debezium-core</artifactId>
-                <version>${version.debezium}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.postgresql</groupId>
-                <artifactId>postgresql</artifactId>
-                <version>${version.postgresql.driver}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${version.org.slf4j}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.kafka</groupId>
-                <artifactId>kafka-clients</artifactId>
-                <version>${version.kafka}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -116,6 +73,17 @@
                     <groupId>io.quarkus</groupId>
                     <artifactId>quarkus-maven-plugin</artifactId>
                     <version>${version.quarkus}</version>
+                    <configuration>
+                        <systemProperties>
+                            <!--
+                                Allow ByteBuddy to operate on JDK versions it does not yet officially support
+                                (the Quarkus/ByteBuddy version pulled in here predates official Java 21 support).
+                                Remove once the Quarkus BOM upgrades to a ByteBuddy release that supports the
+                                target JDK natively.
+                            -->
+                            <net.bytebuddy.experimental>true</net.bytebuddy.experimental>
+                        </systemProperties>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -150,7 +118,7 @@
                             </run>
                         </image>
                         <image>
-                            <name>quay.io/debezium/example-postgres:${version.debezium.tag}</name>
+                            <name>quay.io/debezium/example-postgres:${version.debezium}</name>
                             <run>
                                 <namingStrategy>none</namingStrategy>
                                 <env>
