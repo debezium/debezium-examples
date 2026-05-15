@@ -1,12 +1,4 @@
 services:
-  jaeger:
-    image: jaegertracing/all-in-one:1
-    ports:
-      - 6831:6831/udp
-      - 16686:16686
-    networks:
-      - my-network
-
   kafka:
     image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
@@ -52,13 +44,10 @@ services:
         config.storage.replication.factor=1
         status.storage.topic=connect-status
         status.storage.replication.factor=1
-        consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
-        producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
-      - JAEGER_SERVICE_NAME=kafka-connect
-      - JAEGER_AGENT_HOST=jaeger
-      - JAEGER_SAMPLER_TYPE=const
-      - JAEGER_SAMPLER_PARAM=1
-      - STRIMZI_TRACING=jaeger
+      - OTEL_SERVICE_NAME=kafka-connect
+      - OTEL_TRACES_EXPORTER=none
+      - OTEL_METRICS_EXPORTER=none
+      - STRIMZI_TRACING=opentelemetry
       - BOOTSTRAP_SERVERS=kafka:9092
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=my_connect_configs
