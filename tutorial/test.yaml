@@ -1,0 +1,44 @@
+name: mysql-tutorial
+description: Tests Debezium MySQL connector via the official tutorial setup
+env_file: ../.env
+compose_file: docker-compose-mysql.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register Debezium MySQL connector
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-mysql.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Make change in MySQL database
+    type: docker_compose_exec
+    service: mysql
+    command: "mysql -u mysqluser -pmysqlpw inventory -e \"UPDATE customers SET first_name = 'Sarah' WHERE id = 1001;\""
+
+  - name: Verify change appears in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_content: "Sarah"
