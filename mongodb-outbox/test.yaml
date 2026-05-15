@@ -1,0 +1,54 @@
+name: mongodb-outbox
+description: Tests Debezium MongoDB connector with the Outbox pattern
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Build all images
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register Debezium MongoDB connector
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-mongodb.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/outbox-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Insert order and outbox event via MongoDB
+    type: docker_compose_exec
+    service: mongodb
+    command: >
+      mongosh -u $MONGODB_USER -p $MONGODB_PASSWORD --authenticationDatabase admin inventory --eval '
+      new_order = { "_id" : ObjectId("000000000000000000000001"), "order_date" : ISODate("2021-11-22T00:00:00Z"), "purchaser_id" : NumberLong(1004), "quantity" : 1, "product_id" : NumberLong(107) };
+      s = db.getMongo().startSession();
+      s.startTransaction();
+      s.getDatabase("inventory").orders.insertOne(new_order);
+      s.getDatabase("inventory").outboxevent.insertOne({ aggregateid : new_order._id, aggregatetype : "Order", type : "OrderCreated", timestamp: NumberLong(1556890294484), payload : new_order });
+      s.commitTransaction();'
+
+  - name: Verify outbox event appears in Kafka
+    type: kafka_consume
+    topic: Order.events
+    timeout_seconds: 60
+    expected_content: "purchaser_id=1004"
