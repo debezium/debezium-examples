@@ -1,14 +1,17 @@
 package io.debezium.demos.auditing.admin.wih;
 
 import java.util.Collections;
+import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.kie.api.runtime.process.WorkItem;
-import org.kie.api.runtime.process.WorkItemHandler;
-import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.kogito.internal.process.workitem.KogitoWorkItem;
+import org.kie.kogito.internal.process.workitem.KogitoWorkItemHandler;
+import org.kie.kogito.internal.process.workitem.KogitoWorkItemManager;
+import org.kie.kogito.internal.process.workitem.WorkItemTransition;
+import org.kie.kogito.process.workitems.impl.DefaultKogitoWorkItemHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,7 +22,7 @@ import io.debezium.demos.auditing.admin.VegetableEvent;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped
-public class SendTransactionEventWIHandler implements WorkItemHandler {
+public class SendTransactionEventWIHandler extends DefaultKogitoWorkItemHandler {
 
     private ObjectMapper json = new ObjectMapper();
 
@@ -27,7 +30,8 @@ public class SendTransactionEventWIHandler implements WorkItemHandler {
     Emitter<String> emitter;
 
     @Override
-    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+    public Optional<WorkItemTransition> activateWorkItemHandler(KogitoWorkItemManager manager, KogitoWorkItemHandler handler,
+            KogitoWorkItem workItem, WorkItemTransition transition) {
         try {
             VegetableEvent vegetable = (VegetableEvent) workItem.getParameter("vegetable");
             AuditData audit = (AuditData) workItem.getParameter("audit");
@@ -51,19 +55,15 @@ public class SendTransactionEventWIHandler implements WorkItemHandler {
 
             emitter.send(KafkaRecord.of(key, value));
 
-            manager.completeWorkItem(workItem.getId(), null);
+            return Optional.of(handler.completeTransition(workItem.getPhaseStatus(), Collections.emptyMap()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-
-    }
-
-    @Override
-    public String getName() {
-        return "Send Task";
+    public Optional<WorkItemTransition> abortWorkItemHandler(KogitoWorkItemManager manager, KogitoWorkItemHandler handler,
+            KogitoWorkItem workItem, WorkItemTransition transition) {
+        return Optional.empty();
     }
 }

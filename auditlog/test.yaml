@@ -101,10 +101,10 @@ steps:
     timeout_seconds: 30
     interval_seconds: 5
     expected_status: 200
-    expected_json_path: "{FIRST_KEY}"
+    expected_json_path: "0.id"
     expected_value: "{ANY}"
     capture_json:
-      TASK_UUID: "{FIRST_KEY}"
+      TASK_UUID: "0.id"
 
   - name: Provide missing metadata to the admin service
     type: http_post
