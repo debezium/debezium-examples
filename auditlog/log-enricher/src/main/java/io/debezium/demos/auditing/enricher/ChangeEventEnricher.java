@@ -4,8 +4,8 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.Transformer;
