@@ -10,6 +10,7 @@ For getting started please check the [tutorial example](./tutorial).
 
 ## Examples
 
+* [AI RAG](./ai-rag): How to implement Retrieval-Augmented Generation (RAG) using **Debezium Server** to stream **Postgres** changes, compute embeddings, and store them in a **Milvus** vector database for use by a local **Ollama**-served LLM
 * [Apache Pulsar](./apache-pulsar): Streaming **Postgres** database changes to **Apache Pulsar**
 * [Audit Logs](./auditlog): Building Audit Logs with Change Data Capture
 * [Cache Invalidation](./cache-invalidation): How Debezium can be used to invalidate items in the JPA 2nd level cache after external data changes

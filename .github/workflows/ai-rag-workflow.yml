@@ -1,0 +1,27 @@
+name: Build [ai-rag]
+
+on:
+  push:
+    paths:
+      - 'ai-rag/**'
+      - '.github/workflows/ai-rag-workflow.yml'
+  pull_request:
+    paths:
+      - 'ai-rag/**'
+      - '.github/workflows/ai-rag-workflow.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build ai-rag client
+        run: mvn clean package -DskipTests -f ai-rag/client/pom.xml
