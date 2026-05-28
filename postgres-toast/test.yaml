@@ -1,0 +1,72 @@
+name: postgres-toast
+description: Tests Debezium PostgreSQL connector dealing with TOAST column values and stateful Kafka Streams enrichment
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Build all images
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register Debezium Postgres source connector
+    type: http_put
+    url: http://localhost:8083/connectors/inventory-connector/config
+    body_file: debezium-source.json
+    expected_status: [200, 201]
+
+  - name: Register JDBC sink connector
+    type: http_put
+    url: http://localhost:8083/connectors/sink-connector/config
+    body_file: jdbc-sink.json
+    expected_status: [200, 201]
+
+  - name: Wait for source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/sink-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Update customer first name in source database
+    type: docker_compose_exec
+    service: source-db
+    command: 'psql postgresql://postgresusersource:postgrespw@source-db:5432/sourcedb -c "UPDATE inventory.customers SET first_name = ''Dana'' WHERE id = 1001;"'
+
+  - name: Verify update appears in Kafka customers topic
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_content: "Dana"
+
+  - name: Update product description in source database (TOAST trigger test)
+    type: docker_compose_exec
+    service: source-db
+    command: 'psql postgresql://postgresusersource:postgrespw@source-db:5432/sourcedb -c "UPDATE inventory.products SET description = ''Much wow'' WHERE id = 101;"'
+
+  - name: Verify enriched product event appears in enriched Kafka topic
+    type: kafka_consume
+    topic: dbserver1.inventory.products.enriched
+    timeout_seconds: 60
+    expected_content: "Much wow"
