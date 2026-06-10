@@ -1,0 +1,50 @@
+name: cloudevents
+description: Tests Debezium PostgreSQL connector with CloudEvents structured mode (JSON format)
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Build all images
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register Postgres connector
+    type: http_put
+    url: http://localhost:8083/connectors/inventory-connector-json-json/config
+    body_file: register-postgres-json-json.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector-json-json/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Modify records in Postgres database
+    type: docker_compose_exec
+    service: postgres
+    command: 'psql postgresql://postgres:postgres@localhost:5432/postgres -c "UPDATE inventory.customers SET first_name = ''Sarah'' WHERE id = 1001;"'
+
+  - name: Verify CloudEvent envelope and content in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_content:
+      - "specversion"
+      - "Sarah"
+      - '"iodebeziumop":"u"'
