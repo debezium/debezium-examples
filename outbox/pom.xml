@@ -18,6 +18,7 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.debezium-quarkus>2.4.0.Alpha2</version.debezium-quarkus>
     <version.quarkus>3.0.0.Final</version.quarkus>
