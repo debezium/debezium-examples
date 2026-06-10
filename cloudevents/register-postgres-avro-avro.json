@@ -6,7 +6,7 @@
     "database.user": "postgres",
     "database.password": "postgres",
     "database.dbname" : "postgres",
-    "database.server.name": "dbserver3",
+    "topic.prefix": "dbserver3",
     "slot.name":"dbserver3",
     "schema.include.list": "inventory",
     "key.converter": "org.apache.kafka.connect.json.JsonConverter",

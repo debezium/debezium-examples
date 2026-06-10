@@ -276,8 +276,14 @@ def step_kafka_consume(step, config):
     topic = step["topic"]
     timeout_seconds = step.get("timeout_seconds", 30)
     expected_content = step.get("expected_content")
-    if expected_content is not None and not isinstance(expected_content, str):
-        expected_content = str(expected_content)
+    
+    if expected_content is None:
+        expected_contents = []
+    elif isinstance(expected_content, list):
+        expected_contents = [str(item) for item in expected_content]
+    else:
+        expected_contents = [str(expected_content)]
+
     timeout_ms = timeout_seconds * 1000
     service = step.get("service", "kafka")
 
@@ -294,13 +300,26 @@ def step_kafka_consume(step, config):
     result = run_cmd(cmd, check=False, capture_output=True)
     output = result.stdout + result.stderr
 
-    if expected_content and expected_content not in output:
+    if not expected_contents:
+        return
+
+    # Split output into individual lines (each representing a single message)
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+
+    # Look for a single message containing all expected substrings
+    found = False
+    for line in lines:
+        if all(expected in line for expected in expected_contents):
+            found = True
+            break
+
+    expected_str = ", ".join(f"'{e}'" for e in expected_contents)
+    if not found:
         raise RuntimeError(
-            f"Expected '{expected_content}' not found in Kafka topic '{topic}'.\n"
+            f"Could not find any single message containing all expected substrings [{expected_str}] in Kafka topic '{topic}'.\n"
             f"Consumer output:\n{output[-2000:]}"
         )
-    if expected_content:
-        print(f"  -> Found '{expected_content}' in topic output (OK)")
+    print(f"  -> Found all expected substrings [{expected_str}] in a single message (OK)")
 
 
 def step_env_override(step, config):
