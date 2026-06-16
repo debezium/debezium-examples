@@ -112,6 +112,9 @@ services:
     environment:
      - QUARKUS_DEBEZIUM_OUTBOX_REMOVE_AFTER_INSERT=true
      - QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4317
+     - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory
+     - QUARKUS_DATASOURCE_USERNAME=postgresuser
+     - QUARKUS_DATASOURCE_PASSWORD=postgrespw
     depends_on:
       order-db:
         condition: service_healthy
@@ -121,7 +124,6 @@ services:
         condition: service_started
       jaeger:
         condition: service_started
-    command: "./application -Dquarkus.datasource.jdbc.url=jdbc:postgresql://order-db:5432/orderdb?currentSchema=inventory -Dquarkus.datasource.username=postgresuser -Dquarkus.datasource.password=postgrespw"
   
   shipment-service:
     image: debezium-examples/outbox-shipment-service:${DEBEZIUM_VERSION}
