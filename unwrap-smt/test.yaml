@@ -1,0 +1,161 @@
+name: unwrap-smt
+description: Tests Debezium MySQL source, PostgreSQL JDBC sink, and Elasticsearch sink with Unwrap SMT
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build custom connect image
+    type: docker_compose_build
+    services: connect
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 240
+    interval_seconds: 5
+
+  - name: Wait for Elasticsearch http api to be ready
+    type: http_wait
+    url: http://localhost:9200
+    timeout_seconds: 60
+    interval_seconds: 5
+
+  - name: Register MySQL source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: source.json
+    expected_status: [200, 201]
+
+  - name: Register PostgreSQL JDBC sink connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: jdbc-sink.json
+    expected_status: [200, 201]
+
+  - name: Register Elasticsearch sink connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: es-sink.json
+    expected_status: [200, 201]
+
+  - name: Wait for MySQL source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for PostgreSQL JDBC sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/jdbc-sink/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for Elasticsearch sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/elastic-sink/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for initial replication to complete
+    type: wait
+    seconds: 15
+
+  - name: Verify initial records in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventory -c "select * from customers order by id;"
+    expected_content:
+      - "Sally"
+      - "George"
+      - "Edward"
+      - "Anne"
+
+  - name: Verify initial record in Elasticsearch sink
+    type: http_wait
+    url: http://localhost:9200/customers/_doc/1001
+    expected_json_path: _source.first_name
+    expected_value: Sally
+    timeout_seconds: 30
+
+  - name: Insert new record into MySQL database
+    type: docker_compose_exec
+    service: mysql
+    command: mysql -u mysqluser -pmysqlpw inventory -e "INSERT INTO customers VALUES (default, 'John','Doe','john.doe@example.com');"
+
+  - name: Wait for replication of insert
+    type: wait
+    seconds: 10
+
+  - name: Verify new record in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventory -c "select * from customers where email='john.doe@example.com';"
+    expected_content: John
+
+  - name: Verify new record in Elasticsearch sink
+    type: http_wait
+    url: http://localhost:9200/customers/_doc/1005
+    expected_json_path: _source.first_name
+    expected_value: John
+    timeout_seconds: 30
+
+  - name: Update record in MySQL database
+    type: docker_compose_exec
+    service: mysql
+    command: mysql -u mysqluser -pmysqlpw inventory -e "UPDATE customers SET first_name='Sarah' WHERE email='john.doe@example.com';"
+
+  - name: Wait for replication of update
+    type: wait
+    seconds: 10
+
+  - name: Verify updated record in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventory -c "select * from customers where email='john.doe@example.com';"
+    expected_content: Sarah
+
+  - name: Verify updated record in Elasticsearch sink
+    type: http_wait
+    url: http://localhost:9200/customers/_doc/1005
+    expected_json_path: _source.first_name
+    expected_value: Sarah
+    timeout_seconds: 30
+
+  - name: Delete record in MySQL database
+    type: docker_compose_exec
+    service: mysql
+    command: mysql -u mysqluser -pmysqlpw inventory -e "DELETE FROM customers WHERE email='john.doe@example.com';"
+
+  - name: Wait for replication of delete
+    type: wait
+    seconds: 10
+
+  - name: Verify deletion in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventory -c "select count(*) from customers where email='john.doe@example.com';"
+    expected_content: "0"
+
+  - name: Verify deletion in Elasticsearch sink
+    type: http_wait
+    url: http://localhost:9200/customers/_doc/1005
+    expected_status: 404
+    timeout_seconds: 30
