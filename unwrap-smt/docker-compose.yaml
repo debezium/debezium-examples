@@ -31,13 +31,14 @@ services:
      - POSTGRES_DB=inventory
 
   elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:5.5.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
     ports:
      - "9200:9200"
     environment:
      - http.host=0.0.0.0
      - transport.host=127.0.0.1
      - xpack.security.enabled=false
+     - discovery.type=single-node
 
   connect:
     image: debezium/connect-jdbc-es:${DEBEZIUM_VERSION}

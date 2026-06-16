@@ -11,7 +11,6 @@
         "transforms.key.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
         "transforms.key.field": "rootId",
         "key.ignore": "false",
-        "type.name": "customer-with-addresses",
         "behavior.on.null.values": "delete"
     }
 }

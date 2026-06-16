@@ -134,6 +134,7 @@ def step_docker_compose_stop(step, config):
 def step_docker_compose_exec(step, config):
     service = substitute_vars(step["service"])
     command = substitute_vars(step["command"])
+    expected_content = step.get("expected_content")
     
     shell = substitute_vars(step.get("shell", "bash"))
     # Use a configurable shell so shell operators like >, |, && still work.
@@ -141,7 +142,25 @@ def step_docker_compose_exec(step, config):
     # but it can be overridden to `sh` for Alpine-based images.
     cmd = compose_cmd(config, "exec", "-T", service, shell, "-c", command)
     
-    run_cmd(cmd)
+    if expected_content:
+        result = run_cmd(cmd, check=True, capture_output=True)
+        output = result.stdout + result.stderr
+        
+        if isinstance(expected_content, list):
+            expected_contents = [str(item) for item in expected_content]
+        else:
+            expected_contents = [str(expected_content)]
+            
+        for expected in expected_contents:
+            if expected not in output:
+                raise RuntimeError(
+                    f"Expected content '{expected}' not found in command output.\n"
+                    f"Command: {' '.join(cmd)}\n"
+                    f"Output:\n{output}"
+                )
+        print(f"  -> Found all expected content [{', '.join(expected_contents)}] (OK)")
+    else:
+        run_cmd(cmd)
 
 
 def _http_request(method, step, config):

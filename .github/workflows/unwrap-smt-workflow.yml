@@ -1,0 +1,30 @@
+name: Build [unwrap-smt]
+
+on:
+  push:
+    paths:
+      - 'unwrap-smt/**'
+      - '.github/workflows/unwrap-smt-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'unwrap-smt/**'
+      - '.github/workflows/unwrap-smt-workflow.yml'
+      - 'scripts/run-example-test.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run unwrap-smt test
+        run: python scripts/run-example-test.py unwrap-smt
