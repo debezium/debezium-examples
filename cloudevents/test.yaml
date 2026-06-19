@@ -35,6 +35,10 @@ steps:
     expected_json_path: connector.state
     expected_value: RUNNING
 
+  - name: Wait for snapshot to complete
+    type: wait
+    seconds: 15
+
   - name: Modify records in Postgres database
     type: docker_compose_exec
     service: postgres
