@@ -19,3 +19,5 @@ RUN curl -sSL -o $KAFKA_CONNECT_PLUGINS_DIR/es-connector.zip "https://api.hub.co
     unzip -d $KAFKA_CONNECT_PLUGINS_DIR $KAFKA_CONNECT_PLUGINS_DIR/es-connector.zip && \
     rm -f $KAFKA_CONNECT_PLUGINS_DIR/es-connector.zip
 
+USER kafka
+
