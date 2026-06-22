@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-credentials
+type: opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: debezium
+  MYSQL_DATABASE: target_db
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+      deployment: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+        deployment: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:9.1
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: mysql-credentials
+          livenessProbe:
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 3306
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - "/bin/sh"
+                - "-c"
+                - "mysqladmin ping -uroot -p${MYSQL_ROOT_PASSWORD}"
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+  strategy:
+    type: Recreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+    deployment: mysql
+  ports:
+    - name: db
+      port: 3306
+      targetPort: 3306
