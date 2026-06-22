@@ -1,0 +1,9 @@
+{
+  "type": "JDBC",
+  "name": "dest-postgresql-jdbc",
+  "config": {
+    "url": "jdbc:postgresql://postgresql-dest.debezium-platform.svc.cluster.local:5432/debezium",
+    "username": "debezium",
+    "password": "debezium"
+  }
+}

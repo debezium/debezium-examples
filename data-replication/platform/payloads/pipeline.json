@@ -1,0 +1,6 @@
+{
+  "name": "database-migration",
+  "source": { "id": 1 },
+  "destination": { "id": 1 },
+  "logLevel": "INFO"
+}
