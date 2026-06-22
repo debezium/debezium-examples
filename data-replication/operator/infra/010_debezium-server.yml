@@ -1,0 +1,30 @@
+apiVersion: debezium.io/v1alpha1
+kind: DebeziumServer
+metadata:
+  name: jdbc-sink-example
+spec:
+  image: quay.io/debezium/server:latest
+  sink:
+    type: jdbc
+    config:
+      connection.url: jdbc:mysql://mysql:3306/target_db
+      connection.username: root
+      connection.password: debezium
+      insert.mode: upsert
+      primary.key.mode: record_key
+      schema.evolution: basic
+      delete.enabled: "true"
+  source:
+    class: io.debezium.connector.postgresql.PostgresConnector
+    config:
+      database.hostname: postgres
+      database.port: "5432"
+      database.user: postgres
+      database.password: postgres
+      database.dbname: postgres
+      topic.prefix: migration
+      schema.include.list: inventory
+      table.include.list: inventory.customers,inventory.products,inventory.products_on_hand,inventory.orders
+  quarkus:
+    config:
+      log.console.json: "false"

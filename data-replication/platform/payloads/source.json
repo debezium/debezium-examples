@@ -1,0 +1,11 @@
+{
+  "name": "pg-source",
+  "type": "io.debezium.connector.postgresql.PostgresConnector",
+  "schema": "dummy",
+  "connection": { "id": 1 },
+  "config": {
+    "schema.include.list": "inventory",
+    "table.exclude.list": "inventory.geom,inventory.spatial_ref_sys",
+    "topic.prefix": "inventory"
+  }
+}

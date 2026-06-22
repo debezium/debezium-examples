@@ -1,0 +1,11 @@
+{
+  "name": "jdbc-destination",
+  "type": "jdbc",
+  "schema": "dummy",
+  "connection": { "id": 2 },
+  "config": {
+    "insert.mode": "upsert",
+    "primary.key.mode": "record_key",
+    "schema.evolution": "basic"
+  }
+}

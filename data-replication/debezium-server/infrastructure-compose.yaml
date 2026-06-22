@@ -1,0 +1,26 @@
+services:
+  postgres:
+    container_name: postgres
+    image: quay.io/debezium/example-postgres:3.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - backend
+
+  mysql:
+    container_name: mysql
+    image: mysql:9.1
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_DATABASE=target_db
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: debezium-jdbc-backend
