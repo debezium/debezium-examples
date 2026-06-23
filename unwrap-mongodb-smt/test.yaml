@@ -1,0 +1,124 @@
+name: unwrap-mongodb-smt
+description: Tests Debezium MongoDB source with Unwrap SMT and PostgreSQL JDBC sink
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build custom connect image
+    type: docker_compose_build
+    services: connect
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 240
+    interval_seconds: 5
+
+  - name: Wait for Connect to fully initialize
+    type: wait
+    seconds: 30
+
+  - name: Register MongoDB source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: mongodb-source.json
+    expected_status: [200, 201]
+
+  - name: Register PostgreSQL JDBC sink connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: jdbc-sink.json
+    expected_status: [200, 201]
+
+  - name: Wait for MongoDB source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for PostgreSQL JDBC sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/jdbc-sink/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for initial replication to complete
+    type: wait
+    seconds: 15
+
+  - name: Verify initial records in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventorydb -c "select * from customers order by id;"
+    expected_content:
+      - "Sally"
+      - "George"
+      - "Edward"
+      - "Anne"
+
+  - name: Insert new record into MongoDB database
+    type: docker_compose_exec
+    service: mongodb
+    shell: sh
+    command: |
+      mongosh -u debezium -p dbz --authenticationDatabase admin inventory --eval "db.customers.insertOne({_id: NumberLong(1005), first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com'})"
+
+  - name: Wait for replication of insert
+    type: wait
+    seconds: 10
+
+  - name: Verify new record in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventorydb -c "select * from customers where email='john.doe@example.com';"
+    expected_content: John
+
+  - name: Update record in MongoDB database
+    type: docker_compose_exec
+    service: mongodb
+    shell: sh
+    command: |
+      mongosh -u debezium -p dbz --authenticationDatabase admin inventory --eval 'db.customers.updateOne({_id: NumberLong(1005)}, {$set: {first_name: "Sarah"}})'
+
+  - name: Wait for replication of update
+    type: wait
+    seconds: 10
+
+  - name: Verify updated record in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventorydb -c "select * from customers where email='john.doe@example.com';"
+    expected_content: Sarah
+
+  - name: Delete record in MongoDB database
+    type: docker_compose_exec
+    service: mongodb
+    shell: sh
+    command: |
+      mongosh -u debezium -p dbz --authenticationDatabase admin inventory --eval "db.customers.deleteOne({_id: NumberLong(1005)})"
+
+  - name: Wait for replication of delete
+    type: wait
+    seconds: 10
+
+  - name: Verify deletion in PostgreSQL sink database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgresuser -d inventorydb -c "select count(*) from customers where email='john.doe@example.com';"
+    expected_content: "0"
