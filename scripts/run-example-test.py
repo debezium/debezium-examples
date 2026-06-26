@@ -386,6 +386,46 @@ def step_wait_for_log(step, config):
         time.sleep(interval)
 
 
+def step_local_exec(step, config):
+    command = substitute_vars(step["command"])
+    expected_content = step.get("expected_content")
+    
+    print(f"  $ {command}")
+    try:
+        result = subprocess.run(
+            command,
+            shell=True,
+            check=True,
+            capture_output=True,
+            text=True,
+            env=os.environ,
+        )
+        output = result.stdout + result.stderr
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with exit code {e.returncode}")
+        print("Stdout:")
+        print(e.stdout)
+        print("Stderr:")
+        print(e.stderr)
+        raise e
+    
+    if expected_content:
+        if isinstance(expected_content, list):
+            expected_contents = [str(item) for item in expected_content]
+        else:
+            expected_contents = [str(expected_content)]
+            
+        for expected in expected_contents:
+            if expected not in output:
+                raise RuntimeError(
+                    f"Expected content '{expected}' not found in command output.\n"
+                    f"Command: {command}\n"
+                    f"Output:\n{output}"
+                )
+        print(f"  -> Found all expected content [{', '.join(expected_contents)}] (OK)")
+
+
+
 STEP_HANDLERS = {
     "docker_compose_up": step_docker_compose_up,
     "docker_compose_down": step_docker_compose_down,
@@ -400,7 +440,9 @@ STEP_HANDLERS = {
     "env_override": step_env_override,
     "wait": step_wait,
     "wait_for_log": step_wait_for_log,
+    "local_exec": step_local_exec,
 }
+
 
 
 
