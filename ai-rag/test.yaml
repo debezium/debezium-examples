@@ -42,7 +42,7 @@ steps:
   - name: Pull LLM model
     type: docker_compose_exec
     service: ollama
-    command: ollama pull granite3.1-dense:2b
+    command: sh -c "ollama pull granite3.1-dense:2b && ollama pull nomic-embed-text"
 
   - name: Initialize Milvus collection
     type: local_exec
