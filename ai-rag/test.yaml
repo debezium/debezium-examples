@@ -1,0 +1,93 @@
+name: ai-rag
+description: Tests Debezium Server RAG integration with FieldToEmbedding SMT, Milvus vector database, and Ollama
+env_file: ../.env
+compose_file: docker-compose.yml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build custom debezium-server image
+    type: docker_compose_build
+    services: debezium-server
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Milvus to be ready
+    type: http_wait
+    url: http://localhost:9091/healthz
+    timeout_seconds: 120
+    interval_seconds: 5
+    service: debezium-server
+
+  - name: Wait for Ollama to be ready
+    type: http_wait
+    url: http://localhost:11434
+    timeout_seconds: 120
+    interval_seconds: 5
+    service: debezium-server
+
+  - name: Wait for PostgreSQL to be ready
+    type: docker_compose_exec
+    service: postgres
+    command: bash -c "until pg_isready -U postgres -d postgres; do sleep 2; done"
+
+  - name: Pull LLM model
+    type: docker_compose_exec
+    service: ollama
+    command: ollama pull granite3.1-dense:2b
+
+  - name: Initialize Milvus collection
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar init
+    service: debezium-server
+
+  - name: Verify Milvus is empty
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar list-milvus
+    expected_content: "Milvus list results size: 0"
+    service: debezium-server
+
+  - name: Insert document to trigger Debezium and embedding generation
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar insert-document 2504.05309v1
+    service: debezium-server
+
+  - name: Wait for replication and embedding generation
+    type: wait
+    seconds: 25
+
+  - name: Verify document is added to Milvus
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar list-milvus
+    expected_content: "Milvus list results size: 1"
+    service: debezium-server
+
+  - name: Query LLM with RAG context
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar query-chat "Describe IterQR framework in 20 words"
+    expected_content:
+      - "search"
+    service: debezium-server
+
+  - name: Delete document from Postgres to trigger removal from Milvus
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar delete-document 2504.05309v1
+    service: debezium-server
+
+  - name: Wait for deletion propagation
+    type: wait
+    seconds: 15
+
+  - name: Verify document is removed from Milvus
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar list-milvus
+    expected_content: "Milvus list results size: 0"
+    service: debezium-server
