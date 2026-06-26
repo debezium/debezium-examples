@@ -60,7 +60,7 @@ public class DocumentDatabase {
     private String downloadArXiv(String arXivId) throws Exception {
         final var client = HttpClient.newHttpClient();
 
-        final var request = HttpRequest.newBuilder().uri(URI.create("https://www.arxiv-txt.org/raw/abs/%s".formatted(arXivId)))
+        final var request = HttpRequest.newBuilder().uri(URI.create("https://www.arxiv-txt.org/abs/%s".formatted(arXivId)))
                 .GET().build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
