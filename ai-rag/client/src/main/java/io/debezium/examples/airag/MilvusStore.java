@@ -62,7 +62,7 @@ public class MilvusStore {
         final var vectorField = CreateCollectionReq.FieldSchema.builder()
                 .name("vector")
                 .dataType(DataType.FloatVector)
-                .dimension(2048)
+                .dimension(768)
                 .build();
         final var collectionSchema = CollectionSchema.builder()
                 .fieldSchemaList(List.of(pkField, titleField, contentsField, vectorField))
