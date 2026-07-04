@@ -1,0 +1,55 @@
+name: engine-wasm
+description: Tests Debezium Engine streaming database changes to a WASM application (Chicory / TinyGo)
+
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start MySQL database
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for MySQL to be ready
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "until mysqladmin ping -u debezium -pdbz --silent; do sleep 1; done && sleep 10"
+
+  - name: Build the engine-wasm Java project
+    type: local_exec
+    command: mvn clean install -DskipTests -B
+
+  - name: Run Chicory WASM engine in the background
+    type: local_exec
+    command: mvn exec:java > app.log 2>&1 &
+
+  - name: Wait for engine initialization and initial snapshot
+    type: wait
+    seconds: 15
+
+  - name: Update a record in MySQL to trigger WASM processing
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "mysql -u debezium -pdbz inventory -e \"UPDATE customers SET first_name = 'Sarah' WHERE id = 1001;\""
+
+  - name: Wait for update processing
+    type: wait
+    seconds: 10
+
+  - name: Stop the WASM engine background process
+    type: local_exec
+    command: pkill -f "ChangeDataSender" || pkill -f "exec-maven-plugin" || true
+
+  - name: Verify WASM engine output logs
+    type: local_exec
+    command: cat app.log
+    expected_content:
+      - "Received message for destination 'wasm.inventory.customers', with id = '1004'"
+      - "Received message for destination 'wasm.inventory.customers', with id = '1001'"
