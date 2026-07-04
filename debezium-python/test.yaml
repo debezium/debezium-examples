@@ -1,0 +1,16 @@
+name: debezium-python
+description: Tests Debezium Python Connect-mode embedded engine.
+
+steps:
+  - name: Install Python requirements
+    type: local_exec
+    command: pip install -r requirements.txt
+
+  - name: Setup Debezium JARs via Maven
+    type: local_exec
+    command: python3 setup_jars.py
+
+  - name: Run Connect-mode test
+    type: local_exec
+    command: python3 connect_mode_test.py
+    expected_content: "Test completed successfully!"
