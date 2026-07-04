@@ -1,0 +1,63 @@
+name: apicurio
+description: Tests Debezium MySQL connector integration with Apicurio Registry for schema management
+
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Connect to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 240
+    interval_seconds: 5
+
+  - name: Wait for Apicurio Registry to be ready
+    type: http_wait
+    url: http://localhost:8080/health/ready
+    timeout_seconds: 240
+    interval_seconds: 5
+
+  - name: Register MySQL connector with Apicurio JSON converter
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-mysql-apicurio-converter-json.json
+    expected_status: 201
+
+  - name: Wait for connector snapshot
+    type: wait
+    seconds: 15
+
+  - name: Verify schema is registered in Apicurio
+    type: http_wait
+    url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
+    timeout_seconds: 60
+    interval_seconds: 5
+
+  - name: Insert a record in MySQL to trigger change events
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "mysql -u debezium -pdbz inventory -e \"INSERT INTO customers (first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');\""
+
+  - name: Wait for event propagation
+    type: wait
+    seconds: 10
+
+  - name: Consume messages from Kafka to verify externalized schema
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 30
+    expected_content:
+      - "John"
+      - "Doe"
