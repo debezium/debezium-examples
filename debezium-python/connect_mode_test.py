@@ -16,18 +16,12 @@ This example:
 
 from pathlib import Path
 from testcontainers.postgres import PostgresContainer
-from testcontainers.core.waiting_utils import wait_for_logs
 
 # Import local Connect mode extensions
 from debezium_connect import DebeziumConnectEngine, BaseConnectChangeHandler
 from pydebeziumai import DebeziumEventModel, SourceRecordExtractor, print_record_info
 
 OFFSET_FILE = Path(__file__).parent.joinpath('connect-mode-offsets.dat')
-
-
-def wait_for_postgresql_to_start(self) -> None:
-    """Patch for testcontainers PostgreSQL startup detection."""
-    wait_for_logs(self, ".*PostgreSQL init process complete.*")
 
 
 class DbPostgresql:
@@ -45,7 +39,6 @@ class DbPostgresql:
                                                       driver=None)
                                     .with_exposed_ports(POSTGRES_PORT_DEFAULT)
                                     )
-    PostgresContainer._connect = wait_for_postgresql_to_start
 
     def start(self):
         print("Starting Postgresql Db...")
@@ -86,7 +79,7 @@ class ConnectModeHandler(BaseConnectChangeHandler):
 
     def __init__(self):
         self.event_count = 0
-        self.max_events = 5  # Stop after processing a few events
+        self.max_events = 4  # Stop after processing a few events
 
     def handleConnectBatch(self, records):
         """
