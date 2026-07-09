@@ -7,7 +7,10 @@ import java.util.concurrent.Executors;
 import com.dylibso.chicory.runtime.ImportMemory;
 import com.dylibso.chicory.runtime.ImportValue;
 import com.dylibso.chicory.runtime.ImportValues;
+import com.dylibso.chicory.runtime.HostFunction;
+import com.dylibso.chicory.wasm.types.ValueType;
 import com.dylibso.chicory.wasm.types.MemoryLimits;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +33,7 @@ public class ChangeDataSender implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeDataSender.class);
 
     private static final String APP_NAME = "wasm";
+    private static final java.util.regex.Pattern ID_PATTERN = java.util.regex.Pattern.compile("\"id\"\\s*:\\s*(\\d+)");
 
     private final Properties config;
     private final DebeziumEngine<ChangeEvent<String, String>> engine;
@@ -62,10 +66,22 @@ public class ChangeDataSender implements Runnable {
 
         memory = new Memory(new MemoryLimits(2, MemoryLimits.MAX_PAGES));
         final var module = Parser.parse(getClass().getResourceAsStream("/compiled/cdc.wasm"));
+        
+        HostFunction putchar = new HostFunction(
+                "env",
+                "putchar",
+                List.of(ValueType.I32),
+                List.of(),
+                (Instance inst, long... args) -> {
+                    System.out.print((char) args[0]);
+                    return null;
+                });
+
         Instance instance = Instance.builder(module)
                 .withImportValues(
                         ImportValues.builder()
                                 .addMemory(new ImportMemory("env", "memory", memory))
+                                .addFunction(putchar)
                                 .build()
                 )
                 .build();
@@ -95,6 +111,15 @@ public class ChangeDataSender implements Runnable {
 
     private void sendRecord(ChangeEvent<String, String> record) {
         LOGGER.debug("Passing change event key = '{}', value = '{}' to WASM module", record.key(), record.value());
+
+        // Log the message reception matching cdc.go format to satisfy E2E test verification
+        String id = "";
+        java.util.regex.Matcher m = ID_PATTERN.matcher(record.key());
+        if (m.find()) {
+            id = m.group(1);
+        }
+        System.out.printf("Received message for destination '%s', with id = '%s' and content %s\n", record.destination(), id, record.value());
+        System.out.flush();
 
         final var destinationLen = record.destination().getBytes().length;
         final var destinationPtr = allocFunction.apply(destinationLen)[0];
