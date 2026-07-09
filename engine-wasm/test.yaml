@@ -5,8 +5,13 @@ env_file: ../.env
 compose_file: docker-compose.yaml
 
 cleanup:
-  type: docker_compose_down
-  volumes: true
+  - name: Stop the WASM engine background process
+    type: local_exec
+    command: pkill -f "[C]hangeDataSender" || pkill -f "[e]xec-maven-plugin" || true
+
+  - name: Stop MySQL database and clean volumes
+    type: docker_compose_down
+    volumes: true
 
 steps:
   - name: Ensure clean state before starting
@@ -37,7 +42,7 @@ steps:
   - name: Update a record in MySQL to trigger WASM processing
     type: docker_compose_exec
     service: mysql
-    command: bash -c "mysql -u debezium -pdbz inventory -e \"UPDATE customers SET first_name = 'Sarah' WHERE id = 1001;\""
+    command: bash -c "mysql -u mysqluser -pmysqlpw inventory -e \"UPDATE customers SET first_name = 'Sarah' WHERE id = 1001;\""
 
   - name: Wait for update processing
     type: wait
@@ -45,7 +50,7 @@ steps:
 
   - name: Stop the WASM engine background process
     type: local_exec
-    command: pkill -f "ChangeDataSender" || pkill -f "exec-maven-plugin" || true
+    command: pkill -f "[C]hangeDataSender" || pkill -f "[e]xec-maven-plugin" || true
 
   - name: Verify WASM engine output logs
     type: local_exec

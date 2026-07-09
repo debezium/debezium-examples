@@ -524,10 +524,14 @@ def main():
     finally:
         if cleanup_step:
             print(f"\n[CLEANUP] Running cleanup...")
-            try:
-                run_step(cleanup_step, spec)
-            except Exception as e:
-                print(f"[WARN] Cleanup failed: {e}", file=sys.stderr)
+            cleanup_steps = cleanup_step if isinstance(cleanup_step, list) else [cleanup_step]
+            for c_step in cleanup_steps:
+                c_name = c_step.get("name", c_step.get("type", "Unknown"))
+                print(f"  -> Running cleanup step '{c_name}'...")
+                try:
+                    run_step(c_step, spec)
+                except Exception as e:
+                    print(f"[WARN] Cleanup step '{c_name}' failed: {e}", file=sys.stderr)
 
     if failed:
         sys.exit(1)
