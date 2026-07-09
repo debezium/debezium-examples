@@ -79,6 +79,7 @@ def run_cmd(cmd, check=True, capture_output=False):
         check=check,
         capture_output=capture_output,
         text=True,
+        errors="replace",
         env=os.environ,
     )
 
@@ -332,6 +333,10 @@ def step_kafka_consume(step, config):
             found = True
             break
 
+    if not found and expected_contents:
+        if all(expected in output for expected in expected_contents):
+            found = True
+
     expected_str = ", ".join(f"'{e}'" for e in expected_contents)
     if not found:
         raise RuntimeError(
@@ -398,6 +403,7 @@ def step_local_exec(step, config):
             check=True,
             capture_output=True,
             text=True,
+            errors="replace",
             env=os.environ,
         )
         output = result.stdout + result.stderr

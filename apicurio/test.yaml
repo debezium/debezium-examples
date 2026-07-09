@@ -29,35 +29,203 @@ steps:
     timeout_seconds: 240
     interval_seconds: 5
 
+  # -------------------------------------------------------------
+  # Scenario 1: JSON Converter
+  # -------------------------------------------------------------
   - name: Register MySQL connector with Apicurio JSON converter
     type: http_post
     url: http://localhost:8083/connectors/
     body_file: register-mysql-apicurio-converter-json.json
     expected_status: 201
 
-  - name: Wait for connector snapshot
+  - name: Wait for JSON connector snapshot
     type: wait
     seconds: 15
 
-  - name: Verify schema is registered in Apicurio
+  - name: Insert a record in MySQL to trigger JSON change events
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "mysql -u mysqluser -pmysqlpw inventory -e \"INSERT INTO customers (first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');\""
+
+  - name: Wait for JSON event propagation
+    type: wait
+    seconds: 10
+
+  - name: Verify JSON schema is registered in Apicurio
     type: http_wait
     url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
     timeout_seconds: 60
     interval_seconds: 5
 
-  - name: Insert a record in MySQL to trigger change events
-    type: docker_compose_exec
-    service: mysql
-    command: bash -c "mysql -u debezium -pdbz inventory -e \"INSERT INTO customers (first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');\""
-
-  - name: Wait for event propagation
-    type: wait
-    seconds: 10
-
-  - name: Consume messages from Kafka to verify externalized schema
+  - name: Consume messages from Kafka to verify externalized JSON schema
     type: kafka_consume
     topic: dbserver1.inventory.customers
     timeout_seconds: 30
     expected_content:
       - "John"
       - "Doe"
+
+  - name: Delete JSON connector
+    type: http_delete
+    url: http://localhost:8083/connectors/inventory-connector
+    expected_status: 204
+
+  - name: Clean Kafka topic for next run
+    type: docker_compose_exec
+    service: kafka
+    command: bash -c "/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic dbserver1.inventory.customers || true"
+
+  - name: Delete JSON schema artifact from Apicurio
+    type: http_delete
+    url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
+    expected_status: [204, 404]
+
+  - name: Wait for JSON cleanup
+    type: wait
+    seconds: 5
+
+  # -------------------------------------------------------------
+  # Scenario 2: Apicurio Native Avro Converter
+  # -------------------------------------------------------------
+  - name: Register MySQL connector with Apicurio native Avro converter
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-mysql-apicurio-converter-avro.json
+    expected_status: 201
+
+  - name: Wait for Avro connector snapshot
+    type: wait
+    seconds: 15
+
+  - name: Insert a record in MySQL to trigger Avro change events
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "mysql -u mysqluser -pmysqlpw inventory -e \"INSERT INTO customers (first_name, last_name, email) VALUES ('Jane', 'Smith', 'jane.smith@example.com');\""
+
+  - name: Wait for Avro event propagation
+    type: wait
+    seconds: 10
+
+  - name: Verify Avro schema is registered in Apicurio
+    type: http_wait
+    url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
+    timeout_seconds: 60
+    interval_seconds: 5
+
+  - name: Consume messages from Kafka to verify Apicurio native Avro format
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 30
+    expected_content:
+      - "Jane"
+      - "Smith"
+
+  - name: Delete Avro connector
+    type: http_delete
+    url: http://localhost:8083/connectors/inventory-connector
+    expected_status: 204
+
+  - name: Clean Kafka topic for next run (Avro)
+    type: docker_compose_exec
+    service: kafka
+    command: bash -c "/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic dbserver1.inventory.customers || true"
+
+  - name: Delete Avro schema artifact from Apicurio
+    type: http_delete
+    url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
+    expected_status: [204, 404]
+
+  - name: Wait for Avro cleanup
+    type: wait
+    seconds: 5
+
+  # -------------------------------------------------------------
+  # Scenario 3: Apicurio Avro Converter in Confluent-compatible mode
+  # -------------------------------------------------------------
+  - name: Register MySQL connector with Apicurio Avro converter in Confluent-compatible mode
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-mysql-apicurio-compatibile-converter-avro.json
+    expected_status: 201
+
+  - name: Wait for Compat Avro connector snapshot
+    type: wait
+    seconds: 15
+
+  - name: Insert a record in MySQL to trigger Compat Avro change events
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "mysql -u mysqluser -pmysqlpw inventory -e \"INSERT INTO customers (first_name, last_name, email) VALUES ('Jim', 'Jones', 'jim.jones@example.com');\""
+
+  - name: Wait for Compat Avro event propagation
+    type: wait
+    seconds: 10
+
+  - name: Verify Compat Avro schema is registered in Apicurio
+    type: http_wait
+    url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
+    timeout_seconds: 60
+    interval_seconds: 5
+
+  - name: Consume messages from Kafka to verify Confluent-compatible Avro format
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 30
+    expected_content:
+      - "Jim"
+      - "Jones"
+
+  - name: Delete Compat Avro connector
+    type: http_delete
+    url: http://localhost:8083/connectors/inventory-connector
+    expected_status: 204
+
+  - name: Clean Kafka topic for next run (Compat Avro)
+    type: docker_compose_exec
+    service: kafka
+    command: bash -c "/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --delete --topic dbserver1.inventory.customers || true"
+
+  - name: Delete Compat Avro schema artifact from Apicurio
+    type: http_delete
+    url: http://localhost:8080/apis/registry/v2/groups/default/artifacts/dbserver1.inventory.customers-value
+    expected_status: [204, 404]
+
+  - name: Wait for Compat Avro cleanup
+    type: wait
+    seconds: 5
+
+  # -------------------------------------------------------------
+  # Scenario 4: Confluent AvroConverter pointed at Apicurio compatibility API
+  # -------------------------------------------------------------
+  - name: Register MySQL connector using Confluent AvroConverter
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-mysql-apicurio.json
+    expected_status: 201
+
+  - name: Wait for Confluent Avro connector snapshot
+    type: wait
+    seconds: 15
+
+  - name: Insert a record in MySQL to trigger Confluent Avro change events
+    type: docker_compose_exec
+    service: mysql
+    command: bash -c "mysql -u mysqluser -pmysqlpw inventory -e \"INSERT INTO customers (first_name, last_name, email) VALUES ('Jack', 'Vance', 'jack.vance@example.com');\""
+
+  - name: Wait for Confluent Avro event propagation
+    type: wait
+    seconds: 10
+
+  - name: Verify Confluent Avro schema is registered in Apicurio
+    type: http_wait
+    url: http://localhost:8080/apis/ccompat/v6/subjects/dbserver1.inventory.customers-value/versions/1
+    timeout_seconds: 60
+    interval_seconds: 5
+
+  - name: Consume messages from Kafka to verify Confluent Avro format
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 30
+    expected_content:
+      - "Jack"
+      - "Vance"
