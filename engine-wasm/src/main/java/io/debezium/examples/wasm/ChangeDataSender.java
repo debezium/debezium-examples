@@ -3,27 +3,29 @@ package io.debezium.examples.wasm;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.Executors;
-
-import com.dylibso.chicory.runtime.ImportMemory;
-import com.dylibso.chicory.runtime.ImportValue;
-import com.dylibso.chicory.runtime.ImportValues;
-import com.dylibso.chicory.runtime.HostFunction;
-import com.dylibso.chicory.wasm.types.ValueType;
-import com.dylibso.chicory.wasm.types.MemoryLimits;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.dylibso.chicory.runtime.ExportFunction;
-import com.dylibso.chicory.runtime.Instance;
-import com.dylibso.chicory.runtime.Memory;
-import com.dylibso.chicory.wasm.Parser;
 
 import io.debezium.DebeziumException;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
 import io.debezium.relational.history.MemorySchemaHistory;
+
+import com.dylibso.chicory.runtime.ExportFunction;
+import com.dylibso.chicory.runtime.HostFunction;
+import com.dylibso.chicory.runtime.ImportMemory;
+import com.dylibso.chicory.runtime.ImportValue;
+import com.dylibso.chicory.runtime.ImportValues;
+import com.dylibso.chicory.runtime.Instance;
+import com.dylibso.chicory.runtime.Memory;
+import com.dylibso.chicory.wasm.Parser;
+import com.dylibso.chicory.wasm.types.ValueType;
+import com.dylibso.chicory.wasm.types.MemoryLimits;
 
 /**
  * Demo for using the Debezium Embedded API to send change events to Amazon Kinesis.
@@ -33,7 +35,7 @@ public class ChangeDataSender implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeDataSender.class);
 
     private static final String APP_NAME = "wasm";
-    private static final java.util.regex.Pattern ID_PATTERN = java.util.regex.Pattern.compile("\"id\"\\s*:\\s*(\\d+)");
+    private static final Pattern ID_PATTERN = Pattern.compile("\"id\"\\s*:\\s*(\\d+)");
 
     private final Properties config;
     private final DebeziumEngine<ChangeEvent<String, String>> engine;
@@ -114,7 +116,7 @@ public class ChangeDataSender implements Runnable {
 
         // Log the message reception matching cdc.go format to satisfy E2E test verification
         String id = "";
-        java.util.regex.Matcher m = ID_PATTERN.matcher(record.key());
+        Matcher m = ID_PATTERN.matcher(record.key());
         if (m.find()) {
             id = m.group(1);
         }
