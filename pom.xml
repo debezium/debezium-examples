@@ -39,6 +39,7 @@
         <version.quarkus>3.20.3</version.quarkus>
         <version.jackson>2.13.4</version.jackson>
         <version.kafka>3.9.0</version.kafka>
+        <version.confluent>7.9.0</version.confluent>
         <version.surefire-plugin>3.5.5</version.surefire-plugin>
         <version.maven.compiler>3.15.0</version.maven.compiler>
 

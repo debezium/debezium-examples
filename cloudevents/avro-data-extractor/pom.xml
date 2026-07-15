@@ -10,19 +10,13 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <artifactId>cloudevents-data-extractor</artifactId>
-    <properties>
-        <version.surefire>3.0.0-M6</version.surefire>
-        <version.confluent>7.9.0</version.confluent>
-    </properties>
-
     <build>
         <finalName>aggregator</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.surefire}</version>
+                <version>${version.surefire-plugin}</version>
                 <configuration>
                     <systemProperties>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -48,17 +42,14 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-health</artifactId>
-            <version>${version.quarkus}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-kafka-streams</artifactId>
-            <version>${version.quarkus}</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-confluent-registry-avro</artifactId>
-            <version>${version.quarkus}</version>
         </dependency>
         <dependency>
             <groupId>io.debezium</groupId>
