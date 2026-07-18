@@ -1,0 +1,93 @@
+name: postgres-kafka-signal
+description: Tests Debezium PostgreSQL connector with Kafka signaling and incremental snapshots
+compose_file: docker-compose.yml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Wait for PostgreSQL to be ready
+    type: docker_compose_exec
+    service: postgres
+    command: pg_isready -U myuser -d postgres
+
+  - name: Create data table and signal table
+    type: docker_compose_exec
+    service: postgres
+    command: >-
+      psql -U myuser -d postgres -c "
+      CREATE TABLE characters (id INT PRIMARY KEY, first_name VARCHAR(50), last_name VARCHAR(50));
+      INSERT INTO characters VALUES (1, 'luke', 'skywalker');
+      INSERT INTO characters VALUES (2, 'anakin', 'skywalker');
+      INSERT INTO characters VALUES (3, 'padmé', 'amidala');
+      CREATE TABLE debezium_signal (id VARCHAR(100) PRIMARY KEY, type VARCHAR(100) NOT NULL, data VARCHAR(2048) NULL);
+      "
+
+  - name: Deploy Debezium Postgres connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: connector.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/debezium-postgres/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for initial snapshot to complete
+    type: wait
+    seconds: 15
+
+  - name: Verify initial snapshot records in Kafka
+    type: kafka_consume
+    service: broker
+    bootstrap_server: localhost:9092
+    consumer_path: kafka-console-consumer
+    topic: test.public.characters
+    timeout_seconds: 60
+    expected_content:
+      - "luke"
+      - "anakin"
+      - "padmé"
+
+  - name: Trigger incremental snapshot via database signal table
+    type: docker_compose_exec
+    service: postgres
+    command: >-
+      psql -U myuser -d postgres -c "INSERT INTO debezium_signal (id, type, data) VALUES ('ad-hoc-db', 'execute-snapshot', '{\"data-collections\": [\"public.characters\"],\"type\":\"incremental\"}');"
+
+  - name: Wait for database-triggered snapshot to execute
+    type: wait_for_log
+    service: connect
+    expected_content: "public.characters"
+    timeout_seconds: 45
+
+  - name: Trigger incremental snapshot via Kafka signaling topic
+    type: docker_compose_exec
+    service: broker
+    command: >-
+      bash -c "echo 'test:{\"type\":\"execute-snapshot\",\"data\": {\"data-collections\": [\"public.characters\"], \"type\": \"INCREMENTAL\"}}' | kafka-console-producer --bootstrap-server localhost:9092 --topic signal-topic --property parse.key=true --property key.separator=':'"
+
+  - name: Wait for Kafka-triggered snapshot to execute
+    type: wait_for_log
+    service: connect
+    expected_content: "public.characters"
+    timeout_seconds: 45
