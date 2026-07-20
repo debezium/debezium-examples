@@ -1,7 +1,7 @@
 Debezium Platform on AWS: PostgreSQL to Amazon Kinesis
 ===
 
-Database setup scripts for the pipeline described in [Running the Debezium Platform on AWS: PostgreSQL to Amazon Kinesis](https://debezium.io/blog/2026/07/13/debezium-platform-on-aws-postgres-to-kinesis/). The blog post covers the full walkthrough — provisioning the k3s cluster on EC2, the Kinesis streams and their IAM policy, and configuring the pipeline in the Platform UI. This folder holds only the SQL it refers to.
+Database setup scripts for the pipeline described in [Running the Debezium Platform on AWS: PostgreSQL to Amazon Kinesis](https://debezium.io/blog/2026/07/24/debezium-platform-on-aws-postgres-to-kinesis/). The blog post covers the full walkthrough — provisioning the k3s cluster on EC2, the Kinesis streams and their IAM policy, and configuring the pipeline in the Platform UI. This folder holds only the SQL it refers to.
 
 | File | Purpose |
 | --- | --- |
