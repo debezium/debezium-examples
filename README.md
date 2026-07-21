@@ -17,6 +17,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Camel - pipelines](./camel-component): Building an Apache Camel pipeline that captures **Postgres** database changes
 * [Camel - Kafka Connect](./camel-kafka-connect): How to use the Camel Kafka Connect component with Debezium
 * [Cloud Events](./cloudevents): How to use cloud events defined in Json with Debezium
+* [CQRS](./cqrs): How to implement Command Query Responsibility Segregation (CQRS) pattern with Debezium
 * [Data Replication](./data-replication): Kafka-less data replication between databases using Debezium Server, Debezium Operator, and Debezium Platform with the JDBC sink
 * [Database Activity Monitoring](./db-activity-monitoring): How to use Debezium for comprehensive database activity logging and analysis
 * [Debezium - End-to-end demo](./end-to-end-demo): End-to-end demo using MySQL as database and Kafka Connect

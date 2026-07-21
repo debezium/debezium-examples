@@ -37,6 +37,7 @@
         <version.slf4j>1.7.36</version.slf4j>
         <version.postgresql.driver>42.7.2</version.postgresql.driver>
         <version.quarkus>3.20.3</version.quarkus>
+        <version.quarkus.quinoa>2.8.3</version.quarkus.quinoa>
         <version.jackson>2.13.4</version.jackson>
         <version.kafka>3.9.0</version.kafka>
         <version.confluent>7.9.0</version.confluent>
@@ -50,6 +51,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>io.quarkiverse.quinoa</groupId>
+                <artifactId>quarkus-quinoa</artifactId>
+                <version>${version.quarkus.quinoa}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.kafka</groupId>
                 <artifactId>kafka-clients</artifactId>
