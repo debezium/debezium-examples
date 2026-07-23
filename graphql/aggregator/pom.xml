@@ -12,7 +12,7 @@
         <mvn.compiler.version>3.8.1</mvn.compiler.version>
         <mvn.dependency.version>3.1.1</mvn.dependency.version>
         <mvn.war.version>3.3.2</mvn.war.version>
-        <apache.kafka.version>3.2.0</apache.kafka.version>
+        <apache.kafka.version>5.3.0-ccs</apache.kafka.version>
         <version.thorntail>2.5.0.Final</version.thorntail>
         <version.org.slf4j>1.7.36</version.org.slf4j>
         <version.com.fasterxml.jackson>2.13.2</version.com.fasterxml.jackson>
