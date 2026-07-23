@@ -306,12 +306,14 @@ def step_kafka_consume(step, config):
 
     timeout_ms = timeout_seconds * 1000
     service = step.get("service", "kafka")
+    bootstrap_server = step.get("bootstrap_server", "kafka:9092")
+    consumer_path = step.get("consumer_path", "/kafka/bin/kafka-console-consumer.sh")
 
     cmd = compose_cmd(
         config,
         "exec", "-T", service,
-        "/kafka/bin/kafka-console-consumer.sh",
-        "--bootstrap-server", "kafka:9092",
+        consumer_path,
+        "--bootstrap-server", bootstrap_server,
         "--topic", topic,
         "--from-beginning",
         "--max-messages", "100",
