@@ -1,0 +1,7 @@
+.idea/
+*.iml
+
+target/
+
+dependency-reduced-pom.xml
+settings.local.json
