@@ -14,7 +14,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: debezium/example-postgres:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
       - 5432:5432
     environment:
