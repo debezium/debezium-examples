@@ -28,7 +28,7 @@ class DbPostgresql:
     POSTGRES_USER = "postgres"
     POSTGRES_PASSWORD = "postgres"
     POSTGRES_DBNAME = "postgres"
-    POSTGRES_IMAGE = "debezium/example-postgres:3.0.0.Final"
+    POSTGRES_IMAGE = "quay.io/debezium/example-postgres:3.5"
     POSTGRES_HOST = "localhost"
     POSTGRES_PORT_DEFAULT = 5432
     CONTAINER: PostgresContainer = (PostgresContainer(image=POSTGRES_IMAGE,

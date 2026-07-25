@@ -17,7 +17,7 @@ This example demonstrates consuming Debezium CDC events in Python using **Connec
 ## Prerequisites
 
 - Python 3.9+
-- Java 17+ (`JAVA_HOME` must be set)
+- Java 21 (`JAVA_HOME` must be set)
 - Docker (for testcontainers Postgres)
 - Maven (for downloading Debezium JAR dependencies)
 
