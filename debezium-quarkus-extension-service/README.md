@@ -11,7 +11,7 @@ This quick start is designed to help you:
 
 - JDK 21+ installed with `JAVA_HOME` configured appropriately
 - Apache maven 3.9.9
-- Quarkus version 3.25.0
+- Quarkus version 3.20.3
 - Docker or Podman
 - Optionally Mandrel or GraalVM installed and configured appropriately if you want to build a native executable
 - Optionally curl for demo purposes

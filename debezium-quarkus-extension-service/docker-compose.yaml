@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: quay.io/debezium/example-postgres:3.0
+    image: quay.io/debezium/example-postgres:latest
     ports:
       - 5432:5432
     environment:

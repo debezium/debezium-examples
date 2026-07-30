@@ -21,19 +21,19 @@ public class InventoryListener {
     }
 
     @Capturing(destination = "dbz.inventory.products")
-    public void products(CapturingEvent<Product> product) {
+    public void products(CapturingEvent<String, Product> product) {
         switch (product) {
-            case Create<Product> event ->
+            case Create<String, Product> event ->
                     logger.info("capturing product creation for destination {} with data {}", event.destination(), event.record());
-            case Delete<Product> event ->
+            case Delete<String, Product> event ->
                     logger.info("capturing product deletion for destination {} with data {}", event.destination(), event.record());
-            case Message<Product> event ->
+            case Message<String, Product> event ->
                     logger.info("capturing product message for destination {} with data {}", event.destination(), event.record());
-            case Read<Product> event ->
+            case Read<String, Product> event ->
                     logger.info("capturing product read (snapshot) for destination {} with data {}", event.destination(), event.record());
-            case Truncate<Product> event ->
+            case Truncate<String, Product> event ->
                     logger.info("capturing product truncate for destination {} with data {}", event.destination(), event.record());
-            case Update<Product> event ->
+            case Update<String, Product> event ->
                     logger.info("capturing product update for destination {} with data {}", event.destination(), event.record());
         }
 
@@ -41,12 +41,12 @@ public class InventoryListener {
     }
 
     @Capturing(destination = "dbz.inventory.orders")
-    public void orders(CapturingEvent<SourceRecord> event) {
+    public void orders(CapturingEvent<SourceRecord, SourceRecord> event) {
         logger.info("capturing orders for destination {} with data {}", event.destination(), event.record());
     }
 
     @Capturing()
-    public void any(CapturingEvent<SourceRecord> event) {
+    public void any(CapturingEvent<SourceRecord, SourceRecord> event) {
         logger.info("capturing any other event for destination {} with data {}", event.destination(), event.record());
     }
 }
