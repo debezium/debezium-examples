@@ -1,0 +1,53 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+      - 9093:9093
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Standard
+      - MSSQL_SA_PASSWORD=Password!
+      - MSSQL_AGENT_ENABLED=true
+    volumes:
+      - ./sqlserver-init:/init:ro
+
+  oracle:
+    image: gvenzl/oracle-free:23-slim-faststart
+    ports:
+      - 1521:1521
+    environment:
+      - ORACLE_PASSWORD=oracle
+      - APP_USER=inventory
+      - APP_USER_PASSWORD=inventorypw
+
+  connect:
+    image: debezium-examples/sqlserver-to-oracle-connect:${DEBEZIUM_VERSION}
+    build:
+      context: debezium-jdbc-oracle
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - sqlserver
+      - oracle
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses

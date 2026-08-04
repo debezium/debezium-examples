@@ -1,0 +1,30 @@
+name: Build [sqlserver-to-oracle]
+
+on:
+  push:
+    paths:
+      - 'sqlserver-to-oracle/**'
+      - '.github/workflows/sqlserver-to-oracle-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'sqlserver-to-oracle/**'
+      - '.github/workflows/sqlserver-to-oracle-workflow.yml'
+      - 'scripts/run-example-test.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run sqlserver-to-oracle test
+        run: python scripts/run-example-test.py sqlserver-to-oracle

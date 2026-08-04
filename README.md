@@ -56,6 +56,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Postgres - Kafka signal](./postgres-kafka-signal): How to stream data into the signal topic
 * [Postgres - TOAST Column Values](./postgres-toast): Dealing With Postgres TOAST Column Values
 * [SQL Server - Replication](./sql-server-read-replica): How to deploy the topology of services to stream from SQL Server read-only replica
+* [SQL Server - Streaming to Oracle](./sqlserver-to-oracle): How to capture events from a **SQL Server** database and stream them into an **Oracle** database using the Debezium JDBC sink connector
 * [MongoDB - Streaming to PostgresSQL](./unwrap-mongodb-smt): How to capture events from a MongoDB database and stream them to a PostgresSQL database
 * [MySQL - Streaming to PostgresSQL and Elasticsearch](./unwrap-smt): How to capture events from a MySQL database and stream them to a PostgresSQL and Elasticsearch database
 * [Quarkus Native Image with Debezium](./quarkus-native): superfast CDC with Debezium and Quarkus
