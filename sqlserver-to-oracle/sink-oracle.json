@@ -1,0 +1,25 @@
+{
+    "name": "inventory-sink",
+    "config": {
+        "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "topics": "server1.inventory.dbo.customers",
+
+        "connection.url": "jdbc:oracle:thin:@oracle:1521/FREEPDB1",
+        "connection.username": "inventory",
+        "connection.password": "inventorypw",
+
+        "insert.mode": "upsert",
+        "primary.key.mode": "record_key",
+        "primary.key.fields": "id",
+        "delete.enabled": "true",
+
+        "schema.evolution": "basic",
+        "table.name.format": "customers",
+        "quote.identifiers": "false",
+
+        "transforms": "unwrap",
+        "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+        "transforms.unwrap.drop.tombstones": "false"
+    }
+}
