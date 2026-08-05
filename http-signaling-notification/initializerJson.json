@@ -11,5 +11,25 @@
       "body": "{\"id\":\"924e3ff8-2245-43ca-ba77-2af9af02fa07\",\"type\":\"log\",\"data\":{\"message\": \"Signal message received from http endpoint.\"}}",
       "statusCode": 200
     }
+  },
+  {
+    "httpRequest" : {
+      "method" : "POST",
+      "path" : "/developers/postbin/api/bin"
+    },
+    "httpResponse" : {
+      "body": "{\"binId\":\"mock-bin-id\",\"now\":1688742588470,\"expires\":1688744388470}",
+      "statusCode": 201
+    }
+  },
+  {
+    "httpRequest" : {
+      "method" : "POST",
+      "path" : "/developers/postbin/mock-bin-id"
+    },
+    "httpResponse" : {
+      "body": "ok",
+      "statusCode": 200
+    }
   }
 ]

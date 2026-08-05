@@ -47,7 +47,7 @@ public class HttpNotificationChannel implements NotificationChannel {
         // Create a bin on the server
         try {
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://www.toptal.com/developers/postbin/api/bin"))
+                    .uri(new URI("http://mockServer:1080/developers/postbin/api/bin"))
                     .POST(HttpRequest.BodyPublishers.ofString(" "))
                     .build();
 
@@ -71,7 +71,7 @@ public class HttpNotificationChannel implements NotificationChannel {
             ObjectMapper mapper = new ObjectMapper();
             String notificationString = mapper.writeValueAsString(notification);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://www.toptal.com/developers/postbin/" + binId))
+                    .uri(new URI("http://mockServer:1080/developers/postbin/" + binId))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(notificationString))
                     .build();
