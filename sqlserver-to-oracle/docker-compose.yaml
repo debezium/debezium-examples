@@ -39,6 +39,7 @@ services:
       context: debezium-jdbc-oracle
       args:
         DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+        ORACLE_JDBC_VERSION: ${ORACLE_JDBC_VERSION}
     ports:
       - 8083:8083
     depends_on:

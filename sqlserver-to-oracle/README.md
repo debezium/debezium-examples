@@ -46,8 +46,6 @@ emulated, which works but makes it noticeably slower to start.
 ## Running the example
 
 ```shell
-export DEBEZIUM_VERSION=3.5
-
 # Start the topology and build the Connect image
 docker compose --env-file ../.env -f docker-compose.yaml up --build -d
 ```
