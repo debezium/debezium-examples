@@ -93,6 +93,9 @@ def compose_cmd(config, *args):
     compose_file = config.get("compose_file")
     if compose_file:
         cmd += ["-f", compose_file]
+    # Support additional override files via compose_files list
+    for extra_file in config.get("compose_files", []):
+        cmd += ["-f", extra_file]
     cmd += list(args)
     return cmd
 

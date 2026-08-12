@@ -1,0 +1,10 @@
+# Override to remove host port bindings for MongoDB nodes.
+# All connector-to-MongoDB traffic uses the Docker network (mongodb1:27017 etc.)
+# so host port exposure is not needed for E2E tests.
+services:
+  mongodb1:
+    ports: []
+  mongodb2:
+    ports: []
+  mongodb3:
+    ports: []
