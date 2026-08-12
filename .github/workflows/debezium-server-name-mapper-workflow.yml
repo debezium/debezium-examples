@@ -5,28 +5,33 @@ on:
     paths:
       - 'debezium-server-name-mapper/**'
       - '.github/workflows/debezium-server-name-mapper-workflow.yml'
+      - 'scripts/run-example-test.py'
   pull_request:
     paths:
       - 'debezium-server-name-mapper/**'
       - '.github/workflows/debezium-server-name-mapper-workflow.yml'
       - '.env'
+      - 'scripts/run-example-test.py'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - name: Set up JDK 21
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
           distribution: 'temurin'
-      - name: Cache local Maven repository
-        uses: actions/cache@v4
+          java-version: '21'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('debezium-server-name-mapper/**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - name: Check changes in [debezium-server-name-mapper] example
-        run: cd debezium-server-name-mapper && mvn clean install -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run debezium-server-name-mapper test
+        run: python scripts/run-example-test.py debezium-server-name-mapper

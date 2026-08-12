@@ -1,0 +1,62 @@
+name: debezium-server-name-mapper
+description: Tests Debezium Server custom topic name mapper with Pulsar sink
+
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  - name: Stop the Quarkus Debezium Server background process
+    type: local_exec
+    command: pkill -f "[q]uarkus-run.jar" || true
+
+  - name: Remove stale offsets file
+    type: local_exec
+    command: rm -f target/offsets.dat
+
+  - name: Stop containers and clean volumes
+    type: docker_compose_down
+    volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build the debezium-server-name-mapper project
+    type: local_exec
+    command: mvn package -DskipTests -B
+
+  - name: Start Postgres and Pulsar services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Postgres to be ready
+    type: docker_compose_exec
+    service: db
+    command: "until pg_isready -U postgres -d postgres; do sleep 1; done"
+
+  - name: Wait for Pulsar to be ready
+    type: wait
+    seconds: 15
+
+  - name: Remove stale offsets file
+    type: local_exec
+    command: rm -f target/offsets.dat
+
+  - name: Run Debezium Server application in the background
+    type: local_exec
+    command: java -jar target/quarkus-app/quarkus-run.jar > app.log 2>&1 &
+
+  - name: Wait for Debezium Server initialization and snapshot
+    type: wait
+    seconds: 45
+
+  - name: Verify custom prefix topic creation in Pulsar broker stats
+    type: docker_compose_exec
+    service: pulsar
+    command: bin/pulsar-admin topics list public/default
+    expected_content: "superprefix.tutorial.inventory.customers"
+
+  - name: Stop Debezium Server background process
+    type: local_exec
+    command: pkill -f "[q]uarkus-run.jar" || true
