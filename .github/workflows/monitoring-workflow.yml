@@ -1,0 +1,36 @@
+name: Build [monitoring]
+
+on:
+  push:
+    paths:
+      - 'monitoring/**'
+      - '.github/workflows/monitoring-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'monitoring/**'
+      - '.github/workflows/monitoring-workflow.yml'
+      - 'scripts/run-example-test.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run monitoring test
+        run: python scripts/run-example-test.py monitoring
