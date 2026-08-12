@@ -1,0 +1,49 @@
+name: mongodb-failover
+description: Tests Debezium MongoDB connector with replica set failover setup
+
+env_file: .env
+compose_file: docker-compose-mongodb-replicas.yaml
+compose_files:
+  - docker-compose-override.yaml
+
+cleanup:
+  - name: Stop all MongoDB replica set services and clean volumes
+    type: docker_compose_down
+    volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start MongoDB replica set and Kafka Connect stack
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Deploy Debezium MongoDB connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-mongodb-connector.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify change events streamed to Kafka topic
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_messages_count: 1
+    expected_content:
+      - "Sally"
