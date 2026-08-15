@@ -1,0 +1,69 @@
+name: plain-kafka-containers
+description: Tests Debezium PostgreSQL connector on plain Apache Kafka container images
+env_file: ../../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  - type: docker_compose_down
+    volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build Kafka Connect image with Debezium plugin
+    type: docker_compose_build
+    services: kafka-connect
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 300
+    interval_seconds: 5
+
+  - name: Register PostgreSQL source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-postgres.json
+    expected_status: [200, 201]
+
+  - name: Wait for PostgreSQL connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/postgres-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for initial replication to complete
+    type: wait
+    seconds: 15
+
+  - name: Verify initial records in PostgreSQL database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d inventory -c "select * from customers order by id;"
+    expected_content:
+      - "Sally"
+      - "George"
+      - "Edward"
+
+  - name: Insert new record into PostgreSQL database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d inventory -c "INSERT INTO customers (first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');"
+
+  - name: Verify new record in Kafka topic
+    type: kafka_consume
+    topic: dbserver1.public.customers
+    service: kafka-broker
+    bootstrap_server: kafka-broker:9092
+    consumer_path: /opt/kafka/bin/kafka-console-consumer.sh
+    expected_content:
+      - "john.doe@example.com"
+      - "John"
