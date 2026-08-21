@@ -1,0 +1,13 @@
+# Normalize line endings to LF on commit for all text files
+* text=auto eol=lf
+
+# Explicitly declare binary files to avoid mangling
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.jar binary
+*.class binary
