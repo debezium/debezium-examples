@@ -57,24 +57,33 @@ jobs:
             echo "needed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check for existing update branch or open PR
+      - name: Check for existing open or merged PR
         id: branch
         if: steps.check.outputs.needed == 'true'
         run: |
           BRANCH="debezium-update/${{ steps.latest.outputs.full_version }}"
           SKIP=false
 
-          # Check whether the branch already exists remotely
-          if gh api "repos/${{ github.repository }}/branches/$BRANCH" --silent > /dev/null 2>&1; then
-            echo "Branch $BRANCH already exists remotely."
-            SKIP=true
-          fi
-
-          # Check whether an open PR targeting that branch already exists
+          # Skip if an open PR already exists (already in review)
           OPEN_PR=$(gh pr list --state open --head "$BRANCH" --json number --jq 'length')
           if [ "$OPEN_PR" -gt 0 ]; then
             echo "An open PR for $BRANCH already exists."
             SKIP=true
+          fi
+
+          # Skip if a merged PR exists (version already landed on main)
+          MERGED_PR=$(gh pr list --state merged --head "$BRANCH" --json number --jq 'length')
+          if [ "$MERGED_PR" -gt 0 ]; then
+            echo "A merged PR for $BRANCH already exists."
+            SKIP=true
+          fi
+
+          # Delete stale branch if present and we are going to recreate the PR
+          if [ "$SKIP" = "false" ]; then
+            if gh api "repos/${{ github.repository }}/branches/$BRANCH" --silent > /dev/null 2>&1; then
+              echo "Deleting stale branch $BRANCH before recreating PR."
+              gh api --method DELETE "repos/${{ github.repository }}/git/refs/heads/$BRANCH"
+            fi
           fi
 
           echo "exists=$SKIP" >> "$GITHUB_OUTPUT"
