@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.OptimisticLockException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
 
 import org.apache.kafka.common.header.Headers;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
@@ -19,9 +19,6 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 import io.debezium.examples.saga.order.event.CreditApprovalEvent;
 import io.debezium.examples.saga.order.event.PaymentEvent;
 import io.debezium.examples.saga.order.saga.OrderPlacementEventHandler;
-import io.opentracing.Scope;
-import io.opentracing.Tracer;
-import io.opentracing.contrib.kafka.TracingKafkaUtils;
 
 @ApplicationScoped
 public class KafkaEventConsumer {
@@ -31,29 +28,14 @@ public class KafkaEventConsumer {
     @Inject
     private OrderPlacementEventHandler eventHandler;
 
-    @Inject
-    Tracer tracer;
-
     @Incoming("paymentresponse")
     public CompletionStage<Void> onPaymentMessage(PaymentEvent event) throws IOException {
-        return CompletableFuture.runAsync(() -> {
-            try (final Scope span = tracer.scopeManager().activate(getOrdersSpanBuilder(event.headers).start())) {
-                retrying(() -> eventHandler.onPaymentEvent(event));
-            }
-        });
+        return CompletableFuture.runAsync(() -> retrying(() -> eventHandler.onPaymentEvent(event)));
     }
 
     @Incoming("creditresponse")
     public CompletionStage<Void> onCreditMessage(CreditApprovalEvent event) throws IOException {
-        return CompletableFuture.runAsync(() -> {
-            try (final Scope span = tracer.scopeManager().activate(getOrdersSpanBuilder(event.headers).start())) {
-                retrying(() -> eventHandler.onCreditApprovalEvent(event));
-            }
-        });
-    }
-
-    private Tracer.SpanBuilder getOrdersSpanBuilder(Headers headers) {
-        return tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(headers, tracer));
+        return CompletableFuture.runAsync(() -> retrying(() -> eventHandler.onCreditApprovalEvent(event)));
     }
 
     private void retrying(Runnable runnable) {

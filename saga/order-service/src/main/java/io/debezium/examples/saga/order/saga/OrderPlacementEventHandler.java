@@ -1,8 +1,8 @@
 package io.debezium.examples.saga.order.saga;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import io.debezium.examples.saga.framework.SagaManager;
 import io.debezium.examples.saga.order.event.CreditApprovalEvent;

@@ -5,8 +5,8 @@
  */
 package io.debezium.examples.saga.customer.model;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
