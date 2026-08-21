@@ -21,19 +21,11 @@
     <maven.compiler.release>11</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.debezium-quarkus>2.4.0.Alpha2</version.debezium-quarkus>
-    <version.quarkus>3.0.0.Final</version.quarkus>
     <version.surefire>3.0.0-M9</version.surefire>
   </properties>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${version.quarkus}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>io.debezium</groupId>
         <artifactId>debezium-quarkus-outbox</artifactId>
