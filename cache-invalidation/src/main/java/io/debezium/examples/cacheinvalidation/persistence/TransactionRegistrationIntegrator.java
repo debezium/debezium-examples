@@ -6,8 +6,8 @@
 package io.debezium.examples.cacheinvalidation.persistence;
 
 import org.hibernate.boot.Metadata;
+import org.hibernate.boot.spi.BootstrapContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.integrator.spi.Integrator;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
@@ -25,11 +25,11 @@ public class TransactionRegistrationIntegrator implements Integrator {
 
 
     @Override
-    public void integrate(Metadata metadata, SessionFactoryImplementor sessionFactory,
-                          SessionFactoryServiceRegistry serviceRegistry) {
+    public void integrate(Metadata metadata, BootstrapContext bootstrapContext,
+                          SessionFactoryImplementor sessionFactory) {
         LOG.info("TransactionRegistrationIntegrator#integrate()");
 
-        serviceRegistry.getService(EventListenerRegistry.class)
+        sessionFactory.getEventListenerRegistry()
                 .appendListeners(EventType.FLUSH, new TransactionRegistrationListener());
     }
 
