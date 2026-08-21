@@ -89,18 +89,50 @@ jobs:
           echo "exists=$SKIP" >> "$GITHUB_OUTPUT"
           echo "name=$BRANCH"  >> "$GITHUB_OUTPUT"
 
+      - name: Resolve companion dependency versions from Debezium pom
+        id: deps
+        if: steps.check.outputs.needed == 'true' && steps.branch.outputs.exists == 'false'
+        run: |
+          FULL="${{ steps.latest.outputs.full_version }}"
+          TAG="v${FULL}"
+
+          # --- version.kafka: read directly from the Debezium root pom at the release tag ---
+          DEBEZIUM_POM=$(curl -fsSL \
+            "https://raw.githubusercontent.com/debezium/debezium/${TAG}/pom.xml")
+
+          KAFKA_VERSION=$(echo "$DEBEZIUM_POM" | grep -oP '(?<=<version\.kafka>)[^<]+' | head -1)
+
+          if [ -z "$KAFKA_VERSION" ]; then
+            echo "Could not determine version.kafka from Debezium ${TAG}. Aborting."
+            exit 1
+          fi
+          echo "version_kafka=$KAFKA_VERSION" >> "$GITHUB_OUTPUT"
+
+          # --- version.quarkus: read quarkus.version.extension from the same Debezium pom ---
+          QUARKUS_VERSION=$(echo "$DEBEZIUM_POM" | grep -oP '(?<=<quarkus\.version\.extension>)[^<]+' | head -1)
+
+          if [ -z "$QUARKUS_VERSION" ]; then
+            echo "Could not determine quarkus.version.extension from Debezium ${TAG}. Aborting."
+            exit 1
+          fi
+          echo "version_quarkus=$QUARKUS_VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Apply version updates
         if: steps.check.outputs.needed == 'true' && steps.branch.outputs.exists == 'false'
         run: |
           FULL="${{ steps.latest.outputs.full_version }}"
           SHORT="${{ steps.latest.outputs.short_version }}"
+          KAFKA="${{ steps.deps.outputs.version_kafka }}"
+          QUARKUS="${{ steps.deps.outputs.version_quarkus }}"
 
           # Update .env
           sed -i "s/^DEBEZIUM_VERSION=.*/DEBEZIUM_VERSION=${SHORT}/" .env
           sed -i "s/^DEBEZIUM_CONNECTOR_VERSION=.*/DEBEZIUM_CONNECTOR_VERSION=${FULL}/" .env
 
-          # Update pom.xml
+          # Update pom.xml: Debezium version, Kafka version, Quarkus version
           sed -i "s|<version.debezium>.*</version.debezium>|<version.debezium>${FULL}</version.debezium>|" pom.xml
+          sed -i "s|<version.kafka>.*</version.kafka>|<version.kafka>${KAFKA}</version.kafka>|" pom.xml
+          sed -i "s|<version.quarkus>.*</version.quarkus>|<version.quarkus>${QUARKUS}</version.quarkus>|" pom.xml
 
       - name: Commit and push
         if: steps.check.outputs.needed == 'true' && steps.branch.outputs.exists == 'false'
@@ -120,7 +152,9 @@ jobs:
             --base main \
             --head "${{ steps.branch.outputs.name }}" \
             --title "[release] Updated to Debezium ${{ steps.latest.outputs.full_version }}" \
-            --body "$(printf 'Automated version bump.\n\n| File | Change |\n|------|--------|\n| `.env` | `DEBEZIUM_VERSION` → `%s`, `DEBEZIUM_CONNECTOR_VERSION` → `%s` |\n| `pom.xml` | `<version.debezium>` → `%s` |' \
+            --body "$(printf 'Automated version bump.\n\n| File | Change |\n|------|--------|\n| `.env` | `DEBEZIUM_VERSION` → `%s`, `DEBEZIUM_CONNECTOR_VERSION` → `%s` |\n| `pom.xml` | `<version.debezium>` → `%s`, `<version.kafka>` → `%s`, `<version.quarkus>` → `%s` |' \
               '${{ steps.latest.outputs.short_version }}' \
               '${{ steps.latest.outputs.full_version }}' \
-              '${{ steps.latest.outputs.full_version }}')"
+              '${{ steps.latest.outputs.full_version }}' \
+              '${{ steps.deps.outputs.version_kafka }}' \
+              '${{ steps.deps.outputs.version_quarkus }}')"
