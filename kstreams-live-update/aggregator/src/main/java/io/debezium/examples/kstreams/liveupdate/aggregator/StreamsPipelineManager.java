@@ -14,9 +14,9 @@ import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Collections;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -96,7 +96,7 @@ public class StreamsPipelineManager {
                 // Group by category name, windowed by 5 sec
                 .selectKey((k, v) -> v.categoryName)
                 .groupByKey(Grouped.with(String(), orderSerde))
-                .windowedBy(TimeWindows.of(Duration.ofSeconds(5)))
+                .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofSeconds(5)))
 
                 // Accumulate category sales per time window
                 .aggregate(
