@@ -13,8 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import javax.enterprise.event.Event;
-import javax.persistence.EntityManager;
+import jakarta.enterprise.event.Event;
+import jakarta.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

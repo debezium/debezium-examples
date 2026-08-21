@@ -8,7 +8,7 @@ package io.debezium.examples.saga.order.saga;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.CREDIT_APPROVAL;
 import static io.debezium.examples.saga.order.saga.OrderPlacementSaga.PAYMENT;
 
-import javax.enterprise.event.Event;
+import jakarta.enterprise.event.Event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

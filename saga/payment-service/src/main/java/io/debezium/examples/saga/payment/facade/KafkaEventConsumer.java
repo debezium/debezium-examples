@@ -11,19 +11,15 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.common.header.Header;
-import org.apache.kafka.common.header.Headers;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.debezium.examples.saga.payment.model.Payment;
-import io.opentracing.Scope;
-import io.opentracing.Tracer;
-import io.opentracing.contrib.kafka.TracingKafkaUtils;
 import io.smallrye.reactive.messaging.kafka.KafkaRecord;
 
 @ApplicationScoped
@@ -34,28 +30,19 @@ public class KafkaEventConsumer {
     @Inject
     PaymentEventHandler paymentEventHandler;
 
-    @Inject
-    Tracer tracer;
-
     @Incoming("payment")
     public CompletionStage<Void> onMessage(KafkaRecord<String, Payment> message) throws IOException {
         return CompletableFuture.runAsync(() -> {
-            try (final Scope span = tracer.scopeManager().activate(getOrdersSpanBuilder(message.getHeaders()).start())) {
-                LOG.debug("Kafka message with key = {} arrived", message.getKey());
+            LOG.debug("Kafka message with key = {} arrived", message.getKey());
 
-                String eventId = getHeaderAsString(message, "id");
+            String eventId = getHeaderAsString(message, "id");
 
-                paymentEventHandler.onPaymentEvent(
-                        UUID.fromString(eventId),
-                        UUID.fromString(message.getKey()),
-                        message.getPayload()
-                );
-            }
+            paymentEventHandler.onPaymentEvent(
+                    UUID.fromString(eventId),
+                    UUID.fromString(message.getKey()),
+                    message.getPayload()
+            );
         }).thenRun(() -> message.ack());
-    }
-
-    private Tracer.SpanBuilder getOrdersSpanBuilder(Headers headers) {
-        return tracer.buildSpan("orders").asChildOf(TracingKafkaUtils.extractSpanContext(headers, tracer));
     }
 
     private String getHeaderAsString(KafkaRecord<?, ?> record, String name) {

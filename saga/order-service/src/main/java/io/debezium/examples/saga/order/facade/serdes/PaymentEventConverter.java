@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -18,7 +18,7 @@ import org.eclipse.microprofile.reactive.messaging.Message;
 import io.debezium.examples.saga.order.event.PaymentEvent;
 import io.debezium.examples.saga.order.event.PaymentEventPayload;
 import io.smallrye.reactive.messaging.MessageConverter;
-import io.smallrye.reactive.messaging.kafka.IncomingKafkaRecordMetadata;
+import io.smallrye.reactive.messaging.kafka.api.IncomingKafkaRecordMetadata;
 
 @ApplicationScoped
 public class PaymentEventConverter implements MessageConverter {
