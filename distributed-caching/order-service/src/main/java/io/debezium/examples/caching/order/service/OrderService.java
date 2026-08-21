@@ -7,13 +7,13 @@ package io.debezium.examples.caching.order.service;
 
 import java.util.Optional;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.OptimisticLockException;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import org.infinispan.client.hotrod.RemoteCache;
 

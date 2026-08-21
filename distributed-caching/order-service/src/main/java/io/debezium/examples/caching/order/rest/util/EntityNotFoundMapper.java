@@ -5,9 +5,9 @@
  */
 package io.debezium.examples.caching.order.rest.util;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 import io.debezium.examples.caching.commons.EntityNotFoundException;
 
