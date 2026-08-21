@@ -8,11 +8,11 @@
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
+        <mvn.compiler.version>3.13.0</mvn.compiler.version>
         <mvn.dependency.version>3.1.1</mvn.dependency.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>21</java.version>
         <version.junit>4.13.1</version.junit>
         <version.org.hibernate>5.4.24.Final</version.org.hibernate>
         <version.org.slf4j>1.7.36</version.org.slf4j>

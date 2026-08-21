@@ -17,28 +17,11 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <failOnMissingWebXml>false</failOnMissingWebXml>
-
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <version.surefire>3.0.0-M9</version.surefire>
-
-        <version.quarkus>2.16.5.Final</version.quarkus>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-bom</artifactId>
-                <version>${version.quarkus}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-core</artifactId>
@@ -52,7 +35,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${version.surefire}</version>
+                <version>${version.surefire-plugin}</version>
                 <configuration>
                     <systemProperties>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -106,21 +89,21 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>io.quarkus</groupId>
-                        <artifactId>quarkus-maven-plugin</artifactId>
-                        <version>${version.quarkus}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>native-image</goal>
-                                </goals>
-                                <configuration>
-                                    <enableHttpUrlHandler>true</enableHttpUrlHandler>
-                                    <autoServiceLoaderRegistration>false</autoServiceLoaderRegistration>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
+                                <groupId>io.quarkus</groupId>
+                                <artifactId>quarkus-maven-plugin</artifactId>
+                                <version>${version.quarkus}</version>
+                                <executions>
+                                    <execution>
+                                        <goals>
+                                            <goal>native-image</goal>
+                                        </goals>
+                                        <configuration>
+                                            <enableHttpUrlHandler>true</enableHttpUrlHandler>
+                                            <autoServiceLoaderRegistration>false</autoServiceLoaderRegistration>
+                                        </configuration>
+                                    </execution>
+                                </executions>
+                            </plugin>
                 </plugins>
             </build>
         </profile>

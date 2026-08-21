@@ -5,8 +5,8 @@
  */
 package io.debezium.examples.kstreams.liveupdate.aggregator.health;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.eclipse.microprofile.health.HealthCheck;
