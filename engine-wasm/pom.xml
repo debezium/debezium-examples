@@ -63,6 +63,12 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${version.logback}</version>
             </dependency>
+            <!-- Ensure Kafka ${version.kafka} is used at runtime; Quarkus BOM would otherwise downgrade it -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${version.kafka}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
