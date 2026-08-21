@@ -28,7 +28,6 @@ import io.debezium.snapshot.lock.NoLockingSupport;
 import io.debezium.snapshot.mode.AlwaysSnapshotter;
 import io.debezium.snapshot.mode.InitialOnlySnapshotter;
 import io.debezium.snapshot.mode.InitialSnapshotter;
-import io.debezium.snapshot.mode.NeverSnapshotter;
 import io.debezium.snapshot.mode.NoDataSnapshotter;
 import io.debezium.snapshot.mode.RecoverySnapshotter;
 import io.debezium.snapshot.mode.WhenNeededSnapshotter;
@@ -63,7 +62,6 @@ import org.apache.kafka.connect.transforms.predicates.TopicNameMatches;
         NoDataSnapshotter.class,
         RecoverySnapshotter.class,
         WhenNeededSnapshotter.class,
-        NeverSnapshotter.class,
         SourceSignalChannel.class,
         KafkaSignalChannel.class,
         FileSignalChannel.class,
