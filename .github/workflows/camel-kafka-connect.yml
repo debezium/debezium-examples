@@ -9,6 +9,7 @@ on:
     paths:
       - 'camel-kafka-connect/**'
       - '.github/workflows/camel-kafka-connect-workflow.yml'
+      - '.env'
 
 jobs:
   build:

@@ -9,6 +9,7 @@ on:
     paths:
       - 'kstreams-fk-join/**'
       - '.github/workflows/kstreams-fk-join-workflow.yml'
+      - '.env'
 
 jobs:
   build:

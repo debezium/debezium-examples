@@ -11,6 +11,7 @@ on:
       - 'postgres-toast/**'
       - '.github/workflows/postgres-toast-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

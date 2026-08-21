@@ -11,6 +11,7 @@ on:
       - 'auditlog/**'
       - '.github/workflows/auditlog-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   test:

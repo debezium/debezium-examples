@@ -11,6 +11,7 @@ on:
       - 'mysql-replication/**'
       - '.github/workflows/mysql-replication-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

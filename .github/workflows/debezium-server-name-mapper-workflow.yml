@@ -9,6 +9,7 @@ on:
     paths:
       - 'debezium-server-name-mapper/**'
       - '.github/workflows/debezium-server-name-mapper-workflow.yml'
+      - '.env'
 
 jobs:
   build:

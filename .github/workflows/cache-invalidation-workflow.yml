@@ -9,6 +9,7 @@ on:
     paths:
       - 'cache-invalidation/**'
       - '.github/workflows/cache-invalidation-workflow.yml'
+      - '.env'
 
 jobs:
   build:

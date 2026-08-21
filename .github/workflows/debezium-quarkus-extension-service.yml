@@ -9,6 +9,7 @@ on:
     paths:
       - 'debezium-quarkus-extension-service/**'
       - '.github/workflows/debezium-quarkus-extension-service.yml'
+      - '.env'
 
 jobs:
   build:

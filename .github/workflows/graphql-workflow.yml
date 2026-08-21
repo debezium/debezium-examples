@@ -9,6 +9,7 @@ on:
     paths:
       - 'graphql/**'
       - '.github/workflows/graphql-workflow.yml'
+      - '.env'
 
 jobs:
   build:

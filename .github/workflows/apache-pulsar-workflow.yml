@@ -9,6 +9,7 @@ on:
     paths:
       - 'apache-pulsar/**'
       - '.github/workflows/apache-pulsar-workflow.yml'
+      - '.env'
 
 jobs:
   build:

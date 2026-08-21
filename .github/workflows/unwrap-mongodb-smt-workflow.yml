@@ -11,6 +11,7 @@ on:
       - 'unwrap-mongodb-smt/**'
       - '.github/workflows/unwrap-mongodb-smt-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

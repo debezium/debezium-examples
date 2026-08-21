@@ -11,6 +11,7 @@ on:
       - 'mongodb-failover/**'
       - '.github/workflows/mongodb-failover-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

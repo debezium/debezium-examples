@@ -11,6 +11,7 @@ on:
       - 'json-logging/**'
       - '.github/workflows/json-logging-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   test:

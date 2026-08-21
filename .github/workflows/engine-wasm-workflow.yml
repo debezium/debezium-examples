@@ -11,6 +11,7 @@ on:
       - 'engine-wasm/**'
       - '.github/workflows/engine-wasm-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

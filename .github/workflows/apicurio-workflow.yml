@@ -11,6 +11,7 @@ on:
       - 'apicurio/**'
       - '.github/workflows/apicurio-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

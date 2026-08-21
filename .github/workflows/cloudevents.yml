@@ -11,6 +11,7 @@ on:
       - 'cloudevents/**'
       - '.github/workflows/cloudevents.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

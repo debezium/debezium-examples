@@ -11,6 +11,7 @@ on:
       - 'postgres-failover-slots/**'
       - '.github/workflows/postgres-failover-slots-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   test:

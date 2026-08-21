@@ -11,6 +11,7 @@ on:
       - 'outbox/**'
       - '.github/workflows/outbox-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:
