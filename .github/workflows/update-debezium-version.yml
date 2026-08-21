@@ -1,0 +1,117 @@
+name: Update Debezium Version
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # daily at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.DEBEZIUM_GH_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.DEBEZIUM_GH_TOKEN }}
+
+      - name: Fetch latest stable Debezium release
+        id: latest
+        run: |
+          # List tags and pick the latest vX.Y.Z.Final one (sorted by numeric version)
+          FULL_VERSION=$(gh api "repos/debezium/debezium/tags?per_page=100" \
+            --jq '[.[].name | select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+\\.Final$"))] | sort_by(ltrimstr("v") | split(".") | .[0:3] | map(tonumber)) | last | ltrimstr("v")')
+
+          if [ -z "$FULL_VERSION" ] || [ "$FULL_VERSION" = "null" ]; then
+            echo "Could not determine latest stable Debezium release. Aborting."
+            exit 1
+          fi
+
+          # Derive short version: 3.6.0.Final -> 3.6
+          SHORT_VERSION=$(echo "$FULL_VERSION" | sed 's/\.[0-9]*\.Final$//')
+
+          echo "full_version=$FULL_VERSION"   >> "$GITHUB_OUTPUT"
+          echo "short_version=$SHORT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Read current version from .env
+        id: current
+        run: |
+          CURRENT_FULL=$(grep '^DEBEZIUM_CONNECTOR_VERSION=' .env | cut -d'=' -f2)
+          echo "full_version=$CURRENT_FULL" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether an update is needed
+        id: check
+        run: |
+          if [ "${{ steps.latest.outputs.full_version }}" = "${{ steps.current.outputs.full_version }}" ]; then
+            echo "Already up to date (${{ steps.current.outputs.full_version }}). Nothing to do."
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Update available: ${{ steps.current.outputs.full_version }} -> ${{ steps.latest.outputs.full_version }}"
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check for existing update branch or open PR
+        id: branch
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          BRANCH="debezium-update/${{ steps.latest.outputs.full_version }}"
+          SKIP=false
+
+          # Check whether the branch already exists remotely
+          if gh api "repos/${{ github.repository }}/branches/$BRANCH" --silent > /dev/null 2>&1; then
+            echo "Branch $BRANCH already exists remotely."
+            SKIP=true
+          fi
+
+          # Check whether an open PR targeting that branch already exists
+          OPEN_PR=$(gh pr list --state open --head "$BRANCH" --json number --jq 'length')
+          if [ "$OPEN_PR" -gt 0 ]; then
+            echo "An open PR for $BRANCH already exists."
+            SKIP=true
+          fi
+
+          echo "exists=$SKIP" >> "$GITHUB_OUTPUT"
+          echo "name=$BRANCH"  >> "$GITHUB_OUTPUT"
+
+      - name: Apply version updates
+        if: steps.check.outputs.needed == 'true' && steps.branch.outputs.exists == 'false'
+        run: |
+          FULL="${{ steps.latest.outputs.full_version }}"
+          SHORT="${{ steps.latest.outputs.short_version }}"
+
+          # Update .env
+          sed -i "s/^DEBEZIUM_VERSION=.*/DEBEZIUM_VERSION=${SHORT}/" .env
+          sed -i "s/^DEBEZIUM_CONNECTOR_VERSION=.*/DEBEZIUM_CONNECTOR_VERSION=${FULL}/" .env
+
+          # Update pom.xml
+          sed -i "s|<version.debezium>.*</version.debezium>|<version.debezium>${FULL}</version.debezium>|" pom.xml
+
+      - name: Commit and push
+        if: steps.check.outputs.needed == 'true' && steps.branch.outputs.exists == 'false'
+        run: |
+          git config user.name  "debezium-builder"
+          git config user.email "debezium-builder@users.noreply.github.com"
+
+          git checkout -b "${{ steps.branch.outputs.name }}"
+          git add .env pom.xml
+          git commit -m "[release] Updated to Debezium ${{ steps.latest.outputs.full_version }}"
+          git push origin "${{ steps.branch.outputs.name }}"
+
+      - name: Create pull request
+        if: steps.check.outputs.needed == 'true' && steps.branch.outputs.exists == 'false'
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.branch.outputs.name }}" \
+            --title "[release] Updated to Debezium ${{ steps.latest.outputs.full_version }}" \
+            --body "$(printf 'Automated version bump.\n\n| File | Change |\n|------|--------|\n| `.env` | `DEBEZIUM_VERSION` → `%s`, `DEBEZIUM_CONNECTOR_VERSION` → `%s` |\n| `pom.xml` | `<version.debezium>` → `%s` |' \
+              '${{ steps.latest.outputs.short_version }}' \
+              '${{ steps.latest.outputs.full_version }}' \
+              '${{ steps.latest.outputs.full_version }}')"
