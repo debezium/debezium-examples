@@ -3,8 +3,8 @@ package io.debezium.examples.kstreams.fkjoin.streams;
 import java.util.Collections;
 import java.util.function.Function;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -23,7 +23,7 @@ import io.debezium.examples.kstreams.fkjoin.model.AddressAndCustomer;
 import io.debezium.examples.kstreams.fkjoin.model.Customer;
 import io.debezium.examples.kstreams.fkjoin.model.CustomerWithAddresses;
 import io.debezium.serde.DebeziumSerdes;
-import io.quarkus.kafka.client.serialization.JsonbSerde;
+import io.quarkus.kafka.client.serialization.ObjectMapperSerde;
 
 @ApplicationScoped
 public class TopologyProducer {
@@ -51,8 +51,8 @@ public class TopologyProducer {
         Serde<Customer> customersSerde = DebeziumSerdes.payloadJson(Customer.class);
         customersSerde.configure(Collections.singletonMap("from.field", "after"), false);
 
-        JsonbSerde<AddressAndCustomer> addressAndCustomerSerde = new JsonbSerde<>(AddressAndCustomer.class);
-        JsonbSerde<CustomerWithAddresses> customerWithAddressesSerde = new JsonbSerde<>(CustomerWithAddresses.class);
+        ObjectMapperSerde<AddressAndCustomer> addressAndCustomerSerde = new ObjectMapperSerde<>(AddressAndCustomer.class);
+        ObjectMapperSerde<CustomerWithAddresses> customerWithAddressesSerde = new ObjectMapperSerde<>(CustomerWithAddresses.class);
 
         KTable<Long, Address> addresses = builder.table(
                 addressesTopic,
