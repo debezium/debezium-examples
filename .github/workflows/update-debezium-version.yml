@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.DEBEZIUM_GH_TOKEN }}
@@ -101,7 +101,7 @@ jobs:
 
           git checkout -b "${{ steps.branch.outputs.name }}"
           git add .env pom.xml
-          git commit -m "[release] Updated to Debezium ${{ steps.latest.outputs.full_version }}"
+          git commit -s -m "[release] Updated to Debezium ${{ steps.latest.outputs.full_version }}"
           git push origin "${{ steps.branch.outputs.name }}"
 
       - name: Create pull request
