@@ -1,8 +1,8 @@
 package io.debezium.demos.pgtoast;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Produces;
-import javax.json.JsonObject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.json.JsonObject;
 
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -25,18 +25,18 @@ public class TopologyProducer {
 
     @Produces
     public Topology buildTopology() {
-        StreamsBuilder builder = new StreamsBuilder();
+        final var builder = new StreamsBuilder();
 
-        StoreBuilder<KeyValueStore<JsonObject, String>> instructionsStore =
+        final StoreBuilder<KeyValueStore<JsonObject, String>> instructionsStore =
                 Stores.keyValueStoreBuilder(
                     Stores.persistentKeyValueStore(INSTRUCTIONS_STORE),
                     new JsonObjectSerde(),
                     new Serdes.StringSerde()
                 );
-            builder.addStateStore(instructionsStore);
+        builder.addStateStore(instructionsStore);
 
         builder.<JsonObject, JsonObject>stream(productsTopic)
-                .transformValues(ToastColumnValueProvider::new, INSTRUCTIONS_STORE)
+                .processValues(ToastColumnValueProvider::new, INSTRUCTIONS_STORE)
                 .to(productsEnrichedTopic);
 
         return builder.build();
