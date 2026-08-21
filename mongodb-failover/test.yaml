@@ -1,7 +1,7 @@
 name: mongodb-failover
 description: Tests Debezium MongoDB connector with replica set failover setup
 
-env_file: .env
+env_file: ../.env
 compose_file: docker-compose-mongodb-replicas.yaml
 compose_files:
   - docker-compose-override.yaml
