@@ -9,6 +9,7 @@ on:
     paths:
       - 'kstreams-live-update/**'
       - '.github/workflows/kstreams-live-update-workflow.yml'
+      - '.env'
 
 jobs:
   build:

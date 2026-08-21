@@ -11,6 +11,7 @@ on:
       - 'debezium-python/**'
       - '.github/workflows/debezium-python-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

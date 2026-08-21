@@ -11,6 +11,7 @@ on:
       - 'postgres-kafka-signal/**'
       - '.github/workflows/postgres-kafka-signal-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:

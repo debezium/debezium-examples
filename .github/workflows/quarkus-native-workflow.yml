@@ -9,6 +9,7 @@ on:
     paths:
       - 'quarkus-native/**'
       - '.github/workflows/quarkus-native-workflow.yml'
+      - '.env'
 
 jobs:
   build:

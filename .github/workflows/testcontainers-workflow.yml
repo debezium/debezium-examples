@@ -9,6 +9,7 @@ on:
     paths:
       - 'testcontainers/**'
       - '.github/workflows/testcontainers-workflow.yml'
+      - '.env'
 
 jobs:
   build:

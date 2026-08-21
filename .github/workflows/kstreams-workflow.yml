@@ -9,6 +9,7 @@ on:
     paths:
       - 'kstreams/**'
       - '.github/workflows/kstreams-workflow.yml'
+      - '.env'
 
 jobs:
   build:

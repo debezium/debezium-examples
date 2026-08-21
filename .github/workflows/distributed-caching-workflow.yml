@@ -9,6 +9,7 @@ on:
     paths:
       - 'distributed-caching/**'
       - '.github/workflows/distributed-caching-workflow.yml'
+      - '.env'
 
 jobs:
   build:

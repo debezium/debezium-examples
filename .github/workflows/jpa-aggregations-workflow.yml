@@ -9,6 +9,7 @@ on:
     paths:
       - 'jpa-aggregations/**'
       - '.github/workflows/jpa-aggregations-workflow.yml'
+      - '.env'
 
 jobs:
   build:

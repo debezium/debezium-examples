@@ -9,6 +9,7 @@ on:
     paths:
       - 'end-to-end-demo/**'
       - '.github/workflows/end-to-end-demo-workflow.yml'
+      - '.env'
 
 jobs:
   build:

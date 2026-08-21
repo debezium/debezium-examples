@@ -9,6 +9,7 @@ on:
     paths:
       - 'camel-component/**'
       - '.github/workflows/camel-component-workflow.yml'
+      - '.env'
 
 jobs:
   build:

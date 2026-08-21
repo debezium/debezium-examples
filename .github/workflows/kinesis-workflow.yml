@@ -9,6 +9,7 @@ on:
     paths:
       - 'kinesis/**'
       - '.github/workflows/kinesis-workflow.yml'
+      - '.env'
 
 jobs:
   build:

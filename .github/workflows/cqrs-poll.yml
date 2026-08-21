@@ -9,6 +9,7 @@ on:
     paths:
       - 'cqrs/poll-service/**'
       - '.github/workflows/cqrs.yml'
+      - '.env'
 
 jobs:
   build:

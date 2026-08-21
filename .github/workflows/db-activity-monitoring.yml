@@ -9,6 +9,7 @@ on:
     paths:
       - 'db-activity-monitoring/order-service/**'
       - '.github/workflows/db-activity-monitoring.yml'
+      - '.env'
 
 jobs:
   build:
