@@ -8,18 +8,17 @@ package io.debezium.examples.saga.customer.messagelog;
 import java.time.Instant;
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-import javax.transaction.Transactional.TxType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 
-import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-@Traced
+
 public class MessageLog {
     private static final Logger LOG = LoggerFactory.getLogger(MessageLog.class);
 

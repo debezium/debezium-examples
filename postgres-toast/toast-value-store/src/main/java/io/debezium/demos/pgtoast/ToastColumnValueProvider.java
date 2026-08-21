@@ -1,10 +1,11 @@
 package io.debezium.demos.pgtoast;
 
-import javax.json.Json;
-import javax.json.JsonObject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
 
-import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
-import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.api.FixedKeyProcessor;
+import org.apache.kafka.streams.processor.api.FixedKeyProcessorContext;
+import org.apache.kafka.streams.processor.api.FixedKeyRecord;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,27 +14,32 @@ import org.slf4j.LoggerFactory;
  * Replaces the "__debezium_unavailable_value" marker value in the
  * "products.instructions" field with values from a state store.
  */
-class ToastColumnValueProvider implements ValueTransformerWithKey<JsonObject, JsonObject, JsonObject> {
+class ToastColumnValueProvider implements FixedKeyProcessor<JsonObject, JsonObject, JsonObject> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ToastColumnValueProvider.class);
 
+    private FixedKeyProcessorContext<JsonObject, JsonObject> context;
     private KeyValueStore<JsonObject, String> instructionsStore;
 
     @Override
     @SuppressWarnings("unchecked")
-    public void init(ProcessorContext context) {
+    public void init(final FixedKeyProcessorContext<JsonObject, JsonObject> context) {
+        this.context = context;
         instructionsStore = (KeyValueStore<JsonObject, String>) context.getStateStore(TopologyProducer.INSTRUCTIONS_STORE);
     }
 
     @Override
-    public JsonObject transform(JsonObject key, JsonObject value) {
-        JsonObject payload = value.getJsonObject("payload");
-        JsonObject newRowState = payload.getJsonObject("after");
+    public void process(final FixedKeyRecord<JsonObject, JsonObject> record) {
+        final var key = record.key();
+        var value = record.value();
 
-        String instructions = newRowState.getString("instructions");
+        final var payload = value.getJsonObject("payload");
+        final var newRowState = payload.getJsonObject("after");
+
+        final var instructions = newRowState.getString("instructions");
 
         if (isUnavailableValueMarker(instructions)) {
-            String currentValue = instructionsStore.get(key);
+            final var currentValue = instructionsStore.get(key);
 
             if (currentValue == null) {
                 LOG.warn("No instructions value found for key '{}'", key);
@@ -62,14 +68,14 @@ class ToastColumnValueProvider implements ValueTransformerWithKey<JsonObject, Js
             instructionsStore.put(key, instructions);
         }
 
-        return value;
+        context.forward(record.withValue(value));
     }
 
-    private boolean isUnavailableValueMarker(String value) {
+    private boolean isUnavailableValueMarker(final String value) {
         return "__debezium_unavailable_value".contentEquals(value);
     }
 
-    private String getBeginning(String value) {
+    private String getBeginning(final String value) {
         return value.substring(0, Math.min(25, value.length())) + "...";
     }
 

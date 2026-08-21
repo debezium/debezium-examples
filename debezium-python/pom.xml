@@ -15,6 +15,17 @@
     <name>Debezium Python Connect Mode Dependencies</name>
     <description>Maven project to download Debezium 3.0+ JAR dependencies for pydbzengine Connect mode</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Ensure Kafka ${version.kafka} is used at runtime; Quarkus BOM would otherwise downgrade it -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${version.kafka}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.debezium</groupId>

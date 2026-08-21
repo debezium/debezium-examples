@@ -5,8 +5,8 @@
  */
 package io.debezium.examples.saga.customer.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Version;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Version;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 

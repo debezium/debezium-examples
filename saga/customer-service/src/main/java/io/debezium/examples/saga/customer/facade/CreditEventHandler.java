@@ -7,15 +7,14 @@ package io.debezium.examples.saga.customer.facade;
 
 import java.util.UUID;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
-import org.eclipse.microprofile.opentracing.Traced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,7 @@ import io.debezium.outbox.quarkus.ExportedEvent;
 import io.quarkus.runtime.StartupEvent;
 
 @ApplicationScoped
-@Traced
+
 public class CreditEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreditEventHandler.class);
