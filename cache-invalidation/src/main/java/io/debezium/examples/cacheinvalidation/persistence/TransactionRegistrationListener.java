@@ -13,6 +13,7 @@ import jakarta.enterprise.inject.spi.CDI;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.engine.spi.TransactionCompletionCallbacks.BeforeCompletionCallback;
 import org.hibernate.event.spi.FlushEvent;
 import org.hibernate.event.spi.FlushEventListener;
 
@@ -39,14 +40,14 @@ class TransactionRegistrationListener implements FlushEventListener {
 
         sessionsWithBeforeTransactionCompletion.put(event.getSession(), true);
 
-        event.getSession().getActionQueue().registerProcess( session -> {
-            Number txId = (Number) event.getSession().createNativeQuery("SELECT txid_current()")
+        event.getSession().getActionQueue().registerCallback( (BeforeCompletionCallback) session -> {
+            Number txId = (Number) ((Session) session).createNativeQuery("SELECT txid_current()")
                     .setHibernateFlushMode(FlushMode.MANUAL)
                     .getSingleResult();
 
             getKnownTransactions().register(txId.longValue());
 
-            sessionsWithBeforeTransactionCompletion.remove(session);
+            sessionsWithBeforeTransactionCompletion.remove((Session) session);
         } );
     }
 

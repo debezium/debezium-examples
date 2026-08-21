@@ -14,6 +14,17 @@
     <packaging>jar</packaging>
     <name>cache-invalidation</name>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Ensure Kafka ${version.kafka} is used at runtime; Quarkus BOM would otherwise downgrade it -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${version.kafka}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>io.quarkus</groupId>
