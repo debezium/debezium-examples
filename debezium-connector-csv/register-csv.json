@@ -1,0 +1,9 @@
+{
+    "name": "csv-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.csv.CsvSourceConnector",
+        "tasks.max": "1",
+        "topic.prefix": "hr",
+        "csv.file.path": "/data/employees.csv"
+    }
+}
