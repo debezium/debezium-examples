@@ -1,0 +1,65 @@
+name: monitoring
+description: Tests Debezium JMX & Prometheus metrics monitoring setup with SQL Server connector
+
+env_file: ../.env
+compose_file: docker-compose.yml
+
+cleanup:
+  - name: Stop all services and clean volumes
+    type: docker_compose_down
+    volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start all monitoring services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for SQL Server to be ready
+    type: docker_compose_exec
+    service: sqlserver
+    command: "until /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Password!' -Q 'SELECT 1' > /dev/null 2>&1; do sleep 2; done"
+
+  - name: Initialize SQL Server database schema and table
+    type: docker_compose_exec
+    service: sqlserver
+    command: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "Password!" -i /inventory.sql
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Deploy SQL Server connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-sqlserver.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify Prometheus targets endpoint returns active scraping targets
+    type: http_wait
+    url: http://localhost:9090/api/v1/targets
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: status
+    expected_value: success
+
+  - name: Verify Debezium connector metrics scraped by Prometheus
+    type: http_wait
+    url: http://localhost:9090/api/v1/query?query=debezium_metrics_Connected
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: data.result.0.value.1
+    expected_value: "1"

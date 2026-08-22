@@ -21,6 +21,8 @@ services:
      - MSSQL_PID=Standard
      - SA_PASSWORD=Password!
      - MSSQL_AGENT_ENABLED=true
+    volumes:
+     - ./inventory.sql:/inventory.sql
 
   connect:
     build:
