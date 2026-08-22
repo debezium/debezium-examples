@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: de_password
+    # Debezium Postgres connector requires logical decoding (wal_level = logical)
+    command: ["postgres", "-c", "wal_level=logical"]
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  kafka-broker:
+    image: apache/kafka:${KAFKA_VERSION}
+    container_name: kafka-broker
+    ports:
+      - "9094:9094"
+    environment:
+      # KRaft configuration for apache/kafka
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-broker:9092,EXTERNAL://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+
+  kafka-connect:
+    # Builds a custom image on top of apache/kafka with the Debezium plugin baked in.
+    # Docker Compose will automatically build this image on first run of `docker compose up`.
+    build:
+      context: ./connect
+      dockerfile: Dockerfile.connect
+      args:
+        KAFKA_VERSION: ${KAFKA_VERSION}
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+    container_name: kafka-connect
+    depends_on:
+      - kafka-broker
+    ports:
+      - "8083:8083"
