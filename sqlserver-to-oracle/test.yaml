@@ -1,0 +1,153 @@
+name: sqlserver-to-oracle
+description: Tests replication from SQL Server to Oracle using the Debezium SQL Server source connector and the Debezium JDBC sink connector
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build the Connect image with the JDBC sink and the Oracle driver
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for SQL Server to accept connections
+    type: wait_for_log
+    service: sqlserver
+    expected_content: "SQL Server is now ready for client connections"
+    timeout_seconds: 180
+
+  - name: Wait for Oracle to finish provisioning
+    type: wait_for_log
+    service: oracle
+    expected_content: "DATABASE IS READY TO USE!"
+    timeout_seconds: 300
+
+  - name: Create the source database, seed it and enable CDC
+    type: docker_compose_exec
+    service: sqlserver
+    command: /opt/mssql-tools18/bin/sqlcmd -No -S localhost -U sa -P 'Password!' -i /init/inventory.sql
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 180
+    interval_seconds: 5
+
+  - name: Register the Debezium SQL Server source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: source-sqlserver.json
+    expected_status: [200, 201]
+
+  - name: Wait for the source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-source/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify the snapshot reached Kafka
+    type: kafka_consume
+    topic: server1.inventory.dbo.customers
+    timeout_seconds: 90
+    expected_content:
+      - "Sally"
+      - "Kretchmar"
+
+  - name: Register the Debezium JDBC sink connector for Oracle
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: sink-oracle.json
+    expected_status: [200, 201]
+
+  - name: Wait for the sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-sink/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for the snapshot rows to be written to Oracle
+    type: wait
+    seconds: 30
+
+  - name: Verify the sink connector created the target table itself
+    type: docker_compose_exec
+    service: oracle
+    command: >-
+      echo -e "set heading off\nset feedback off\nset pagesize 0\nset linesize 300\n
+      select column_name || ' ' || data_type from user_tab_columns
+      where table_name = 'CUSTOMERS' order by column_id;\nexit;" |
+      sqlplus -s inventory/inventorypw@//localhost:1521/FREEPDB1
+    expected_content:
+      - "ID"
+      - "FIRST_NAME"
+      - "LAST_NAME"
+      - "EMAIL"
+
+  - name: Verify the snapshot rows landed in Oracle
+    type: docker_compose_exec
+    service: oracle
+    command: >-
+      echo -e "set heading off\nset feedback off\nset pagesize 0\nset linesize 300\n
+      select first_name || '|' || email from customers order by id;\nexit;" |
+      sqlplus -s inventory/inventorypw@//localhost:1521/FREEPDB1
+    expected_content:
+      - "Sally|sally.thomas@acme.com"
+      - "Anne|annek@noanswer.org"
+
+  - name: Insert a new customer in SQL Server
+    type: docker_compose_exec
+    service: sqlserver
+    command: >-
+      /opt/mssql-tools18/bin/sqlcmd -No -S localhost -U sa -P 'Password!' -d inventory
+      -Q "INSERT INTO customers(first_name, last_name, email) VALUES (N'Sarah', N'Thompson', N'kitt@acme.com');"
+
+  - name: Update an existing customer in SQL Server
+    type: docker_compose_exec
+    service: sqlserver
+    command: >-
+      /opt/mssql-tools18/bin/sqlcmd -No -S localhost -U sa -P 'Password!' -d inventory
+      -Q "UPDATE customers SET first_name = N'Dana' WHERE id = 1001;"
+
+  - name: Delete a customer in SQL Server
+    type: docker_compose_exec
+    service: sqlserver
+    command: >-
+      /opt/mssql-tools18/bin/sqlcmd -No -S localhost -U sa -P 'Password!' -d inventory
+      -Q "DELETE FROM customers WHERE id = 1004;"
+
+  - name: Wait for the streaming changes to be applied to Oracle
+    type: wait
+    seconds: 30
+
+  - name: Verify insert and update were applied to Oracle
+    type: docker_compose_exec
+    service: oracle
+    command: >-
+      echo -e "set heading off\nset feedback off\nset pagesize 0\nset linesize 300\n
+      select first_name || '|' || email from customers order by id;\nexit;" |
+      sqlplus -s inventory/inventorypw@//localhost:1521/FREEPDB1
+    expected_content:
+      - "Dana|sally.thomas@acme.com"
+      - "Sarah|kitt@acme.com"
+
+  - name: Verify the delete was propagated to Oracle
+    type: docker_compose_exec
+    service: oracle
+    command: >-
+      echo -e "set heading off\nset feedback off\nset pagesize 0\nset linesize 300\n
+      select 'REMAINING=' || count(*) from customers where id = 1004;\nexit;" |
+      sqlplus -s inventory/inventorypw@//localhost:1521/FREEPDB1
+    expected_content: "REMAINING=0"
