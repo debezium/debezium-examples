@@ -19,6 +19,17 @@
     <maven.compiler.parameters>true</maven.compiler.parameters>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- Override Debezium BOM's old javax JAXB with the jakarta JAXB required by Quarkus 3.x -->
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>jaxb-runtime</artifactId>
+        <version>4.0.6</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <modules>
     <module>order-service</module>
     <module>payment-service</module>
