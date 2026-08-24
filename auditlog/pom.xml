@@ -19,6 +19,23 @@
     -->
     <version.quarkus>3.27.2</version.quarkus>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <!--
+        Explicitly import quarkus-bom:3.27.2 here so it takes precedence over
+        the quarkus-bom:3.33.x that is transitively pulled in via debezium-server-bom
+        in the root parent POM.  A child POM's dependencyManagement entries win
+        over those inherited from the parent.
+      -->
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${version.quarkus}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <modules>
     <module>vegetables-service</module>
     <module>log-enricher</module>
