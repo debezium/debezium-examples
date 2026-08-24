@@ -79,12 +79,12 @@ $ http PUT http://localhost:8080/orders/1/lines/2 < resources/data/cancel-order-
 Examine the events produced by the service using _kafkacat_:
 
 ```console
-$ docker run --tty --rm \
+$ docker run --rm \
     --network outbox_default \
     quay.io/debezium/tooling \
     kafkacat -b kafka:9092 -C -o beginning -q \
     -f "{\"key\":%k, \"headers\":\"%h\"}\n%s\n" \
-    -t Order.events | jq .
+    -t Order.events -e | jq .
 ```
 
 Examine that the receiving service process the events:

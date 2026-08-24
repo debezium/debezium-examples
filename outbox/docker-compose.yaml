@@ -62,41 +62,26 @@ services:
       - "${PGADMIN_PORT:-5050}:80"
 
   connect:
-    image: debezium/strimzi-connect
-    build:
-      context: debezium-strimzi
-      args:
-        DEBEZIUM_CONNECTOR_VERSION: "${DEBEZIUM_CONNECTOR_VERSION:-2.4.0.Alpha2}"
-        STRIMZI_VERSION: "${STRIMZI_VERSION:-latest-kafka-3.5.1}"
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     depends_on:
      - kafka
      - order-db
     environment:
-     - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
-     - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:9092
-     - |
-         KAFKA_CONNECT_CONFIGURATION=
-         key.converter=org.apache.kafka.connect.json.JsonConverter
-         value.converter=org.apache.kafka.connect.json.JsonConverter
-         key.converter.schemas.enable=false
-         value.converter.schemas.enable=false
-         group.id=connect
-         offset.storage.topic=connect-offsets
-         offset.storage.replication.factor=1
-         config.storage.topic=connect-configs
-         config.storage.replication.factor=1
-         status.storage.topic=connect-status
-         status.storage.replication.factor=1
-         producer.interceptor.classes=io.debezium.tracing.DebeziumTracingProducerInterceptor
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=connect
+     - CONFIG_STORAGE_TOPIC=connect-configs
+     - OFFSET_STORAGE_TOPIC=connect-offsets
+     - STATUS_STORAGE_TOPIC=connect-status
+     - CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false
+     - CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false
+     - ENABLE_OTEL=true
      - OTEL_SERVICE_NAME=kafka-connect
      - OTEL_TRACES_EXPORTER=otlp
      - OTEL_METRICS_EXPORTER=none
      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
      - OTEL_TRACES_SAMPLER=always_on
-     - STRIMZI_TRACING=opentelemetry
-    command: /opt/kafka/kafka_connect_run.sh
 
   order-service:
     image: debezium-examples/outbox-order-service:${DEBEZIUM_VERSION}
