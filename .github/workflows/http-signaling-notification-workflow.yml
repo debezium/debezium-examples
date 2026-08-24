@@ -11,6 +11,7 @@ on:
       - 'http-signaling-notification/**'
       - '.github/workflows/http-signaling-notification-workflow.yml'
       - 'scripts/run-example-test.py'
+      - '.env'
 
 jobs:
   build:
