@@ -15,8 +15,6 @@ services:
   mongodb1:
     image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     hostname: mongodb1
-    ports:
-      - 27017:27017
     environment:
       MONGODB_USER: debezium
       MONGODB_PASSWORD: dbz
@@ -30,8 +28,6 @@ services:
   mongodb2:
     image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     hostname: mongodb2
-    ports:
-      - 27018:27017
     environment:
       MONGODB_USER: debezium
       MONGODB_PASSWORD: dbz
@@ -45,8 +41,6 @@ services:
   mongodb3:
     image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
     hostname: mongodb3
-    ports:
-      - 27019:27017
     environment:
       MONGODB_USER: debezium
       MONGODB_PASSWORD: dbz
