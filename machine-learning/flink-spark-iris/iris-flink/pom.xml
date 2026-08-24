@@ -32,7 +32,7 @@ under the License.
 		<maven.compiler.target>${target.java.version}</maven.compiler.target>
 		<flink.version>1.17.1</flink.version>
 		<flink.ml.version>2.2.0</flink.ml.version>
-		<log4j.version>2.17.1</log4j.version>
+		<log4j.version>2.25.5</log4j.version>
 		<scala.binary.version>2.12</scala.binary.version>
 		<app.main.class>io.github.vjuranek.FlinkKafkaKmeans</app.main.class>
 	</properties>
