@@ -41,11 +41,11 @@ class TransactionRegistrationListener implements FlushEventListener {
         sessionsWithBeforeTransactionCompletion.put(event.getSession(), true);
 
         event.getSession().getActionQueue().registerCallback( (BeforeCompletionCallback) session -> {
-            final var txId = session.createNativeQuery("SELECT txid_current()", Number.class)
+            final var txId = session.createNativeQuery("SELECT txid_current()", Long.class)
                     .setQueryFlushMode(QueryFlushMode.NO_FLUSH)
                     .getSingleResult();
 
-            getKnownTransactions().register(txId.longValue());
+            getKnownTransactions().register(txId);
 
             sessionsWithBeforeTransactionCompletion.remove((Session) session);
         } );
