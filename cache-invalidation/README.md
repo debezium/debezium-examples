@@ -22,7 +22,7 @@ it must be purged from the 2nd-level cache in order to correctly calculate the p
    ``` 
    The application will start in the development mode and run until you press `Ctrl+C` to stop the application.
 
-3. Place an order for item 1003 using curl:
+3. Place an order for item 10003 using curl:
    ```bash
    curl -H "Content-Type: application/json" \
       -X POST \
@@ -87,22 +87,21 @@ it must be purged from the 2nd-level cache in order to correctly calculate the p
 ## Development
 
 ### Start-up steps:
-1. 
-2. First start the PostgreSQL database container using maven:
+1. First start the PostgreSQL database container using maven:
    ```bash
    mvn docker:start
    ```
-   
+
 2. Next start the application in Quarkus development mode:
    ```bash
    mvn clean quarkus:dev
    ```
-   
+
 ### Accessing the database
 
 To obtain a database session in PostgreSQL, run:
 ```bash
-docker run -it --rm --link postgres-1:postgres quay.io/debezium/example-postgres:latest psql -h postgres -U postgresuser --dbname inventory
+docker exec -it postgres-server-test-database-1 psql -U postgresuser --dbname inventory
 ```
 
 ### Shutdown steps
