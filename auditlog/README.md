@@ -151,11 +151,12 @@ $ docker-compose --env-file ../.env down
 
 ## Running the Quarkus Applications Locally
 
-Set `ADVERTISED_HOST_NAME` of the `kafka` service in _docker-compose.yaml_ to the IP address of your host machine.
-Start all services except the `vegetables-service` and the `log-enricher`:
+Set `KAFKA_ADVERTISED_LISTENERS` of the `kafka` service in _docker-compose.yaml_ to the IP address of your host machine, e.g.
+`KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://<IP_OF_YOUR_HOST_MACHINE>:9092`.
+Start all services except the three Quarkus applications:
 
 ```console
-$ docker-compose --env-file ../.env up --scale vegetables-service=0 --scale log-enricher=0
+$ docker-compose --env-file ../.env up --scale vegetables-service=0 --scale log-enricher=0 --scale admin-service=0
 ```
 
 Then start the three services via the Quarkus dev mode:

@@ -51,7 +51,7 @@ public class TopologyProducer {
                 // exclude snapshot events
                 .filter((id, changeEvent) -> !changeEvent.getString("op").equals("r"))
                 // enrich change events with transaction metadata via the statestore of the TX topic
-                .transform(() -> new ChangeEventEnricher(), STREAM_BUFFER_NAME)
+                .process(() -> new ChangeEventEnricher(), STREAM_BUFFER_NAME)
                 .to(vegetablesEnrichedTopic);
 
         return builder.build();

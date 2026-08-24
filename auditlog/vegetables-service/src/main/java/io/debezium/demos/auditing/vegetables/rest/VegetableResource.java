@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
-import org.jboss.resteasy.annotations.jaxrs.PathParam;
+import jakarta.ws.rs.PathParam;
 
 import io.debezium.demos.auditing.vegetables.model.Vegetable;
 import io.debezium.demos.auditing.vegetables.service.VegetableService;

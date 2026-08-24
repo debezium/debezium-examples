@@ -8,8 +8,8 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 
 import org.apache.kafka.streams.KeyValue;
-import org.apache.kafka.streams.kstream.Transformer;
-import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.processor.api.ContextualProcessor;
+import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.processor.PunctuationType;
 import org.apache.kafka.streams.state.KeyValueStore;
 import org.apache.kafka.streams.state.TimestampedKeyValueStore;
@@ -24,20 +24,19 @@ import org.slf4j.LoggerFactory;
  * gets added into a buffer. Before processing the incoming change event, any
  * buffered events will be processed.
  */
-class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValue<JsonObject, JsonObject>> {
+class ChangeEventEnricher extends ContextualProcessor<JsonObject, JsonObject, JsonObject, JsonObject> {
 
     private static final Long BUFFER_OFFSETS_KEY = -1L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ChangeEventEnricher.class);
 
-    private ProcessorContext context;
     private TimestampedKeyValueStore<JsonObject, JsonObject> txMetaDataStore;
     private KeyValueStore<Long, JsonObject> streamBuffer;
 
     @Override
     @SuppressWarnings("unchecked")
-    public void init(ProcessorContext context) {
-        this.context = context;
+    public void init(org.apache.kafka.streams.processor.api.ProcessorContext<JsonObject, JsonObject> context) {
+        super.init(context);
         streamBuffer = (KeyValueStore<Long, JsonObject>) context.getStateStore(TopologyProducer.STREAM_BUFFER_NAME);
         txMetaDataStore = (TimestampedKeyValueStore<JsonObject, JsonObject>) context.getStateStore(TopologyProducer.STORE_NAME);
 
@@ -45,20 +44,24 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     }
 
     @Override
-    public KeyValue<JsonObject, JsonObject> transform(JsonObject key, JsonObject value) {
-        boolean enrichedAllBufferedEvents = enrichAndEmitBufferedEvents();
+    public void process(Record<JsonObject, JsonObject> record) {
+        final var key = record.key();
+        final var value = record.value();
+
+        final var enrichedAllBufferedEvents = enrichAndEmitBufferedEvents();
 
         if (!enrichedAllBufferedEvents) {
             bufferChangeEvent(key, value);
-            return null;
+            return;
         }
 
-        KeyValue<JsonObject, JsonObject> enriched = enrichWithTxMetaData(key, value);
+        final var enriched = enrichWithTxMetaData(key, value);
         if (enriched == null) {
             bufferChangeEvent(key, value);
         }
-
-        return enriched;
+        else {
+            context().forward(record.withKey(enriched.key).withValue(enriched.value));
+        }
     }
 
     /**
@@ -69,28 +72,28 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
      *         {@code false} otherwise.
      */
     private boolean enrichAndEmitBufferedEvents() {
-        Optional<BufferOffsets> seq = bufferOffsets();
+        final var seq = bufferOffsets();
 
         if (!seq.isPresent()) {
             return true;
         }
 
-        BufferOffsets sequence = seq.get();
+        final var sequence = seq.get();
 
-        boolean enrichedAllBuffered = true;
+        var enrichedAllBuffered = true;
 
-        for(long i = sequence.getFirstValue(); i < sequence.getNextValue(); i++) {
-            JsonObject buffered = streamBuffer.get(i);
+        for (long i = sequence.getFirstValue(); i < sequence.getNextValue(); i++) {
+            final var buffered = streamBuffer.get(i);
 
             LOG.info("Processing buffered change event for key {}", buffered.getJsonObject("key"));
 
-            KeyValue<JsonObject, JsonObject> enriched = enrichWithTxMetaData(buffered.getJsonObject("key"), buffered.getJsonObject("changeEvent"));
+            final var enriched = enrichWithTxMetaData(buffered.getJsonObject("key"), buffered.getJsonObject("changeEvent"));
             if (enriched == null) {
                 enrichedAllBuffered = false;
                 break;
             }
 
-            context.forward(enriched.key, enriched.value);
+            context().forward(new Record<>(enriched.key, enriched.value, System.currentTimeMillis()));
             streamBuffer.delete(i);
             sequence.incrementFirstValue();
         }
@@ -105,12 +108,12 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     /**
      * Adds the given change event to the stream-side buffer.
      */
-    private void bufferChangeEvent(JsonObject key, JsonObject changeEvent) {
+    private void bufferChangeEvent(final JsonObject key, final JsonObject changeEvent) {
         LOG.info("Buffering change event for key {}", key);
 
-        BufferOffsets sequence = bufferOffsets().orElseGet(BufferOffsets::initial);
+        final var sequence = bufferOffsets().orElseGet(BufferOffsets::initial);
 
-        JsonObject wrapper = Json.createObjectBuilder()
+        final var wrapper = Json.createObjectBuilder()
                 .add("key", key)
                 .add("changeEvent", changeEvent)
                 .build();
@@ -128,17 +131,17 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
      * @return The enriched change event or {@code null} if no metadata for the
      *         associated transaction was found.
      */
-    private KeyValue<JsonObject, JsonObject> enrichWithTxMetaData(JsonObject key, JsonObject changeEvent) {
-        JsonObject txId = Json.createObjectBuilder()
+    private KeyValue<JsonObject, JsonObject> enrichWithTxMetaData(final JsonObject key, final JsonObject changeEvent) {
+        final var txId = Json.createObjectBuilder()
                 .add("transaction_id", changeEvent.get("source").asJsonObject().getJsonNumber("txId").longValue())
                 .build();
 
-        ValueAndTimestamp<JsonObject> metaData = txMetaDataStore.get(txId);
+        final ValueAndTimestamp<JsonObject> metaData = txMetaDataStore.get(txId);
 
         if (metaData != null) {
             LOG.info("Enriched change event for key {}", key);
 
-            JsonObject txMetaData = Json.createObjectBuilder(metaData.value().get("after").asJsonObject())
+            final var txMetaData = Json.createObjectBuilder(metaData.value().get("after").asJsonObject())
                     .remove("transaction_id")
                     .build();
 
@@ -155,16 +158,12 @@ class ChangeEventEnricher implements Transformer<JsonObject, JsonObject, KeyValu
     }
 
     private Optional<BufferOffsets> bufferOffsets() {
-        JsonObject bufferOffsets = streamBuffer.get(BUFFER_OFFSETS_KEY);
+        final var bufferOffsets = streamBuffer.get(BUFFER_OFFSETS_KEY);
         if (bufferOffsets == null) {
             return Optional.empty();
         }
         else {
             return Optional.of(BufferOffsets.fromJson(bufferOffsets));
         }
-    }
-
-    @Override
-    public void close() {
     }
 }

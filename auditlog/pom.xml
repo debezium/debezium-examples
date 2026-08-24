@@ -11,6 +11,14 @@
   <groupId>io.debezium.demos.auditing</groupId>
   <artifactId>auditing-parent</artifactId>
   <packaging>pom</packaging>
+  <properties>
+    <!--
+      Pin Quarkus to the version Kogito 10.2.0 was built against.
+      Kogito does not yet have a release targeting Quarkus 3.33.x; using a
+      newer Quarkus causes a NoSuchMethodError in Quarkus bootstrap internals.
+    -->
+    <version.quarkus>3.27.2</version.quarkus>
+  </properties>
   <modules>
     <module>vegetables-service</module>
     <module>log-enricher</module>

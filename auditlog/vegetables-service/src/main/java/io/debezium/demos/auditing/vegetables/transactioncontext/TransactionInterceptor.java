@@ -9,7 +9,6 @@ import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
 import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.HttpHeaders;
 
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -26,7 +25,7 @@ public class TransactionInterceptor {
     EntityManager entityManager;
 
     @Inject
-    HttpServletRequest request;
+    HttpHeaders httpHeaders;
 
     @AroundInvoke
     public Object manageTransaction(InvocationContext ctx) throws Exception {
@@ -46,7 +45,7 @@ public class TransactionInterceptor {
     }
 
     private ZonedDateTime getRequestDate() {
-        String requestDate = request.getHeader(HttpHeaders.DATE);
+        String requestDate = httpHeaders.getHeaderString(HttpHeaders.DATE);
         return requestDate != null ? ZonedDateTime.parse(requestDate, DateTimeFormatter.RFC_1123_DATE_TIME) : null;
     }
 }
