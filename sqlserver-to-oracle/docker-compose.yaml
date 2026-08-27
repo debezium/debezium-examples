@@ -25,7 +25,7 @@ services:
       - ./sqlserver-init:/init:ro
 
   oracle:
-    image: gvenzl/oracle-free:23-slim-faststart
+    image: ghcr.io/gvenzl/oracle-free:23-slim-faststart
     ports:
       - 1521:1521
     environment:
