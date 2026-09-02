@@ -26,7 +26,7 @@
 
     <properties>
         <!-- Single source of truth for the Debezium version -->
-        <version.debezium>3.6.1.Final</version.debezium>
+        <version.debezium>3.6.2.Final</version.debezium>
 
         <!-- Standardized Java version for all examples -->
         <maven.compiler.source>21</maven.compiler.source>
