@@ -108,11 +108,11 @@ jobs:
           fi
           echo "version_kafka=$KAFKA_VERSION" >> "$GITHUB_OUTPUT"
 
-          # --- version.quarkus: read quarkus.version.extension from the same Debezium pom ---
-          QUARKUS_VERSION=$(echo "$DEBEZIUM_POM" | grep -oP '(?<=<quarkus\.version\.extension>)[^<]+' | head -1)
+          # --- version.quarkus: read quarkus.version.runtime from the same Debezium pom ---
+          QUARKUS_VERSION=$(echo "$DEBEZIUM_POM" | grep -oP '(?<=<quarkus\.version\.runtime>)[^<]+' | head -1)
 
           if [ -z "$QUARKUS_VERSION" ]; then
-            echo "Could not determine quarkus.version.extension from Debezium ${TAG}. Aborting."
+            echo "Could not determine quarkus.version.runtime from Debezium ${TAG}. Aborting."
             exit 1
           fi
           echo "version_quarkus=$QUARKUS_VERSION" >> "$GITHUB_OUTPUT"
