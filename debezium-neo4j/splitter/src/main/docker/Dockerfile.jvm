@@ -1,0 +1,13 @@
+# Multi-stage build so `docker compose build splitter` is self-contained
+# (no prior local `mvn package` required).
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /workspace
+COPY pom.xml .
+RUN mvn -q -B dependency:go-offline
+COPY src ./src
+RUN mvn -q -B -DskipTests package
+
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /workspace/target/neo4j-cud-splitter.jar /app/neo4j-cud-splitter.jar
+ENTRYPOINT ["java", "-jar", "/app/neo4j-cud-splitter.jar"]
