@@ -1,0 +1,51 @@
+{
+    "name": "ecommerce-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "postgres",
+        "database.password": "postgres",
+        "database.dbname": "postgres",
+        "topic.prefix": "dbserver1",
+        "table.include.list": "public.customers,public.products,public.orders,public.order_items",
+        "slot.name": "debezium_ecommerce",
+        "publication.name": "dbz_ecommerce",
+        "publication.autocreate.mode": "filtered",
+        "decimal.handling.mode": "double",
+        "poll.interval.ms": "100",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.storage.StringConverter",
+
+        "transforms": "neo4j",
+        "transforms.neo4j.type": "io.debezium.transforms.Neo4jCudConverter",
+
+        "transforms.neo4j.table.customers.node.labels": "Customer",
+        "transforms.neo4j.table.customers.node.id.properties": "id",
+
+        "transforms.neo4j.table.products.node.labels": "Product",
+        "transforms.neo4j.table.products.node.id.properties": "id",
+
+        "transforms.neo4j.table.orders.node.labels": "Order",
+        "transforms.neo4j.table.orders.node.id.properties": "id",
+        "transforms.neo4j.table.orders.relationship.customer_id.type": "PLACED_BY",
+        "transforms.neo4j.table.orders.relationship.customer_id.target.label": "Customer",
+        "transforms.neo4j.table.orders.relationship.customer_id.target.id": "id",
+        "transforms.neo4j.table.orders.relationship.customer_id.target.node.op": "merge",
+
+        "transforms.neo4j.table.order_items.node.mode": "relationship",
+        "transforms.neo4j.table.order_items.relationship.order_id.type": "CONTAINS",
+        "transforms.neo4j.table.order_items.relationship.order_id.direction": "outgoing",
+        "transforms.neo4j.table.order_items.relationship.order_id.target.label": "Order",
+        "transforms.neo4j.table.order_items.relationship.order_id.target.id": "id",
+        "transforms.neo4j.table.order_items.relationship.order_id.target.node.op": "merge",
+        "transforms.neo4j.table.order_items.relationship.order_id.properties": "quantity",
+        "transforms.neo4j.table.order_items.relationship.product_id.type": "CONTAINS",
+        "transforms.neo4j.table.order_items.relationship.product_id.direction": "incoming",
+        "transforms.neo4j.table.order_items.relationship.product_id.target.label": "Product",
+        "transforms.neo4j.table.order_items.relationship.product_id.target.id": "id",
+        "transforms.neo4j.table.order_items.relationship.product_id.target.node.op": "merge"
+    }
+}

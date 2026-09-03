@@ -1,0 +1,134 @@
+name: debezium-neo4j
+description: >
+  Tests the PostgreSQL -> Debezium -> Neo4jCudConverter SMT -> Kafka Streams split
+  -> Neo4j sink pipeline, projecting a relational e-commerce schema into a Neo4j graph.
+env_file: ../.env
+compose_file: docker-compose-kstreams.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build custom connect and splitter images
+    type: docker_compose_build
+    services:
+      - connect
+      - splitter
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 300
+    interval_seconds: 5
+
+  - name: Wait for Neo4j HTTP API to be ready
+    type: http_wait
+    url: http://localhost:7474
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register e-commerce source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-postgres-source.json
+    expected_status: [200, 201]
+
+  - name: Register Neo4j sink connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-neo4j-sink.json
+    expected_status: [200, 201]
+
+  - name: Wait for e-commerce source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/ecommerce-connector/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for Neo4j sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/neo4j-sink/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for snapshot, split and sink
+    type: wait
+    seconds: 30
+
+  - name: Verify Customer node in Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (c:Customer {id:1001}) RETURN c.first_name;"
+    expected_content: Sally
+
+  - name: Verify Product node in Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (p:Product {id:200}) RETURN p.name;"
+    expected_content: Widget
+
+  - name: Verify PLACED_BY relationship (Order -> Customer) in Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (:Order {id:5001})-[:PLACED_BY]->(c:Customer) RETURN c.id;"
+    expected_content: "1001"
+
+  - name: Verify CONTAINS relationship with quantity (Order -> Product) in Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (:Order {id:5001})-[r:CONTAINS]->(:Product {id:200}) RETURN r.quantity;"
+    expected_content: "2"
+
+  - name: Insert a new customer into PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d postgres -c "INSERT INTO customers (id, first_name, last_name, email) VALUES (1005, 'John', 'Doe', 'john.doe@example.com');"
+
+  - name: Insert a new order for the new customer into PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d postgres -c "INSERT INTO orders (id, customer_id, total, status) VALUES (5003, 1005, 49.99, 'pending');"
+
+  - name: Wait for CDC propagation
+    type: wait
+    seconds: 20
+
+  - name: Verify new Customer node appeared in Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (c:Customer {id:1005}) RETURN c.email;"
+    expected_content: john.doe@example.com
+
+  - name: Verify new PLACED_BY relationship appeared in Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (:Order {id:5003})-[:PLACED_BY]->(c:Customer) RETURN c.id;"
+    expected_content: "1005"
+
+  - name: Delete the new customer's order in PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d postgres -c "DELETE FROM orders WHERE id = 5003;"
+
+  - name: Wait for delete propagation
+    type: wait
+    seconds: 20
+
+  - name: Verify the Order node was removed from Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (o:Order {id:5003}) RETURN count(o) AS c;"
+    expected_content: "0"

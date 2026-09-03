@@ -1,0 +1,89 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+      - 9093:9093
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./ecommerce.sql:/docker-entrypoint-initdb.d/zzz.sql
+
+  neo4j:
+    image: neo4j:5
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_dbms_security_auth__minimum__password__length=1
+
+  # Pinned to `nightly` because the Neo4jCudConverter SMT is not in a released Debezium version
+  # yet (connect is the only Debezium image that publishes a `nightly` tag). When the SMT ships in
+  # a release, replace `nightly` below with ${DEBEZIUM_VERSION} so it tracks the other images.
+  connect:
+    image: debezium-examples/debezium-neo4j-connect:nightly
+    build:
+      context: debezium-neo4j-connect
+      args:
+        DEBEZIUM_VERSION: nightly
+        NEO4J_CONNECTOR_VERSION: ${NEO4J_CONNECTOR_VERSION:-5.5.2}
+    ports:
+      - 8083:8083
+      - 5005:5005
+    depends_on:
+      - kafka
+      - postgres
+      - neo4j
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+
+  ksqldb-server:
+    image: confluentinc/ksqldb-server:0.29.0
+    hostname: ksqldb-server
+    depends_on:
+      - kafka
+      - connect
+    ports:
+      - 8088:8088
+    environment:
+      - KSQL_LISTENERS=http://0.0.0.0:8088
+      - KSQL_BOOTSTRAP_SERVERS=kafka:9092
+      - KSQL_KSQL_SERVICE_ID=neo4j_cud_
+      - KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET=earliest
+
+  ksqldb-init:
+    image: confluentinc/ksqldb-cli:0.29.0
+    depends_on:
+      - kafka
+      - connect
+      - ksqldb-server
+    volumes:
+      - ./ksqldb-split.sql:/tmp/ksqldb-split.sql
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "ksqldb-init: applying split script until streams are created (waiting for source topics)..."
+        until ksql http://ksqldb-server:8088 -e "SHOW STREAMS;" 2>/dev/null | grep -qi ORDER_ITEMS_CUD_EVENTS; do
+          ksql http://ksqldb-server:8088 -f /tmp/ksqldb-split.sql >/dev/null 2>&1
+          sleep 10
+        done
+        echo "ksqldb-init: split streams created."
