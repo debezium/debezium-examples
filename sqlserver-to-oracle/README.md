@@ -25,9 +25,6 @@ the target table.
 
 * Capturing changes from SQL Server via its native CDC tables.
 * Writing them into Oracle with the **Debezium** JDBC sink connector.
-* Building a Kafka Connect image that carries the Oracle JDBC driver, which is
-  not bundled with the Debezium Connect image even though the JDBC sink
-  connector itself is.
 * Letting the sink connector create the Oracle table itself, and propagating
   the source column types so that it generates a usable schema rather than a
   column of `CLOB`s.
@@ -46,8 +43,8 @@ emulated, which works but makes it noticeably slower to start.
 ## Running the example
 
 ```shell
-# Start the topology and build the Connect image
-docker compose --env-file ../.env -f docker-compose.yaml up --build -d
+# Start the topology
+docker compose --env-file ../.env -f docker-compose.yaml up -d
 ```
 
 **Wait for both databases before continuing.** Oracle needs a couple of
@@ -110,14 +107,6 @@ The sink uses `io.debezium.connector.jdbc.JdbcSinkConnector`, which is licensed
 under the Apache License 2.0. The similarly named Confluent JDBC sink connector
 is *not* a drop-in replacement here: it is distributed under the Confluent
 Community License, which restricts production use.
-
-### The Oracle JDBC driver
-
-The Debezium Connect image already contains the JDBC sink connector, but it
-does not ship any Oracle driver — Debezium cannot redistribute one. So
-[`debezium-jdbc-oracle/Dockerfile`](debezium-jdbc-oracle/Dockerfile) downloads
-`ojdbc11` from Maven Central and drops it into the connector's existing plugin
-directory. That single added jar is the only change to the stock image.
 
 ### Identifier case
 

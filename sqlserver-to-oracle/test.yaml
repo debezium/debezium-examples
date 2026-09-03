@@ -12,9 +12,6 @@ steps:
     type: docker_compose_down
     volumes: true
 
-  - name: Build the Connect image with the JDBC sink and the Oracle driver
-    type: docker_compose_build
-
   - name: Start all services
     type: docker_compose_up
     detach: true

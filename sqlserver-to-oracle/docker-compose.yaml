@@ -34,12 +34,7 @@ services:
       - APP_USER_PASSWORD=inventorypw
 
   connect:
-    image: debezium-examples/sqlserver-to-oracle-connect:${DEBEZIUM_VERSION}
-    build:
-      context: debezium-jdbc-oracle
-      args:
-        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
-        ORACLE_JDBC_VERSION: ${ORACLE_JDBC_VERSION}
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
       - 8083:8083
     depends_on:
