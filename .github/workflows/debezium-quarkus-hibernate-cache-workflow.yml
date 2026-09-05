@@ -1,0 +1,45 @@
+name: Build [debezium-quarkus-hibernate-cache]
+
+on:
+  push:
+    paths:
+      - 'debezium-quarkus-hibernate-cache/**'
+      - '.github/workflows/debezium-quarkus-hibernate-cache-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'debezium-quarkus-hibernate-cache/**'
+      - '.github/workflows/debezium-quarkus-hibernate-cache-workflow.yml'
+      - 'scripts/run-example-test.py'
+      - '.env'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('debezium-quarkus-hibernate-cache/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run debezium-quarkus-hibernate-cache test
+        run: python scripts/run-example-test.py debezium-quarkus-hibernate-cache

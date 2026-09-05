@@ -1,0 +1,54 @@
+name: debezium-quarkus-hibernate-cache
+description: Tests Debezium Quarkus Hibernate Second-Level Cache invalidation extension
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Compile application jar
+    type: local_exec
+    command: mvn clean package -DskipTests
+
+  - name: Build all Docker images
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for item-service to be ready
+    type: http_wait
+    url: http://localhost:8080/items/1
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_status: 200
+    expected_json_path: name
+    expected_value: Notebook
+
+  - name: Fetch Item 1 to populate L2 Cache
+    type: http_wait
+    url: http://localhost:8080/items/1
+    expected_status: 200
+    expected_json_path: price
+    expected_value: 10.99
+
+  - name: Update item price directly in database (bypassing Hibernate ORM)
+    type: docker_compose_exec
+    service: postgres
+    command: "psql -U postgres -d inventory -c \"UPDATE inventory.item SET price = 15.99 WHERE id = 1;\""
+
+  - name: Wait for Debezium CDC event to trigger L2 Cache eviction
+    type: http_wait
+    url: http://localhost:8080/items/1
+    timeout_seconds: 60
+    interval_seconds: 2
+    expected_status: 200
+    expected_json_path: price
+    expected_value: 15.99

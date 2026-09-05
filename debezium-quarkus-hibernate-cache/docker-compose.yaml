@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=inventory
+      - PGPASSWORD=postgres
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/z_init.sql
+
+  item-service:
+    image: debezium-examples/debezium-quarkus-hibernate-cache:${DEBEZIUM_VERSION:-latest}
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=inventory
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://postgres:5432/inventory
+      - DEBEZIUM_SOURCE_DATABASE_HOSTNAME=postgres
+      - DEBEZIUM_SOURCE_DATABASE_USER=postgres
+      - DEBEZIUM_SOURCE_DATABASE_PASSWORD=postgres
+      - DEBEZIUM_SOURCE_DATABASE_DBNAME=inventory
