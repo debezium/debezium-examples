@@ -1,0 +1,17 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.db2as400.As400RpcConnector",
+        "tasks.max": "1",
+        "database.hostname": "<HOSTNAME>",
+        "database.port": "",
+        "database.user": "<USERNAME>",
+        "database.password": "<PASSWORD>",
+        "database.dbname": "<DATA_LIBRARY>",
+        "database.schema": "<DATA_LIBRARY>",
+        "database.secure": "false",
+        "secure": "false",
+        "topic.prefix": "dbserver1",
+        "table.include.list": "<DATA_LIBRARY>.CUSTOMERS"
+    }
+}
