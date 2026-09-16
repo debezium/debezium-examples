@@ -9,7 +9,7 @@ services:
       - MYSQL_PASSWORD=mysqlpw
 
   redis:
-    image: bitnami/redis:7.0
+    image: soldevelo/redis:7.0
     ports:
       - 6379:6379
     environment:
