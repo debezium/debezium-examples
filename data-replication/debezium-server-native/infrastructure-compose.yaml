@@ -1,0 +1,26 @@
+services:
+
+  postgres:
+    container_name: postgres
+    image: quay.io/debezium/example-postgres:3.6
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - backend
+
+  redis:
+    container_name: redis
+    image: mirror.gcr.io/redis:7.0
+    ports:
+      - 6379:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: debezium-native-backend
