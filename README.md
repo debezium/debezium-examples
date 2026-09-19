@@ -60,6 +60,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [SQL Server - Replication](./sql-server-read-replica): How to deploy the topology of services to stream from SQL Server read-only replica
 * [SQL Server - Streaming to Oracle](./sqlserver-to-oracle): How to capture events from a SQL Server database and stream them into an Oracle database using the Debezium JDBC sink connector
 * [MongoDB - Streaming to PostgresSQL](./unwrap-mongodb-smt): How to capture events from a MongoDB database and stream them to a PostgresSQL database
+* [Milvus - Streaming to PostgreSQL (pgvector)](./milvus-to-pgvector): How to capture changes from a Milvus vector database and stream them into PostgreSQL with pgvector using the Debezium JDBC sink connector
 * [MySQL - Streaming to PostgresSQL and Elasticsearch](./unwrap-smt): How to capture events from a MySQL database and stream them to a PostgresSQL and Elasticsearch database
 * [Quarkus Native Image with Debezium](./quarkus-native): superfast CDC with Debezium and Quarkus
 * [Quarkus Debezium Extension Quick Start](./debezium-quarkus-extension-service): superfast CDC with Debezium Extension for Quarkus

@@ -1,0 +1,20 @@
+{
+    "name": "postgres-sink",
+    "config": {
+        "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "topics": "milvus.default.products",
+
+        "connection.url": "jdbc:postgresql://postgres:5432/postgres",
+        "connection.username": "postgres",
+        "connection.password": "postgres",
+
+        "insert.mode": "upsert",
+        "primary.key.mode": "record_key",
+        "primary.key.fields": "pk",
+        "delete.enabled": "true",
+
+        "schema.evolution": "basic",
+        "collection.name.format": "products"
+    }
+}

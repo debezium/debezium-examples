@@ -1,0 +1,16 @@
+{
+    "name": "milvus-source",
+    "config": {
+        "connector.class": "io.debezium.connector.milvus.MilvusConnector",
+        "tasks.max": "1",
+        "topic.prefix": "milvus",
+        "milvus.uri": "http://milvus:19530",
+        "milvus.database": "default",
+        "milvus.etcd.endpoints": "http://etcd:2379",
+        "milvus.etcd.root.path": "by-dev",
+        "milvus.kafka.bootstrap.servers": "kafka:9092",
+        "milvus.pchannel.name": "by-dev-rootcoord-dml_0",
+        "milvus.collection.include.list": "products",
+        "milvus.wire.format": "proto_single"
+    }
+}
