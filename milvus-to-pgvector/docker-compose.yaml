@@ -1,0 +1,64 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.18
+    command: etcd -advertise-client-urls=http://etcd:2379 -listen-client-urls=http://0.0.0.0:2379 --data-dir=/etcd-data
+
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    command: minio server /minio_data
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+
+  # Milvus uses the Kafka broker above as its message queue, see milvus-user.yaml
+  milvus:
+    image: milvusdb/milvus:v2.5.4
+    command: milvus run standalone
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - 19530:19530
+      - 9091:9091
+    volumes:
+      - ./milvus-user.yaml:/milvus/configs/user.yaml:ro
+    depends_on:
+      - etcd
+      - minio
+      - kafka
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+  # The JDBC sink connector is part of the image; the Milvus connector is mounted from ./plugins
+  connect:
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    ports:
+      - 8083:8083
+    depends_on:
+      - kafka
+      - milvus
+      - postgres
+    volumes:
+      - ./plugins/debezium-connector-milvus:/kafka/connect/debezium-connector-milvus
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses

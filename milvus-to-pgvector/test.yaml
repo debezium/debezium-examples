@@ -1,0 +1,149 @@
+name: milvus-to-pgvector
+description: Tests replication from Milvus to PostgreSQL (pgvector) using the Debezium Milvus source connector and the Debezium JDBC sink connector
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+# The Milvus connector is not part of the Debezium Connect image yet. Build it and unpack it
+# into ./plugins before running this test, see README.md.
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Check that the Milvus connector plugin is present
+    type: local_exec
+    command: ls plugins/debezium-connector-milvus/debezium-connector-milvus-*.jar
+
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Milvus to be ready
+    type: http_wait
+    url: http://localhost:9091/healthz
+    timeout_seconds: 240
+    interval_seconds: 5
+
+  - name: Wait for PostgreSQL to accept connections
+    type: docker_compose_exec
+    service: postgres
+    command: until pg_isready -U postgres; do sleep 2; done
+
+  - name: Enable the pgvector extension
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -c 'CREATE EXTENSION vector'
+    expected_content: "CREATE EXTENSION"
+
+  - name: Create and seed the products collection in Milvus
+    type: local_exec
+    command: ./seed-milvus.sh
+    expected_content: '"insertCount":4'
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 180
+    interval_seconds: 5
+
+  - name: Register the Debezium Milvus source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: source-milvus.json
+    expected_status: [200, 201]
+
+  - name: Wait for the source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/milvus-source/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify the snapshot reached Kafka
+    type: kafka_consume
+    topic: milvus.default.products
+    timeout_seconds: 90
+    expected_content:
+      - '"op":"r"'
+      - "cast iron skillet"
+      - "io.debezium.data.FloatVector"
+
+  - name: Register the Debezium JDBC sink connector for PostgreSQL
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: sink-postgres.json
+    expected_status: [200, 201]
+
+  - name: Wait for the sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/postgres-sink/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for the snapshot rows to be written to PostgreSQL
+    type: wait
+    seconds: 30
+
+  - name: Verify the sink connector created the table with a pgvector column
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -c '\d products'
+    expected_content:
+      - "pk        | bigint"
+      - "embedding | halfvec"
+
+  - name: Verify the snapshot rows landed in PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT pk || '|' || name FROM products ORDER BY pk"
+    expected_content:
+      - "1001|trail running shoes"
+      - "1002|cast iron skillet"
+      - "1003|wireless headphones"
+      - "1004|building blocks"
+
+  - name: Insert a product in Milvus
+    type: local_exec
+    command: >-
+      curl -s -X POST localhost:19530/v2/vectordb/entities/insert -H 'Content-Type: application/json'
+      -d '{"collectionName": "products", "data": [{"pk": 1005, "name": "camping stove", "category": "outdoor", "price": 59.99, "embedding": [0.1, 0.3, 0.3, 0.5]}]}'
+    expected_content: '"code":0'
+
+  - name: Upsert the product in Milvus with a new price
+    type: local_exec
+    command: >-
+      curl -s -X POST localhost:19530/v2/vectordb/entities/upsert -H 'Content-Type: application/json'
+      -d '{"collectionName": "products", "data": [{"pk": 1005, "name": "camping stove", "category": "outdoor", "price": 49.99, "embedding": [0.1, 0.3, 0.3, 0.5]}]}'
+    expected_content: '"code":0'
+
+  - name: Delete a product in Milvus
+    type: local_exec
+    command: >-
+      curl -s -X POST localhost:19530/v2/vectordb/entities/delete -H 'Content-Type: application/json'
+      -d '{"collectionName": "products", "filter": "pk == 1004"}'
+    expected_content: '"code":0'
+
+  - name: Wait for the streaming changes to be applied to PostgreSQL
+    type: wait
+    seconds: 30
+
+  - name: Verify the insert and the upsert were applied to PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT pk || '|' || name || '|' || price FROM products ORDER BY pk"
+    expected_content:
+      - "1005|camping stove|49.99"
+
+  - name: Verify the delete was propagated to PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT 'REMAINING=' || count(*) FROM products WHERE pk = 1004"
+    expected_content: "REMAINING=0"

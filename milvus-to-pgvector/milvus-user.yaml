@@ -1,0 +1,13 @@
+# Overrides for the Milvus configuration. The Debezium Milvus connector reads the change stream
+# from Milvus's message queue and supports Kafka only. A single DML channel keeps the collection
+# on the channel named in source-milvus.json.
+etcd:
+  endpoints: http://etcd:2379
+minio:
+  address: minio:9000
+mq:
+  type: kafka
+kafka:
+  brokerList: kafka:9092
+rootCoord:
+  dmlChannelNum: 1
