@@ -3,17 +3,23 @@ description: Tests replication from Milvus to PostgreSQL (pgvector) using the De
 env_file: ../.env
 compose_file: docker-compose.yaml
 
-# The Milvus connector is not part of the Debezium Connect image yet. Build it and unpack it
-# into ./plugins before running this test, see README.md.
-
 cleanup:
   type: docker_compose_down
   volumes: true
 
 steps:
+  - name: Unpack the released Milvus connector plugin unless it is already there
+    type: local_exec
+    command: >-
+      ls plugins/debezium-connector-milvus/debezium-connector-milvus-*.jar >/dev/null 2>&1 ||
+      { mkdir -p plugins && curl -sSL
+      https://repo1.maven.org/maven2/io/debezium/debezium-connector-milvus/3.7.0.Beta2/debezium-connector-milvus-3.7.0.Beta2-plugin.tar.gz
+      | tar -xz -C plugins; }
+
   - name: Check that the Milvus connector plugin is present
     type: local_exec
     command: ls plugins/debezium-connector-milvus/debezium-connector-milvus-*.jar
+    expected_content: "debezium-connector-milvus-3.7.0.Beta2.jar"
 
   - name: Ensure clean state before starting
     type: docker_compose_down
@@ -32,7 +38,7 @@ steps:
   - name: Wait for PostgreSQL to accept connections
     type: docker_compose_exec
     service: postgres
-    command: until pg_isready -U postgres; do sleep 2; done
+    command: timeout 120 bash -c 'until pg_isready -U postgres; do sleep 2; done'
 
   - name: Enable the pgvector extension
     type: docker_compose_exec
@@ -147,3 +153,107 @@ steps:
     service: postgres
     command: psql -U postgres -tA -c "SELECT 'REMAINING=' || count(*) FROM products WHERE pk = 1004"
     expected_content: "REMAINING=0"
+
+  - name: Verify the upsert surfaced as delete, tombstone and insert at one commit timestamp
+    type: local_exec
+    command: |
+      docker compose --env-file ../.env -f docker-compose.yaml exec -T kafka \
+          /kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 \
+          --topic milvus.default.products --from-beginning --property print.key=true \
+          --max-messages 200 --timeout-ms 20000 2>/dev/null |
+      awk -F'\t' -v pk=1005 '
+          $2 ~ /"op":"u"/ { updates++ }
+          index($1, "\"pk\":" pk "}") {
+              n++
+              if ($2 == "null") { op[n] = "tombstone"; next }
+              op[n]  = match($2, /"op":"[a-z]"/)  ? substr($2, RSTART + 6, 1) : "?"
+              tso[n] = match($2, /"tso":[0-9]+/) ? substr($2, RSTART + 6, RLENGTH - 6) : ""
+          }
+          END {
+              if (updates) { print "FAIL: the topic holds " updates " op=u event(s)"; exit 1 }
+              if (n < 3) { print "FAIL: expected at least three events for pk=" pk ", found " n+0; exit 1 }
+              print "Events for pk=" pk ": " op[n-2] ", " op[n-1] ", " op[n]
+              if (op[n-2] "," op[n-1] "," op[n] != "d,tombstone,c") {
+                  print "FAIL: expected the upsert to surface as d, tombstone, c"; exit 1
+              }
+              if (tso[n-2] == "" || tso[n-2] != tso[n]) {
+                  print "FAIL: source.tso=" tso[n-2] " on the delete, " tso[n] " on the insert"; exit 1
+              }
+              print "OK: delete, tombstone, insert at source.tso=" tso[n]
+          }'
+    expected_content: "OK: delete, tombstone, insert at source.tso="
+
+  - name: Verify the upsert left exactly one row in PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT 'ROWS=' || count(*) FROM products WHERE pk = 1005"
+    expected_content: "ROWS=1"
+
+  - name: Pause the Milvus source connector
+    type: http_put
+    url: http://localhost:8083/connectors/milvus-source/pause
+    expected_status: [202]
+
+  - name: Wait for the source task to be PAUSED
+    type: http_wait
+    url: http://localhost:8083/connectors/milvus-source/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: tasks.0.state
+    expected_value: PAUSED
+
+  - name: Insert two more products in Milvus while the source is paused
+    type: local_exec
+    command: >-
+      curl -s -X POST localhost:19530/v2/vectordb/entities/insert -H 'Content-Type: application/json'
+      -d '{"collectionName": "products", "data": [{"pk": 1006, "name": "espresso machine", "category": "kitchen", "price": 249.00, "embedding": [0.8, 0.2, 0.1, 0.2]}, {"pk": 1007, "name": "yoga mat", "category": "fitness", "price": 39.50, "embedding": [0.3, 0.9, 0.2, 0.1]}]}'
+    expected_content: '"insertCount":2'
+
+  - name: Give the pipeline time to move the rows, which the paused source must not do
+    type: wait
+    seconds: 20
+
+  - name: Verify the rows written during the pause have not reached PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT 'PENDING=' || count(*) FROM products WHERE pk IN (1006, 1007)"
+    expected_content: "PENDING=0"
+
+  - name: Resume the Milvus source connector
+    type: http_put
+    url: http://localhost:8083/connectors/milvus-source/resume
+    expected_status: [202]
+
+  - name: Wait for the source task to be RUNNING again
+    type: http_wait
+    url: http://localhost:8083/connectors/milvus-source/status
+    timeout_seconds: 120
+    interval_seconds: 5
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+
+  - name: Wait for the resumed source to replay what it missed
+    type: wait
+    seconds: 30
+
+  - name: Verify both sides hold the same rows once the source resumes from its committed offset
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT 'KEYS=' || string_agg(pk::text, ',' ORDER BY pk) || ' COUNT=' || count(*) FROM products"
+    expected_content:
+      - "KEYS=1001,1002,1003,1005,1006,1007"
+      - "COUNT=6"
+
+  - name: Verify the nearest neighbours Milvus ANN returns
+    type: local_exec
+    command: >-
+      curl -s -X POST localhost:19530/v2/vectordb/entities/search -H 'Content-Type: application/json'
+      -d '{"collectionName": "products", "data": [[0.1, 0.2, 0.3, 0.4]], "annsField": "embedding", "limit": 3, "outputFields": ["pk"]}'
+      | grep -oE '"pk":[[:space:]]*[0-9]+' | grep -oE '[0-9]+' | tr '\n' ',' | sed 's/,$//'
+    expected_content: "1001,1005,1003"
+
+  - name: Verify pgvector ranks the same nearest neighbours by cosine distance
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -tA -c "SELECT string_agg(pk::text, ',' ORDER BY d) FROM (SELECT pk, embedding <=> '[0.1,0.2,0.3,0.4]' AS d FROM products ORDER BY d LIMIT 3) t"
+    expected_content: "1001,1005,1003"

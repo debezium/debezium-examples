@@ -22,7 +22,6 @@ services:
       - MINIO_ACCESS_KEY=minioadmin
       - MINIO_SECRET_KEY=minioadmin
 
-  # Milvus uses the Kafka broker above as its message queue, see milvus-user.yaml
   milvus:
     image: milvusdb/milvus:v2.5.4
     command: milvus run standalone
@@ -45,7 +44,6 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
 
-  # The JDBC sink connector is part of the image; the Milvus connector is mounted from ./plugins
   connect:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
