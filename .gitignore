@@ -48,5 +48,5 @@ debezium-python/temp_libs/
 debezium-python/logs/
 debezium-python/*.log
 
-# Milvus example - connector plugin built from source (see milvus-to-pgvector/README.md)
+# Milvus example - connector plugin unpacked by the test
 milvus-to-pgvector/plugins/
