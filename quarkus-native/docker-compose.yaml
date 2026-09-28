@@ -1,8 +1,25 @@
 services:
   postgres:
-    image: quay.io/debezium/example-postgres:3.0
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
     ports:
-     - 5432:5432
+      - 5432:5432
+    healthcheck:
+      test: "pg_isready -U postgresuser -d postgresuser"
+      interval: 2s
+      timeout: 20s
+      retries: 10
     environment:
-     - POSTGRES_USER=postgresuser
-     - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+
+  quarkus-native-app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    ports:
+      - 8080:8080
+    environment:
+      - POSTGRES_HOST=postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
