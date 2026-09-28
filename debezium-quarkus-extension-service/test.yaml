@@ -1,0 +1,42 @@
+name: debezium-quarkus-extension-service
+description: Tests Debezium Quarkus Extension Service CDC capture
+env_file: "../.env"
+compose_file: docker-compose.yaml
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Wait for port release
+    type: wait
+    seconds: 3
+
+  - name: Build Quarkus application jar
+    type: local_exec
+    command: "mvn clean package -DskipTests"
+
+  - name: Build product-service Docker image
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for product-service to have captured the snapshot
+    type: local_exec
+    command: "for i in $(seq 1 60); do curl -sf http://localhost:8080/products | grep -q Laptop && exit 0; sleep 2; done; exit 1"
+
+  - name: Insert test product into PostgreSQL database
+    type: docker_compose_exec
+    service: postgres
+    command: "psql -U native -d native -c \"INSERT INTO inventory.products (id, name, description, weight) VALUES (4, 'Sketchbook', 'A ruled paper notebook', 300);\""
+
+  - name: Verify Debezium CDC captures product creation
+    type: local_exec
+    command: "for i in $(seq 1 30); do curl -sf http://localhost:8080/products | grep -q Sketchbook && exit 0; sleep 2; done; exit 1"
+
+cleanup:
+  - name: Stop all services
+    type: docker_compose_down
+    volumes: true
