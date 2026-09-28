@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-latest}
     ports:
       - 9092:9092
       - 9093:9093
@@ -19,6 +19,13 @@ services:
     hostname: primary
     ports:
      - 1433:1433
+    volumes:
+     - ./debezium-sqlserver-init:/debezium-sqlserver-init:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -U sa -P Password! -C -Q 'SELECT 1'"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
     environment:
      - ACCEPT_EULA=Y
      - MSSQL_PID=Enterprise
@@ -33,6 +40,13 @@ services:
     hostname: secondary
     ports:
      - 11433:1433
+    volumes:
+     - ./debezium-sqlserver-init:/debezium-sqlserver-init:ro
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -U sa -P Password! -C -Q 'SELECT 1'"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
     environment:
      - ACCEPT_EULA=Y
      - MSSQL_PID=Enterprise
@@ -41,13 +55,16 @@ services:
      - MSSQL_ENABLE_HADR=1
 
   connect:
-    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-latest}
     ports:
      - 8083:8083
     depends_on:
-     - kafka
-     - primary
-     - secondary
+      kafka:
+        condition: service_started
+      primary:
+        condition: service_healthy
+      secondary:
+        condition: service_healthy
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1

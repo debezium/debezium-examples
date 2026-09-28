@@ -1,0 +1,31 @@
+name: Build [sql-server-read-replica]
+
+on:
+  push:
+    paths:
+      - 'sql-server-read-replica/**'
+      - '.github/workflows/sql-server-read-replica-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'sql-server-read-replica/**'
+      - '.github/workflows/sql-server-read-replica-workflow.yml'
+      - 'scripts/run-example-test.py'
+      - '.env'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run sql-server-read-replica test
+        run: python scripts/run-example-test.py sql-server-read-replica
