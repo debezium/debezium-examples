@@ -1,0 +1,82 @@
+name: sql-server-read-replica
+description: Tests Debezium SQL Server Connector streaming from SQL Server Read-Only Replica
+env_file: "../.env"
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Wait for port release
+    type: wait
+    seconds: 3
+
+  - name: Build SQL Server image
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    expected_status: 200
+
+  - name: Initialize primary SQL Server database
+    type: docker_compose_exec
+    service: primary
+    command: "/opt/mssql-tools18/bin/sqlcmd -U sa -P Password! -C -b -i /debezium-sqlserver-init/inventory.sql"
+
+  - name: Configure primary node for replication
+    type: docker_compose_exec
+    service: primary
+    command: "/opt/mssql-tools18/bin/sqlcmd -U sa -P Password! -C -b -i /debezium-sqlserver-init/setup-primary.sql"
+
+  - name: Configure secondary node to join cluster
+    type: docker_compose_exec
+    service: secondary
+    command: "/opt/mssql-tools18/bin/sqlcmd -U sa -P Password! -C -b -i /debezium-sqlserver-init/setup-secondary.sql"
+
+  - name: Wait for replica synchronization
+    type: wait
+    seconds: 5
+
+  - name: Register Debezium SQL Server Connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    headers:
+      Content-Type: application/json
+    body_file: register-sqlserver.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    expected_status: 200
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify initial snapshot event in Kafka topic
+    type: kafka_consume
+    topic: server1.testDB.dbo.customers
+    timeout_seconds: 60
+    expected_content: "Sally"
+
+  - name: Insert a new customer on the primary
+    type: docker_compose_exec
+    service: primary
+    command: "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Password! -C -b -d testDB -Q \"INSERT INTO customers(first_name, last_name, email) VALUES ('Sarah', 'Thompson', 'kitt@acme.com');\""
+
+  - name: Verify the streamed change arrived via the secondary
+    type: kafka_consume
+    topic: server1.testDB.dbo.customers
+    timeout_seconds: 60
+    expected_content: "kitt@acme.com"
+
+cleanup:
+  - name: Stop all services
+    type: docker_compose_down
+    volumes: true
