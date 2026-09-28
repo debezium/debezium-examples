@@ -1,0 +1,73 @@
+name: distributed-caching
+description: Tests Distributed Caching with Debezium and Infinispan
+env_file: "../.env"
+compose_file: docker-compose.yaml
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Wait for port release
+    type: wait
+    seconds: 3
+
+  - name: Compile and install application jars
+    type: local_exec
+    command: "mvn clean install -DskipTests"
+
+  - name: Build all Docker images
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    expected_status: 200
+
+  - name: Register Debezium PostgreSQL Connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    headers:
+      Content-Type: application/json
+    body_file: register-postgres.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/order-connector/status
+    timeout_seconds: 60
+    expected_status: 200
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for order-service-nyc to be ready
+    type: http_wait
+    url: http://localhost:8080/orders/1
+    timeout_seconds: 120
+    expected_status: [200, 404]
+
+  - name: Create order via REST API
+    type: http_post
+    url: http://localhost:8080/orders
+    headers:
+      Content-Type: application/json
+    body_file: resources/data/create-order-request.json
+    expected_status: [200, 201]
+
+  - name: Verify order replicated to Infinispan L2 Cache
+    type: http_wait
+    url: http://localhost:8081/orders/1
+    timeout_seconds: 60
+    expected_status: 200
+    expected_json_path: customerId
+    expected_value: "123"
+
+cleanup:
+  - name: Stop all services
+    type: docker_compose_down
+    volumes: true
