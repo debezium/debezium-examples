@@ -1,0 +1,46 @@
+name: quarkus-native
+description: Tests Quarkus Native Debezium Embedded Engine CDC with PostgreSQL
+env_file: "../.env"
+compose_file: docker-compose.yaml
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Wait for port release
+    type: wait
+    seconds: 3
+
+  - name: Compile application jar
+    type: local_exec
+    command: "mvn clean package -DskipTests"
+
+  - name: Build Docker image for Quarkus Native app
+    type: docker_compose_build
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Quarkus Native app to start
+    type: wait_for_log
+    service: quarkus-native-app
+    expected_content: "Processing messages"
+    timeout_seconds: 60
+
+  - name: Insert test record into PostgreSQL database
+    type: docker_compose_exec
+    service: postgres
+    command: "psql -U postgresuser -d postgresuser -c \"INSERT INTO inventory.products (name, description, weight) VALUES ('Native Test Product', 'Testing Quarkus Native CDC', 1.25);\""
+
+  - name: Verify CDC event processed by Quarkus Native application
+    type: wait_for_log
+    service: quarkus-native-app
+    expected_content: "op: CREATE"
+    timeout_seconds: 60
+
+cleanup:
+  - name: Stop all services
+    type: docker_compose_down
+    volumes: true
