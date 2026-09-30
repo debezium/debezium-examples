@@ -26,7 +26,7 @@ import java.util.Map;
 
 public class HttpSignalChannel implements SignalChannelReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpSignalChannel.class);
-    public static final String CHANNEL_NAME = "http";
+    public static final String CHANNEL_NAME = "custom-http";
     private static final List<SignalRecord> SIGNALS = new ArrayList<>();
     private static int COUNTER = 0;
     public CommonConnectorConfig connectorConfig;

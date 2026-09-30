@@ -23,7 +23,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 public class HttpNotificationChannel implements NotificationChannel {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpNotificationChannel.class);
-    public static final String CHANNEL_NAME = "http";
+    public static final String CHANNEL_NAME = "custom-http";
 
     private static final String NOTIFICATION_PREFIX = "[HTTP NOTIFICATION SERVICE]";
 
