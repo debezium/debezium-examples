@@ -1,7 +1,7 @@
 etcd:
   endpoints: http://etcd:2379
-minio:
-  address: minio:9000
+common:
+  storageType: local
 mq:
   type: kafka
 kafka:

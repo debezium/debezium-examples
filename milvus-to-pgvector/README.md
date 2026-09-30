@@ -23,7 +23,7 @@ Debezium Milvus source connector and the Debezium JDBC sink connector.
 
 ## Prerequisites
 
-Docker with about 8 GB of memory: Milvus runs together with its etcd and MinIO dependencies,
+Docker with about 8 GB of memory: Milvus runs together with its etcd dependency,
 next to Kafka, Kafka Connect and PostgreSQL.
 
 `test.yaml` covers every step below and is run by the `milvus-to-pgvector` GitHub workflow. To
