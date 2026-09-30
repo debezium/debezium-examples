@@ -5,7 +5,6 @@
  */
 package io.debezium.examples.testcontainers;
 
-import static java.lang.String.format;
 import static org.fest.assertions.Assertions.assertThat;
 
 import java.sql.Connection;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -41,36 +39,32 @@ import org.testcontainers.utility.DockerImageName;
 import io.debezium.testing.testcontainers.ConnectorConfiguration;
 import io.debezium.testing.testcontainers.DebeziumContainer;
 
+import io.strimzi.test.container.StrimziKafkaCluster;
+
 public class DebeziumContainerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebeziumContainerTest.class);
 
-    private static final int KAFKA_INTERNAL_PORT = 9092;
+    private static Network network = Network.SHARED;
 
-    private static Network network = Network.newNetwork();
-
-    private static KafkaContainer kafkaContainer = new KafkaContainer()
-            .withNetwork(network)
-            .withNetworkAliases("kafka");
+    private static StrimziKafkaCluster kafkaCluster = new StrimziKafkaCluster.StrimziKafkaClusterBuilder()
+            .withNumberOfBrokers(1)
+            .withSharedNetwork()
+            .build();
 
     public static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>(DockerImageName.parse("debezium/postgres:11").asCompatibleSubstituteFor("postgres"))
             .withNetwork(network)
             .withNetworkAliases("postgres");
 
     public static DebeziumContainer debeziumContainer = DebeziumContainer.latestStable()
-            .withNetwork(network)
-            .withLogConsumer(new Slf4jLogConsumer(LOGGER))
-            .dependsOn(kafkaContainer);
+            .withLogConsumer(new Slf4jLogConsumer(LOGGER));
 
     @BeforeAll
     public static void startContainers() {
-        Startables.deepStart(Stream.of(kafkaContainer, postgresContainer)).join();
+        Startables.deepStart(Stream.of(kafkaCluster, postgresContainer)).join();
 
-        // Use the network alias and internal port for Kafka broker communication
-        String internalBootstrapServers = format("%s:%d",
-            kafkaContainer.getNetworkAliases().get(0),
-            KAFKA_INTERNAL_PORT);
-        debeziumContainer.withKafka(kafkaContainer.getNetwork(), internalBootstrapServers);
+        // The cluster provides the bootstrap servers and network the Connect container must use
+        debeziumContainer.withKafka(kafkaCluster);
         debeziumContainer.start();
     }
 
@@ -78,7 +72,7 @@ public class DebeziumContainerTest {
     public void shouldStreamChangeEventsFromPostgres() throws Exception {
         try (Connection connection = getConnection(postgresContainer);
                 Statement statement = connection.createStatement();
-                KafkaConsumer<String, String> consumer = getConsumer(kafkaContainer)) {
+                KafkaConsumer<String, String> consumer = getConsumer(kafkaCluster)) {
 
             statement.execute("create schema todo");
             statement.execute("""
@@ -131,10 +125,10 @@ public class DebeziumContainerTest {
                 postgresContainer.getPassword());
     }
 
-    private KafkaConsumer<String, String> getConsumer(KafkaContainer kafkaContainer) {
+    private KafkaConsumer<String, String> getConsumer(StrimziKafkaCluster kafkaCluster) {
         return new KafkaConsumer<>(
                 ImmutableMap.of(
-                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers(),
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaCluster.getBootstrapServers(),
                         ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"),
                 new StringDeserializer(),
