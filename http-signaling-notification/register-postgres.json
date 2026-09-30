@@ -10,7 +10,7 @@
     "database.dbname" : "postgres",
     "topic.prefix": "dbserver1",
     "schema.include.list": "inventory",
-    "signal.enabled.channels": "http",
-    "notification.enabled.channels": "http"
+    "signal.enabled.channels": "custom-http",
+    "notification.enabled.channels": "custom-http"
   }
 }
