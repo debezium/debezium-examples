@@ -25,7 +25,7 @@ $ mvn clean package -Dnative
 
 Start a postgres instance with docker compose:
 ```console
-$ docker compose up
+$ docker compose --env-file ../.env up postgres
 ```
 
 Start the application:
