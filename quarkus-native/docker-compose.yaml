@@ -1,10 +1,10 @@
 services:
   postgres:
-    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
     ports:
       - 5432:5432
     healthcheck:
-      test: "pg_isready -U postgresuser -d postgresuser"
+      test: "pg_isready -h 127.0.0.1 -U postgresuser -d postgresuser"
       interval: 2s
       timeout: 20s
       retries: 10
