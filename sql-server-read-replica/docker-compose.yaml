@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-latest}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
     ports:
       - 9092:9092
       - 9093:9093
@@ -55,7 +55,7 @@ services:
      - MSSQL_ENABLE_HADR=1
 
   connect:
-    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-latest}
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
     ports:
      - 8083:8083
     depends_on:
