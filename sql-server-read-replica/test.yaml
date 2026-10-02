@@ -39,9 +39,10 @@ steps:
     service: secondary
     command: "/opt/mssql-tools18/bin/sqlcmd -U sa -P Password! -C -b -i /debezium-sqlserver-init/setup-secondary.sql"
 
-  - name: Wait for replica synchronization
-    type: wait
-    seconds: 5
+  - name: Wait for testDB to be replicated to the secondary
+    type: docker_compose_exec
+    service: secondary
+    command: "timeout 120 bash -c \"until /opt/mssql-tools18/bin/sqlcmd -U sa -P 'Password!' -C -b -K ReadOnly -d testDB -Q 'SELECT COUNT(*) FROM customers' > /dev/null 2>&1; do sleep 1; done\""
 
   - name: Register Debezium SQL Server Connector
     type: http_post
