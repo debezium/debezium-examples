@@ -23,7 +23,7 @@ and initialize the database with `init.sql`.
 
 ## Production mode
 
-You can generate a jar file with `mvn clean install`. Before execute the quarkus jar with `java -jar  ./target/quarkus-app/quarkus-run.jar`, it's necessary a running postgres. You can use the docker compose with: `docker compose up`
+You can generate a jar file with `mvn clean install`. Before execute the quarkus jar with `java -jar  ./target/quarkus-app/quarkus-run.jar`, it's necessary a running postgres. You can use the docker compose with: `docker compose --env-file ../.env up postgres`
 
 ## Native mode
 
