@@ -1,0 +1,95 @@
+services:
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  mongodb:
+    image: &mongodb-image quay.io/debezium/example-mongodb:${DEBEZIUM_VERSION}
+    hostname: &mongodb-hostname mongodb
+    ports:
+      - 27017:27017
+    environment:
+      MONGODB_USER: debezium
+      MONGODB_PASSWORD: dbz
+    healthcheck:
+      test: bash -c 'mongosh --quiet --eval "db.adminCommand(\"ping\").ok" localhost:27017 | grep 1'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  mongodb-init:
+    image: *mongodb-image
+    environment:
+      HOSTNAME: *mongodb-hostname
+    entrypoint: /bin/bash
+    command: "/usr/local/bin/init-inventory.sh"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+  mysql:
+    image: quay.io/debezium/example-mysql:${DEBEZIUM_VERSION}
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root -pdebezium
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  debezium-server-postgres:
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    container_name: debezium-server-postgres
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config-postgres:/debezium/config
+    depends_on:
+      postgres:
+        condition: service_healthy
+  debezium-server-mongodb:
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    container_name: debezium-server-mongodb
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config-mongodb:/debezium/config
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      mongodb-init:
+        condition: service_completed_successfully
+  debezium-server-mysql:
+    image: quay.io/debezium/server:${DEBEZIUM_VERSION}
+    container_name: debezium-server-mysql
+    environment:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config-mysql:/debezium/config
+    depends_on:
+      mysql:
+        condition: service_healthy
