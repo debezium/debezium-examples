@@ -67,16 +67,15 @@ Debezium Server itself only needs `kinesis:PutRecords`; the other actions are us
 
 > **NOTE:** This tutorial assumes us-east-1 as your region. If you plan to use a different one, update `AWS_DEFAULT_REGION` below, `debezium.sink.kinesis.region` in the db config `application.properties` file, and the region in the resource ARN.
 
-1b. Export the necessary variables into your terminal environment:
+1b. Export your AWS credentials and region into your terminal environment (add `AWS_SESSION_TOKEN` if you use temporary credentials, e.g. SSO):
 
 ```bash
-export DEBEZIUM_VERSION=3.7
 export AWS_ACCESS_KEY_ID=<your access key id>
 export AWS_SECRET_ACCESS_KEY=<your secret access key>
 export AWS_DEFAULT_REGION=us-east-1
 ```
 
-> **NOTE:** This example was tested with Debezium 3.7. The MongoDB setup requires 3.1 or newer.
+> **NOTE:** You don't need to set `DEBEZIUM_VERSION`; the `docker compose` commands below read it from the `.env` file in the examples root via `--env-file`. The MongoDB setup requires Debezium 3.1 or newer.
 
 1c. Confirm you're using the test user:
 
@@ -93,22 +92,30 @@ aws kinesis wait stream-exists --stream-name tutorial.inventory.customers
 
 ## How to run
 
-All three Debezium Server containers bind port 8080, so run one database at a time. Run `docker compose down -v` before switching to another one.
+All three Debezium Server containers bind port 8080, so run one database at a time. Run `docker compose --env-file ../../.env down -v` before switching to another one.
 
 On startup, Debezium Server takes an initial snapshot, so the 4 existing customers are sent to Kinesis as `"op": "r"` (read) events before you make any changes. Your update then appears as an `"op": "u"` event.
+
+Wait for the snapshot to finish before making changes, otherwise your update may be captured as part of the snapshot instead of as a separate `"op": "u"` event:
+
+```bash
+docker compose --env-file ../../.env logs debezium-server-postgres | grep "Snapshot completed"
+```
+
+Replace `debezium-server-postgres` with `debezium-server-mysql` or `debezium-server-mongodb` as needed.
 
 ### PostgreSQL Debezium Connector
 
 Start the Debezium Server and database container:
 
 ```bash
-docker compose up -d debezium-server-postgres
+docker compose --env-file ../../.env up -d debezium-server-postgres
 ```
 
 Test the setup by making changes to the customers table. The change events will appear in Kinesis shortly. You can make an update to Postgres with this command:
 
 ```bash
-docker compose exec postgres psql -U postgres -c "UPDATE inventory.customers SET first_name='Anne Marie' WHERE id=1004;"
+docker compose --env-file ../../.env exec postgres psql -U postgres -c "UPDATE inventory.customers SET first_name='Anne Marie' WHERE id=1004;"
 ```
 
 ### MySQL Debezium Connector
@@ -116,13 +123,13 @@ docker compose exec postgres psql -U postgres -c "UPDATE inventory.customers SET
 Start the Debezium Server and database container:
 
 ```bash
-docker compose up -d debezium-server-mysql
+docker compose --env-file ../../.env up -d debezium-server-mysql
 ```
 
 Test the setup by making changes to the customers table. The change events will appear in Kinesis shortly. You can make an update to MySQL with this command:
 
 ```bash
-docker compose exec mysql mysql -u mysqluser -pmysqlpw inventory -e "UPDATE customers SET first_name='Anne Marie' WHERE id=1004;"
+docker compose --env-file ../../.env exec mysql mysql -u mysqluser -pmysqlpw inventory -e "UPDATE customers SET first_name='Anne Marie' WHERE id=1004;"
 ```
 
 ### MongoDB Debezium Connector
@@ -130,13 +137,14 @@ docker compose exec mysql mysql -u mysqluser -pmysqlpw inventory -e "UPDATE cust
 Start the Debezium Server and database container:
 
 ```bash
-docker compose up -d debezium-server-mongodb
+docker compose --env-file ../../.env up -d debezium-server-mongodb
 ```
 
 Test the setup by making changes to the customers collection. The change events will appear in Kinesis shortly. You can make an update to MongoDB with this command:
 
 ```bash
-docker compose exec mongodb mongosh -u debezium -p dbz --authenticationDatabase admin inventory \
+docker compose --env-file ../../.env exec mongodb mongosh -u debezium -p dbz \
+  --authenticationDatabase admin inventory \
   --eval 'db.customers.updateOne({_id: NumberLong("1004")}, {$set: {first_name: "Anne Marie"}})'
 ```
 
@@ -204,7 +212,7 @@ To show only the most relevant fields, append `| {op, before, after}` to the jq 
 1. Tear down compose stack:
 
 ```bash
-docker compose down -v
+docker compose --env-file ../../.env down -v
 ```
 
 2. Delete Kinesis stream:
