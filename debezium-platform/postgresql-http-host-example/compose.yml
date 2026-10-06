@@ -1,0 +1,77 @@
+# Copyright Debezium Authors.
+#
+# Licensed under the Apache License version 2.0, available at
+# http://www.apache.org/licenses/LICENSE-2.0
+
+services:
+  platform-db:
+    image: postgres:16
+    network_mode: host
+    command: ["postgres", "-c", "wal_level=logical"]
+    environment:
+      POSTGRES_DB: conductor
+      POSTGRES_USER: conductor
+      POSTGRES_PASSWORD: conductor
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U conductor -d conductor"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  conductor:
+    build:
+      context: ./conductor
+      args:
+        PLATFORM_VERSION: ${PLATFORM_VERSION:-nightly}
+    network_mode: host
+    depends_on:
+      platform-db:
+        condition: service_healthy
+    environment:
+      QUARKUS_PROFILE: dev
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_DATASOURCE_USERNAME: conductor
+      QUARKUS_DATASOURCE_PASSWORD: conductor
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://127.0.0.1:5432/conductor
+      QUARKUS_HTTP_CORS_ENABLED: "true"
+      QUARKUS_HTTP_CORS_ORIGINS: http://localhost:3000
+      PIPELINE_DEPLOYMENT_MODE: host
+      PIPELINE_HOST_CONTAINER_RUNTIME: ansible
+      PLATFORM_HOST_SSH_CONFIG_PATH: /root/.ssh/config
+      PLATFORM_HOST_RECONCILIATION_INTERVAL: 5s
+      PLATFORM_HOST_DEBEZIUM_SERVER_IMAGE: quay.io/debezium/server:${PLATFORM_VERSION:-nightly}
+    volumes:
+      - ${HOST_SSH_DIR:?Set HOST_SSH_DIR to the directory containing your SSH config}:/root/.ssh:ro
+
+  stage:
+    image: quay.io/debezium/platform-stage:${PLATFORM_VERSION:-nightly}
+    network_mode: host
+    depends_on:
+      - conductor
+    environment:
+      CONDUCTOR_URL: http://localhost:8081
+
+  source-postgres:
+    image: quay.io/debezium/postgres:16
+    network_mode: host
+    command: ["postgres", "-c", "listen_addresses=*", "-c", "port=5433", "-c", "wal_level=logical"]
+    environment:
+      POSTGRES_DB: inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./source-postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5433 -U postgres -d inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  receiver:
+    build: ./receiver
+    network_mode: host
+    volumes:
+      - receiver-events:/events
+
+volumes:
+  receiver-events:
