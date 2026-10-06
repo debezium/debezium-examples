@@ -15,7 +15,7 @@
 
         <version.json-simple>1.1.1</version.json-simple>
         <version.scala>2.12</version.scala>
-        <version.spark>3.4.1</version.spark>
+        <version.spark>3.5.8</version.spark>
         <app.main.class>io.github.vjuranek.SparkKafkaStreamingKmeans</app.main.class>
     </properties>
 
