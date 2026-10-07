@@ -1,0 +1,58 @@
+name: sqlite-tutorial
+description: Tests Debezium SQLite connector via the tutorial setup
+env_file: ../.env
+compose_file: docker-compose-sqlite.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Build the Connect image with the SQLite connector
+    type: docker_compose_build
+    services: connect
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Create the SQLite database and insert test data
+    type: local_exec
+    command: "cat debezium-sqlite-init/inventory.sql | docker compose --env-file ../.env -f docker-compose-sqlite.yaml exec -T connect sqlite3 /data/inventory.db"
+
+  - name: Register Debezium SQLite connector
+    type: http_post
+    url: http://localhost:8083/connectors/
+    body_file: register-sqlite.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify the snapshot appears in Kafka
+    type: kafka_consume
+    topic: dbserver1.customers
+    timeout_seconds: 60
+    expected_content: "Sally"
+
+  - name: Make change in SQLite database
+    type: docker_compose_exec
+    service: connect
+    command: "sqlite3 /data/inventory.db \"UPDATE customers SET first_name = 'Sarah' WHERE id = 1001;\""
+
+  - name: Verify change appears in Kafka
+    type: kafka_consume
+    topic: dbserver1.customers
+    timeout_seconds: 60
+    expected_content: "Sarah"
