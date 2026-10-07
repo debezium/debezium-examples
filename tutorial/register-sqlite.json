@@ -1,0 +1,10 @@
+{
+    "name": "inventory-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.sqlite.SQLiteSourceConnector",
+        "tasks.max": "1",
+        "database.file.path": "/data/inventory.db",
+        "topic.prefix": "dbserver1",
+        "table.include.list": "customers"
+    }
+}
