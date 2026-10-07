@@ -17,6 +17,7 @@ This demo automatically deploys the topology of services as defined in the [Debe
   * [Using TimescaleDB](#using-timescaledb)
   * [Using Informix](#using-informix)
   * [Using MariaDB](#using-mariadb)
+  * [Using SQLite](#using-sqlite)
   * [Using externalized secrets](#using-externalized-secrets)
   * [Running without ZooKeeper](#running-without-zookeeper)
   * [Debugging](#debugging)
@@ -391,6 +392,36 @@ docker compose -f docker-compose-mariadb.yaml exec mariadb bash -c 'mariadb -u $
 
 # Shut down the cluster
 docker-compose --env-file ../.env -f docker-compose-mariadb.yaml down
+```
+
+## Using SQLite
+
+SQLite has no server, so the connector opens the database file directly and must run on the same host as the application that writes to it.
+In this setup the database file is `/data/inventory.db` inside the Kafka Connect container, and the `sqlite3` client runs there too.
+The connector is not part of the Debezium Connect image, so the compose file builds an image that downloads its plugin from Maven Central.
+
+```shell
+# Build the Connect image with the SQLite connector and start the topology
+docker-compose --env-file ../.env -f docker-compose-sqlite.yaml up --build
+
+# Create the database and insert test data
+cat debezium-sqlite-init/inventory.sql | docker-compose -f docker-compose-sqlite.yaml exec -T connect sqlite3 /data/inventory.db
+
+# Start SQLite connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-sqlite.json
+
+# Consume messages from a Debezium topic
+docker-compose -f docker-compose-sqlite.yaml exec kafka /kafka/bin/kafka-console-consumer.sh \
+    --bootstrap-server kafka:9092 \
+    --from-beginning \
+    --property print.key=true \
+    --topic dbserver1.customers
+
+# Modify records in the database via SQLite client
+docker-compose -f docker-compose-sqlite.yaml exec connect sqlite3 /data/inventory.db
+
+# Shut down the cluster
+docker-compose --env-file ../.env -f docker-compose-sqlite.yaml down
 ```
 
 ## Using externalized secrets
