@@ -1,0 +1,39 @@
+name: Build [sqlite-tutorial]
+
+on:
+  push:
+    paths:
+      - 'tutorial/docker-compose-sqlite.yaml'
+      - 'tutorial/register-sqlite.json'
+      - 'tutorial/test-sqlite.yaml'
+      - 'tutorial/debezium-sqlite-init/**'
+      - 'tutorial/debezium-with-sqlite/**'
+      - '.github/workflows/sqlite-tutorial-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'tutorial/docker-compose-sqlite.yaml'
+      - 'tutorial/register-sqlite.json'
+      - 'tutorial/test-sqlite.yaml'
+      - 'tutorial/debezium-sqlite-init/**'
+      - 'tutorial/debezium-with-sqlite/**'
+      - '.github/workflows/sqlite-tutorial-workflow.yml'
+      - 'scripts/run-example-test.py'
+      - '.env'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run sqlite-tutorial test
+        run: python scripts/run-example-test.py tutorial test-sqlite.yaml
