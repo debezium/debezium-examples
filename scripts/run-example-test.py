@@ -3,9 +3,10 @@
 Run a Debezium example test using a YAML DSL specification.
 
 Usage:
-    python scripts/run-example-test.py <example-directory>
+    python scripts/run-example-test.py <example-directory> [<test-file>]
 
 The example directory must contain a test.yaml file describing the test steps.
+A directory that holds several tests can name the one to run, e.g. test-sqlite.yaml.
 """
 
 import json
@@ -471,10 +472,11 @@ def run_step(step, config):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: run-example-test.py <example-directory>", file=sys.stderr)
+        print("Usage: run-example-test.py <example-directory> [<test-file>]", file=sys.stderr)
         sys.exit(1)
 
     example_dir = sys.argv[1]
+    test_file_name = sys.argv[2] if len(sys.argv) > 2 else "test.yaml"
 
     # Resolve paths relative to the repo root (script lives in scripts/)
     repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -484,9 +486,9 @@ def main():
         print(f"Error: directory not found: {example_path}", file=sys.stderr)
         sys.exit(1)
 
-    test_file = os.path.join(example_path, "test.yaml")
+    test_file = os.path.join(example_path, test_file_name)
     if not os.path.exists(test_file):
-        print(f"Error: test.yaml not found in {example_path}", file=sys.stderr)
+        print(f"Error: {test_file_name} not found in {example_path}", file=sys.stderr)
         sys.exit(1)
 
     with open(test_file) as f:
