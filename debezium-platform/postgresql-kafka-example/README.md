@@ -1,11 +1,11 @@
-Using Debezium-platfrom to manage and stream changes
+Using Debezium Platform to manage and stream changes
 ===
-This example  will walk you through on how to use the Debezium Management Platform to manage and stream changes from a PostgreSQL database into Apache Kafka.
+This example  will walk you through how to use the Debezium Management Platform to manage and stream changes from a PostgreSQL database into Apache Kafka.
 
 
 Preparing the Environment
 ---
-As the first step we will provision a local Kubernetes cluster using [minikube](https://minikube.sigs.k8s.io/docs/) and will install an ingress controller. For this example, considering a local setup, we will use the `/etc/hosts` to resolve the domain.
+As the first step we will provision a local Kubernetes cluster using [minikube](https://minikube.sigs.k8s.io/docs/) and will install an ingress controller. For this example, considering a local set up, we will use the `/etc/hosts` to resolve the domain.
 The following script, when executed, will use minikube to provision a local k8s cluster named `debezium` and will add the required ingress controllers. It will also update the `/etc/hosts` to add the domain url.
 
 ```sh
@@ -36,7 +36,7 @@ strimzi-cluster-operator-7dc6fbcbf5-h28dl   1/1     Running   0          3m59s
 
 Deploying Debezium Management Platform
 ---
-We will install debezium-platfrom platform through helm 
+We will install debezium-platform platform through helm 
 
 ```shell
 helm repo add debezium https://charts.debezium.io &&
@@ -66,11 +66,11 @@ strimzi-cluster-operator-7dc6fbcbf5-wkqgz    1/1     Running   0              8m
 After all pods are running you should access the Debezium-platform-stage(UI) from `http://platform.debezium.io/`, now you have completed the installing and running the debezium-platform part.
 
 
-Using the debezium-platfrom-stage(UI) for setting up our data pipeline 
+Using the debezium-platform-stage(UI) for setting up our data pipeline 
 ---
 
-Now once you have running platfrom-stage(UI), we will create a data pipeline and all its 
-resources i.e connections, source, destination and transform(as per need) thru it. You will see different side navigation option to configure them.
+Now once you have running platform-stage(UI), we will create a data pipeline and all its 
+resources i.e connections, source, destination and transform(as per need) through it. You will see different side navigation option to configure them.
 
 For this demo, see the configuration properties you can use for each resource type as 
 illustrated below:
@@ -102,9 +102,9 @@ Click **Validate**. When validation succeeds, **Create connection** is enabled. 
 
 Go back to **Add connection**, filter the catalog by **Destination**, and select **Kafka**.
 
-| Field | Value |
-| --- | --- |
-| Name | `kafka-connection` |
+| Field                                                                                                   | Value                                              |
+| ---------------------------------------------------------------------------------------------------------| ----------------------------------------------------|
+| Name                                                                                                    | `kafka-connection`                                 |
 | List of "hostname:port" pairs that address one or more (even all) of the brokers. (`bootstrap.servers`) | `dbz-kafka-kafka-bootstrap.debezium-platform:9092` |
 
  ![Kafka destination connection](./resources/connection-destiantion.png)
@@ -216,7 +216,7 @@ Click **Create pipeline**.
 #### Pipeline Running
  ![Pipeline running](./resources/pipeline.png)
  
-After creating the pipeline in the UI its goes to **Deploying** to **Running** status. 
+After creating the pipeline in the UI its status goes from initial **Deploying** to **Running**. 
 
 Verifying Change Events
 ---
