@@ -16,7 +16,7 @@ This example demonstrates consuming Debezium CDC events in Python using **Connec
 
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.10+
 - Java 21 (`JAVA_HOME` must be set)
 - Docker (for testcontainers Postgres)
 - Maven (for downloading Debezium JAR dependencies)
@@ -45,7 +45,7 @@ This example demonstrates consuming Debezium CDC events in Python using **Connec
    python3 setup_jars.py
    ```
 
-   This script uses Maven to download ~400 Debezium 3.0.0.Final JAR dependencies and installs them to the pydbzengine package. The JARs are intentionally not committed to the repository to keep it lightweight.
+   This script uses Maven to download the Debezium JAR dependencies declared in `pom.xml` (the version tracked by the repository's `.env`) and installs them to the pydbzengine package, replacing the JARs bundled with the package. The JARs are intentionally not committed to the repository to keep it lightweight.
 5. **Run the example:**
 
    ```bash
@@ -61,7 +61,7 @@ The script:
 3. Captures initial snapshot (4 existing records with operation='r')
 4. Shows the expanded `before`/`after` Python structures
 5. Validates events with Pydantic models
-6. Stops after processing 5 events
+6. Stops after processing 4 events
 
 ## Expected Output
 
@@ -84,6 +84,24 @@ Pydantic Validation: PASSED
   Is update: False
   Is delete: False
 ```
+
+## How Connect mode is selected
+
+pydbzengine 3.6.3.0 and later expose Connect mode directly on `DebeziumEngine`, so no custom engine wrapper is needed:
+
+```python
+from pydbzengine import BasePythonChangeHandler, DebeziumEngine
+
+class Handler(BasePythonChangeHandler):
+    def handleJsonBatch(self, records):
+        # With format="connect" the records are raw Java SourceRecord objects
+        ...
+
+engine = DebeziumEngine(properties=props, handler=Handler(), format="connect")
+engine.run()
+```
+
+The handler callback is named `handleJsonBatch` for every format; the name mirrors the Java `ChangeConsumer` contract that pydbzengine bridges.
 
 ## Connect Mode vs JSON Mode
 
