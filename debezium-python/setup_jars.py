@@ -63,7 +63,7 @@ def main():
         print(f"✓ Found pydbzengine at: {pydbz_path}")
     except ImportError:
         print(" pydbzengine not found. Please install it first:")
-        print("    pip install pydbzengine>=3.4.1.0")
+        print("    pip install pydbzengine>=3.6.3.0")
         sys.exit(1)
     
     # Step 4: Create debezium/libs directory in pydbzengine

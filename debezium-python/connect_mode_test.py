@@ -1,7 +1,7 @@
 """
 connect_mode_test.py
 
-Demonstrates the Connect mode pipeline (EngineFormat.CONNECT):
+Demonstrates the Connect mode pipeline (format="connect"):
   Debezium  raw Java SourceRecord  struct_to_dict  Python dict  Pydantic validation
 
 NO JSON serialization/deserialization overhead.
@@ -9,7 +9,7 @@ NO JSON serialization/deserialization overhead.
 This example:
 1. Starts a Postgres container with test data
 2. Runs Debezium in Connect mode (not JSON mode)
-3. Uses BaseConnectChangeHandler to receive raw SourceRecord objects
+3. Uses a BasePythonChangeHandler to receive raw SourceRecord objects
 4. Converts them to validated Pydantic models
 5. Prints the expanded before/after structures
 """
@@ -17,8 +17,7 @@ This example:
 from pathlib import Path
 from testcontainers.postgres import PostgresContainer
 
-# Import local Connect mode extensions
-from debezium_connect import DebeziumConnectEngine, BaseConnectChangeHandler
+from pydbzengine import BasePythonChangeHandler, DebeziumEngine
 from pydebeziumai import DebeziumEventModel, SourceRecordExtractor, print_record_info
 
 OFFSET_FILE = Path(__file__).parent.joinpath('connect-mode-offsets.dat')
@@ -49,39 +48,43 @@ class DbPostgresql:
         self.CONTAINER.stop()
 
 
-def debezium_engine_props(sourcedb: DbPostgresql):
+def debezium_engine_props(sourcedb: DbPostgresql) -> dict:
     """Create Debezium configuration for Connect mode."""
-    from pydbzengine._jvm import Properties
-    props = Properties()
-    props.setProperty("name", "connect-test-engine")
-    props.setProperty("offset.storage", "org.apache.kafka.connect.storage.FileOffsetBackingStore")
-    props.setProperty("offset.storage.file.filename", str(OFFSET_FILE))
-    props.setProperty("offset.flush.interval.ms", "1000")
-    props.setProperty("database.hostname", sourcedb.POSTGRES_HOST)
-    props.setProperty("database.port", str(sourcedb.CONTAINER.get_exposed_port(sourcedb.POSTGRES_PORT_DEFAULT)))
-    props.setProperty("database.user", sourcedb.POSTGRES_USER)
-    props.setProperty("database.password", sourcedb.POSTGRES_PASSWORD)
-    props.setProperty("database.dbname", sourcedb.POSTGRES_DBNAME)
-    props.setProperty("connector.class", "io.debezium.connector.postgresql.PostgresConnector")
-    props.setProperty("topic.prefix", "connect_test")
-    props.setProperty("schema.include.list", "inventory")
-    props.setProperty("table.include.list", "inventory.customers")
-    props.setProperty("plugin.name", "pgoutput")
-    props.setProperty("snapshot.mode", "initial")
-    return props
+    return {
+        "name": "connect-test-engine",
+        "offset.storage": "org.apache.kafka.connect.storage.FileOffsetBackingStore",
+        "offset.storage.file.filename": str(OFFSET_FILE),
+        "offset.flush.interval.ms": "1000",
+        "database.hostname": sourcedb.POSTGRES_HOST,
+        "database.port": str(sourcedb.CONTAINER.get_exposed_port(sourcedb.POSTGRES_PORT_DEFAULT)),
+        "database.user": sourcedb.POSTGRES_USER,
+        "database.password": sourcedb.POSTGRES_PASSWORD,
+        "database.dbname": sourcedb.POSTGRES_DBNAME,
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "topic.prefix": "connect_test",
+        "schema.include.list": "inventory",
+        "table.include.list": "inventory.customers",
+        "plugin.name": "pgoutput",
+        "snapshot.mode": "initial",
+    }
 
 
-class ConnectModeHandler(BaseConnectChangeHandler):
+class ConnectModeHandler(BasePythonChangeHandler):
     """
     Handler for Connect mode - receives raw Java SourceRecord objects.
     No JSON parsing happens.
+
+    pydbzengine delivers every batch through handleJsonBatch regardless of the
+    engine format. With format="connect" the records are raw Java SourceRecord
+    objects rather than JSON strings.
     """
 
-    def __init__(self):
+    def __init__(self, max_events=4):
         self.event_count = 0
-        self.max_events = 4  # Stop after processing a few events
+        self.max_events = max_events  # Stop after processing a few events
+        self.stop_engine = None  # Set by main() once the engine exists
 
-    def handleConnectBatch(self, records):
+    def handleJsonBatch(self, records):
         """
         Process a batch of raw Java SourceRecord objects.
         
@@ -136,8 +139,7 @@ class ConnectModeHandler(BaseConnectChangeHandler):
             # Stop after max_events
             if self.event_count >= self.max_events:
                 print(f"\nReached {self.max_events} events, stopping engine...")
-                from pydbzengine._jvm import JavaLangThread
-                JavaLangThread.currentThread().interrupt()
+                self.stop_engine()
                 break
 
 
@@ -182,14 +184,17 @@ def main():
         handler = ConnectModeHandler()
         
         # Create engine in Connect mode (not JSON mode!)
-        print("\nInitializing DebeziumConnectEngine (EngineFormat.CONNECT)...")
-        engine = DebeziumConnectEngine(properties=props, handler=handler)
-        
+        print("\nInitializing DebeziumEngine (format=\"connect\")...")
+        engine = DebeziumEngine(properties=props, handler=handler, format="connect")
+        # The handler runs on the engine thread, so it stops the engine by
+        # interrupting that thread through the engine's consumer.
+        handler.stop_engine = lambda: engine.consumer.interrupt()
+
         print("Starting engine... (will process snapshot and stop after a few events)\n")
-        
+
         # Run the engine
         engine.run()
-        
+
         print("\n" + "="*80)
         print("Test completed successfully!")
         print(f"Total events processed: {handler.event_count}")
