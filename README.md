@@ -27,6 +27,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Debezium - Outbox Pattern](./outbox): Implement the "outbox pattern", an approach for letting services communicate in an asynchronous and reliable fashion
 * [Debezium Management Platform - Streaming to Apache Kafka](./debezium-platform/postgresql-kafka-example): How to use the debezium-platform to create a data pipeline to stream changes from a PostgreSQL database to Apache Kafka broker in kubernetes cluster.
 * [Debezium Management Platform - Streaming to Amazon Kinesis on AWS](./debezium-platform/postgresql-kinesis-aws-example): How to run the Debezium Management Platform on a k3s cluster on AWS EC2 and stream changes from Amazon RDS for PostgreSQL to an Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream
+* [Debezium Management Platform - Host-based pipeline deployment](./debezium-platform/postgresql-http-host-example): How to run Debezium Platform locally and deploy a PostgreSQL-to-HTTP pipeline to the local Linux host
 * [Debezium - Python Connect-Mode](./debezium-python): How to embed Debezium into a Python application using Connect-mode with no JSON serialization overhead
 * [Debezium - Saga Pattern](./saga): How to implement the [Saga pattern](https://microservices.io/patterns/data/saga.html) for realizing distributed transactions across multiple microservices
 * [Debezium - Testing](./testcontainers): How to implement an integration test for your CDC set-up using [Testcontainers](https://www.testcontainers.org/)
