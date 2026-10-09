@@ -40,7 +40,7 @@ We will install debezium-platform platform through helm
 
 ```shell
 helm repo add debezium https://charts.debezium.io &&
-helm install debezium-platform debezium/debezium-platform --version 3.7.0-final --set database.enabled=true --set domain.url=platform.debezium.io
+helm install debezium-platform debezium/debezium-platform --version 3.7.0 --set database.enabled=true --set domain.url=platform.debezium.io
 
 ```
 
