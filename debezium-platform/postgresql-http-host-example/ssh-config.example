@@ -1,0 +1,10 @@
+# Replace the user and identity-file path before copying this entry into
+# ${HOST_SSH_DIR}/config. It deliberately names the target "localhost":
+# the Ansible runtime provisions and runs the Debezium Server container on
+# this same Linux machine.
+Host localhost
+    HostName 127.0.0.1
+    User YOUR_LINUX_USER
+    IdentityFile ~/.ssh/debezium-host-example
+    IdentitiesOnly yes
+    StrictHostKeyChecking accept-new
