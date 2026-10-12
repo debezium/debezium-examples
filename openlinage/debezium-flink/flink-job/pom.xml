@@ -22,6 +22,18 @@
         <version.kafka>3.9.0</version.kafka>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <!-- Flink 2.0 uses SLF4J 1.7.x with an SLF4J 1.x binding. The parent's BOMs manage slf4j-api 2.x,
+                 which would be copied into the Flink lib folder and disable all logging, so keep 1.7.36 here. -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.36</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <!-- Flink Core -->
@@ -65,7 +77,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${version.slf4j}</version>
+            <version>1.7.36</version>
         </dependency>
     </dependencies>
 
