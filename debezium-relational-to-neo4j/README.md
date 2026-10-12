@@ -29,6 +29,7 @@ The relational schema maps to this graph:
 * [Exploring the graph](#exploring-the-graph)
 * [How it works](#how-it-works)
 * [Cleanup](#cleanup)
+* [References](#references)
 
 ## Architecture
 
@@ -177,3 +178,7 @@ docker-compose --env-file ../.env -f docker-compose-kstreams.yaml down -v
 # Option B
 docker-compose --env-file ../.env -f docker-compose-ksqldb.yaml down -v
 ```
+
+## References
+
+* [`Neo4jCudConverter` SMT documentation](https://github.com/debezium/debezium/blob/main/documentation/modules/ROOT/pages/transformations/neo4j-cud-converter.adoc) — the relational → graph SMT used by this example.

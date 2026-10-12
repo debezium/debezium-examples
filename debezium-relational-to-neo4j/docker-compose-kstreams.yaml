@@ -35,9 +35,9 @@ services:
   # yet (connect is the only Debezium image that publishes a `nightly` tag). When the SMT ships in
   # a release, replace `nightly` below with ${DEBEZIUM_VERSION} so it tracks the other images.
   connect:
-    image: debezium-examples/debezium-neo4j-connect:nightly
+    image: debezium-examples/debezium-relational-to-neo4j-connect:nightly
     build:
-      context: debezium-neo4j-connect
+      context: debezium-relational-to-neo4j-connect
       args:
         DEBEZIUM_VERSION: nightly
         NEO4J_CONNECTOR_VERSION: ${NEO4J_CONNECTOR_VERSION:-5.5.2}
@@ -55,35 +55,14 @@ services:
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_connect_statuses
 
-  ksqldb-server:
-    image: confluentinc/ksqldb-server:0.29.0
-    hostname: ksqldb-server
+  splitter:
+    image: debezium-examples/neo4j-cud-splitter:1.0
+    build:
+      context: splitter
+      dockerfile: src/main/docker/Dockerfile.jvm
     depends_on:
       - kafka
-      - connect
-    ports:
-      - 8088:8088
+    restart: on-failure
     environment:
-      - KSQL_LISTENERS=http://0.0.0.0:8088
-      - KSQL_BOOTSTRAP_SERVERS=kafka:9092
-      - KSQL_KSQL_SERVICE_ID=neo4j_cud_
-      - KSQL_KSQL_STREAMS_AUTO_OFFSET_RESET=earliest
-
-  ksqldb-init:
-    image: confluentinc/ksqldb-cli:0.29.0
-    depends_on:
-      - kafka
-      - connect
-      - ksqldb-server
-    volumes:
-      - ./ksqldb-split.sql:/tmp/ksqldb-split.sql
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        echo "ksqldb-init: applying split script until streams are created (waiting for source topics)..."
-        until ksql http://ksqldb-server:8088 -e "SHOW STREAMS;" 2>/dev/null | grep -qi ORDER_ITEMS_CUD_EVENTS; do
-          ksql http://ksqldb-server:8088 -f /tmp/ksqldb-split.sql >/dev/null 2>&1
-          sleep 10
-        done
-        echo "ksqldb-init: split streams created."
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - APPLICATION_ID=neo4j-cud-splitter

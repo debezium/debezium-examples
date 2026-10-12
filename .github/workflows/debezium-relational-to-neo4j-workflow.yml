@@ -1,16 +1,16 @@
-name: Build [debezium-neo4j]
+name: Build [debezium-relational-to-neo4j]
 
 on:
   push:
     paths:
-      - 'debezium-neo4j/**'
-      - '.github/workflows/debezium-neo4j-workflow.yml'
+      - 'debezium-relational-to-neo4j/**'
+      - '.github/workflows/debezium-relational-to-neo4j-workflow.yml'
       - 'scripts/run-example-test.py'
       - '.env'
   pull_request:
     paths:
-      - 'debezium-neo4j/**'
-      - '.github/workflows/debezium-neo4j-workflow.yml'
+      - 'debezium-relational-to-neo4j/**'
+      - '.github/workflows/debezium-relational-to-neo4j-workflow.yml'
       - 'scripts/run-example-test.py'
       - '.env'
 
@@ -28,5 +28,5 @@ jobs:
       - name: Install Python dependencies
         run: pip install pyyaml requests
 
-      - name: Run debezium-neo4j test
-        run: python scripts/run-example-test.py debezium-neo4j
+      - name: Run debezium-relational-to-neo4j test
+        run: python scripts/run-example-test.py debezium-relational-to-neo4j

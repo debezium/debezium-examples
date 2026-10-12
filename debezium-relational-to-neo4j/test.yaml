@@ -1,4 +1,4 @@
-name: debezium-neo4j
+name: debezium-relational-to-neo4j
 description: >
   Tests the PostgreSQL -> Debezium -> Neo4jCudConverter SMT -> Kafka Streams split
   -> Neo4j sink pipeline, projecting a relational e-commerce schema into a Neo4j graph.

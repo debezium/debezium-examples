@@ -1,0 +1,37 @@
+{
+    "name": "jdbc-sink",
+    "config": {
+        "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "topics": "neo4j_customers,neo4j_products,neo4j_orders,neo4j_placed_by,neo4j_contains",
+
+        "connection.url": "jdbc:postgresql://postgres:5432/postgres",
+        "connection.username": "postgres",
+        "connection.password": "postgres",
+
+        "insert.mode": "upsert",
+        "primary.key.mode": "record_key",
+        "delete.enabled": "true",
+        "schema.evolution": "basic",
+        "collection.name.format": "${topic}",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "true",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "true",
+
+        "transforms": "neo4j",
+        "transforms.neo4j.type": "io.debezium.transforms.Neo4jDebeziumConverter",
+        "transforms.neo4j.column.naming": "snake_case",
+
+        "transforms.neo4j.label.Customer.table": "customers",
+        "transforms.neo4j.label.Product.table": "products",
+        "transforms.neo4j.label.Order.table": "orders",
+
+        "transforms.neo4j.relationship.PLACED_BY.mode": "foreign_key",
+        "transforms.neo4j.relationship.PLACED_BY.table": "orders",
+
+        "transforms.neo4j.relationship.CONTAINS.table": "order_items",
+        "transforms.neo4j.relationship.CONTAINS.properties": "quantity"
+    }
+}

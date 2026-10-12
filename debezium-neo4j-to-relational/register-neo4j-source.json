@@ -1,0 +1,32 @@
+{
+    "name": "neo4j-source",
+    "config": {
+        "connector.class": "org.neo4j.connectors.kafka.source.Neo4jConnector",
+        "tasks.max": "1",
+
+        "neo4j.uri": "bolt://neo4j:7687",
+        "neo4j.authentication.type": "BASIC",
+        "neo4j.authentication.basic.username": "neo4j",
+        "neo4j.authentication.basic.password": "password",
+        "neo4j.database": "neo4j",
+
+        "neo4j.source-strategy": "CDC",
+        "neo4j.start-from": "EARLIEST",
+        "neo4j.payload-mode": "EXTENDED",
+
+        "neo4j.cdc.topic.neo4j_customers.patterns": "(:Customer)",
+        "neo4j.cdc.topic.neo4j_customers.key-strategy": "SKIP",
+        "neo4j.cdc.topic.neo4j_products.patterns": "(:Product)",
+        "neo4j.cdc.topic.neo4j_products.key-strategy": "SKIP",
+        "neo4j.cdc.topic.neo4j_orders.patterns": "(:Order)",
+        "neo4j.cdc.topic.neo4j_orders.key-strategy": "SKIP",
+        "neo4j.cdc.topic.neo4j_placed_by.patterns": "(:Order)-[:PLACED_BY]->(:Customer)",
+        "neo4j.cdc.topic.neo4j_placed_by.key-strategy": "SKIP",
+        "neo4j.cdc.topic.neo4j_contains.patterns": "(:Order)-[:CONTAINS]->(:Product)",
+        "neo4j.cdc.topic.neo4j_contains.key-strategy": "SKIP",
+
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": true
+    }
+}
