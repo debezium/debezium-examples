@@ -6,8 +6,8 @@ Offset Editor is a Java application that allows users to read, edit, and save fi
 
 ## Prerequisites
 
-- Java Development Kit (JDK) 11 or higher
-- Java JFX 16 or higher
+- Java Development Kit (JDK) 21 or higher
+- JavaFX 21 or higher
 
 ## Building the Project
 
