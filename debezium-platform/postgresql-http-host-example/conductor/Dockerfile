@@ -11,8 +11,8 @@ FROM quay.io/debezium/platform-conductor:${PLATFORM_VERSION}
 # file permissions on the Linux host.
 USER root
 
-# The host runtime runs the bundled Ansible playbooks. The collections supply
-# the Maven artifact and Docker modules used by the host provisioning playbook.
+# The host runtime runs the bundled Ansible playbooks. The callbacks, Docker
+# image-pull task, and optional Agent Maven-download task use these collections.
 RUN microdnf install -y openssh-clients python39 \
     && python3.9 -m ensurepip --upgrade \
     && python3.9 -m pip install --no-cache-dir --upgrade pip \
