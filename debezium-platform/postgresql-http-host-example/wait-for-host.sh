@@ -11,31 +11,32 @@ set -euo pipefail
 # image. Match the Conductor default Ansible timeout of 30 minutes rather than
 # reporting a misleading client-side timeout during a cold first run.
 readonly MAX_ATTEMPTS=900
+readonly HOST_ALIAS="${HOST_ALIAS:-host-example}"
 
 for attempt in $(seq 1 "${MAX_ATTEMPTS}"); do
     status="$(docker compose exec -T platform-db \
         psql -U conductor -d conductor -Atc \
-        "SELECT provisioning_status FROM host_status WHERE ssh_alias = 'localhost';" 2>/dev/null || true)"
+        "SELECT provisioning_status FROM host_status WHERE ssh_alias = '${HOST_ALIAS}';" 2>/dev/null || true)"
 
     case "${status}" in
         READY)
-            echo "Host localhost is READY."
+            echo "Host ${HOST_ALIAS} is READY."
             exit 0
             ;;
         FAILED)
             echo "Host provisioning failed. The report follows:" >&2
             docker compose exec -T platform-db \
                 psql -U conductor -d conductor -c \
-                "SELECT provisioning_report FROM host_status WHERE ssh_alias = 'localhost';" >&2
+                "SELECT provisioning_report FROM host_status WHERE ssh_alias = '${HOST_ALIAS}';" >&2
             exit 1
             ;;
         *)
-            echo "Waiting for localhost to become READY (${attempt}/${MAX_ATTEMPTS})..."
+            echo "Waiting for ${HOST_ALIAS} to become READY (${attempt}/${MAX_ATTEMPTS})..."
             sleep 2
             ;;
     esac
 done
 
-echo "Timed out waiting for localhost provisioning. Inspect the Conductor logs:" >&2
+echo "Timed out waiting for ${HOST_ALIAS} provisioning. Inspect the Conductor logs:" >&2
 echo "  docker compose logs conductor" >&2
 exit 1

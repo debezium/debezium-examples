@@ -1,91 +1,123 @@
 # Host-based PostgreSQL to HTTP pipeline
 
-This example runs Debezium Platform locally and deploys a Debezium Server pipeline to the same Linux machine that runs Docker. The pipeline captures PostgreSQL changes and sends them to a small HTTP receiver.
+This example runs Debezium Platform with Docker Compose and deploys a Debezium Server pipeline through the Platform's host deployment path. The pipeline captures PostgreSQL changes and sends them to a small HTTP receiver.
 
-It demonstrates the host deployment path introduced for Debezium Platform. The Platform discovers `localhost` from an SSH configuration, provisions it through Ansible, selects it for the pipeline, and starts the Debezium Server container there. The example uses the default `ansible` container runtime. It does not require the optional Host Agent.
+The Compose stack and the target host both run inside a disposable Multipass Linux VM. From Conductor's point of view, the target is the `host-example` SSH entry, which resolves to `127.0.0.1` inside that VM. This is intentional: Conductor still discovers the host from an SSH configuration, runs the Ansible provisioning playbook, selects the ready host, and starts the Debezium Server container through the default `ansible` runtime. The developer workstation is never the Ansible target.
 
-The optional `agent` runtime is a different deployment path. It requires an Agent version and a Maven repository that contains that exact Agent artifact. This example deliberately does not switch to that runtime, so it does not depend on an Agent artifact repository.
+The optional `agent` runtime is a different deployment path. It requires an Agent version and a Maven repository containing that exact Agent artifact. This example deliberately uses the default `ansible` runtime, so it does not require the optional Host Agent.
 
 ## What runs where
 
-The Docker Compose project runs Stage, Conductor, Conductor's PostgreSQL database, the source PostgreSQL database, and the HTTP receiver. They use Linux host networking so Conductor can reach `localhost` through SSH.
-
-The pipeline container is not part of the Compose project. Conductor provisions the target host and starts that container itself through the host runtime. This distinction is the point of the example.
-
 ```
-browser -> Stage -> Conductor -> SSH / Ansible -> local Docker Engine -> Debezium Server
-                                              -> source PostgreSQL
-                                              -> HTTP receiver
+developer workstation
+        |
+        | Multipass
+        v
+disposable Linux VM
+  |
+  +-- Docker Compose: Stage, Conductor, Conductor PostgreSQL,
+  |                   source PostgreSQL, HTTP receiver
+  |
+  +-- Conductor -> SSH / Ansible -> host-example (127.0.0.1 in this VM)
+                                      |
+                                      +-> Docker Engine -> Debezium Server container
 ```
+
+The Debezium Server container is not part of the Compose project. Conductor creates and removes it through the host runtime. That separation is the behavior this example demonstrates.
 
 ## Requirements
 
-Run this only on a disposable Linux machine or VM with Docker Engine. On Apple Silicon macOS, use a Linux ARM64 Multipass VM: macOS manages the VM, while the example itself runs entirely inside Linux. It is **not supported on Docker Desktop for macOS or Windows** because the example uses Linux host networking. Do not add Docker `platform:` overrides or set `DOCKER_DEFAULT_PLATFORM`; the nightly images must select the VM's native architecture.
+Install [Multipass](https://documentation.ubuntu.com/multipass/) on the developer workstation. Multipass is available on macOS, Linux, and Windows. The commands below use a new Ubuntu 24.04 VM with 4 CPUs, 8 GB of memory, and 30 GB of disk space.
 
-You need:
+The VM is deliberately disposable. The host provisioning playbook runs with administrator privileges and can add the Docker package repository, install Docker packages, enable Docker, and add the SSH user to the `docker` group. It must not target a developer workstation.
 
-* Docker CE, Docker CLI, containerd.io, and the Docker Compose plugin from the https://docs.docker.com/engine/install/[official Docker repository], with permission to run `docker`. Do not install Ubuntu's `docker.io` or `docker-compose-v2` packages for this example: Conductor's provisioning playbook manages the Docker CE package set, and mixing the two distributions causes APT package conflicts.
-* OpenSSH client and server running locally.
-* A local Linux user that can run `sudo` without an interactive password prompt. In this localhost example, Docker CE is already present because Compose needs it before Conductor starts; Ansible recognizes the required packages as installed and continues with the remaining host preparation. On a separate remote host, the same playbook can install Docker CE when necessary.
-* Python 3 and `curl` on the host.
-* Network access to pull container images, install Ansible dependencies while building Conductor, and pull the Debezium Server image on the target host.
+Inside the VM, install Docker Engine and the Docker Compose plugin from the [official Docker installation guide](https://docs.docker.com/engine/install/ubuntu/). Do not install Ubuntu's `docker.io` or `docker-compose-v2` packages: the provisioning playbook manages the Docker CE package set, and mixing the distributions can cause package conflicts. Add the VM user to the `docker` group as part of that setup, then open a new VM shell before continuing.
 
-The example reserves local ports `3000`, `5432`, `5433`, `8081`, `9000`, and `9900`. Stop or reconfigure any service already using one of them before starting it.
+The example uses Linux host networking. It is therefore not supported when Docker Compose runs directly on Docker Desktop for macOS or Windows. Docker runs inside the Linux VM, so no Docker `platform:` override or `DOCKER_DEFAULT_PLATFORM` value is required.
 
-The default `PLATFORM_VERSION=nightly` uses the current multi-architecture Platform development images, which make this local example usable on both AMD64 and ARM64 Linux hosts. Nightly is a moving development tag, not a production version pin. To test a released version deliberately, set `PLATFORM_VERSION` to a release tag that publishes images for your host architecture.
+## 1. Create a disposable Linux VM
 
-## 1. Create the SSH identity used by Conductor
-
-Create an identity solely for this example. Replace `YOUR_LINUX_USER` with the local user that Ansible should use.
+Run these commands on the developer workstation:
 
 ```shell
-ssh-keygen -t ed25519 -f ~/.ssh/debezium-host-example -N ''
-cat ~/.ssh/debezium-host-example.pub >> ~/.ssh/authorized_keys
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/authorized_keys
+multipass launch 24.04 --name dbz-platform-host-example --cpus 4 --memory 8G --disk 30G
+multipass shell dbz-platform-host-example
 ```
 
-Copy [`ssh-config.example`](./ssh-config.example) to `~/.ssh/config` and replace `YOUR_LINUX_USER`. If you already maintain an SSH config, add the `Host localhost` entry instead of replacing the file.
+The rest of this guide runs inside the VM. Ensure the SSH server is available before continuing:
 
 ```shell
-cp ssh-config.example ~/.ssh/config
-chmod 600 ~/.ssh/config
+sudo apt-get update
+sudo apt-get install -y curl git openssh-client openssh-server python3
+sudo systemctl enable --now ssh
 ```
 
-Before starting Docker Compose, prove that this exact SSH path works and accept the host key on the host machine:
+Install Docker Engine and the Compose plugin as described in the requirements. Confirm that the VM user can run Docker without `sudo`:
 
 ```shell
-ssh localhost 'sudo -n true'
+docker version
+docker compose version
 ```
 
-This command must finish without asking for a password. It also lets OpenSSH write the initial `known_hosts` entry before Conductor receives a read-only view of `~/.ssh`. Conductor only needs to read the SSH config, private key, and known-host record; it does not need to modify them.
+## 2. Obtain the example and create its dedicated SSH identity
 
-## 2. Choose an address for deployed containers
-
-The deployed Debezium Server container uses Docker's normal bridge network. From that container, `localhost` means the container itself, not the Linux host. Export a non-loopback IPv4 address that containers can use to reach this machine. A LAN address or VM address is suitable.
+Inside the VM, clone the examples repository and enter this directory:
 
 ```shell
-export HOST_IP=192.168.1.50
+git clone https://github.com/debezium/debezium-examples.git
+cd debezium-examples/debezium-platform/postgresql-http-host-example
 ```
 
-Do not use `localhost` or `127.0.0.1`. The source connection uses `${HOST_IP}:5433` and the HTTP destination uses `${HOST_IP}:9900`.
+Create an SSH directory used only by this example. It contains one temporary private key, one SSH configuration file, and one known-hosts file. It does not replace or mount the user's normal `~/.ssh/config`, and Conductor receives only these three files.
+
+```shell
+export HOST_EXAMPLE_SSH_DIR="$PWD/.ssh"
+install -d -m 700 "$HOST_EXAMPLE_SSH_DIR"
+ssh-keygen -t ed25519 -f "$HOST_EXAMPLE_SSH_DIR/debezium-host-example" -N ''
+
+install -d -m 700 "$HOME/.ssh"
+cat "$HOST_EXAMPLE_SSH_DIR/debezium-host-example.pub" >> "$HOME/.ssh/authorized_keys"
+chmod 600 "$HOME/.ssh/authorized_keys"
+
+sed "s/YOUR_LINUX_USER/${USER}/" ssh-config.example > "$HOST_EXAMPLE_SSH_DIR/config"
+ssh-keyscan -H 127.0.0.1 > "$HOST_EXAMPLE_SSH_DIR/known_hosts"
+chmod 600 "$HOST_EXAMPLE_SSH_DIR/config" "$HOST_EXAMPLE_SSH_DIR/debezium-host-example" "$HOST_EXAMPLE_SSH_DIR/known_hosts"
+```
+
+Prove that the exact key, host alias, and non-interactive administrator access work before starting Compose:
+
+```shell
+ssh -F "$HOST_EXAMPLE_SSH_DIR/config" \
+  -o "IdentityFile=$HOST_EXAMPLE_SSH_DIR/debezium-host-example" \
+  -o "UserKnownHostsFile=$HOST_EXAMPLE_SSH_DIR/known_hosts" \
+  host-example 'sudo -n true'
+```
+
+The command must complete without a password prompt. Multipass's default `ubuntu` user has passwordless `sudo`. If a custom image uses another user, configure equivalent non-interactive `sudo` only for this disposable VM.
 
 ## 3. Start Platform and wait for host provisioning
 
-Point Compose at the directory containing the SSH files, then start the stack:
+The deployed Debezium Server container uses Docker's bridge network. From that container, `localhost` means the container itself, not the VM. Export the VM's primary IPv4 address so the container can reach the source PostgreSQL database and HTTP receiver. The same address lets a browser on your Mac reach Stage and lets Stage send API requests back to Conductor:
 
 ```shell
-export HOST_SSH_DIR="$HOME/.ssh"
+export HOST_IP="$(ip -4 route get 1.1.1.1 | awk '{for (i=1;i<=NF;i++) if ($i==\"src\") {print $(i+1); exit}}')"
+printf 'Using VM address %s\n' "$HOST_IP"
+export PLATFORM_VERSION=nightly
 unset DOCKER_DEFAULT_PLATFORM
+
 docker compose up --build -d
 ./wait-for-host.sh
 ```
 
-`wait-for-host.sh` reads the `host_status` record from Conductor's database. A `READY` result means that SSH discovery and Ansible provisioning both completed. A first run can take several minutes because it may install packages and pull images; the script waits up to the Conductor's default 30-minute Ansible timeout. If it reports `FAILED`, inspect the stored report and `docker compose logs conductor` before continuing.
+`wait-for-host.sh` reads Conductor's `host_status` record. A `READY` result means that SSH discovery and Ansible provisioning completed. On a first run, the playbook may validate Docker packages and pull the initial image, so this can take several minutes. If it reports `FAILED`, inspect the stored report and `docker compose logs conductor` before continuing.
 
 The Compose file enables `wal_level=logical` on both PostgreSQL services. Conductor needs logical decoding to consume the outbox event that starts an asynchronous deployment; the sample source needs it so the deployed Debezium Server can capture the inserted row.
 
-Inside the Linux machine, Stage is available at http://localhost:3000 and Conductor is available at http://localhost:8081. When the Linux machine is a Multipass VM, open `http://<VM_IP>:3000` from macOS instead; macOS `localhost` is not the VM.
+The example derives a Conductor image locally because the published Conductor image does not include the Ansible command-line runtime. The derived image adds the SSH client, Python, `ansible-core`, `ansible.posix` for the configured timing callbacks, `community.docker` for the playbook's image-pull task, and `community.general` for the optional Agent runtime's Maven artifact task. This example selects Ansible mode, so the Agent task is skipped, but the derived image still contains the complete bundled playbook dependencies.
+
+The default `PLATFORM_VERSION=nightly` uses the current multi-architecture Platform development images. Nightly is a moving development tag, not a production version pin. To deliberately test a released version, set `PLATFORM_VERSION` to a release tag that publishes images for the VM architecture.
+
+Stage is available at `http://<VM_IP>:3000` and Conductor at `http://<VM_IP>:8081`, where `<VM_IP>` is the address shown by `hostname -I` or `multipass list` on the developer workstation.
 
 ## 4. Create and deploy the pipeline
 
@@ -126,8 +158,18 @@ curl "http://localhost:8081/api/pipelines/${PIPELINE_ID}/logs"
 
 ## Cleanup
 
+Inside the VM, remove the pipeline and the Compose project:
+
 ```shell
 ./cleanup.sh
 ```
 
-The script first deletes the Platform pipeline, which stops and removes the host-deployed Debezium Server container. It then removes the Compose project and its volumes. It defaults `HOST_SSH_DIR` to `$HOME/.ssh` when it is run from a fresh terminal. Host provisioning is deliberately not undone: Docker, its package configuration, and the SSH configuration belong to the local machine and may have existed before this example.
+`cleanup.sh` first deletes the Platform pipeline, which stops and removes the host-deployed Debezium Server container. It then removes the Compose project and its volumes. The example-owned `.ssh` directory remains only inside the disposable VM.
+
+Exit the VM. On the developer workstation, remove it when the example is no longer needed:
+
+```shell
+multipass delete --purge dbz-platform-host-example
+```
+
+This removes all Docker state, the temporary SSH key, and every package change made during the example.
