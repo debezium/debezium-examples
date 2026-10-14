@@ -39,7 +39,7 @@ WITH BASE AS (
 
 SELECT
     LAX_INT64(a.id) id,
-    CASE WHEN STRING(a.first_name) = "Sally" then "Sally Anne" ELSE STRING(a.first_name) END first_name,
+    STRING(a.first_name) first_name,
     STRING(a.last_name) last_name,
     STRING(a.email) email,
     write_time
