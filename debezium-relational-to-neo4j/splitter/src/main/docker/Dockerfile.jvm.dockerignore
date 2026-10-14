@@ -1,0 +1,5 @@
+# The build context is the repository root (for the parent POM); send only what the build uses
+*
+!pom.xml
+!debezium-relational-to-neo4j/splitter/pom.xml
+!debezium-relational-to-neo4j/splitter/src

@@ -58,8 +58,8 @@ services:
   splitter:
     image: debezium-examples/neo4j-cud-splitter:1.0
     build:
-      context: splitter
-      dockerfile: src/main/docker/Dockerfile.jvm
+      context: ..
+      dockerfile: debezium-relational-to-neo4j/splitter/src/main/docker/Dockerfile.jvm
     depends_on:
       - kafka
     restart: on-failure
