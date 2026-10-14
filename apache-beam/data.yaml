@@ -1,0 +1,16 @@
+# Same table as the "Create BigQuery table" step of the blog post
+projects:
+  - id: my-project
+    datasets:
+      - id: my-dataset
+        tables:
+          - id: customers
+            columns:
+              - name: metadata
+                type: STRING
+              - name: before
+                type: STRING
+              - name: after
+                type: STRING
+              - name: write_time
+                type: NUMERIC
