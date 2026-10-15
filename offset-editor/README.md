@@ -38,7 +38,7 @@ This will open the Offset Editor window. Follow the steps below to edit and save
 You can run the application using the command-line interface by executing the following command:
 
 ```bash
-java -jar target/OffsetEditor-1.0-SNAPSHOT-jar-with-dependencies.jar <inputFile> <outputFile> <newKey> <newValue>
+java -jar target/offset-editor-1.0-SNAPSHOT-jar-with-dependencies.jar <inputFile> <outputFile> <newKey> <newValue>
 ```
 The required parameters are:
 
