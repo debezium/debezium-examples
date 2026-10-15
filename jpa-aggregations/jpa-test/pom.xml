@@ -18,9 +18,6 @@
 		<version.com.h2database>1.3.176</version.com.h2database>
 		<version.junit>4.13.1</version.junit>
 		<version.org.hibernate>5.4.24.Final</version.org.hibernate>
-		<version.org.slf4j>1.7.36</version.org.slf4j>
-		<version.jackson>2.18.11</version.jackson>
-		<version.jackson.databind>2.18.11</version.jackson.databind>
 	</properties>
 
 	<dependencyManagement>
@@ -30,7 +27,7 @@
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
-				<version>${version.org.slf4j}</version>
+				<version>${version.slf4j}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -55,22 +52,18 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>${version.jackson}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>${version.jackson.databind}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-jsonSchema</artifactId>
-			<version>${version.jackson}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>${version.jackson}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
@@ -85,7 +78,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>${version.org.slf4j}</version>
+			<version>${version.slf4j}</version>
 		</dependency>
 
 		<!-- Not necessary for ORM 5.2 and above -->
