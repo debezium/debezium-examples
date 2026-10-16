@@ -6,17 +6,17 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.utils.Bytes;
-import org.apache.kafka.streams.Consumed;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Printed;
 import org.apache.kafka.streams.kstream.Produced;
-import org.apache.kafka.streams.kstream.Serialized;
 import org.apache.kafka.streams.state.KeyValueStore;
 
 import io.debezium.examples.aggregation.model.Address;
@@ -45,7 +45,7 @@ public class StreamingAggregatesDDD {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streaming-aggregates-ddd");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 10*1024);
+        props.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 10*1024);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1000);
         props.put(CommonClientConfigs.METADATA_MAX_AGE_CONFIG, 500);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -70,7 +70,7 @@ public class StreamingAggregatesDDD {
 
         //2a) pseudo-aggreate addresses to keep latest relationship info
         KTable<DefaultId,LatestAddress> tempTable = addressStream
-                .groupByKey(Serialized.with(defaultIdSerde, addressSerde))
+                .groupByKey(Grouped.with(defaultIdSerde, addressSerde))
                 .aggregate(
                         () -> new LatestAddress(),
                         (DefaultId addressId, Address address, LatestAddress latest) -> {
@@ -86,7 +86,7 @@ public class StreamingAggregatesDDD {
         //2b) aggregate addresses per customer id
         KTable<DefaultId, Addresses> addressTable = tempTable.toStream()
                 .map((addressId, latestAddress) -> new KeyValue<>(latestAddress.getCustomerId(),latestAddress))
-                .groupByKey(Serialized.with(defaultIdSerde,latestAddressSerde))
+                .groupByKey(Grouped.with(defaultIdSerde,latestAddressSerde))
                 .aggregate(
                         () -> new Addresses(),
                         (customerId, latestAddress, addresses) -> {

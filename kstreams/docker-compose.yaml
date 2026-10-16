@@ -61,7 +61,8 @@ services:
   aggregator:
     image: debezium/kstreams-aggregator:${DEBEZIUM_VERSION}
     build:
-      context: poc-ddd-aggregates
+      context: ..
+      dockerfile: kstreams/poc-ddd-aggregates/Dockerfile
     environment:
      - JAVA_MAIN_CLASS=io.debezium.examples.aggregation.StreamingAggregatesDDD
      - PARENT_TOPIC=dbserver1.inventory.customers

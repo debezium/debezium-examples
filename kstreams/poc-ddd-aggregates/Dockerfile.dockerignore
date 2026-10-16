@@ -1,0 +1,6 @@
+# The build context is the repository root (for the parent POM); send only what the build uses
+*
+!pom.xml
+!kstreams/poc-ddd-aggregates/pom.xml
+!kstreams/poc-ddd-aggregates/src
+!kstreams/poc-ddd-aggregates/run-aggregator.sh
