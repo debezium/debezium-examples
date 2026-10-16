@@ -3,37 +3,37 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
     <groupId>io.debezium.examples</groupId>
     <artifactId>poc-ddd-aggregates</artifactId>
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
         <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <apache.kafka.version>1.0.0</apache.kafka.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
     </properties>
 
     <dependencies>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.11</artifactId>
-            <version>${apache.kafka.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-streams</artifactId>
-            <version>${apache.kafka.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${apache.kafka.version}</version>
+        </dependency>
+
+        <!-- Used directly by the JSON serdes; it used to come in only through the kafka_2.11 broker jar -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
     </dependencies>
@@ -43,11 +43,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${mvn.compiler.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
+                <version>${version.maven.compiler}</version>
             </plugin>
         </plugins>
 	<pluginManagement>
@@ -60,14 +56,5 @@
             </plugins>
         </pluginManagement>
     </build>
-
-    <repositories>
-
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-
-    </repositories>
 
 </project>
