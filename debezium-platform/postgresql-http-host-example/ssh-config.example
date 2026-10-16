@@ -1,0 +1,13 @@
+# This file is read inside the Conductor container after the example-owned
+# SSH directory is mounted at /root/.ssh. Replace YOUR_LINUX_USER before
+# writing it to ${HOST_EXAMPLE_SSH_DIR}/config.
+#
+# The target is localhost only from the disposable Multipass VM's point of
+# view. It is not the developer workstation.
+Host host-example
+    HostName 127.0.0.1
+    User YOUR_LINUX_USER
+    IdentityFile /root/.ssh/debezium-host-example
+    UserKnownHostsFile /root/.ssh/known_hosts
+    IdentitiesOnly yes
+    StrictHostKeyChecking yes
