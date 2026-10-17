@@ -1,0 +1,26 @@
+domain:
+  name: platform.debezium.io
+database:
+  enabled: true
+ingress:
+  className: nginx
+
+monitoring:
+  otel:
+    enabled: true
+    collector:
+      # The OpenTelemetry Operator's default image (otelcol-k8s) does not include
+      # the Prometheus exporter this chart configures, so the collector crash-loops.
+      # Use the contrib distribution, which does include it.
+      image: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.152.0"
+  prometheus:
+    # Prometheus runs in the `monitoring` namespace. The short service name only
+    # resolves inside that namespace, and the conductor runs in `debezium-platform`.
+    url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
+    serviceMonitor:
+      labels:
+        # kube-prometheus-stack scrapes ServiceMonitors labeled
+        # `release: <helm release name>`. The chart default
+        # (`prometheus: kube-prometheus`) matches nothing, so Prometheus never
+        # scrapes the collector and every monitoring panel stays empty.
+        release: kube-prometheus-stack
