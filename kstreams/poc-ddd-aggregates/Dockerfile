@@ -27,7 +27,7 @@ COPY kstreams/poc-ddd-aggregates/src kstreams/poc-ddd-aggregates/src
 RUN mvn package -DskipTests -o -f kstreams/poc-ddd-aggregates/pom.xml
 
 # 3. Create actual image (jlink-ed JDK, dependencies, JAR and launcher)
-FROM registry.fedoraproject.org/fedora-minimal:37
+FROM registry.fedoraproject.org/fedora-minimal:44
 
 COPY --from=jdk /opt/jre-minimal /opt/poc-ddd-aggregates/jdk
 RUN cd /opt/poc-ddd-aggregates \

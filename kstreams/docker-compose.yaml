@@ -28,8 +28,6 @@ services:
 
   connect_source:
     image: quay.io/debezium/connect:${DEBEZIUM_VERSION}
-    build:
-      context: debezium-mongodb
     ports:
      - 8083:8083
     depends_on:

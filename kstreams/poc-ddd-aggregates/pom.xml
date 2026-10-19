@@ -14,10 +14,6 @@
     <artifactId>poc-ddd-aggregates</artifactId>
     <version>0.1-SNAPSHOT</version>
 
-    <properties>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
-    </properties>
-
     <dependencies>
 
         <dependency>
@@ -51,7 +47,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-	            <version>${mvn.dependency.version}</version>
+	            <version>${version.maven.dependency}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
