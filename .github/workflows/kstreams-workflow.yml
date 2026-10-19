@@ -5,10 +5,12 @@ on:
     paths:
       - 'kstreams/**'
       - '.github/workflows/kstreams-workflow.yml'
+      - 'scripts/run-example-test.py'
   pull_request:
     paths:
       - 'kstreams/**'
       - '.github/workflows/kstreams-workflow.yml'
+      - 'scripts/run-example-test.py'
       - '.env'
 
 jobs:
@@ -29,3 +31,11 @@ jobs:
             ${{ runner.os }}-maven-
       - name: Check changes in [kstreams | poc-ddd-aggregates] example
         run: cd kstreams && mvn clean install -f poc-ddd-aggregates/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+      - name: Run kstreams test
+        run: python scripts/run-example-test.py kstreams

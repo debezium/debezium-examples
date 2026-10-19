@@ -1,0 +1,100 @@
+name: kstreams
+description: >
+  Tests the MySQL -> Debezium -> Kafka Streams pipeline that joins customers and
+  their addresses into DDD aggregates on the final_ddd_aggregates topic.
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build the aggregator image
+    type: docker_compose_build
+    services:
+      - aggregator
+
+  - name: Start Kafka, MySQL and Kafka Connect
+    type: docker_compose_up
+    detach: true
+    services:
+      - kafka
+      - mysql
+      - connect_source
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 240
+    interval_seconds: 5
+
+  - name: Register MySQL source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: mysql-source.json
+    expected_status: [200, 201]
+
+  - name: Wait for MySQL source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/mysql-source/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Verify snapshot of the customers table
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_content: Sally
+
+  - name: Verify snapshot of the addresses table
+    type: kafka_consume
+    topic: dbserver1.inventory.addresses
+    timeout_seconds: 60
+    expected_content: '"customer_id":1001'
+
+  # Start the aggregator only once both source topics exist
+  - name: Start the Kafka Streams aggregator
+    type: docker_compose_up
+    detach: true
+    services:
+      - aggregator
+
+  - name: Wait for the aggregator to build the first aggregate
+    type: wait_for_log
+    service: aggregator
+    expected_content: Sally
+    timeout_seconds: 180
+
+  - name: Verify the customer 1001 aggregate on final_ddd_aggregates
+    type: kafka_consume
+    topic: final_ddd_aggregates
+    timeout_seconds: 30
+    expected_content:
+      - '"first_name":"Sally"'
+      - '"customer_id":1001'
+
+  - name: Update customer 1001 in MySQL
+    type: docker_compose_exec
+    service: mysql
+    command: mysql -u mysqluser -pmysqlpw inventory -e "UPDATE customers SET first_name='Sarah' WHERE id=1001;"
+
+  - name: Wait for the aggregator to process the update
+    type: wait_for_log
+    service: aggregator
+    expected_content: Sarah
+    timeout_seconds: 60
+
+  - name: Verify the updated aggregate on final_ddd_aggregates
+    type: kafka_consume
+    topic: final_ddd_aggregates
+    timeout_seconds: 30
+    expected_content:
+      - '"first_name":"Sarah"'
+      - '"customer_id":1001'
