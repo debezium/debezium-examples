@@ -20,10 +20,14 @@ services:
     ports:
      - 3306:3306
     healthcheck:
-      test: "/usr/bin/mysql --user=root --password=debezium --execute \"SELECT 1;\""
+      # Connect over TCP, so the check only passes once the real server is up
+      # and not while the init scripts run on the socket-only temporary server
+      test: "/usr/bin/mysql --host=127.0.0.1 --user=root --password=debezium --execute \"SELECT 1;\""
       interval: 2s
       timeout: 20s
       retries: 10
+      # First start creates the data directory and loads the inventory database
+      start_period: 120s
     environment:
      - MYSQL_ROOT_PASSWORD=debezium
      - MYSQL_USER=mysqluser
@@ -52,12 +56,12 @@ services:
       context: event-source
       dockerfile: src/main/docker/Dockerfile.jvm
     environment:
-     - DATABASE_SERVER=mysql 
+     - DATABASE_SERVER=mysql
      - JAVA_MAIN_CLASS=io.debezium.examples.kstreams.liveupdate.eventsource.Main
     depends_on:
       mysql:
         condition: service_healthy
-        
+
   aggregator:
     image: debezium-examples/kstreams-live-update-aggregator:${DEBEZIUM_VERSION}
     build:
@@ -71,7 +75,7 @@ services:
     depends_on:
      - connect
      - kafka
-     
+
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.3.0
     ports:

@@ -15,19 +15,41 @@
 
     <properties>
         <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <version.org.hibernate>5.4.24.Final</version.org.hibernate>
+        <version.jaxb.runtime>4.0.6</version.jaxb.runtime>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- slf4j-log4j12 is an SLF4J 1.x binding. The parent's BOMs manage slf4j-api 2.x,
+                 which ignores 1.x bindings and disables logging, so keep slf4j-api at the binding's version. -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <!-- Hibernate ORM 7 needs a Jakarta XML Binding 4 runtime to read persistence.xml. The parent's
+                 debezium-server-bom manages jaxb-runtime and txw2 at 2.3.1 (javax era), so keep them at 4.x here. -->
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${version.jaxb.runtime}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>txw2</artifactId>
+                <version>${version.jaxb.runtime}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${version.org.hibernate}</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>

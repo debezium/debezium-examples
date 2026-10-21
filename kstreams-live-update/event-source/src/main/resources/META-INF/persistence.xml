@@ -1,20 +1,24 @@
-<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
-             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
-	version="2.1">
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+             https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd"
+	version="3.2">
 
 	<persistence-unit name="postgres" transaction-type="RESOURCE_LOCAL">
 
 		<description>Debezium Kstreams Demo Event Source Persistence Unit</description>
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+		<!-- Hibernate ORM 7 no longer scans for entities without hibernate-scan-jandex, so list them explicitly -->
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Category</class>
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Customer</class>
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Order</class>
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Product</class>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
 
 		<properties>
 			<property name="hibernate.archive.autodetection" value="class, hbm" />
 
-			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
 			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
 			<property name="hibernate.connection.url" value="jdbc:postgresql://postgres:5432/postgres" />
 			<property name="hibernate.connection.username" value="postgres" />
@@ -31,11 +35,11 @@
 
 			<property name="hibernate.cache.region_prefix" value="hibernate.test" />
 
-			<!--NOTE: hibernate.jdbc.batch_versioned_data should be set to false when 
+			<!--NOTE: hibernate.jdbc.batch_versioned_data should be set to false when
 				testing with Oracle -->
 			<property name="hibernate.jdbc.batch_versioned_data" value="true" />
 
-			<property name="javax.persistence.validation.mode" value="NONE" />
+			<property name="jakarta.persistence.validation.mode" value="NONE" />
 			<property name="hibernate.service.allow_crawling" value="false" />
 			<property name="hibernate.session.events.log" value="true" />
 		</properties>
@@ -46,12 +50,16 @@
 		<description>Debezium Kstreams Demo Event Source Persistence Unit</description>
 		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+		<!-- Hibernate ORM 7 no longer scans for entities without hibernate-scan-jandex, so list them explicitly -->
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Category</class>
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Customer</class>
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Order</class>
+		<class>io.debezium.examples.kstreams.liveupdate.eventsource.Product</class>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
 
 		<properties>
 			<property name="hibernate.archive.autodetection" value="class, hbm" />
 
-			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 			<property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver" />
 			<property name="hibernate.connection.url" value="jdbc:mysql://mysql:3306/inventory" />
 			<property name="hibernate.connection.username" value="mysqluser" />
@@ -72,7 +80,7 @@
 				testing with Oracle -->
 			<property name="hibernate.jdbc.batch_versioned_data" value="true" />
 
-			<property name="javax.persistence.validation.mode" value="NONE" />
+			<property name="jakarta.persistence.validation.mode" value="NONE" />
 			<property name="hibernate.service.allow_crawling" value="false" />
 			<property name="hibernate.session.events.log" value="true" />
 		</properties>
