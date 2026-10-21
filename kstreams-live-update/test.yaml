@@ -1,0 +1,68 @@
+name: kstreams-live-update
+description: >
+  Tests the MySQL variant: the event source writes random orders with Hibernate ORM, Debezium
+  captures orders and categories, and the Kafka Streams aggregator publishes the accumulated
+  sales per category on the sales_per_category topic.
+env_file: ../.env
+compose_file: docker-compose-mysql.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build the MySQL, Connect, event source and aggregator images
+    type: docker_compose_build
+    services:
+      - mysql
+      - connect
+      - event-source
+      - aggregator
+
+  # The event source waits for MySQL to be healthy, so show the MySQL logs if this step fails
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+    service: mysql
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 300
+    interval_seconds: 5
+
+  - name: Register MySQL source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: mysql-source.json
+    expected_status: [200, 201]
+
+  - name: Wait for MySQL source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/mysql-source/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for the event source to insert orders
+    type: wait_for_log
+    service: event-source
+    expected_content: Inserted 50 orders
+    timeout_seconds: 180
+
+  - name: Verify order change events on Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.orders
+    timeout_seconds: 60
+    expected_content: '"sales_price"'
+
+  - name: Verify the aggregator publishes sales per category
+    type: kafka_consume
+    topic: sales_per_category
+    timeout_seconds: 120
+    expected_content: '.'
