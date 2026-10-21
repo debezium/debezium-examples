@@ -6,11 +6,11 @@
 package io.debezium.aggregation.hibernate;
 
 import org.hibernate.boot.Metadata;
+import org.hibernate.boot.spi.BootstrapContext;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
 import org.hibernate.integrator.spi.Integrator;
-import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 
 /**
  * Integrator for Hibernate ORM that enables aggregate materialization via {@link MaterializeAggregate}.
@@ -20,19 +20,15 @@ import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 public class AggregationBuilderIntegrator implements Integrator {
 
     @Override
-    public void integrate(Metadata metadata, SessionFactoryImplementor sessionFactory,
-            SessionFactoryServiceRegistry serviceRegistry) {
+    public void integrate(Metadata metadata, BootstrapContext bootstrapContext,
+            SessionFactoryImplementor sessionFactory) {
 
-        EventListenerRegistry eventListenerRegistry = serviceRegistry.getService(EventListenerRegistry.class);
+        EventListenerRegistry eventListenerRegistry = sessionFactory.getEventListenerRegistry();
 
         AggregationBuilderListener listener = new AggregationBuilderListener();
 
         eventListenerRegistry.appendListeners(EventType.POST_INSERT, listener);
         eventListenerRegistry.appendListeners(EventType.POST_UPDATE, listener);
         eventListenerRegistry.appendListeners(EventType.POST_DELETE, listener);
-    }
-
-    @Override
-    public void disintegrate(SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
     }
 }

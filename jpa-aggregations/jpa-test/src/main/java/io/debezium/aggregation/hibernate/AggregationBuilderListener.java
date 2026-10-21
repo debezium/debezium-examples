@@ -5,16 +5,15 @@
  */
 package io.debezium.aggregation.hibernate;
 
-import org.hibernate.action.spi.BeforeTransactionCompletionProcess;
 import org.hibernate.engine.spi.SessionImplementor;
-import org.hibernate.event.spi.EventSource;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.engine.spi.TransactionCompletionCallbacks.BeforeCompletionCallback;
 import org.hibernate.event.spi.PostDeleteEvent;
 import org.hibernate.event.spi.PostDeleteEventListener;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.event.spi.PostUpdateEvent;
 import org.hibernate.event.spi.PostUpdateEventListener;
-import org.hibernate.persister.entity.EntityPersister;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
@@ -35,11 +34,6 @@ class AggregationBuilderListener implements PostInsertEventListener, PostUpdateE
 
         public AggregationBuilderListener() {
             mapper = new ObjectMapperFactory().buildObjectMapper();
-        }
-
-        @Override
-        public boolean requiresPostCommitHanding(EntityPersister persister) {
-            return false;
         }
 
         @Override
@@ -89,11 +83,11 @@ class AggregationBuilderListener implements PostInsertEventListener, PostUpdateE
             return materializeAggregate != null ? materializeAggregate.aggregateName() : null;
         }
 
-        private void insertOrUpdateAggregate(Object entity, Object id, String idProperty, String aggregateName, EventSource session) {
-            session.getActionQueue().registerProcess( new BeforeTransactionCompletionProcess() {
+        private void insertOrUpdateAggregate(Object entity, Object id, String idProperty, String aggregateName, SharedSessionContractImplementor session) {
+            session.getTransactionCompletionCallbacks().registerCallback( new BeforeCompletionCallback() {
 
                 @Override
-                public void doBeforeTransactionCompletion(SessionImplementor session) {
+                public void doBeforeTransactionCompletion(SharedSessionContractImplementor session) {
                     if ( !session.getTransactionCoordinator().isActive() ) {
                         return;
                     }
@@ -132,8 +126,9 @@ class AggregationBuilderListener implements PostInsertEventListener, PostUpdateE
 //                            }
 //                        }
 
-                        session.saveOrUpdate(aggregate);
-                        session.flush();
+                        SessionImplementor statefulSession = (SessionImplementor) session;
+                        statefulSession.merge(aggregate);
+                        statefulSession.flush();
                     }
                     catch(RuntimeException e) {
                         throw e;
@@ -145,11 +140,11 @@ class AggregationBuilderListener implements PostInsertEventListener, PostUpdateE
             } );
         }
 
-        private void deleteAggregate(Object entity, Object id, String idProperty, String aggregateName, EventSource session) {
-            session.getActionQueue().registerProcess( new BeforeTransactionCompletionProcess() {
+        private void deleteAggregate(Object entity, Object id, String idProperty, String aggregateName, SharedSessionContractImplementor session) {
+            session.getTransactionCompletionCallbacks().registerCallback( new BeforeCompletionCallback() {
 
                 @Override
-                public void doBeforeTransactionCompletion(SessionImplementor session) {
+                public void doBeforeTransactionCompletion(SharedSessionContractImplementor session) {
                     if ( !session.getTransactionCoordinator().isActive() ) {
                         return;
                     }
@@ -172,9 +167,10 @@ class AggregationBuilderListener implements PostInsertEventListener, PostUpdateE
 //                        }
 
                         String idString = "{ \"" + idProperty + "\" : " + mapper.writeValueAsString(id) + " }";
-                        Aggregate aggregate = session.getReference(Aggregate.class, new AggregateKey(idString, aggregateName));
-                        session.delete(aggregate);
-                        session.flush();
+                        SessionImplementor statefulSession = (SessionImplementor) session;
+                        Aggregate aggregate = statefulSession.getReference(Aggregate.class, new AggregateKey(idString, aggregateName));
+                        statefulSession.remove(aggregate);
+                        statefulSession.flush();
                     }
                     catch(RuntimeException e) {
                         throw e;
