@@ -19,7 +19,7 @@ email="${event_id}@example.com"
 
 echo "Inserting a source row with ${email}..."
 docker compose exec -T -e PGPASSWORD=postgres source-postgres \
-    psql -h 127.0.0.1 -p 5433 -U postgres -d inventory -v ON_ERROR_STOP=1 -c \
+    psql -U postgres -d postgres -v ON_ERROR_STOP=1 -c \
     "INSERT INTO inventory.customers (first_name, last_name, email) VALUES ('Host', 'Example', '${email}');"
 
 for attempt in $(seq 1 30); do

@@ -11,12 +11,12 @@ readonly BASE_URL="${CONDUCTOR_URL:-http://localhost:8081}/api"
 readonly STATE_FILE=.host-pipeline-state
 
 if [[ -z "${HOST_IP:-}" ]]; then
-    echo "Set HOST_IP to this Linux machine's non-loopback IPv4 address." >&2
+    echo "Set HOST_IP to the Compose host address reachable from the target VM." >&2
     exit 1
 fi
 
 if [[ "${HOST_IP}" == "localhost" || "${HOST_IP}" == "127.0.0.1" ]]; then
-    echo "HOST_IP must be reachable from the deployed container; do not use localhost or 127.0.0.1." >&2
+    echo "HOST_IP must be reachable from the target VM; do not use localhost or 127.0.0.1." >&2
     exit 1
 fi
 
@@ -44,7 +44,7 @@ print(json.dumps({
     "name": "host-example-postgresql",
     "config": {
         "hostname": sys.argv[1], "port": 5433,
-        "username": "debezium", "password": "dbz", "database": "inventory"
+        "username": "postgres", "password": "postgres", "database": "postgres"
     }
 }))
 PY
@@ -73,7 +73,7 @@ print(json.dumps({
     "connection": {"id": int(sys.argv[1])},
     "config": {
         "plugin.name": "pgoutput", "publication.name": "dbz_host_example",
-        "publication.autocreate.mode": "disabled",
+        "publication.autocreate.mode": "filtered",
         "slot.name": "dbz_host_example", "topic.prefix": "host-example",
         "schema.include.list": "inventory"
     }
