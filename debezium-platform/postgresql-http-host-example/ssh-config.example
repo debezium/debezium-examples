@@ -1,0 +1,11 @@
+# This file is read inside the Conductor container after the example-owned
+# SSH directory is mounted at /root/.ssh. The target is the disposable
+# Multipass VM. Replace TARGET_HOST_IP and YOUR_LINUX_USER before writing it
+# to ${HOST_EXAMPLE_SSH_DIR}/config.
+Host host-example
+    HostName TARGET_HOST_IP
+    User YOUR_LINUX_USER
+    IdentityFile /root/.ssh/debezium-host-example
+    UserKnownHostsFile /root/.ssh/known_hosts
+    IdentitiesOnly yes
+    StrictHostKeyChecking yes
