@@ -6,7 +6,6 @@
 services:
   platform-db:
     image: postgres:16
-    network_mode: host
     command: ["postgres", "-c", "wal_level=logical"]
     environment:
       POSTGRES_DB: conductor
@@ -23,7 +22,6 @@ services:
       context: ./conductor
       args:
         PLATFORM_VERSION: ${PLATFORM_VERSION:-nightly}
-    network_mode: host
     depends_on:
       platform-db:
         condition: service_healthy
@@ -32,9 +30,9 @@ services:
       QUARKUS_HTTP_HOST: 0.0.0.0
       QUARKUS_DATASOURCE_USERNAME: conductor
       QUARKUS_DATASOURCE_PASSWORD: conductor
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://127.0.0.1:5432/conductor
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://platform-db:5432/conductor
       QUARKUS_HTTP_CORS_ENABLED: "true"
-      QUARKUS_HTTP_CORS_ORIGINS: "http://${HOST_IP:-localhost}:3000"
+      QUARKUS_HTTP_CORS_ORIGINS: "${PLATFORM_UI_ORIGIN:-http://localhost:3000}"
       PIPELINE_DEPLOYMENT_MODE: host
       PIPELINE_HOST_CONTAINER_RUNTIME: ansible
       PLATFORM_HOST_SSH_CONFIG_PATH: /root/.ssh/config
@@ -42,36 +40,37 @@ services:
       PLATFORM_HOST_DEBEZIUM_SERVER_IMAGE: quay.io/debezium/server:${PLATFORM_VERSION:-nightly}
     volumes:
       - ${HOST_EXAMPLE_SSH_DIR:?Set HOST_EXAMPLE_SSH_DIR to the example SSH directory}:/root/.ssh:ro
+    ports:
+      - "8081:8081"
 
   stage:
     image: quay.io/debezium/platform-stage:${PLATFORM_VERSION:-nightly}
-    network_mode: host
     depends_on:
       - conductor
     environment:
-      CONDUCTOR_URL: "http://${HOST_IP:-localhost}:8081"
+      CONDUCTOR_URL: "${CONDUCTOR_URL:-http://localhost:8081}"
+    ports:
+      - "3000:3000"
 
   source-postgres:
-    image: quay.io/debezium/postgres:16
-    network_mode: host
-    command: ["postgres", "-c", "listen_addresses=*", "-c", "port=5433", "-c", "wal_level=logical"]
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-3.7}
     environment:
-      POSTGRES_DB: inventory
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    volumes:
-      - ./source-postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5433 -U postgres -d inventory"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 20
 
   receiver:
     build: ./receiver
-    network_mode: host
     volumes:
       - receiver-events:/events
+    ports:
+      - "9900:9900"
 
 volumes:
   receiver-events:
