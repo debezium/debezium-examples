@@ -14,7 +14,6 @@
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
         <version.jaxb.runtime>4.0.6</version.jaxb.runtime>
     </properties>
 
@@ -73,7 +72,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${mvn.dependency.version}</version>
+                <version>${version.maven.dependency}</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
