@@ -9,18 +9,11 @@ echo ">>> Installing debezium-platform ${DEBEZIUM_PLATFORM_CHART_VERSION}..."
 helm repo add debezium https://charts.debezium.io
 helm repo update debezium
 
-HELM_ARGS=(
-  upgrade --install debezium-platform debezium/debezium-platform
-  --version "$DEBEZIUM_PLATFORM_CHART_VERSION"
-  --namespace "$NAMESPACE"
-  --create-namespace
+helm upgrade --install debezium-platform debezium/debezium-platform \
+  --version "$DEBEZIUM_PLATFORM_CHART_VERSION" \
+  --namespace "$NAMESPACE" \
+  --create-namespace \
   -f ./values.yaml
-)
-if [[ "${CUSTOM_PANELS:-}" == "true" ]]; then
-  HELM_ARGS+=(-f ./values-custom-panels.yaml)
-fi
-
-helm "${HELM_ARGS[@]}"
 
 echo ">>> Waiting for conductor, stage, and the OpenTelemetry collector..."
 kubectl rollout status deploy/conductor -n "$NAMESPACE" --timeout=300s

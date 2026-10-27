@@ -5,7 +5,7 @@ This example walks you through running the Debezium Management Platform with **m
 
 It builds directly on [`../postgresql-kafka-example`](../postgresql-kafka-example), which walks through the UI
 in detail (Connections, Sources, Destinations, Pipeline) and explains every field. If you are new to Platform read that one first. Here we
-reuse the same PostgreSQL → Kafka pipeline and focus on wiring monitoring into the platform,
+reuse the same PostgreSQL → Kafka example and focus on wiring monitoring into the platform,
 reading the panels, making them move, and then alerting on them.
 
 Every step is backed by a script, so you can read along and run them. All scripts source [`env.sh`](./env.sh) for shared configuration like cluster name,
@@ -57,7 +57,7 @@ Prepare the environment
 
 - [minikube](https://minikube.sigs.k8s.io/docs/)
 - `kubectl`, `helm`
-- `curl` and [`jq`](https://jqlang.org/) (used by the seed/verify scripts)
+- `curl` and [`jq`](https://jqlang.org/) (used by the seed script)
 
 > **_NOTE:_** This example reuses the same minikube profile name (`debezium`) and `/etc/hosts` entry
 > (`platform.debezium.io`) as [`../postgresql-kafka-example`](../postgresql-kafka-example). Run `./clean-up.sh`
@@ -65,8 +65,7 @@ Prepare the environment
 > different profile.
 
 `create-environment.sh` provisions a local minikube cluster with an ingress controller and points
-`platform.debezium.io` at it via `/etc/hosts`. The monitoring stack is heavier than the base example, so this
-cluster is sized up (`--cpus=6 --memory=8192`).
+`platform.debezium.io` at it via `/etc/hosts`. 
 
 ```sh
 ./create-environment.sh
@@ -132,13 +131,6 @@ monitoring:
         release: kube-prometheus-stack
 ```
 
-In short:
-
-- `otel.enabled: true` is what makes the chart create the collector and point new pipelines at it.
-- `otel.collector.image` must be a distribution that bundles the **Prometheus exporter** (`contrib`, not the
-  operator's default `otelcol-k8s`), or the collector pod crash-loops.
-- `prometheus.url` must be **fully qualified**, because Prometheus and the Conductor are in different namespaces.
-- `serviceMonitor.labels.release` must match the Prometheus Helm release name.
 
 ```sh
 ./setup-platform.sh
@@ -157,15 +149,12 @@ debezium-platform-otel-collector-collector-xxxxx    1/1     Running   0         
 
 The Stage UI is now reachable at `http://platform.debezium.io/`.
 
-Explore the monitoring
----
-
 ### 4. Create the pipeline
 
 Monitoring needs something to monitor, so the next step is the usual Connection → Source → Destination →
-Pipeline. Build it by hand in the [Stage UI](http://platform.debezium.io/) if you want the detail — the base
+Pipeline. You can set them up using the [Stage UI](http://platform.debezium.io/) following the details from the base
 example [walks through every field](../postgresql-kafka-example/README.md#using-the-debezium-platform-stageui-for-setting-up-our-data-pipeline)
-— or skip ahead with [`seed-pipeline.sh`](./seed-pipeline.sh), which creates `postgres-connection`,
+ or skip ahead with [`seed-pipeline.sh`](./seed-pipeline.sh), which creates `postgres-connection`,
 `kafka-connection`, `test-source`, `test-destination` and `test-pipeline` against the Conductor API:
 
 ```sh
@@ -175,12 +164,15 @@ example [walks through every field](../postgresql-kafka-example/README.md#using-
 
 It prints the direct link to the Monitoring tab, e.g. `http://platform.debezium.io/pipeline/1/monitoring`.
 
+Explore the monitoring
+---
+
 ### 5. Open the Monitoring tab
 
-Open the link printed by `seed-pipeline.sh` (or **Pipelines** → `test-pipeline` → **Monitoring**) and leave it
+Open the link printed in the last step (or **Pipelines** → `test-pipeline` → **Monitoring**) and leave it
 open for the rest of this example.
 
-![Pipeline monitoring tab](./resources/monitoring-overview.png)
+![Pipeline monitoring tab](./resources/monitoring-tab.png)
 
 The tab has two sections, matching the `category` of each panel.
 
@@ -203,8 +195,7 @@ The tab has two sections, matching the `category` of each panel.
 | Panel | What it shows |
 | --- | --- |
 | **Snapshot Status** | Lifecycle state: `running`, `completed`, `aborted` or `skipped`. |
-| **Snapshot Table Count** | Number of tables included in the snapshot. |
-| **Snapshot Table Progress** | Tables still remaining. |
+| **Snapshot Table Progress** | Tables captured so far, out of the total in the snapshot. The donut shows percent complete, with the remaining and completed counts beside it. |
 | **Snapshot Duration** | Elapsed time of the current or most recent snapshot. |
 | **Snapshot Event Count Rate** | Rate of snapshot (initial-load) change events/sec. |
 
@@ -230,9 +221,7 @@ A single burst gives one bump that decays; a steady drip gives a chart that clim
 **Watch:** **Streaming Event Count Rate** climbs then plateaus, **Time Since Last Event** stays near 0, and
 **Committed Transactions Rate** lifts.
 
-
-
-#### B. Watch a stalled pipeline
+<!-- #### B. Watch a stalled pipeline
 
 Stop `generate-traffic.sh` with `Ctrl+C`, do nothing for two minutes, then insert a single row:
 
@@ -241,7 +230,7 @@ kubectl exec -n debezium-platform deploy/postgresql -- psql -U debezium -d debez
   "INSERT INTO inventory.products (name, description, weight) VALUES ('wakeup', 'one row', 1);"
 ```
 
-**Watch:** **Time Since Last Event** climbs as a diagonal line, then drops straight back to ~0 on the insert.
+**Watch:** **Time Since Last Event** climbs as a diagonal line, then drops straight back to ~0 on the insert. -->
 
 #### C. Make the Snapshot panels light up
 
@@ -254,12 +243,12 @@ snapshot from scratch:
 ```
 
 **Watch:** switch to the **Snapshot** section straight away. **Snapshot Status** goes `running` → `completed`,
-**Snapshot Table Progress** counts down, and **Snapshot Duration** and **Snapshot Event Count Rate** fill in.
-It's quick on this dataset, so don't blink.
+**Snapshot Table Progress** fills toward 100% as the remaining count drops, and **Snapshot Duration** and
+**Snapshot Event Count Rate** fill in.
 
 #### D. Flip Connection Status to disconnected
 
-The clearest "something is wrong" visual on the dashboard. The script repeatedly kills the source database's
+The script repeatedly kills the source database's
 replication connection; Debezium reconnects on its own and the pipeline pod never restarts.
 
 ```sh
@@ -272,21 +261,12 @@ typically lasts only about a minute, and if you look away the panel reads **conn
 nothing ever happened. (That is precisely the gap the [alerting section](#alerting-get-told-instead-of-watching)
 below closes.)
 
-> **_NOTE:_** Don't demo this by scaling `deploy/postgresql` to 0. The source database has no persistent
+<!-- > **_NOTE:_** Don't demo this by scaling `deploy/postgresql` to 0. The source database has no persistent
 > volume, so that wipes the `inventory` data and the replication slot, and the pipeline then crash-loops on a
-> WAL position that no longer exists. (If that does happen, `./replay-snapshot.sh` is the fix.)
+> WAL position that no longer exists. (If that does happen, `./replay-snapshot.sh` is the fix.) -->
 
 Alerting: get told instead of watching
 ---
-
-Everything so far is passive: the panels only help while somebody is looking at them. Alerting closes that
-gap. The evaluation engine runs inside the Conductor, queries the same Prometheus the panels use, and keeps
-rules and incidents in the platform's own database — nothing extra to install, and no flag to turn on. A rule
-is built from a **monitoring panel** rather than a PromQL expression, so anything on the Monitoring tab can be
-alerted on.
-
-> **_NOTE:_** `kube-prometheus-stack` also installed an `alertmanager-...` pod back in step 1. The platform
-> does not use it — rules live in the Conductor and only *read* from Prometheus.
 
 ### 7. Create an alert rule
 
@@ -295,7 +275,7 @@ Open **Alerts** → **Rules** in the left navigation and create a rule. The form
 | Field | Value | Why |
 | --- | --- | --- |
 | **Name** | `source-disconnected` | Lowercase letters, digits and hyphens. |
-| **Severity** | *Critical* | Critical and Warning count towards the header badge; Info does not. |
+| **Severity** | *Critical* | Critical and Warning count towards the badge on **Alerts** in the left navigation. Info does not. |
 | **When** | *Connection Status* | Any panel from the Monitoring tab can be picked here. |
 | **Reduce** | *last* | The default, and the right choice for a gauge. |
 | **Is** | *equal to* `0` | 1 is connected, 0 is not — no threshold to tune. |
@@ -315,49 +295,37 @@ Then break the connection, for longer than the default:
 ./break-connection.sh 30
 ```
 
-The default of 14 kills covers about 70 seconds, which can slip between two evaluations and never be noticed.
+<!-- The default of 14 kills covers about 70 seconds, which can slip between two evaluations and never be noticed.
 30 kills covers roughly two and a half minutes, so at least one evaluation is guaranteed to land inside the
-window.
+window. -->
 
-**Watch:** the rules list marks `source-disconnected` as firing, the header badge turns red, and a new
-incident appears under **Alerts** → **History**. About a minute after the loop ends Debezium reconnects and
-the incident resolves on its own.
+**Watch:** the rules list marks `source-disconnected` as firing, the badge on **Alerts** in the left
+navigation turns red and counts 1, and a new incident appears under **Alerts** → **Events**. About a minute
+after the loop ends Debezium reconnects and the incident resolves on its own.
 
-![Alert rules list with a firing rule](./resources/alert-rules-list.png)
+![Alert rules list with a firing rule](./resources/alert-rule-list.png)
 
-The panel is a poor record of the same event: **Connection Status** dips for about a minute and then reads
-connected again, so looking away loses it entirely. The rule catches it either way.
+You can follow the monitoring panel and see **Connection Status** dips for about a minute and then reads
+connected again, and can miss it if not actively looking. The rule catches it either way.
 
-### 8. Read the history
+### 8. Alert events
 
-**Alerts** → **History** is the record of everything that happened while you weren't watching. Each incident
-carries its rule, pipeline, severity, the value that tripped it, the threshold it crossed, when it fired and
-how long it lasted. Rows expand for the detail, and the table filters by severity, status, pipeline, rule and
-date range.
+**Alerts** → **Events** lists each time the rule fired and resolved. After the step above you should have one closed critical incident.
 
-Incidents that are still firing are pinned to the top, so the page opens on what is broken right now, with the
-closed ones underneath. The pipeline name in each row links back to that pipeline's Monitoring tab, which is
-usually where you were heading anyway.
+The badge on **Alerts** in the left navigation counts firing Critical and Warning alerts and takes the colour of the highest severity: red for Critical, amber for Warning.
 
-![Alert history](./resources/alert-history.png)
-
-After the scenario above you should have one closed incident, marked critical, with a short duration.
+![Alert events](./resources/alert-event.gif)
 
 ### Notifying outside the platform
 
-Alerts always appear in the UI, which is why the walkthrough above needed no setup. To also notify a person,
-add a channel under **Alerts** → **Channels** and attach it to a rule through the rule's *Additional channels*
+Alerts always appear in the UI, which is why the walkthrough above needed no setup. There are two other channels which can se set under **Alerts** → **Channels** and attach it to a rule through the rule's *Additional channels*
 field. One channel can serve several rules, and each has a **Test** button.
 
-![Notification channels](./resources/alert-channels.png)
-
-Both types need something this example does not install, so treat this as a pointer rather than a step:
 
 - **Email** needs an SMTP server, set at install time through `alerting.email.host`, `alerting.email.from` and
   a secret referenced by `alerting.email.auth.existingSecret`.
-- **Webhook** posts JSON to a URL (Slack, PagerDuty, Teams). The Conductor rejects private, loopback and
-  link-local addresses by default, so an in-cluster receiver needs
-  `alerting.webhook.allowPrivateNetworks: true` in [`values.yaml`](./values.yaml) and a `helm upgrade`.
+- **Webhook** needs a URL that accepts a POST, set on the channel with an HTTP method and optional headers
+  (Slack, PagerDuty, Teams).
 
 See the [`debezium-platform` Helm chart README](https://github.com/debezium/debezium-platform/blob/main/helm/README.md#alerting)
 for the full set of `alerting.*` values.
@@ -369,5 +337,4 @@ Cleanup
 ./clean-up.sh
 ```
 
-This deletes the `debezium` minikube profile, and everything deployed in it goes with it. The script also
-prints the command to drop the `/etc/hosts` entry it added.
+This deletes the `debezium` minikube profile, and everything deployed in it goes with it.

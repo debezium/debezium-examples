@@ -27,6 +27,7 @@ For getting started please check the [tutorial example](./tutorial).
 * [Debezium - Auto-Creation of Topics](./topic-auto-create): Auto-creating Debezium change data topics
 * [Debezium - Outbox Pattern](./outbox): Implement the "outbox pattern", an approach for letting services communicate in an asynchronous and reliable fashion
 * [Debezium Management Platform - Streaming to Apache Kafka](./debezium-platform/postgresql-kafka-example): How to use the debezium-platform to create a data pipeline to stream changes from a PostgreSQL database to Apache Kafka broker in kubernetes cluster.
+* [Debezium Management Platform - Monitoring and Alerting](./debezium-platform/platform-postgresql-kafka-monitoring-example): Running the Debezium Management Platform with built-in monitoring and alerting enabled for a PostgreSQL-to-Kafka pipeline.
 * [Debezium Management Platform - Streaming to Amazon Kinesis on AWS](./debezium-platform/postgresql-kinesis-aws-example): How to run the Debezium Management Platform on a k3s cluster on AWS EC2 and stream changes from Amazon RDS for PostgreSQL to an Amazon [Kinesis](https://aws.amazon.com/kinesis/data-streams/) stream
 * [Debezium - Python Connect-Mode](./debezium-python): How to embed Debezium into a Python application using Connect-mode with no JSON serialization overhead
 * [Debezium - Saga Pattern](./saga): How to implement the [Saga pattern](https://microservices.io/patterns/data/saga.html) for realizing distributed transactions across multiple microservices
