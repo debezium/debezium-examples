@@ -1,0 +1,35 @@
+domain:
+  name: platform.debezium.io
+database:
+  enabled: true
+ingress:
+  className: nginx
+
+# The 3.7.0 release images are published for linux/amd64 only, so conductor and
+# stage fail with `no matching manifest for linux/arm64/v8` on Apple Silicon.
+# `nightly` is multi-arch (amd64 + arm64) and also carries the alerting feature
+# used later in this example.
+conductor:
+  image: quay.io/debezium/platform-conductor:nightly
+stage:
+  image: quay.io/debezium/platform-stage:nightly
+
+monitoring:
+  otel:
+    enabled: true
+    collector:
+      # The OpenTelemetry Operator's default image (otelcol-k8s) does not include
+      # the Prometheus exporter this chart configures, so the collector crash-loops.
+      # Use the contrib distribution, which does include it.
+      image: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.152.0"
+  prometheus:
+    # Prometheus runs in the `monitoring` namespace. The short service name only
+    # resolves inside that namespace, and the conductor runs in `debezium-platform`.
+    url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
+    serviceMonitor:
+      labels:
+        # kube-prometheus-stack scrapes ServiceMonitors labeled
+        # `release: <helm release name>`. The chart default
+        # (`prometheus: kube-prometheus`) matches nothing, so Prometheus never
+        # scrapes the collector and every monitoring panel stays empty.
+        release: kube-prometheus-stack

@@ -1,0 +1,14 @@
+{
+  "name": "test-source",
+  "description": "PostgreSQL inventory database",
+  "type": "io.debezium.connector.postgresql.PostgresConnector",
+  "schema": "dummy",
+  "vaults": [],
+  "connection": {
+    "id": 1
+  },
+  "config": {
+    "topic.prefix": "inventory",
+    "schema.include.list": "inventory"
+  }
+}

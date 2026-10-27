@@ -1,0 +1,15 @@
+{
+  "name": "test-pipeline",
+  "description": "PostgreSQL to Kafka, with monitoring",
+  "source": {
+    "id": 1,
+    "name": "test-source"
+  },
+  "destination": {
+    "id": 1,
+    "name": "test-destination"
+  },
+  "transforms": [],
+  "logLevel": "INFO",
+  "logLevels": {}
+}
