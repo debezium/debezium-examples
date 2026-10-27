@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# Provision a local minikube cluster large enough for the monitoring stack.
+# Provision a local minikube cluster.
+# The monitoring stack is heavier than the base example. If pods stay Pending, delete the profile
+# and start again with more resources:
+#   minikube delete -p "$CLUSTER"
+#   minikube start -p "$CLUSTER" --cpus=6 --memory=8192 --addons ingress
 set -euo pipefail
 
 cd "$(dirname "$0")"
 source ./env.sh
 
-echo ">>> Creating minikube cluster '${CLUSTER}' (6 CPUs, 8Gi memory, ingress addon)..."
-minikube start -p "$CLUSTER" --cpus=6 --memory=8192 --addons ingress
+echo ">>> Creating minikube cluster '${CLUSTER}' (ingress addon)..."
+minikube start -p "$CLUSTER" --addons ingress
 
 echo ">>> Waiting for the node..."
 kubectl wait --for=condition=Ready nodes --all --timeout=300s

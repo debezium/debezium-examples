@@ -1,15 +1,13 @@
 Using Debezium Platform built-in Monitoring and Alert
 ===
 
-This example walks you through running the Debezium Management Platform with **monitoring enabled and testing the alerts on Platform**.
+This example walks you through running the Debezium Management Platform with **monitoring enabled and testing alerts in the Platform**.
 
-It builds directly on [`../postgresql-kafka-example`](../postgresql-kafka-example), which walks through the UI
-in detail (Connections, Sources, Destinations, Pipeline) and explains every field. If you are new to Platform read that one first. Here we
-reuse the same PostgreSQL → Kafka example and focus on wiring monitoring into the platform,
-reading the panels, making them move, and then alerting on them.
+It builds on [`../postgresql-kafka-example`](../postgresql-kafka-example), which provides a detailed UI walkthrough covering Connections, Sources, Destinations, and Pipelines, explaining each field along the way. If you're new to the Platform, start with that example first.
 
-Every step is backed by a script, so you can read along and run them. All scripts source [`env.sh`](./env.sh) for shared configuration like cluster name,
-namespaces, chart versions, hostnames so those only need changing in one place.
+Here, we reuse the same PostgreSQL-to-Kafka setup and focus on integrating monitoring, exploring the monitoring panels, generating activity to observe metric changes, and configuring and testing alerts. For more details, see the [Pipeline monitoring documentation](https://debezium.io/documentation/reference/operations/debezium-platform.html#_pipeline_monitoring).
+
+Each step is backed by a script that you can run as you follow along. All scripts source [`env.sh`](./env.sh) for shared configuration, including the cluster name, namespaces, chart versions, and hostnames, so you only need to update these values in one place.
 
 How a number gets onto a panel
 ---
@@ -46,9 +44,6 @@ flowchart LR
     class PG,KFK store
     class UI userFacing
 ```
-
-Every panel in the UI is the end of that chain: the Stage UI asks the Conductor for a panel, and the Conductor
-runs a PromQL query against Prometheus.
 
 Prepare the environment
 ---
@@ -105,8 +100,7 @@ alertmanager-kube-prometheus-stack-alertmanager-0        2/2     Running   0    
 
 ### 2. Install the source database and destination Kafka
 
-Same as the base example: a PostgreSQL instance pre-seeded with the `inventory` schema as the source, and a
-Strimzi-managed Kafka cluster as the destination.
+Same as the base example, PostgreSQL instance pre-seeded with the `inventory` schema as the source and a Strimzi-managed Kafka cluster as the destination.
 
 ```sh
 ./setup-infra.sh
@@ -151,11 +145,9 @@ The Stage UI is now reachable at `http://platform.debezium.io/`.
 
 ### 4. Create the pipeline
 
-Monitoring needs something to monitor, so the next step is the usual Connection → Source → Destination →
-Pipeline. You can set them up using the [Stage UI](http://platform.debezium.io/) following the details from the base
-example [walks through every field](../postgresql-kafka-example/README.md#using-the-debezium-platform-stageui-for-setting-up-our-data-pipeline)
- or skip ahead with [`seed-pipeline.sh`](./seed-pipeline.sh), which creates `postgres-connection`,
-`kafka-connection`, `test-source`, `test-destination` and `test-pipeline` against the Conductor API:
+Monitoring needs something to monitor, so the next step is to set up the usual Connection → Source → Destination → Pipeline workflow.
+
+You can configure these through the [Platform UI](http://platform.debezium.io/), following the [base example's detailed walkthrough](../postgresql-kafka-example/README.md#using-the-debezium-platform-stageui-for-setting-up-our-data-pipeline), which explains each field. Alternatively, you can skip ahead by running [`seed-pipeline.sh`](./seed-pipeline.sh), which creates `postgres-connection`, `kafka-connection`, `test-source`, `test-destination`, and `test-pipeline` through the Conductor API.
 
 ```sh
 ./seed-pipeline.sh
@@ -203,7 +195,6 @@ The snapshot ran once, right after the pipeline was created, so these look flat.
 move again.
 
 
-
 ### 6. Make the panels move
 
 Keep the Monitoring tab open while you run them, and give each one 30–45 seconds.
@@ -217,6 +208,8 @@ A single burst gives one bump that decays; a steady drip gives a chart that clim
 ./generate-traffic.sh            # defaults: 60 batches x 20 rows, one batch every 5s
 ./generate-traffic.sh 20 50      # or: batches, rows-per-batch
 ```
+
+![Pipeline streaming panels](./resources/pipeline-streaming-panels.png)
 
 **Watch:** **Streaming Event Count Rate** climbs then plateaus, **Time Since Last Event** stays near 0, and
 **Committed Transactions Rate** lifts.
@@ -232,11 +225,9 @@ kubectl exec -n debezium-platform deploy/postgresql -- psql -U debezium -d debez
 
 **Watch:** **Time Since Last Event** climbs as a diagonal line, then drops straight back to ~0 on the insert. -->
 
-#### C. Make the Snapshot panels light up
+#### B. Make the Snapshot panels light up
 
-The snapshot finished the moment the pipeline was created, so these panels look flat. Debezium records how far
-it got in an offset table in the platform's own database; clearing it and restarting the pipeline makes it
-snapshot from scratch:
+The snapshot completed as soon as the pipeline was created, so these panels appear flat. Debezium tracks snapshot progress in an offset table in the Platform's own database. Clearing the offset records and restarting the pipeline forces the snapshot to run from scratch.
 
 ```sh
 ./replay-snapshot.sh
@@ -246,7 +237,7 @@ snapshot from scratch:
 **Snapshot Table Progress** fills toward 100% as the remaining count drops, and **Snapshot Duration** and
 **Snapshot Event Count Rate** fill in.
 
-#### D. Flip Connection Status to disconnected
+#### C. Flip Connection Status to disconnected
 
 The script repeatedly kills the source database's
 replication connection; Debezium reconnects on its own and the pipeline pod never restarts.
@@ -261,9 +252,10 @@ typically lasts only about a minute, and if you look away the panel reads **conn
 nothing ever happened. (That is precisely the gap the [alerting section](#alerting-get-told-instead-of-watching)
 below closes.)
 
-<!-- > **_NOTE:_** Don't demo this by scaling `deploy/postgresql` to 0. The source database has no persistent
-> volume, so that wipes the `inventory` data and the replication slot, and the pipeline then crash-loops on a
-> WAL position that no longer exists. (If that does happen, `./replay-snapshot.sh` is the fix.) -->
+After running through the scenarios above and observing the corresponding panels light up, you should see the monitoring tab having panels like shown below.
+
+![Pipeline Monitoring panels](./resources/pipeline-monitoring-panels.gif)
+
 
 Alerting: get told instead of watching
 ---
@@ -305,8 +297,7 @@ after the loop ends Debezium reconnects and the incident resolves on its own.
 
 ![Alert rules list with a firing rule](./resources/alert-rule-list.png)
 
-You can follow the monitoring panel and see **Connection Status** dips for about a minute and then reads
-connected again, and can miss it if not actively looking. The rule catches it either way.
+You can watch the **Connection Status** panel dip for about a minute before returning to connected. If you're not actively monitoring the panel, you might miss it. The alerting rule catches the issue regardless.
 
 ### 8. Alert events
 
@@ -318,7 +309,7 @@ The badge on **Alerts** in the left navigation counts firing Critical and Warnin
 
 ### Notifying outside the platform
 
-Alerts always appear in the UI, which is why the walkthrough above needed no setup. There are two other channels which can se set under **Alerts** → **Channels** and attach it to a rule through the rule's *Additional channels*
+Alerts always appear in the UI, which is why the walkthrough above needed no setup. There are two other channels which can be set under **Alerts** → **Channels** and attach it to a rule through the rule's *Additional channels*
 field. One channel can serve several rules, and each has a **Test** button.
 
 

@@ -1,0 +1,24 @@
+domain:
+  name: platform.debezium.io
+database:
+  enabled: true
+ingress:
+  className: nginx
+
+conductor:
+  image: quay.io/debezium/platform-conductor:nightly
+stage:
+  image: quay.io/debezium/platform-stage:nightly
+
+monitoring:
+  otel:
+    enabled: true
+    collector:
+      image: "ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-contrib:0.152.0"
+  prometheus:
+    # Prometheus runs in the `monitoring` namespace. The short service name only
+    # resolves inside that namespace, and the conductor runs in `debezium-platform`.
+    url: "http://kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090"
+    serviceMonitor:
+      labels:
+        release: kube-prometheus-stack

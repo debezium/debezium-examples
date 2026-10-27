@@ -6,11 +6,6 @@
 # for at least ~70s: Prometheus samples every 15s, and a single kill reconnects
 # too quickly to ever be recorded.
 #
-# Do NOT demo this with `kubectl scale deploy/postgresql --replicas=0`. The source
-# database has no persistent volume, so that deletes the inventory data and the
-# replication slot, and the pipeline then crash-loops on a WAL position that no
-# longer exists. (./replay-snapshot.sh recovers from that.)
-#
 # Usage: ./break-connection.sh [kills]
 set -euo pipefail
 
