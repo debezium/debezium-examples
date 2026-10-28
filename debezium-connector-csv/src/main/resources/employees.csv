@@ -1,0 +1,6 @@
+EventType;Id:INT;FirstName:STRING;LastName:STRING;Salary:INT;Active:BOOLEAN
+S|1|Alice|Smith|3000|true
+S|2|Bob|Miller|2000|false
+I|3|Bruce|Masters|4000|false
+U|1|Sarah|Smith|3000|false
+D|3|Bruce|Masters|4000|false
