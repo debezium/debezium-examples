@@ -1,0 +1,7 @@
+{
+  "name": "kafka-connection",
+  "type": "KAFKA",
+  "config": {
+    "bootstrap.servers": "dbz-kafka-kafka-bootstrap.debezium-platform:9092"
+  }
+}

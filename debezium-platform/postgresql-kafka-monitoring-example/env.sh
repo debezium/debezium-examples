@@ -1,0 +1,10 @@
+CLUSTER=debezium
+NAMESPACE=debezium-platform
+MONITORING_NAMESPACE=monitoring
+OTEL_NAMESPACE=opentelemetry-operator-system
+DEBEZIUM_PLATFORM_DOMAIN=platform.debezium.io
+DEBEZIUM_PLATFORM_CHART_VERSION=3.7.0
+STRIMZI_VERSION=0.45.1
+PIPELINE=test-pipeline
+HOST=http://platform.debezium.io
+TIMEOUT=600s

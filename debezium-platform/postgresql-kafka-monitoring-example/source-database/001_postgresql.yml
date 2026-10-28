@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresql-credentials
+type: opaque
+data:
+  POSTGRES_DB: ZGViZXppdW0=
+  POSTGRES_USER: ZGViZXppdW0=
+  POSTGRES_PASSWORD: ZGViZXppdW0=
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: postgresql
+  labels:
+    app: postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+      deployment: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+        deployment: postgresql
+    spec:
+      containers:
+        - resources: {}
+          name: postgresql
+          envFrom:
+            - secretRef:
+                name: postgresql-credentials
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            initialDelaySeconds: 30
+            tcpSocket:
+              port: 5432
+            timeoutSeconds: 1
+          readinessProbe:
+            exec:
+              command:
+                - "/bin/sh"
+                - "-i"
+                - "-c"
+                - "PGPASSWORD=${POSTGRES_PASSWORD} /usr/bin/psql -w -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1'"
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          terminationMessagePolicy: File
+          terminationMessagePath: /dev/termination-log
+          image: quay.io/debezium/example-postgres:latest
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+  strategy:
+    type: Recreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+spec:
+  selector:
+    app: postgresql
+    deployment: postgresql
+  ports:
+    - name: db
+      port: 5432
+      targetPort: 5432
