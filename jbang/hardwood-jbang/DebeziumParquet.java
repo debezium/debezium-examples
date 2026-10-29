@@ -2,7 +2,7 @@
 //DEPS io.quarkus.platform:quarkus-bom:3.28.4@pom
 //DEPS io.quarkus:quarkus-arc
 //DEPS io.debezium.quarkus:debezium-quarkus-postgres:3.7.0.Final
-//DEPS org.apache.kafka:kafka-clients:4.2.0
+//DEPS org.apache.kafka:kafka-clients:4.3.1
 //DEPS dev.hardwood:hardwood-core:1.1.0.Beta1
 //FILES application.properties
 //JAVAC_OPTIONS -parameters
