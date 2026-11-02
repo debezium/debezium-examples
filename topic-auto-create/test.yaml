@@ -1,0 +1,79 @@
+name: topic-auto-create
+description: Tests Debezium PostgreSQL connector topic auto-creation with default and custom topic groups
+env_file: ../.env
+compose_file: docker-compose.yml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register inventory connector
+    type: http_put
+    url: http://localhost:8083/connectors/inventory-connector/config
+    body_file: connector.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+
+  - name: Wait for initial snapshot and topic creation
+    type: wait
+    seconds: 15
+
+  - name: Verify orders change event in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.orders
+    timeout_seconds: 60
+    expected_content: "10001"
+
+  - name: Verify products change event in Kafka
+    type: kafka_consume
+    topic: dbserver1.inventory.products
+    timeout_seconds: 60
+    expected_content: "car battery"
+
+  - name: Verify default group topic config on orders topic
+    type: docker_compose_exec
+    service: kafka
+    command: /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --describe --topic dbserver1.inventory.orders
+    expected_content:
+      - "PartitionCount: 5"
+      - "cleanup.policy=compact"
+      - "compression.type=gzip"
+
+  - name: Verify productlog group topic config on products topic
+    type: docker_compose_exec
+    service: kafka
+    command: /kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --describe --topic dbserver1.inventory.products
+    expected_content:
+      - "PartitionCount: 10"
+      - "cleanup.policy=delete"
+      - "compression.type=producer"
