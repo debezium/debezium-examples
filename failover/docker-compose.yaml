@@ -13,7 +13,6 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
 
   mysql1:
-    image: debezium/example-mysql-gtids1
     build:
       context: mysql1
     environment:
@@ -22,7 +21,6 @@ services:
      - MYSQL_PASSWORD=mysqlpw
 
   mysql2:
-    image: debezium/example-mysql-gtids2
     build:
       context: mysql2
     environment:
@@ -31,7 +29,6 @@ services:
      - MYSQL_PASSWORD=mysqlpw
 
   mysql:
-    image: debezium/example-haproxy:1
     build:
       context: haproxy
     ports:
