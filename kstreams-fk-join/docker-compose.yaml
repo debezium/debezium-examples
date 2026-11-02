@@ -45,12 +45,13 @@ services:
       - my-network
 
   aggregator:
-    image: debezium-examples/kstreams-fk-join-aggregator:1.0
     build:
       context: aggregator
       dockerfile: src/main/docker/Dockerfile.${QUARKUS_MODE:-jvm}
+    restart: on-failure
     environment:
-      QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS: kafka:9092
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - QUARKUS_KAFKA_STREAMS_BOOTSTRAP_SERVERS=kafka:9092
     networks:
       - my-network
 
