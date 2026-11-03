@@ -1,0 +1,31 @@
+name: Build [machine-learning]
+
+on:
+  push:
+    paths:
+      - 'machine-learning/**'
+      - '.github/workflows/machine-learning-workflow.yml'
+  pull_request:
+    paths:
+      - 'machine-learning/**'
+      - '.github/workflows/machine-learning-workflow.yml'
+      - '.env'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('machine-learning/**/pom.xml', 'pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Check changes in [machine-learning | tensorflow-mnist | mnist-smt] example
+        run: cd machine-learning/tensorflow-mnist && mvn clean install -f connect/mnist-smt/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
