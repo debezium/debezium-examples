@@ -5,10 +5,13 @@ on:
     paths:
       - 'machine-learning/**'
       - '.github/workflows/machine-learning-workflow.yml'
+      - 'pom.xml'
+      - '.env'
   pull_request:
     paths:
       - 'machine-learning/**'
       - '.github/workflows/machine-learning-workflow.yml'
+      - 'pom.xml'
       - '.env'
 
 jobs:
