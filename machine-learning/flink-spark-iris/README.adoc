@@ -52,7 +52,7 @@ Therefore, anytime you change the application, you need to not only re-compile i
 Now you can start all the required components of the demo:
 
 ```
-$ docker compose -f docker-compose-flink.yaml up
+$ docker compose --env-file ../../.env -f docker-compose-flink.yaml up
 ```
 
 
@@ -66,13 +66,13 @@ We have initial training data in the database, thus upon registration of Debeziu
 As the Flink integration with Kafka requires the topics from which Flink streams will be created to exist, we need to create our test topic first, as we haven't push any test data into the database yet:
 
 ```
-$ docker compose -f docker-compose-flink.yaml exec kafka /kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1  --topic flink.public.iris_test
+$ docker compose --env-file ../../.env -f docker-compose-flink.yaml exec kafka /kafka/bin/kafka-topics.sh --create --bootstrap-server kafka:9092 --replication-factor 1 --partitions 1  --topic flink.public.iris_test
 ```
 
 Now we can submit our application into Flink:
 
 ```
-$ docker compose -f docker-compose-flink.yaml exec jobmanager bin/flink run debezium-flink-0.1.jar
+$ docker compose --env-file ../../.env -f docker-compose-flink.yaml exec jobmanager bin/flink run debezium-flink-0.1.jar
 ```
 
 You can check the application status (also it's graph and other things) in the Flink UI, which is available on http://localhost:8081/.
@@ -95,7 +95,7 @@ $ psql -h localhost -U postgres -f postgres/iris_test.sql
 To see the prediction of our model, read `iris_predictions` Kafka topic:
 
 ```
-$ docker compose -f docker-compose-flink.yaml exec kafka /kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --from-beginning --topic iris_predictions
+$ docker compose --env-file ../../.env -f docker-compose-flink.yaml exec kafka /kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --from-beginning --topic iris_predictions
 ```
 
 You can see something like this:
@@ -114,7 +114,7 @@ You can see something like this:
 [5.8, 2.7, 3.9, 1.2] is classified as 2
 ```
 
-The correct answer are 
+The correct answer are
 
 ```
 [5.4, 3.7, 1.5, 0.2] is 0
@@ -195,7 +195,7 @@ The main motivation here is to show the whole pipeline and demonstrate that the 
 To stop the containers, run
 
 ```
-$ docker compose -f docker-compose-flink.yaml down
+$ docker compose --env-file ../../.env -f docker-compose-flink.yaml down
 ```
 
 == Classification with Apache Spark
@@ -214,7 +214,7 @@ $ mvn clean package -f iris-spark/pom.xml
 To run the demo, launch Docker compose for Spark:
 
 ```
-$ docker compose -f docker-compose-spark.yaml up
+$ docker compose --env-file ../../.env -f docker-compose-spark.yaml up
 ```
 
 and once all the components run, register Debezium connector for Postgres database:
@@ -235,7 +235,7 @@ However, writing the streams back to Kafka seems to be possible only with Struct
 Therefore predictions are printed only in the console and we need to check Spark logs to see them:
 
 ```
-$ docker compose -f docker-compose-spark.yaml logs spark |grep "\([0-9]\.[0-9],[0-9]\)"
+$ docker compose --env-file ../../.env -f docker-compose-spark.yaml logs spark |grep "\([0-9]\.[0-9],[0-9]\)"
 ```
 
 The predictions contains also the correct label for given data point, so you can immediately see if the prediction is correct or not.
@@ -300,5 +300,5 @@ So in the final round Spark model classified all test data points correctly.
 To stop the containers, run
 
 ```
-$ docker compose -f docker-compose-spark.yaml down
+$ docker compose --env-file ../../.env -f docker-compose-spark.yaml down
 ```
