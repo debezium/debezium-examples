@@ -4,20 +4,39 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.vjuranek</groupId>
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
+
     <artifactId>debezium-spark</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
         <version.json-simple>1.1.1</version.json-simple>
-        <version.scala>2.12</version.scala>
-        <version.spark>3.5.8</version.spark>
+        <version.scala>2.13</version.scala>
+        <!-- Spark 4.x is the first release line that runs on Java 21 -->
+        <version.spark>4.2.0</version.spark>
+        <!-- The Kafka client version Spark 4.2.0 is built with -->
+        <version.spark.kafka-clients>3.9.2</version.spark.kafka-clients>
+        <version.maven.assembly>3.7.1</version.maven.assembly>
+        <version.maven.jar>3.4.1</version.maven.jar>
         <app.main.class>io.github.vjuranek.SparkKafkaStreamingKmeans</app.main.class>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- spark-streaming-kafka-0-10 still calls KafkaConsumer.poll(long), which Kafka 4 removed.
+                 The parent pins kafka-clients to 4.x, so keep the version Spark is built with. -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${version.spark.kafka-clients}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -60,7 +79,13 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.maven.compiler}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>${version.maven.jar}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -73,7 +98,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>${version.maven.assembly}</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
