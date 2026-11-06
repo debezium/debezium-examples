@@ -1,0 +1,99 @@
+name: kstreams-fk-join
+description: Tests Debezium PostgreSQL connector with Kafka Streams foreign key join
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build aggregator application
+    type: local_exec
+    command: mvn clean package -f aggregator/pom.xml -DskipTests
+
+  - name: Build aggregator docker image
+    type: docker_compose_build
+    services: aggregator
+
+  - name: Start infrastructure services
+    type: docker_compose_up
+    services: [kafka, postgres, connect]
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Register Debezium Postgres source connector
+    type: http_put
+    url: http://localhost:8083/connectors/inventory-connector/config
+    body_file: register-postgres.json
+    expected_status: [200, 201]
+
+  - name: Wait for connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    timeout_seconds: 60
+    interval_seconds: 5
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+
+  - name: Verify customers CDC topic is populated
+    type: kafka_consume
+    topic: dbserver1.inventory.customers
+    timeout_seconds: 60
+    expected_content: "Sally"
+
+  - name: Verify addresses CDC topic is populated
+    type: kafka_consume
+    topic: dbserver1.inventory.addresses
+    timeout_seconds: 60
+    expected_content: "Hamburg"
+
+  - name: Start aggregator service
+    type: docker_compose_up
+    services: [aggregator]
+    detach: true
+
+  - name: Wait for aggregator to start and enter RUNNING state
+    type: wait_for_log
+    service: aggregator
+    expected_content: "State transition from REBALANCING to RUNNING"
+    timeout_seconds: 40
+    interval_seconds: 3
+
+  - name: Wait for aggregator to process foreign key join
+    type: wait
+    seconds: 5
+
+  - name: Verify initial joined event in Kafka
+    type: kafka_consume
+    topic: customers-with-addresses
+    timeout_seconds: 60
+    expected_content: "Sally"
+
+  - name: Update customer in Postgres database
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d postgres -c "UPDATE inventory.customers SET first_name = 'Sarah' WHERE id = 1001;"
+
+  - name: Verify updated joined event in Kafka
+    type: kafka_consume
+    topic: customers-with-addresses
+    timeout_seconds: 60
+    expected_content: "Sarah"
