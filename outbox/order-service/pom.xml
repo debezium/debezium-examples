@@ -15,7 +15,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.debezium</groupId>
+      <groupId>io.debezium.quarkus</groupId>
       <artifactId>debezium-quarkus-outbox</artifactId>
     </dependency>
     <dependency>

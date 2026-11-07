@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.debezium</groupId>
+            <groupId>io.debezium.quarkus</groupId>
             <artifactId>debezium-quarkus-hibernate-cache</artifactId>
             <version>${version.debezium}</version>
         </dependency>
