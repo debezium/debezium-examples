@@ -1,0 +1,18 @@
+{
+    "name": "neo4j-sink",
+    "config": {
+        "connector.class": "org.neo4j.connectors.kafka.sink.Neo4jConnector",
+        "tasks.max": "1",
+        "topics": "neo4j.customers,neo4j.products,neo4j.orders,neo4j.order_items",
+        "neo4j.uri": "bolt://neo4j:7687",
+        "neo4j.authentication.type": "BASIC",
+        "neo4j.authentication.basic.username": "neo4j",
+        "neo4j.authentication.basic.password": "password",
+        "neo4j.database": "neo4j",
+        "neo4j.cud.topics": "neo4j.customers,neo4j.products,neo4j.orders,neo4j.order_items",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": "false",
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": "false"
+    }
+}

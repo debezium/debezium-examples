@@ -1,0 +1,16 @@
+# Multi-stage build so `docker compose build splitter` is self-contained
+# (no prior local `mvn package` required).
+# The build context is the repository root so that the shared parent POM is available;
+# Dockerfile.jvm.dockerignore limits the context to the files this build needs.
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /workspace
+COPY pom.xml .
+COPY graph-rag/splitter/pom.xml graph-rag/splitter/
+RUN mvn -q -B -f graph-rag/splitter/pom.xml dependency:go-offline
+COPY graph-rag/splitter/src graph-rag/splitter/src
+RUN mvn -q -B -f graph-rag/splitter/pom.xml -DskipTests package
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /workspace/graph-rag/splitter/target/neo4j-cud-splitter.jar /app/neo4j-cud-splitter.jar
+ENTRYPOINT ["java", "-jar", "/app/neo4j-cud-splitter.jar"]

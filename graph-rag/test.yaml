@@ -1,0 +1,138 @@
+name: graph-rag
+description: >
+  Tests Graph-RAG  client answering questions grounded in the live
+  knowledge graph populated from Postgres.
+env_file: ../.env
+compose_file: docker-compose.yaml
+
+cleanup:
+  type: docker_compose_down
+  volumes: true
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build custom connect and splitter images
+    type: docker_compose_build
+    services:
+      - connect
+      - splitter
+
+  - name: Start all services
+    type: docker_compose_up
+    detach: true
+
+  - name: Wait for Kafka Connect REST API to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    timeout_seconds: 300
+    interval_seconds: 5
+
+  - name: Wait for Neo4j HTTP API to be ready
+    type: http_wait
+    url: http://localhost:7474
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Wait for Ollama to be ready
+    type: http_wait
+    url: http://localhost:11434
+    timeout_seconds: 120
+    interval_seconds: 5
+
+  - name: Pull Ollama models
+    type: docker_compose_exec
+    service: ollama
+    command: sh -c "ollama pull qwen2.5-coder:3b && ollama pull nomic-embed-text"
+
+  - name: Register e-commerce source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-postgres-source.json
+    expected_status: [200, 201]
+
+  - name: Register Neo4j sink connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: register-neo4j-sink.json
+    expected_status: [200, 201]
+
+  - name: Wait for e-commerce source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/ecommerce-connector/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for Neo4j sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/neo4j-sink/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: connector.state
+    expected_value: RUNNING
+
+  - name: Wait for snapshot, embedding, split and sink
+    type: wait
+    seconds: 45
+
+  - name: Verify Product node reached Neo4j
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (p:Product {id:200}) RETURN p.name;"
+    expected_content: Widget
+
+  - name: Verify CDC-generated embedding reached the Product node
+    type: docker_compose_exec
+    service: neo4j
+    command: cypher-shell -u neo4j -p password "MATCH (p:Product {id:200}) RETURN size(p.embedding);"
+    expected_content: "768"
+
+  - name: Build the Graph-RAG client
+    type: local_exec
+    command: sh -c "cd client && mvn -q -B -DskipTests clean package"
+
+  - name: Create the Neo4j vector index
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar create-index
+    expected_content: "Vector index 'product_embeddings' is ready"
+
+  - name: Verify graph and vector layer
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar list-graph
+    expected_content: "3 Product(s) (3 embedded)"
+
+  - name: Ask a semantic question (vector path)
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar query-chat "What do you have for the garden and who has bought it and which status has?"
+    expected_content:
+      - "trowel"
+      - "pending"
+      - "Sally"
+
+  - name: Ask an entity question (Text2Cypher path)
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar query-chat "What did Sally buy?"
+    expected_content:
+      - "Sally"
+      - "Widget"
+
+  - name: Change an order status in PostgreSQL
+    type: docker_compose_exec
+    service: postgres
+    command: psql -U postgres -d postgres -c "UPDATE orders SET status = 'shipped' WHERE id = 5001;"
+
+  - name: Wait for CDC propagation
+    type: wait
+    seconds: 20
+
+  - name: Re-ask and confirm the context reflects the live change
+    type: local_exec
+    command: java -jar client/target/quarkus-app/quarkus-run.jar query-chat "What do you have for the garden and who has bought it and which status has?"
+    expected_content:
+      - "trowel"
+      - "shipped"
+      - "Sally"
