@@ -63,33 +63,50 @@ steps:
     expected_json_path: connector.state
     expected_value: RUNNING
 
+  - name: Wait for JDBC sink task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/jdbc-sink/status
+    timeout_seconds: 90
+    interval_seconds: 5
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+
   - name: Wait for CDC capture and sink
     type: wait
-    seconds: 30
+    seconds: 10
 
   - name: Verify Customer node became a customers row (snake_case column)
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT first_name FROM customers WHERE id = 1001;"
     expected_content: Sally
+    timeout_seconds: 120
+    interval_seconds: 5
 
   - name: Verify Product node became a products row
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT name FROM products WHERE id = 200;"
     expected_content: Widget
+    timeout_seconds: 120
+    interval_seconds: 5
 
+  # Relationship are the last and slowest link so the highest timeout needed
   - name: Verify PLACED_BY relationship became an orders.customer_id foreign key
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT customer_id FROM orders WHERE id = 5001;"
     expected_content: "1001"
+    timeout_seconds: 120
+    interval_seconds: 5
 
   - name: Verify CONTAINS relationship became an order_items join row with quantity
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT quantity FROM order_items WHERE order_id = 5001 AND product_id = 200;"
     expected_content: "2"
+    timeout_seconds: 120
+    interval_seconds: 5
 
   - name: Create a new Customer node in Neo4j
     type: docker_compose_exec
@@ -103,19 +120,23 @@ steps:
 
   - name: Wait for CDC propagation
     type: wait
-    seconds: 20
+    seconds: 5
 
   - name: Verify the new customer appeared in PostgreSQL
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT email FROM customers WHERE id = 1005;"
     expected_content: john.doe@example.com
+    timeout_seconds: 60
+    interval_seconds: 5
 
   - name: Verify the new order's foreign key appeared in PostgreSQL
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT customer_id FROM orders WHERE id = 5003;"
     expected_content: "1005"
+    timeout_seconds: 60
+    interval_seconds: 5
 
   - name: Delete the new order (and its relationships) in Neo4j
     type: docker_compose_exec
@@ -124,10 +145,12 @@ steps:
 
   - name: Wait for delete propagation
     type: wait
-    seconds: 20
+    seconds: 5
 
   - name: Verify the order row was removed from PostgreSQL
     type: docker_compose_exec
     service: postgres
     command: psql -U postgres -d postgres -t -c "SELECT count(*) FROM orders WHERE id = 5003;"
     expected_content: "0"
+    timeout_seconds: 60
+    interval_seconds: 5
