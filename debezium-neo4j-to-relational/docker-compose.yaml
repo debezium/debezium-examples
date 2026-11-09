@@ -67,3 +67,4 @@ services:
       - CONFIG_STORAGE_TOPIC=my_connect_configs
       - OFFSET_STORAGE_TOPIC=my_connect_offsets
       - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - OFFSET_FLUSH_INTERVAL_MS=10000

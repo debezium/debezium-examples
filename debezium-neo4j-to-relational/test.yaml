@@ -103,7 +103,7 @@ steps:
 
   - name: Wait for CDC propagation
     type: wait
-    seconds: 20
+    seconds: 30
 
   - name: Verify the new customer appeared in PostgreSQL
     type: docker_compose_exec
@@ -124,7 +124,7 @@ steps:
 
   - name: Wait for delete propagation
     type: wait
-    seconds: 20
+    seconds: 30
 
   - name: Verify the order row was removed from PostgreSQL
     type: docker_compose_exec
