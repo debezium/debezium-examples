@@ -140,22 +140,43 @@ def step_docker_compose_exec(step, config):
     service = substitute_vars(step["service"])
     command = substitute_vars(step["command"])
     expected_content = step.get("expected_content")
-    
+    # Optional polling -> when `timeout_seconds` is set the step retries the command
+    # until all expected content appears (or the timeout elapses)
+    timeout_seconds = step.get("timeout_seconds")
+    interval = step.get("interval_seconds", 5)
+
     shell = substitute_vars(step.get("shell", "bash"))
     # Use a configurable shell so shell operators like >, |, && still work.
     # We default to `bash` for full backward compatibility with existing tests,
     # but it can be overridden to `sh` for Alpine-based images.
     cmd = compose_cmd(config, "exec", "-T", service, shell, "-c", command)
-    
+
     if expected_content:
-        result = run_cmd(cmd, check=True, capture_output=True)
-        output = result.stdout + result.stderr
-        
         if isinstance(expected_content, list):
             expected_contents = [str(item) for item in expected_content]
         else:
             expected_contents = [str(expected_content)]
-            
+
+        if timeout_seconds:
+            print(f"  Polling for {expected_contents} (timeout={timeout_seconds}s) with interval {interval}")
+            deadline = time.time() + timeout_seconds
+            output = ""
+            while True:
+                result = run_cmd(cmd, check=False, capture_output=True)
+                output = result.stdout + result.stderr
+                if all(expected in output for expected in expected_contents):
+                    return
+                if time.time() >= deadline:
+                    raise RuntimeError(
+                        f"Expected content {expected_contents} not found within {timeout_seconds}s.\n"
+                        f"Command: {' '.join(cmd)}\n"
+                        f"Last output:\n{output}"
+                    )
+                time.sleep(interval)
+
+        result = run_cmd(cmd, check=True, capture_output=True)
+        output = result.stdout + result.stderr
+
         for expected in expected_contents:
             if expected not in output:
                 raise RuntimeError(
