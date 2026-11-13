@@ -11,9 +11,12 @@ import org.apache.beam.io.debezium.DebeziumIO.ConnectorConfiguration;
 import org.apache.beam.io.debezium.SourceRecordJson;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.extensions.gcp.options.GcpOptions;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.TableDestination;
+import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.options.Validation;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
@@ -23,10 +26,21 @@ import org.joda.time.DateTimeUtils;
 import java.io.IOException;
 import java.util.Objects;
 
-public class Main {
+public class MySQLToBigQuery {
+
+  public interface Options extends GcpOptions {
+    @Description("BigQuery dataset of the customers table")
+    @Validation.Required
+    String getDataset();
+
+    void setDataset(String dataset);
+  }
 
   public static void main(String[] args) {
-    Pipeline pipeline = Pipeline.create(PipelineOptionsFactory.fromArgs(args).withValidation().create());
+    Options options = PipelineOptionsFactory.fromArgs(args).withValidation().as(Options.class);
+    String project = options.getProject();
+    String dataset = options.getDataset();
+    Pipeline pipeline = Pipeline.create(options);
 
     pipeline
         // Step 1. Read change events with Debezium
@@ -69,8 +83,8 @@ public class Main {
             .to((SerializableFunction<ValueInSingleWindow<TableRow>, TableDestination>) input -> {
               TableRow row = Objects.requireNonNull(Objects.requireNonNull(input).getValue());
               TableReference tableReference = new TableReference()
-                  .setProjectId("my-project")
-                  .setDatasetId("my-dataset")
+                  .setProjectId(project)
+                  .setDatasetId(dataset)
                   .setTableId(row.get("table_id").toString());
               return new TableDestination(tableReference, "Customer names and emails");
             })
