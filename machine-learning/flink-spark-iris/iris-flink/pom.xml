@@ -39,7 +39,7 @@ under the License.
 		<!-- Same version as the Flink ML libraries the Dockerfile adds to /opt/flink/lib -->
 		<flink.ml.version>2.3.0</flink.ml.version>
 		<!-- The Kafka client version Flink 1.17 is built with; the parent manages Kafka 4.x -->
-		<version.flink.kafka-clients>3.2.3</version.flink.kafka-clients>
+		<version.flink.kafka-clients>3.9.2</version.flink.kafka-clients>
 		<version.maven.shade>3.6.1</version.maven.shade>
 		<log4j.version>2.25.5</log4j.version>
 		<scala.binary.version>2.12</scala.binary.version>
