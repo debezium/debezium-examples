@@ -1,0 +1,74 @@
+services:
+  kafka:
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    ports:
+      - 9092:9092
+      - 9093:9093
+    environment:
+      - CLUSTER_ID=oh-sxaDRTcyAr6pFRbXyzA
+      - NODE_ID=1
+      - NODE_ROLE=combined
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+
+  postgres:
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./ecommerce.sql:/docker-entrypoint-initdb.d/zzz.sql
+
+  neo4j:
+    image: neo4j:5
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_dbms_security_auth__minimum__password__length=1
+
+  ollama:
+    image: ollama/ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - ./ollama:/root/.ollama
+
+  connect:
+    image: debezium-examples/graph-rag-connect:${DEBEZIUM_VERSION}
+    build:
+      context: connect
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION}
+        DEBEZIUM_AI_VERSION: ${DEBEZIUM_CONNECTOR_VERSION}
+        NEO4J_CONNECTOR_VERSION: ${NEO4J_CONNECTOR_VERSION:-5.5.2}
+    ports:
+      - 8083:8083
+      - 5005:5005
+    depends_on:
+      - kafka
+      - postgres
+      - neo4j
+      - ollama
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+
+  splitter:
+    image: debezium-examples/neo4j-cud-splitter:1.0
+    build:
+      context: ..
+      dockerfile: graph-rag/splitter/src/main/docker/Dockerfile.jvm
+    depends_on:
+      - kafka
+    restart: on-failure
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - APPLICATION_ID=neo4j-cud-splitter

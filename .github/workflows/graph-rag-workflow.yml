@@ -1,0 +1,45 @@
+name: Build [graph-rag]
+
+on:
+  push:
+    paths:
+      - 'graph-rag/**'
+      - '.github/workflows/graph-rag-workflow.yml'
+      - 'scripts/run-example-test.py'
+  pull_request:
+    paths:
+      - 'graph-rag/**'
+      - '.github/workflows/graph-rag-workflow.yml'
+      - 'scripts/run-example-test.py'
+      - '.env'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('graph-rag/client/pom.xml', 'graph-rag/splitter/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml requests
+
+      - name: Run graph-rag test
+        run: python scripts/run-example-test.py graph-rag

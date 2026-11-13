@@ -50,3 +50,6 @@ debezium-python/*.log
 
 # Milvus example - connector plugin unpacked by the test
 milvus-to-pgvector/plugins/
+
+# Graph-RAG example - Ollama runtime data (models, cache, SSH keys)
+ollama/
