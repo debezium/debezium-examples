@@ -20,18 +20,27 @@ under the License.
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.github.vjuranek</groupId>
+	<parent>
+		<groupId>io.debezium.examples</groupId>
+		<artifactId>debezium-examples-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../../../pom.xml</relativePath>
+	</parent>
+
 	<artifactId>debezium-flink</artifactId>
 	<version>0.1</version>
 	<packaging>jar</packaging>
 
 	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<target.java.version>1.8</target.java.version>
-		<maven.compiler.source>${target.java.version}</maven.compiler.source>
-		<maven.compiler.target>${target.java.version}</maven.compiler.target>
-		<flink.version>1.17.1</flink.version>
-		<flink.ml.version>2.2.0</flink.ml.version>
+		<!-- Flink ML 2.3.0, its latest release, supports only Flink 1.17, which runs on Java 8 and 11.
+		     So this module stays on Java 11 instead of the parent's Java 21 (agreed in debezium/dbz#1809). -->
+		<maven.compiler.release>11</maven.compiler.release>
+		<flink.version>1.17.2</flink.version>
+		<!-- Same version as the Flink ML libraries the Dockerfile adds to /opt/flink/lib -->
+		<flink.ml.version>2.3.0</flink.ml.version>
+		<!-- The Kafka client version Flink 1.17 is built with; the parent manages Kafka 4.x -->
+		<version.flink.kafka-clients>3.2.3</version.flink.kafka-clients>
+		<version.maven.shade>3.6.1</version.maven.shade>
 		<log4j.version>2.25.5</log4j.version>
 		<scala.binary.version>2.12</scala.binary.version>
 		<app.main.class>io.github.vjuranek.FlinkKafkaKmeans</app.main.class>
@@ -50,6 +59,16 @@ under the License.
 			</snapshots>
 		</repository>
 	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.kafka</groupId>
+				<artifactId>kafka-clients</artifactId>
+				<version>${version.flink.kafka-clients}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -76,9 +95,10 @@ under the License.
 			<version>${flink.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- Since Flink ML 2.3.0 the artifact name carries the Flink version it is built for -->
 		<dependency>
 			<groupId>org.apache.flink</groupId>
-			<artifactId>flink-ml-uber</artifactId>
+			<artifactId>flink-ml-uber-1.17</artifactId>
 			<version>${flink.ml.version}</version>
 		</dependency>
 		<dependency>
@@ -116,11 +136,7 @@ under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>${target.java.version}</source>
-					<target>${target.java.version}</target>
-				</configuration>
+				<version>${version.maven.compiler}</version>
 			</plugin>
 
 			<!-- We use the maven-shade plugin to create a fat jar that contains all necessary dependencies. -->
@@ -128,7 +144,7 @@ under the License.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>${version.maven.shade}</version>
 				<executions>
 					<!-- Run shade goal on package phase -->
 					<execution>
@@ -137,6 +153,8 @@ under the License.
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<!-- Do not write dependency-reduced-pom.xml into the source folder -->
+							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<artifactSet>
 								<excludes>
 									<exclude>org.apache.flink:flink-shaded-force-shading</exclude>
