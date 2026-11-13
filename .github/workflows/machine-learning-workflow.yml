@@ -34,3 +34,5 @@ jobs:
         run: cd machine-learning/tensorflow-mnist && mvn clean install -f connect/mnist-smt/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
       - name: Check changes in [machine-learning | flink-spark-iris | iris-spark] example
         run: cd machine-learning/flink-spark-iris && mvn clean install -f iris-spark/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+      - name: Check changes in [machine-learning | flink-spark-iris | iris-flink] example
+        run: cd machine-learning/flink-spark-iris && mvn clean install -f iris-flink/pom.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
