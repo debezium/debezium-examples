@@ -14,9 +14,31 @@
     <artifactId>apache-beam</artifactId>
 
     <properties>
-        <version.beam>2.76.0</version.beam>
+        <!--
+            Snapshot version on purpose: the latest release, 2.77.0, doesn't pass all of
+            Debezium's metadata through to the pipeline.
+        -->
+        <version.beam>2.79.0-SNAPSHOT</version.beam>
         <version.debezium>3.5.2.Final</version.debezium>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--
+                Keeps the Google Cloud libraries at the versions Beam is built with.
+                The parent imports debezium-server-bom:${version.debezium}, so the 3.5.2.Final pin above
+                pulls in com.google.cloud:libraries-bom:26.17.0, which manages older Google Cloud versions.
+                Those lack methods the Storage Write API sink needs, so writes fail with NoSuchMethodError.
+            -->
+            <dependency>
+                <groupId>org.apache.beam</groupId>
+                <artifactId>beam-sdks-java-google-cloud-platform-bom</artifactId>
+                <version>${version.beam}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!--
@@ -55,18 +77,25 @@
             <version>${version.beam}</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>io.debezium.examples.apache.beam.Main</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <!-- Beam snapshot builds aren't on Maven Central -->
+    <repositories>
+        <repository>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
 </project>
