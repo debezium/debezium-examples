@@ -3,36 +3,57 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.debezium.examples</groupId>
+    <parent>
+        <groupId>io.debezium.examples</groupId>
+        <artifactId>debezium-examples-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
     <artifactId>graphql-event-source</artifactId>
     <version>0.1-SNAPSHOT</version>
 
     <properties>
-        <mvn.compiler.version>3.8.1</mvn.compiler.version>
-        <mvn.dependency.version>3.1.1</mvn.dependency.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <version.junit>4.13.1</version.junit>
-        <version.org.hibernate>5.4.24.Final</version.org.hibernate>
-        <version.org.slf4j>1.7.36</version.org.slf4j>
+        <version.jaxb.runtime>4.0.6</version.jaxb.runtime>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- slf4j-log4j12 is an SLF4J 1.x binding. The parent's BOMs manage slf4j-api 2.x,
+                 which ignores 1.x bindings and disables logging, so keep slf4j-api at the binding's version. -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version.slf4j}</version>
+            </dependency>
+            <!-- Hibernate ORM 7 needs a Jakarta XML Binding 4 runtime to read persistence.xml. The parent's
+                 debezium-server-bom manages jaxb-runtime and txw2 at 2.3.1 (javax era), so keep them at 4.x here. -->
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${version.jaxb.runtime}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>txw2</artifactId>
+                <version>${version.jaxb.runtime}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>${version.org.hibernate}</version>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-             <version>${version.org.slf4j}</version>
+            <version>${version.slf4j}</version>
         </dependency>
     </dependencies>
 
@@ -41,16 +62,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${mvn.compiler.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
+                <version>${version.maven.compiler}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>${mvn.dependency.version}</version>
+                <version>${version.maven.dependency}</version>
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>

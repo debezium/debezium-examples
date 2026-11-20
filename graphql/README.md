@@ -17,7 +17,7 @@ There are two applications:
 
 ## Preparations
 
-Build data generator application and aggregator application:
+Build data generator application and aggregator application (use JDK 21 or later; for now the aggregator itself still targets Java 8, because Thorntail can't run newer bytecode):
 
 ```shell
 mvn clean install -f event-source/pom.xml
@@ -118,7 +118,7 @@ Build the application:
 mvn clean package -f ws-client/pom.xml
 ```
 
-Run the application (default configuration):
+Run the application (default configuration; it needs Java 21 or later):
 
 ```shell
 java -jar ws-client/target/ws-client-jar-with-dependencies.jar
