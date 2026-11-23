@@ -28,7 +28,7 @@ import io.debezium.examples.saga.framework.internal.SagaState;
 import io.debezium.examples.saga.framework.internal.SagaStepStatus;
 import io.debezium.examples.saga.order.saga.SagaEvent;
 import io.debezium.outbox.quarkus.ExportedEvent;
-import io.quarkus.hibernate.orm.panache.runtime.JpaOperations;
+import io.quarkus.arc.Arc;
 
 public abstract class SagaBase {
 
@@ -37,6 +37,12 @@ public abstract class SagaBase {
     private final Event<ExportedEvent<?, ?>> event;
 
     private final SagaState state;
+
+    // SagaBase is created via reflection, not CDI, so look up the EntityManager from the container.
+    // Panache JpaOperations only knows Panache entities and fails for plain @Entity classes.
+    private static EntityManager entityManager() {
+        return Arc.container().instance(EntityManager.class).get();
+    }
 
 
     protected SagaBase(Event<ExportedEvent<?, ?>> event, SagaState state) {
@@ -61,7 +67,7 @@ public abstract class SagaBase {
     }
 
     public SagaStatus getStatus() {
-        EntityManager em = JpaOperations.INSTANCE.getEntityManager(SagaState.class);
+        EntityManager em = entityManager();
         return em.find(SagaState.class, getId()).getSagaStatus();
     }
 
@@ -95,13 +101,13 @@ public abstract class SagaBase {
     protected abstract SagaStepMessage getCompensatingStepMessage(String id);
 
     protected void processed(UUID eventId) {
-        EntityManager em = JpaOperations.INSTANCE.getEntityManager(ConsumedMessage.class);
+        EntityManager em = entityManager();
         em.persist(new ConsumedMessage(eventId, Instant.now()));
     }
 
     protected boolean alreadyProcessed(UUID eventId) {
         LOG.debug("Looking for event with id {} in message log", eventId);
-        EntityManager em = JpaOperations.INSTANCE.getEntityManager(ConsumedMessage.class);
+        EntityManager em = entityManager();
         return em.find(ConsumedMessage.class, eventId) != null;
     }
 
