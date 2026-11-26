@@ -35,7 +35,7 @@ under the License.
 		<!-- Flink ML 2.3.0, its latest release, supports only Flink 1.17, which runs on Java 8 and 11.
 		     So this module stays on Java 11 instead of the parent's Java 21 (agreed in debezium/dbz#1809). -->
 		<maven.compiler.release>11</maven.compiler.release>
-		<flink.version>1.17.2</flink.version>
+		<flink.version>1.20.4</flink.version>
 		<!-- Same version as the Flink ML libraries the Dockerfile adds to /opt/flink/lib -->
 		<flink.ml.version>2.3.0</flink.ml.version>
 		<!-- The Kafka client version Flink 1.17 is built with; the parent manages Kafka 4.x -->
