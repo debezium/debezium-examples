@@ -1,0 +1,94 @@
+name: camel-kafka-connect
+description: Tests Debezium PostgreSQL connector with Camel Kafka Connect CoAP sink connector
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build CoAP server application
+    type: local_exec
+    command: mvn clean package -f pom.xml -DskipTests
+
+  - name: Build docker images
+    type: docker_compose_build
+    services:
+      - coap-server
+      - connect
+
+  - name: Start services
+    type: docker_compose_up
+    detach: true
+    services:
+      - kafka
+      - postgres
+      - coap-server
+      - connect
+
+  - name: Wait for Kafka Connect to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    expected_status: 200
+    timeout_seconds: 180
+
+  - name: Deploy Camel CoAP sink connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: sink.json
+    expected_status:
+      - 200
+      - 201
+
+  - name: Wait for sink connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/camel-sink/status
+    expected_json_path: connector.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Wait for sink connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/camel-sink/status
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Deploy Debezium PostgreSQL source connector
+    type: http_post
+    url: http://localhost:8083/connectors
+    body_file: source.json
+    expected_status:
+      - 200
+      - 201
+
+  - name: Wait for source connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    expected_json_path: connector.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Wait for source connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/inventory-connector/status
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Verify customers CDC topic is populated
+    type: kafka_consume
+    topic: customers
+    expected_content:
+      - Sally
+    timeout_seconds: 30
+
+  - name: Verify CoAP server received messages
+    type: wait_for_log
+    service: coap-server
+    expected_content: CoAP server has received message
+    timeout_seconds: 30
+
+cleanup:
+  - name: Shut down containers
+    type: docker_compose_down
+    volumes: true

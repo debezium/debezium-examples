@@ -1,6 +1,6 @@
 services:
   kafka:
-    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-latest}
     ports:
       - 9092:9092
       - 9093:9093
@@ -13,36 +13,47 @@ services:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
 
   postgres:
-    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
-    ports:
-     - 5432:5432
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
+    expose:
+     - 5432
+    healthcheck:
+      test: "pg_isready -U postgres -d postgres"
+      interval: 2s
+      timeout: 20s
+      retries: 10
     environment:
      - POSTGRES_USER=postgres
      - POSTGRES_PASSWORD=postgres
 
   coap-server:
-    image: debezium/example-coap
+    image: debezium/example-coap:${DEBEZIUM_VERSION:-latest}
     build:
       context: coap-server
-    ports:
-     - 5684:5684
     environment:
      - JAVA_MAIN_CLASS=io.debezium.examples.camel.coap.Runner
      - JAVA_OPTIONS=-Dcoap.port=5684
 
   connect:
-    image: debezium/example-camel-kafka-connector
+    image: debezium/example-camel-kafka-connector:${DEBEZIUM_VERSION:-latest}
     build:
       context: .
+      args:
+        DEBEZIUM_VERSION: ${DEBEZIUM_VERSION:-latest}
     ports:
      - 8083:8083
     depends_on:
-     - kafka
-     - postgres
-     - coap-server
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      coap-server:
+        condition: service_started
     environment:
      - BOOTSTRAP_SERVERS=kafka:9092
      - GROUP_ID=1
      - CONFIG_STORAGE_TOPIC=my_connect_configs
      - OFFSET_STORAGE_TOPIC=my_connect_offsets
      - STATUS_STORAGE_TOPIC=my_connect_statuses
+     - KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - ENABLE_DEBEZIUM_SCRIPTING=false
