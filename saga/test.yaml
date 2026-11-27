@@ -1,0 +1,181 @@
+name: saga
+description: Tests Debezium Saga pattern across order, payment, and customer microservices with PostgreSQL outbox and Kafka
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build microservices
+    type: local_exec
+    command: mvn clean package -f pom.xml -DskipTests
+
+  - name: Build microservices docker images
+    type: docker_compose_build
+    services:
+      - order-service
+      - payment-service
+      - customer-service
+
+  - name: Start infrastructure
+    type: docker_compose_up
+    detach: true
+    services:
+      - jaeger
+      - kafka
+      - order-db
+      - payment-db
+      - customer-db
+      - connect
+
+  - name: Wait for Kafka Connect to be ready
+    type: http_wait
+    url: http://localhost:8083/connectors
+    expected_status: 200
+    timeout_seconds: 180
+
+  - name: Register order outbox connector
+    type: http_put
+    url: http://localhost:8083/connectors/order-outbox-connector/config
+    headers:
+      Content-Type: application/json
+    body_file: register-order-connector.json
+    expected_status: [200, 201]
+
+  - name: Wait for order connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/order-outbox-connector/status
+    expected_status: 200
+    expected_json_path: connector.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Wait for order connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/order-outbox-connector/status
+    expected_status: 200
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Register payment outbox connector
+    type: http_put
+    url: http://localhost:8083/connectors/payment-outbox-connector/config
+    headers:
+      Content-Type: application/json
+    body_file: register-payment-connector.json
+    expected_status: [200, 201]
+
+  - name: Wait for payment connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/payment-outbox-connector/status
+    expected_status: 200
+    expected_json_path: connector.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Wait for payment connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/payment-outbox-connector/status
+    expected_status: 200
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Register credit outbox connector
+    type: http_put
+    url: http://localhost:8083/connectors/credit-outbox-connector/config
+    headers:
+      Content-Type: application/json
+    body_file: register-credit-connector.json
+    expected_status: [200, 201]
+
+  - name: Wait for credit connector to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/credit-outbox-connector/status
+    expected_status: 200
+    expected_json_path: connector.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Wait for credit connector task to be RUNNING
+    type: http_wait
+    url: http://localhost:8083/connectors/credit-outbox-connector/status
+    expected_status: 200
+    expected_json_path: tasks.0.state
+    expected_value: RUNNING
+    timeout_seconds: 60
+
+  - name: Start microservices
+    type: docker_compose_up
+    detach: true
+    services:
+      - customer-service
+      - payment-service
+      - order-service
+
+  - name: Wait for customer-service to start
+    type: wait_for_log
+    service: customer-service
+    expected_content: "started in"
+    timeout_seconds: 60
+
+  - name: Wait for payment-service to start
+    type: wait_for_log
+    service: payment-service
+    expected_content: "started in"
+    timeout_seconds: 60
+
+  - name: Wait for order-service to start
+    type: wait_for_log
+    service: order-service
+    expected_content: "started in"
+    timeout_seconds: 60
+
+  - name: Wait for order-service consumer group to stabilize
+    type: wait_for_log
+    service: kafka
+    expected_content: "Stabilized group order-service"
+    timeout_seconds: 30
+
+  - name: Wait for credit-service consumer group to stabilize
+    type: wait_for_log
+    service: kafka
+    expected_content: "Stabilized group credit-service"
+    timeout_seconds: 30
+
+  - name: Place an order
+    type: http_post
+    url: http://localhost:8080/orders
+    headers:
+      Content-Type: application/json
+    body_file: requests/place-order.json
+    expected_status: 200
+
+  - name: Verify credit-approval request in Kafka
+    type: kafka_consume
+    service: kafka
+    topic: credit-approval.request
+    expected_content:
+      - "REQUEST"
+      - "456"
+    timeout_seconds: 15
+
+  - name: Verify payment request in Kafka
+    type: kafka_consume
+    service: kafka
+    topic: payment.request
+    expected_content:
+      - "REQUEST"
+      - "456"
+    timeout_seconds: 15
+
+  - name: Verify saga completed in order-db
+    type: docker_compose_exec
+    service: order-db
+    command: for i in $(seq 1 60); do res=$(psql -U orderuser -d orderdb -t -A -c "select sagastatus from purchaseorder.sagastate;" 2>/dev/null); if echo "$res" | grep -q "COMPLETED"; then echo "SAGA_COMPLETED"; exit 0; fi; sleep 1; done; exit 1
+    expected_content: "SAGA_COMPLETED"
+
+  - name: Tear down environment
+    type: docker_compose_down
+    volumes: true

@@ -8,7 +8,7 @@ services:
      - my-network
 
   kafka:
-    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION}
+    image: quay.io/debezium/kafka:${DEBEZIUM_VERSION:-latest}
     ports:
       - 9092:9092
       - 9093:9093
@@ -19,51 +19,32 @@ services:
       - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
       - KAFKA_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-      # Set to host IP address when working on the services locally
-      # - ADVERTISED_HOST_NAME=172.17.0.1
     networks:
      - my-network
 
   connect:
-    image: debezium/strimzi-connect
-    build:
-      context: debezium-strimzi
+    image: quay.io/debezium/connect:${DEBEZIUM_VERSION:-latest}
     ports:
      - 8083:8083
     depends_on:
      - kafka
      - order-db
     environment:
-     - KAFKA_LOG4J_OPTS=-Dlog4j.configuration=file:/opt/kafka/config/connect-log4j.properties
-     - KAFKA_CONNECT_BOOTSTRAP_SERVERS=kafka:9092
-     - |
-         KAFKA_CONNECT_CONFIGURATION=
-         key.converter=org.apache.kafka.connect.json.JsonConverter
-         value.converter=org.apache.kafka.connect.json.JsonConverter
-         key.converter.schemas.enable=false
-         value.converter.schemas.enable=false
-         group.id=connect
-         offset.storage.topic=connect-offsets
-         offset.storage.replication.factor=1
-         config.storage.topic=connect-configs
-         config.storage.replication.factor=1
-         status.storage.topic=connect-status
-         status.storage.replication.factor=1
-         consumer.interceptor.classes=io.opentracing.contrib.kafka.TracingConsumerInterceptor
-         producer.interceptor.classes=io.opentracing.contrib.kafka.TracingProducerInterceptor
-     - JAEGER_SERVICE_NAME=kafka-connect
-     - JAEGER_AGENT_HOST=jaeger
-     - JAEGER_SAMPLER_TYPE=const
-     - JAEGER_SAMPLER_PARAM=1
-     - STRIMZI_TRACING=jaeger
-    command: /opt/kafka/kafka_connect_run.sh
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=connect-configs
+     - OFFSET_STORAGE_TOPIC=connect-offsets
+     - STATUS_STORAGE_TOPIC=connect-status
+     - KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+     - ENABLE_DEBEZIUM_SCRIPTING=false
     networks:
      - my-network
 
   order-db:
-    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
-    ports:
-     - 5432:5432
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
+    expose:
+     - 5432
     healthcheck:
       test: "pg_isready -U orderuser -d orderdb"
       interval: 2s
@@ -79,9 +60,9 @@ services:
      - my-network
 
   payment-db:
-    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
-    ports:
-     - 5433:5432
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
+    expose:
+     - 5432
     healthcheck:
       test: "pg_isready -U paymentuser -d paymentdb"
       interval: 2s
@@ -97,9 +78,9 @@ services:
      - my-network
 
   customer-db:
-    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION}
-    ports:
-     - 5434:5432
+    image: quay.io/debezium/example-postgres:${DEBEZIUM_VERSION:-latest}
+    expose:
+     - 5432
     healthcheck:
       test: "pg_isready -U customeruser -d customerdb"
       interval: 2s
@@ -128,7 +109,7 @@ services:
       - my-network
 
   order-service:
-    image: debezium-examples/saga-order-service:${DEBEZIUM_VERSION}
+    image: debezium-examples/saga-order-service:${DEBEZIUM_VERSION:-latest}
     build:
       context: order-service
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -153,7 +134,7 @@ services:
       - my-network
 
   payment-service:
-    image: debezium-examples/saga-payment-service:${DEBEZIUM_VERSION}
+    image: debezium-examples/saga-payment-service:${DEBEZIUM_VERSION:-latest}
     build:
       context: payment-service
       dockerfile: src/main/docker/Dockerfile.jvm
@@ -175,7 +156,7 @@ services:
       - my-network
 
   customer-service:
-    image: debezium-examples/saga-customer-service:${DEBEZIUM_VERSION}
+    image: debezium-examples/saga-customer-service:${DEBEZIUM_VERSION:-latest}
     build:
       context: customer-service
       dockerfile: src/main/docker/Dockerfile.jvm
