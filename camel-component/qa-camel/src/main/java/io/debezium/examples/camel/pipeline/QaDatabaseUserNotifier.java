@@ -16,6 +16,11 @@ import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.support.builder.PredicateBuilder;
 
 import io.debezium.data.Envelope;
+import org.apache.camel.component.infinispan.embedded.InfinispanEmbeddedComponent;
+import org.apache.camel.component.infinispan.embedded.InfinispanEmbeddedConfiguration;
+import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 
 public class QaDatabaseUserNotifier extends RouteBuilder {
     private static final String SMTP_SERVER = "smtp://{{smtp.hostname}}:{{smtp.port}}?from=debezium-demo@localhost";
@@ -31,7 +36,7 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
     static final String ROUTE_GET_AGGREGATE = "direct:get-aggregate";
     static final String ROUTE_WRITE_AGGREGATE = "direct:write-aggregate";
 
-    private final String ROUTE_STORE_QUESTION_AGGREGATE = "infinispan://question";
+    private final String ROUTE_STORE_QUESTION_AGGREGATE = "infinispan-embedded://question";
 
     private static final String EVENT_TYPE_ANSWER = ".answer";
     private static final String EVENT_TYPE_QUESTION = ".question";
@@ -59,6 +64,13 @@ public class QaDatabaseUserNotifier extends RouteBuilder {
                 PredicateBuilder.and(
                         isCreateEvent,
                         simple("${exchangeProperty[aggregate].answers.size} == 3"));
+
+        EmbeddedCacheManager cacheManager = new DefaultCacheManager();
+        cacheManager.defineConfiguration("question", new ConfigurationBuilder().build());
+        InfinispanEmbeddedConfiguration infinispanConfiguration = new InfinispanEmbeddedConfiguration();
+        infinispanConfiguration.setCacheContainer(cacheManager);
+        getContext().getComponent("infinispan-embedded", InfinispanEmbeddedComponent.class)
+                .setConfiguration(infinispanConfiguration);
 
         final AggregateStore store = new AggregateStore();
 
