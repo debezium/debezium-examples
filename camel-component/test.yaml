@@ -1,0 +1,83 @@
+name: camel-component
+description: Tests Debezium PostgreSQL integration with Apache Camel and Infinispan
+
+steps:
+  - name: Ensure clean state before starting
+    type: docker_compose_down
+    volumes: true
+
+  - name: Build application and camel pipeline
+    type: local_exec
+    command: mvn clean package -f pom.xml -DskipTests
+
+  - name: Build docker images
+    type: docker_compose_build
+    services:
+      - qa-app
+      - qa-camel
+
+  - name: Start services
+    type: docker_compose_up
+    detach: true
+    services:
+      - mailhog
+      - qa-db
+      - qa-app
+      - qa-camel
+
+  - name: Wait for MailHog to be ready
+    type: http_wait
+    url: http://localhost:8025/api/v2/messages
+    expected_status: 200
+    timeout_seconds: 60
+
+  - name: Wait for QA application to be ready
+    type: http_wait
+    url: http://localhost:8080/q/health
+    expected_status:
+      - 200
+      - 404
+    timeout_seconds: 90
+
+  - name: Wait for Camel pipeline to start
+    type: wait_for_log
+    service: qa-camel
+    expected_content: Routes startup (started:5)
+    timeout_seconds: 90
+
+  - name: Create question via REST API
+    type: http_post
+    url: http://localhost:8080/question
+    body_file: src/test/resources/messages/create-question.json
+    expected_status:
+      - 200
+      - 201
+      - 204
+
+  - name: Verify MailHog received question creation email
+    type: http_wait
+    url: http://localhost:8025/api/v2/messages
+    expected_json_path: total
+    expected_value: 1
+    timeout_seconds: 60
+
+  - name: Post first answer to question
+    type: http_post
+    url: http://localhost:8080/question/1/answer
+    body_file: src/test/resources/messages/create-answer1.json
+    expected_status:
+      - 200
+      - 201
+      - 204
+
+  - name: Verify MailHog received answer notification email
+    type: http_wait
+    url: http://localhost:8025/api/v2/messages
+    expected_json_path: total
+    expected_value: 2
+    timeout_seconds: 60
+
+cleanup:
+  - name: Shut down containers
+    type: docker_compose_down
+    volumes: true

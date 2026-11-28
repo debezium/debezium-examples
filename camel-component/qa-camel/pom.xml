@@ -33,7 +33,7 @@
         </dependency> 
         <dependency>
             <groupId>org.apache.camel</groupId>
-            <artifactId>camel-infinispan</artifactId>
+            <artifactId>camel-infinispan-embedded</artifactId>
             <version>${version.camel}</version>
         </dependency> 
         <dependency>
@@ -58,8 +58,8 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${version.slf4j}</version>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>2.0.17</version>
         </dependency>
     </dependencies>
 
